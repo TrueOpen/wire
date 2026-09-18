@@ -1,7 +1,7 @@
 {
   "notes": [
     "The four vectors form one chain: the metric summary frame feeds both its own hash and the signing digest; the payload hash feeds the commitment. Regenerating one without its dependents breaks the chain.",
-    "canonical_metric_summary is the required nested 10-field frame, 138 bytes. Both optional ratios are present here and encode presence in band as 0x01 followed by the framed uint32.",
+    "metric_summary is the required nested 10-field frame, 138 bytes. Both optional ratios are present here and encode presence in band as 0x01 followed by the framed uint32.",
     "verifier_result_payload_v1 is H_V1 rather than H_FIELDS_V1 and therefore carries payload_hex instead of fields[]: the payload is one opaque FRAME_V1 blob whose own field list is owned by 04-task/04 §9.",
     "Each vector carries mutations[]: one per encodable leaf plus the semantic cases §10.1 names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here."
   ],
@@ -80,7 +80,7 @@
               "value": 3
             }
           ],
-          "name": "canonical_metric_summary",
+          "name": "metric_summary",
           "type": "frame"
         }
       ],
@@ -90,85 +90,85 @@
           "change": "3 -\u003e 4",
           "digest_hex": "3346a9bf80c7cd2a00d3202e978498d8b66457c08b807083c3f592f022c646e4",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/finite_count",
-          "name": "field.canonical_metric_summary.finite_count"
+          "field_path": "metric_summary/finite_count",
+          "name": "field.metric_summary.finite_count"
         },
         {
           "change": "0 -\u003e 1",
           "digest_hex": "380cb39f2caef6843d520e39c63545fe5d102be3c652f96dcb829e226018877e",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/missing_compared_count",
-          "name": "field.canonical_metric_summary.missing_compared_count"
+          "field_path": "metric_summary/missing_compared_count",
+          "name": "field.metric_summary.missing_compared_count"
         },
         {
           "change": "10000 -\u003e 10001",
           "digest_hex": "b0714530e6efab0283afbf4e8349fe247418e801b28f050bb9f7251dd7bab77e",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/mean_abs_logprob_diff_fp_1e6",
-          "name": "field.canonical_metric_summary.mean_abs_logprob_diff_fp_1e6"
+          "field_path": "metric_summary/mean_abs_logprob_diff_fp_1e6",
+          "name": "field.metric_summary.mean_abs_logprob_diff_fp_1e6"
         },
         {
           "change": "20000 -\u003e 20001",
           "digest_hex": "90025eaec244f6544b5b4ced85e98e544e94b5887c905f1e1aa179fc7ab7d98c",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/abs_logprob_diff_p95_fp_1e6",
-          "name": "field.canonical_metric_summary.abs_logprob_diff_p95_fp_1e6"
+          "field_path": "metric_summary/abs_logprob_diff_p95_fp_1e6",
+          "name": "field.metric_summary.abs_logprob_diff_p95_fp_1e6"
         },
         {
           "change": "30000 -\u003e 30001",
           "digest_hex": "712c1e376934c10ebf12000e404b2eb9e37dc024154792ede55d0fdddd375382",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/abs_logprob_diff_p99_fp_1e6",
-          "name": "field.canonical_metric_summary.abs_logprob_diff_p99_fp_1e6"
+          "field_path": "metric_summary/abs_logprob_diff_p99_fp_1e6",
+          "name": "field.metric_summary.abs_logprob_diff_p99_fp_1e6"
         },
         {
           "change": "40000 -\u003e 40001",
           "digest_hex": "bfa2895b497223fba0934114b901d7d47696fa223dd4cb6fbaf9383c56a68daa",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/rank_delta_nonzero_rate_fp_1e6",
-          "name": "field.canonical_metric_summary.rank_delta_nonzero_rate_fp_1e6"
+          "field_path": "metric_summary/rank_delta_nonzero_rate_fp_1e6",
+          "name": "field.metric_summary.rank_delta_nonzero_rate_fp_1e6"
         },
         {
           "change": "present -\u003e absent",
           "digest_hex": "c9bf38f2e7ea145a12f69134b463fd67274b506e12533dad7c161e8261730859",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/topk_jaccard_mean_fp_1e6",
-          "name": "field.canonical_metric_summary.topk_jaccard_mean_fp_1e6"
+          "field_path": "metric_summary/topk_jaccard_mean_fp_1e6",
+          "name": "field.metric_summary.topk_jaccard_mean_fp_1e6"
         },
         {
           "change": "900000 -\u003e 900001",
           "digest_hex": "26540c8e508107664ff7c5ac80510f56e61ad902276cc02b73c0c59fd12a07c9",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/topk_jaccard_mean_fp_1e6/value",
-          "name": "field.canonical_metric_summary.topk_jaccard_mean_fp_1e6.value"
+          "field_path": "metric_summary/topk_jaccard_mean_fp_1e6/value",
+          "name": "field.metric_summary.topk_jaccard_mean_fp_1e6.value"
         },
         {
           "change": "present -\u003e absent",
           "digest_hex": "c1e12ebb2ddae9d43304fbd18f3bac6fd11238111bd9403233ce4eadd3696fde",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/union_js_p99_fp_1e6",
-          "name": "field.canonical_metric_summary.union_js_p99_fp_1e6"
+          "field_path": "metric_summary/union_js_p99_fp_1e6",
+          "name": "field.metric_summary.union_js_p99_fp_1e6"
         },
         {
           "change": "50000 -\u003e 50001",
           "digest_hex": "8534e94b4701f6b61069019e356708301d032106ecf90aeaeed4899620ac5f2a",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/union_js_p99_fp_1e6/value",
-          "name": "field.canonical_metric_summary.union_js_p99_fp_1e6.value"
+          "field_path": "metric_summary/union_js_p99_fp_1e6/value",
+          "name": "field.metric_summary.union_js_p99_fp_1e6.value"
         },
         {
           "change": "3 -\u003e 4",
           "digest_hex": "0b0f61e0d34672bdc318e58f1f271a752024a3263b85eff01acc8e40e719d9c8",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/compared_topk_count",
-          "name": "field.canonical_metric_summary.compared_topk_count"
+          "field_path": "metric_summary/compared_topk_count",
+          "name": "field.metric_summary.compared_topk_count"
         },
         {
           "change": "3 -\u003e 4",
           "digest_hex": "b3bb2959f5291bbf43960107bb0ab300d9910e9909b0e16b04d95604bbcd14ae",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/compared_rank_count",
-          "name": "field.canonical_metric_summary.compared_rank_count"
+          "field_path": "metric_summary/compared_rank_count",
+          "name": "field.metric_summary.compared_rank_count"
         }
       ],
       "name": "metric_summary_v1",
@@ -386,7 +386,7 @@
               "value": 3
             }
           ],
-          "name": "canonical_metric_summary",
+          "name": "metric_summary",
           "type": "frame"
         },
         {
@@ -477,85 +477,85 @@
           "change": "3 -\u003e 4",
           "digest_hex": "17a8c8b2943eb76f15ece4172b39f2155296ea6d0460d7e2abd7de3e964549a5",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/finite_count",
-          "name": "field.canonical_metric_summary.finite_count"
+          "field_path": "metric_summary/finite_count",
+          "name": "field.metric_summary.finite_count"
         },
         {
           "change": "0 -\u003e 1",
           "digest_hex": "5421d43d0dc7438d425fa9c6acc48d7290d16c75a77df58882fcd4cf38e9caf4",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/missing_compared_count",
-          "name": "field.canonical_metric_summary.missing_compared_count"
+          "field_path": "metric_summary/missing_compared_count",
+          "name": "field.metric_summary.missing_compared_count"
         },
         {
           "change": "10000 -\u003e 10001",
           "digest_hex": "b3e6e0e8a9caaf8a7dcece383f735a309c131787c5283e0817184dfe4e37507d",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/mean_abs_logprob_diff_fp_1e6",
-          "name": "field.canonical_metric_summary.mean_abs_logprob_diff_fp_1e6"
+          "field_path": "metric_summary/mean_abs_logprob_diff_fp_1e6",
+          "name": "field.metric_summary.mean_abs_logprob_diff_fp_1e6"
         },
         {
           "change": "20000 -\u003e 20001",
           "digest_hex": "f1a31a0fa2df96b28ea13f6cae348701d45bd9a5b2a79a95f1693a3bb27a7f61",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/abs_logprob_diff_p95_fp_1e6",
-          "name": "field.canonical_metric_summary.abs_logprob_diff_p95_fp_1e6"
+          "field_path": "metric_summary/abs_logprob_diff_p95_fp_1e6",
+          "name": "field.metric_summary.abs_logprob_diff_p95_fp_1e6"
         },
         {
           "change": "30000 -\u003e 30001",
           "digest_hex": "02c517d629068155f32e49ee5d9e4c9219b316d72d4cd3e5678e431ec2f76801",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/abs_logprob_diff_p99_fp_1e6",
-          "name": "field.canonical_metric_summary.abs_logprob_diff_p99_fp_1e6"
+          "field_path": "metric_summary/abs_logprob_diff_p99_fp_1e6",
+          "name": "field.metric_summary.abs_logprob_diff_p99_fp_1e6"
         },
         {
           "change": "40000 -\u003e 40001",
           "digest_hex": "7c8b6fc6f2a920d8887031f92734b25db660020c5f9bd99bcf4181f5bdbe73b3",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/rank_delta_nonzero_rate_fp_1e6",
-          "name": "field.canonical_metric_summary.rank_delta_nonzero_rate_fp_1e6"
+          "field_path": "metric_summary/rank_delta_nonzero_rate_fp_1e6",
+          "name": "field.metric_summary.rank_delta_nonzero_rate_fp_1e6"
         },
         {
           "change": "present -\u003e absent",
           "digest_hex": "3402932e6d9050b5446430187ef3a8bed77927543566b91d0f2914743d19ea7a",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/topk_jaccard_mean_fp_1e6",
-          "name": "field.canonical_metric_summary.topk_jaccard_mean_fp_1e6"
+          "field_path": "metric_summary/topk_jaccard_mean_fp_1e6",
+          "name": "field.metric_summary.topk_jaccard_mean_fp_1e6"
         },
         {
           "change": "900000 -\u003e 900001",
           "digest_hex": "c0fea38bc0d0f154efb04428e1018d0d93695d37ba6e14a24d4e56db5d0b415c",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/topk_jaccard_mean_fp_1e6/value",
-          "name": "field.canonical_metric_summary.topk_jaccard_mean_fp_1e6.value"
+          "field_path": "metric_summary/topk_jaccard_mean_fp_1e6/value",
+          "name": "field.metric_summary.topk_jaccard_mean_fp_1e6.value"
         },
         {
           "change": "present -\u003e absent",
           "digest_hex": "c4904070ab14dd1e9fc7aefe1d636aea05265c8ba2dbb7ceadfdbaf4e20220eb",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/union_js_p99_fp_1e6",
-          "name": "field.canonical_metric_summary.union_js_p99_fp_1e6"
+          "field_path": "metric_summary/union_js_p99_fp_1e6",
+          "name": "field.metric_summary.union_js_p99_fp_1e6"
         },
         {
           "change": "50000 -\u003e 50001",
           "digest_hex": "f61f793385a4ba87172b368c3c912b14191a00e9e47f670d6c1e7b49975bb573",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/union_js_p99_fp_1e6/value",
-          "name": "field.canonical_metric_summary.union_js_p99_fp_1e6.value"
+          "field_path": "metric_summary/union_js_p99_fp_1e6/value",
+          "name": "field.metric_summary.union_js_p99_fp_1e6.value"
         },
         {
           "change": "3 -\u003e 4",
           "digest_hex": "0e3be2ba5655ed2e482561fe8b20bc201b3b72460da7835ca85e185bb0eb2df9",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/compared_topk_count",
-          "name": "field.canonical_metric_summary.compared_topk_count"
+          "field_path": "metric_summary/compared_topk_count",
+          "name": "field.metric_summary.compared_topk_count"
         },
         {
           "change": "3 -\u003e 4",
           "digest_hex": "8f2f87c1394ae82c97bdc5e7ed67e85dcf4f18e81e2ec9b2d60ea51748a96d45",
           "expect": "digest_changes",
-          "field_path": "canonical_metric_summary/compared_rank_count",
-          "name": "field.canonical_metric_summary.compared_rank_count"
+          "field_path": "metric_summary/compared_rank_count",
+          "name": "field.metric_summary.compared_rank_count"
         },
         {
           "change": "flip the low bit of the last byte",

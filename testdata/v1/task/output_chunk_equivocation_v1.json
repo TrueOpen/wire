@@ -64,9 +64,9 @@
   ],
   "positive": {
     "accepted_infer_receipt_hash_hex": "3e3ba35e0267a39132f78d57d0e7ec20adf3d6a10f65936ac81b4036480cd2d0",
-    "accepted_output_hash_hex": "1d07690eb524833c073fe74787e52a25e426ed09013500d3dd43f7f363f65ec0",
+    "accepted_output_hash_hex": "026e336cd2cd726a193e9bd478d8da4028c219bcb6363848202fba826b26537d",
     "chain_id": "trueopen-golden-1",
-    "chunk_signing_digest_hex": "2f41bbb01f87fe619b7760f1e835da825459d144e455f073881e1457b9e90f24",
+    "chunk_signing_digest_hex": "cae799ff354d50b77fd0895f7a83501023be18069bba17e7ac37d9d107df7a44",
     "domain": "TRUEOPEN_OUTPUT_CHUNK_EQUIVOCATION_V1",
     "evidence_digest_hex": "d93f96d85c8188f21f81d728711ab0412ba25f856150fedb8898ca5cf0dfe19a",
     "expect": "objective_fault",

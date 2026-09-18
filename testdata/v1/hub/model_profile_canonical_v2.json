@@ -53,7 +53,7 @@
         ],
         "schema_version": 1
       },
-      "evidence_schema_hash": "0x7273c58bebe2540a5abb72da8625a774cb51dabe4e31d67029f9c0d7bc72e23a",
+      "evidence_schema_hash": "0x1a50512bbf59345321280a92bec7ccd6ed5c5020f28ca578d96973eab1070dc1",
       "include_generated_special_tokens": true,
       "include_padding_tokens": false,
       "include_prompt_tokens": false,
@@ -92,9 +92,9 @@
   },
   "canonical_projection_bytes": 2522,
   "chain_id": "trueopen-testnet-1",
-  "chain_projection_hash": "9f0b3e406f8cd65aeeb24c1d4abad57cdf47e8510e328030f28cc18b520257c0",
+  "chain_projection_hash": "761a6e8d76d31a43d02e35f681156dfafceed361effa6bfb68133e0430c0108d",
   "contract": "TrueOpen/monorepo docs/10-protocol_specifications/03-model/03-model_registration_chain_structure_and_manifest.md §2.5-§2.6; byte-identical to Node model_profile_canonical_v2.json",
-  "evidence_schema_hash": "0x7273c58bebe2540a5abb72da8625a774cb51dabe4e31d67029f9c0d7bc72e23a",
+  "evidence_schema_hash": "0x1a50512bbf59345321280a92bec7ccd6ed5c5020f28ca578d96973eab1070dc1",
   "notes": [
     "canonical_projection is canonical_json_v1 of MsgRegisterModelProfile.profile: object keys ascend by UTF-8 bytes, integers carry no float, exponent or leading zero, and bytes32 is lowercase 0x hex. It is the protocol canonicaliser, not protobuf ProtoJSON.",
     "chain_projection_hash = H_V1(\"TRUEOPEN_MODEL_CHAIN_PROJECTION_V2\", canonical_projection bytes); registration_digest = H_V1(\"TRUEOPEN_MODEL_REGISTRATION_DIGEST_V2\", registration_payload_bytes). H_V1 is ascii(\"TRUEOPEN_FRAME_V1\") || u32_be(len(domain)) || domain || u64_be(len(payload)) || payload, then SHA256.",
@@ -102,8 +102,8 @@
     "Inside this projection initial_output_price and min_order_value stay denomless u64; turning either into Coin or Amount breaks the upstream fixture."
   ],
   "proposer_address": "trueopen1registrant000000000000000000000000000",
-  "registration_digest": "2b6f3f96241aca2a772333393b1fbfe783e74160c035a699b8aa6259435e5377",
-  "registration_payload_bytes": "{\"chain_id\":\"trueopen-testnet-1\",\"chain_projection_hash\":\"0x9f0b3e406f8cd65aeeb24c1d4abad57cdf47e8510e328030f28cc18b520257c0\",\"manifest_hash\":\"0x9b0148865efde2dbf366305733ee5275dc247e3b9af8def770955d3758b52031\",\"profile_version\":1,\"proposer_address\":\"trueopen1registrant000000000000000000000000000\"}",
+  "registration_digest": "4a6ee76aa3b32fabf3eaff9851656405fb45e65ba98f39224a3e894807948873",
+  "registration_payload_bytes": "{\"chain_id\":\"trueopen-testnet-1\",\"chain_projection_hash\":\"0x761a6e8d76d31a43d02e35f681156dfafceed361effa6bfb68133e0430c0108d\",\"manifest_hash\":\"0x9b0148865efde2dbf366305733ee5275dc247e3b9af8def770955d3758b52031\",\"profile_version\":1,\"proposer_address\":\"trueopen1registrant000000000000000000000000000\"}",
   "schema": "trueopen-model-profile-canonical-v2",
   "task_types_numeric_order": [
     {

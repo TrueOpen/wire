@@ -873,14 +873,14 @@
       "replay": [
         {
           "chain_id": "trueopen-hub-params-v2-vector-2",
-          "digest_hex": "187c0f7039825886bfb365ba6367cd1cc37a334a5fce5fbba4f3c3346320e824",
+          "digest_hex": "0b55e93b726c9524fb5b2b67eb8076291227066384794a0755ff4acb7bd63aa0",
           "name": "cross_chain",
           "params_version": 7,
           "reason": "the same parameter body is scoped to one chain"
         },
         {
           "chain_id": "trueopen-hub-params-v2-vector-1",
-          "digest_hex": "187c0f7039825886bfb365ba6367cd1cc37a334a5fce5fbba4f3c3346320e824",
+          "digest_hex": "dbba59936a11504714258ac03118937a4d540f3a08d59fe9a7fef257e3a0df54",
           "name": "stale_params_version",
           "params_version": 6,
           "reason": "the same parameter body at another version is a different commitment"
@@ -1463,14 +1463,14 @@
       "replay": [
         {
           "chain_id": "trueopen-task-params-v1-vector-2",
-          "digest_hex": "81927c449adbe3fb87abde4d97b21a7f509f2a02595452c70bce152ceba57d31",
+          "digest_hex": "f84cd06dce02b8cafde0d876e1c2d86d686be7b426925dcc8a9212da8641cb0f",
           "name": "cross_chain",
           "params_version": 7,
           "reason": "the same parameter body is scoped to one chain"
         },
         {
           "chain_id": "trueopen-task-params-v1-vector-1",
-          "digest_hex": "81927c449adbe3fb87abde4d97b21a7f509f2a02595452c70bce152ceba57d31",
+          "digest_hex": "e5b4f266cc5b88064e1b23f7fede7645849172b2943337bf95aee392d2238ef8",
           "name": "stale_params_version",
           "params_version": 6,
           "reason": "the same parameter body at another version is a different commitment"

@@ -7,8 +7,8 @@
     "TRUEOPEN_VERIFIER_FINALIZE_CURSOR_LEAF_V1 also has no producer that returns it: appendVerifierFactFold hashes the leaf and immediately folds it. The leaf vector's digest is therefore pinned as the fold vector's leaf_hash field, and the single appendVerifierFactFold call binds both domains at once - a reordered leaf preimage moves the fold digest.",
     "TRUEOPEN_VERIFIER_LEGAL_SET_V1 reuses the TRUEOPEN_VERIFIER_WINDOW_V1 vector's digest as its verifier_window_hash field, because verifierLegalSetHash recomputes the window commitment from the same frozen header before it hashes. The two vectors therefore have to agree about the window scope, and the binding test asserts that they do.",
     "inputs[] holds the producer arguments that are NOT part of the preimage but are still needed to make the call reproducible: task_builder_count validates the report bitmap length, segment_bytes and slot_capacity fix the bitmap layout, max_attempts bounds the rejection loop, task_id scopes the verifier fact chunk, and the settlement / window heights close the producers' cross-field consistency checks.",
-    "Address fields frame the address codec bytes, never the Bech32 text (Decision 24 / issue #95). The bech32 column is a self-verification column for non-Go readers and is asserted to decode to the hex column. TRUEOPEN_SERVICE_KEY_RESPONSIBILITY_ID_V1 is the exception and frames its operator_address as UTF-8 text, which is why that field is typed \"string\": the responsibility id is an internal store key, not an address commitment.",
-    "issue #141 Track A batch 3 added TRUEOPEN_TASK_TERMINAL_SUMMARY_V1, TRUEOPEN_EPOCH_TASK_SUMMARY_SOURCE_V1 and TRUEOPEN_EPOCH_TASK_SUMMARY_FOLD_V1. All three preimages used to be built inside a producer that took a context only to read ChainID(), so they could not be called from a vector at all; they are now named pure functions and the bindings call them directly. TRUEOPEN_TASK_TERMINAL_SUMMARY_V1 was the one domain a mutation scan proved to be partially bare: its last two fields were pinned by an existing test, but candidate_pool_snapshot_id and candidate_pool_hash could be swapped with the whole suite still green.",
+    "Address fields frame the address codec bytes, never the Bech32 text (Decision 24). The bech32 column is a self-verification column for non-Go readers and is asserted to decode to the hex column. TRUEOPEN_SERVICE_KEY_RESPONSIBILITY_ID_V1 is the exception and frames its operator_address as UTF-8 text, which is why that field is typed \"string\": the responsibility id is an internal store key, not an address commitment.",
+    "Track A batch 3 added TRUEOPEN_TASK_TERMINAL_SUMMARY_V1, TRUEOPEN_EPOCH_TASK_SUMMARY_SOURCE_V1 and TRUEOPEN_EPOCH_TASK_SUMMARY_FOLD_V1. All three preimages used to be built inside a producer that took a context only to read ChainID(), so they could not be called from a vector at all; they are now named pure functions and the bindings call them directly. TRUEOPEN_TASK_TERMINAL_SUMMARY_V1 was the one domain a mutation scan proved to be partially bare: its last two fields were pinned by an existing test, but candidate_pool_snapshot_id and candidate_pool_hash could be swapped with the whole suite still green.",
     "The two bool fields of TRUEOPEN_TASK_TERMINAL_SUMMARY_V1 carry different values on purpose. BoolByte frames one byte, so a vector with two trues could not distinguish candidate_pool_ref_released from support_candidate at all; the binding asserts they disagree.",
     "TRUEOPEN_EPOCH_TASK_SUMMARY_FOLD_V1's source_hash is the TRUEOPEN_EPOCH_TASK_SUMMARY_SOURCE_V1 vector's own digest, which is how production folds: the leaf producer's output is fed straight into the fold. One binding therefore checks both, and a moved source preimage moves the fold digest too.",
     "framed_empty_reason marks a field that production always frames as zero bytes, so the per-field bit-flip gate has nothing to flip. TRUEOPEN_WORKER_PROPOSAL_V1's data_ready_attestation_or_empty is the only one: OPEN_TASK has no data-ready attestation and workerProposalDigest passes nil unconditionally.",
@@ -280,7 +280,7 @@
       "framing": "H_FIELDS_V1",
       "name": "paid_roles_v1",
       "preimage_hex": "0000000000000016545255454f50454e5f504149445f524f4c45535f56310000000000000012747275656f70656e2d756e626c6f636b2d310000000000000020111111111111111111111111111111111111111111111111111111111111111100000000000000205555555555555555555555555555555555555555555555555555555555555555000000000000000400000002000000000000006c00000000000000040000000200000000000000280000000000000004000000010000000000000014a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b300000000000000280000000000000004000000020000000000000014c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3",
-      "producer": "settlementPaidRolesHash"
+      "producer": "PaidRolesHash"
     },
     {
       "contract_section": "keeper_api_contract.md §1.4 formula block; keeper_data_structure_contract.md §4.2/§4.3",
@@ -435,7 +435,7 @@
       "framing": "H_FIELDS_V1",
       "name": "task_settlement_id_v1",
       "preimage_hex": "000000000000001e545255454f50454e5f5441534b5f534554544c454d454e545f49445f56310000000000000012747275656f70656e2d756e626c6f636b2d310000000000000020111111111111111111111111111111111111111111111111111111111111111100000000000000202222222222222222222222222222222222222222222222222222222222222222000000000000000400000001000000000000000800000000000dbba1000000000000000800000000000dbba2",
-      "producer": "taskSettlementID"
+      "producer": "TaskSettlementID"
     },
     {
       "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.2",
@@ -1849,7 +1849,7 @@
       "framing": "H_FIELDS_V1",
       "name": "consensus_cluster_v1",
       "preimage_hex": "000000000000001d545255454f50454e5f434f4e53454e5355535f434c55535445525f56310000000000000012747275656f70656e2d756e626c6f636b2d3100000000000000201111111111111111111111111111111111111111111111111111111111111111000000000000000400000001000000000000000400000002000000000000019400000000000000040000000200000000000000bc00000000000000040000000000000000000000146363636363636363636363636363636363636363000000000000002051515151515151515151515151515151515151515151515151515151515151510000000000000020525252525252525252525252525252525252525252525252525252525252525200000000000000205353535353535353535353535353535353535353535353535353535353535353000000000000000400000001000000000000000800000000000dbbad00000000000000bc00000000000000040000000100000000000000146464646464646464646464646464646464646464000000000000002061616161616161616161616161616161616161616161616161616161616161610000000000000020626262626262626262626262626262626262626262626262626262626262626200000000000000206363636363636363636363636363636363636363636363636363636363636363000000000000000400000002000000000000000800000000000dbbae",
-      "producer": "settlementClusterHashes"
+      "producer": "ConsensusClusterHash"
     },
     {
       "contract_section": "keeper_api_contract.md §1.4, §10.10a",
@@ -1945,7 +1945,7 @@
       "framing": "H_FIELDS_V1",
       "name": "result_receipt_refs_v1",
       "preimage_hex": "000000000000001f545255454f50454e5f524553554c545f524543454950545f524546535f56310000000000000012747275656f70656e2d756e626c6f636b2d3100000000000000201111111111111111111111111111111111111111111111111111111111111111000000000000000400000001000000000000000400000002000000000000010c00000000000000040000000200000000000000780000000000000004000000000000000000000014636363636363636363636363636363636363636300000000000000205151515151515151515151515151515151515151515151515151515151515151000000000000002052525252525252525252525252525252525252525252525252525252525252520000000000000078000000000000000400000001000000000000001464646464646464646464646464646464646464640000000000000020616161616161616161616161616161616161616161616161616161616161616100000000000000206262626262626262626262626262626262626262626262626262626262626262",
-      "producer": "settlementClusterHashes"
+      "producer": "ResultReceiptRefsHash"
     },
     {
       "contract_section": "keeper_data_structure_contract.md §6.6",
