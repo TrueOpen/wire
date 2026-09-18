@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "baseUrl": "node_modules",
+    "esModuleInterop": true,
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "noEmit": true,
+    "paths": {
+      "@bufbuild/protobuf/wire": [
+        "@bufbuild/protobuf/dist/cjs/wire/index.d.ts"
+      ]
+    },
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ES2022"
+  },
+  "include": [
+    "../../build/gen/typescript/**/*.ts"
+  ]
+}

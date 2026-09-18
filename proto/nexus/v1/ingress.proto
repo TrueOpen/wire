@@ -1,0 +1,687 @@
+syntax = "proto3";
+
+package nexus.v1;
+
+import "task/v1/commit.proto";
+import "task/v1/evidence.proto";
+import "task/v1/infer_receipt.proto";
+import "task/v1/result.proto";
+
+option go_package = "github.com/TrueOpen/nexus/gen/trueopen/nexus/v1;nexusv1";
+
+//
+//
+//     FinalizeTaskResult / FinalizeVerifierEvidence；
+//
+//
+// IngressAPI defines the IngressAPI wire type.
+service IngressAPI {
+
+  // OpenTask executes the OpenTask operation.
+  rpc OpenTask(stream OpenTaskRequest) returns (OpenTaskResponse);
+  // ConfirmOpenTask executes the ConfirmOpenTask operation.
+  rpc ConfirmOpenTask(ConfirmOpenTaskRequest) returns (ConfirmOpenTaskResponse);
+  // SubscribeOutput executes the SubscribeOutput operation.
+  rpc SubscribeOutput(SubscribeOutputRequest) returns (stream SubscribeOutputResponse);
+  // AckOutput executes the AckOutput operation.
+  rpc AckOutput(AckOutputRequest) returns (AckOutputResponse);
+  // GetTaskStatus executes the GetTaskStatus operation.
+  rpc GetTaskStatus(GetTaskStatusRequest) returns (GetTaskStatusResponse);
+  // GetTaskEvents executes the GetTaskEvents operation.
+  rpc GetTaskEvents(GetTaskEventsRequest) returns (stream GetTaskEventsResponse);
+  // PrepareChallenge executes the PrepareChallenge operation.
+  rpc PrepareChallenge(PrepareChallengeRequest) returns (PrepareChallengeResponse);
+
+
+  // UploadTaskResultObject executes the UploadTaskResultObject operation.
+  rpc UploadTaskResultObject(stream UploadTaskResultObjectRequest) returns (UploadTaskResultObjectResponse);
+  //
+  //
+  //
+  //
+  // UploadTaskOutputStream executes the UploadTaskOutputStream operation.
+  rpc UploadTaskOutputStream(stream UploadTaskOutputStreamRequest) returns (stream UploadTaskOutputStreamResponse);
+  // GetTaskDataMetadata executes the GetTaskDataMetadata operation.
+  rpc GetTaskDataMetadata(GetTaskDataMetadataRequest) returns (GetTaskDataMetadataResponse);
+  // FetchTaskData executes the FetchTaskData operation.
+  rpc FetchTaskData(FetchTaskDataRequest) returns (stream FetchTaskDataResponse);
+  // FinalizeTaskResult executes the FinalizeTaskResult operation.
+  rpc FinalizeTaskResult(FinalizeTaskResultRequest) returns (FinalizeTaskResultResponse);
+  // FinalizeVerifierEvidence executes the FinalizeVerifierEvidence operation.
+  rpc FinalizeVerifierEvidence(FinalizeVerifierEvidenceRequest) returns (FinalizeVerifierEvidenceResponse);
+
+
+  // SubmitInferReceipt executes the SubmitInferReceipt operation.
+  rpc SubmitInferReceipt(SubmitInferReceiptRequest) returns (SubmitInferReceiptResponse);
+  // SubmitVerifyCommit executes the SubmitVerifyCommit operation.
+  rpc SubmitVerifyCommit(SubmitVerifyCommitRequest) returns (SubmitVerifyCommitResponse);
+  // SubmitVerifyResult executes the SubmitVerifyResult operation.
+  rpc SubmitVerifyResult(SubmitVerifyResultRequest) returns (SubmitVerifyResultResponse);
+
+
+  // SubmitOrder executes the SubmitOrder operation.
+  rpc SubmitOrder(SubmitOrderRequest) returns (SubmitOrderResponse) {
+    option deprecated = true;
+  }
+  // FetchOutputRef executes the FetchOutputRef operation.
+  rpc FetchOutputRef(FetchOutputRefRequest) returns (FetchOutputRefResponse) {
+    option deprecated = true;
+  }
+  // RefreshCredential executes the RefreshCredential operation.
+  rpc RefreshCredential(RefreshCredentialRequest) returns (RefreshCredentialResponse) {
+    option deprecated = true;
+  }
+}
+
+// TaskDataObjectKind defines the TaskDataObjectKind wire type.
+enum TaskDataObjectKind {
+  // TASK_DATA_OBJECT_KIND_UNSPECIFIED identifies the corresponding protocol value.
+  TASK_DATA_OBJECT_KIND_UNSPECIFIED = 0;
+  // TASK_DATA_OBJECT_KIND_INPUT identifies the corresponding protocol value.
+  TASK_DATA_OBJECT_KIND_INPUT = 1;
+  // TASK_DATA_OBJECT_KIND_OUTPUT identifies the corresponding protocol value.
+  TASK_DATA_OBJECT_KIND_OUTPUT = 2;
+  // TASK_DATA_OBJECT_KIND_EVIDENCE_MANIFEST identifies the corresponding protocol value.
+  TASK_DATA_OBJECT_KIND_EVIDENCE_MANIFEST = 3;
+  // TASK_DATA_OBJECT_KIND_EVIDENCE_ARTIFACT identifies the corresponding protocol value.
+  TASK_DATA_OBJECT_KIND_EVIDENCE_ARTIFACT = 4;
+}
+
+//
+// TaskDataObjectReadinessV1 defines the TaskDataObjectReadinessV1 wire type.
+enum TaskDataObjectReadinessV1 {
+  // TASK_DATA_OBJECT_READINESS_V1_UNSPECIFIED identifies the corresponding protocol value.
+  TASK_DATA_OBJECT_READINESS_V1_UNSPECIFIED = 0;
+  // TASK_DATA_OBJECT_READINESS_V1_STORED identifies the corresponding protocol value.
+  TASK_DATA_OBJECT_READINESS_V1_STORED = 1;
+  // TASK_DATA_OBJECT_READINESS_V1_READY identifies the corresponding protocol value.
+  TASK_DATA_OBJECT_READINESS_V1_READY = 2;
+}
+
+// TaskDataReadinessV1 defines the TaskDataReadinessV1 wire type.
+enum TaskDataReadinessV1 {
+  // TASK_DATA_READINESS_V1_UNSPECIFIED identifies the corresponding protocol value.
+  TASK_DATA_READINESS_V1_UNSPECIFIED = 0;
+  // TASK_DATA_READINESS_V1_INPUT_READY identifies the corresponding protocol value.
+  TASK_DATA_READINESS_V1_INPUT_READY = 1;
+  // TASK_DATA_READINESS_V1_RESULT_STAGING identifies the corresponding protocol value.
+  TASK_DATA_READINESS_V1_RESULT_STAGING = 2;
+  // TASK_DATA_READINESS_V1_READY identifies the corresponding protocol value.
+  TASK_DATA_READINESS_V1_READY = 3;
+}
+
+// EvidenceProducerKindV1 defines the EvidenceProducerKindV1 wire type.
+enum EvidenceProducerKindV1 {
+  // EVIDENCE_PRODUCER_KIND_V1_UNSPECIFIED identifies the corresponding protocol value.
+  EVIDENCE_PRODUCER_KIND_V1_UNSPECIFIED = 0;
+  // EVIDENCE_PRODUCER_KIND_V1_WORKER identifies the corresponding protocol value.
+  EVIDENCE_PRODUCER_KIND_V1_WORKER = 1;
+  // EVIDENCE_PRODUCER_KIND_V1_VERIFIER identifies the corresponding protocol value.
+  EVIDENCE_PRODUCER_KIND_V1_VERIFIER = 2;
+}
+
+// TaskDataRequesterKindV1 defines the TaskDataRequesterKindV1 wire type.
+enum TaskDataRequesterKindV1 {
+  // TASK_DATA_REQUESTER_KIND_V1_UNSPECIFIED identifies the corresponding protocol value.
+  TASK_DATA_REQUESTER_KIND_V1_UNSPECIFIED = 0;
+  // TASK_DATA_REQUESTER_KIND_V1_USER identifies the corresponding protocol value.
+  TASK_DATA_REQUESTER_KIND_V1_USER = 1;
+  // TASK_DATA_REQUESTER_KIND_V1_CORTEX_SERVICE identifies the corresponding protocol value.
+  TASK_DATA_REQUESTER_KIND_V1_CORTEX_SERVICE = 2;
+}
+
+//
+// verify_round=0、producer_operator absent。
+// TaskDataObjectRefV1 defines the TaskDataObjectRefV1 wire type.
+message TaskDataObjectRefV1 {
+  string task_hash = 1;
+  string session_id = 2;
+  string task_id = 3;
+  TaskDataObjectKind object_kind = 4;
+  string content_hash = 5;
+  EvidenceProducerKindV1 evidence_producer_kind = 6;
+  uint32 verify_round = 7;
+  optional string producer_operator = 8;
+}
+
+// TaskDataObjectMetadataV1 defines the TaskDataObjectMetadataV1 wire type.
+message TaskDataObjectMetadataV1 {
+  TaskDataObjectRefV1 object_ref = 1;
+  uint64 size_bytes = 2;
+  string media_type = 3;
+  TaskDataObjectReadinessV1 readiness = 4;
+  repeated uint32 chunk_lengths = 5;
+  uint64 output_leaf_count = 6;
+}
+
+// EvidenceBundleSummaryV1 defines the EvidenceBundleSummaryV1 wire type.
+message EvidenceBundleSummaryV1 {
+  string evidence_bundle_hash = 1;
+  string evidence_schema_hash = 2;
+  uint32 artifact_count = 3;
+  uint64 artifact_total_size_bytes = 4;
+  uint64 manifest_size_bytes = 5;
+}
+
+// ByteRangeV1 defines the ByteRangeV1 wire type.
+message ByteRangeV1 {
+  uint64 offset = 1;
+  uint64 length = 2;
+}
+
+//
+//   builder_storage_confirmation_digest =
+//     H_FIELDS_V1("TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
+//       u32_be(schema_version), utf8(chain_id),
+//       address_codec_bytes(builder_operator_address),
+//       u64_be(service_authorization_nonce), canonical TaskDataObjectRefV1,
+//       u64_be(size_bytes), u64_be(artifact_total_size_bytes),
+//       u64_be(retention_until_height))
+//
+//
+//                            producer_kind=UNSPECIFIED、verify_round=0、
+//                            producer_operator absent、artifact_total_size_bytes=0。
+// BuilderStorageConfirmationV1 defines the BuilderStorageConfirmationV1 wire type.
+message BuilderStorageConfirmationV1 {
+  uint32 schema_version = 1;
+  string chain_id = 2;
+  string builder_operator_address = 3;
+  uint64 service_authorization_nonce = 4;
+  TaskDataObjectRefV1 object_ref = 5;
+  uint64 size_bytes = 6;
+  uint64 artifact_total_size_bytes = 7;
+  uint64 retention_until_height = 8;
+  // compact low-S raw64。
+  bytes service_signature = 9;
+}
+
+//
+//
+//   USER            EIP-712 v4，domain "TrueOpen Task Data Request" version "1"，
+// TaskDataRequestAuthV1 defines the TaskDataRequestAuthV1 wire type.
+message TaskDataRequestAuthV1 {
+  uint32 schema_version = 1;
+  string chain_id = 2;
+  string builder_operator_address = 3;
+  string rpc_method = 4;
+  string body_digest = 5;
+  TaskDataRequesterKindV1 requester_kind = 6;
+  string requester_address = 7;
+  uint64 service_authorization_nonce = 8;
+  bytes request_nonce = 9;
+  // current_height <= expiry_height <= current_height + max_service_material_expiry_blocks，
+  uint64 expiry_height = 10;
+  bytes signature = 11;
+}
+
+// SubscribeOutput / AckOutput / GetTaskEvents / PrepareChallenge。
+//
+//   TRUEOPEN_SDK_REQUEST_V1, chain_id, method, endpoint, session_id, task_id,
+//   request_nonce, i64be(expiry_height_or_time), body_digest
+// Replay key：request_domain \x00 chain_id \x00 signer_address \x00 hex(request_nonce)
+// SDKRequestEnvelopeV1 defines the SDKRequestEnvelopeV1 wire type.
+message SDKRequestEnvelopeV1 {
+  string request_domain = 1;
+  string chain_id = 2;
+  string method = 3;
+  string endpoint = 4;
+  string session_id = 5;
+  string task_id = 6;
+  bytes request_nonce = 7;
+  int64 expiry_height_or_time = 8;
+  bytes body_digest = 9;
+  string signer_address = 10;
+  bytes signature = 11;
+  bytes signer_pubkey = 12;
+}
+
+// OpenTaskHeader defines the OpenTaskHeader wire type.
+message OpenTaskHeader {
+  bytes order_envelope = 1;
+  string payload_ref = 2;
+  bytes signature = 3;
+  SDKRequestEnvelopeV1 request_envelope = 4;
+  string session_id = 5;
+  uint64 order_sequence = 6;
+  string user_address = 7;
+  string signature_scheme = 8;
+  uint64 input_size_bytes = 9;
+  string input_hash = 10;
+  string input_media_type = 11;
+  string idempotency_key = 12;
+}
+
+// OpenTaskRequest defines the OpenTaskRequest wire type.
+message OpenTaskRequest {
+  // frame selects one supported variant.
+  oneof frame {
+    OpenTaskHeader header = 1;
+    bytes chunk = 2;
+  }
+}
+
+// OpenTaskResponse defines the OpenTaskResponse wire type.
+message OpenTaskResponse {
+  string task_id = 1;
+  bool accepted = 2;
+  string reason = 3;
+  string session_id = 4;
+  TaskDataObjectMetadataV1 input_metadata = 5;
+  BuilderStorageConfirmationV1 input_confirmation = 6;
+}
+
+// ConfirmOpenTaskRequest defines the ConfirmOpenTaskRequest wire type.
+message ConfirmOpenTaskRequest {
+  string session_id = 1;
+  string task_id = 2;
+  SDKRequestEnvelopeV1 request_envelope = 3;
+  repeated BuilderStorageConfirmationV1 input_confirmations = 4;
+}
+
+// ConfirmOpenTaskResponse defines the ConfirmOpenTaskResponse wire type.
+message ConfirmOpenTaskResponse {
+  bool recorded = 1;
+  string reason = 2;
+}
+
+// size_bytes, media_type)。
+// UploadTaskResultObjectHeaderV1 defines the UploadTaskResultObjectHeaderV1 wire type.
+message UploadTaskResultObjectHeaderV1 {
+  TaskDataObjectRefV1 object_ref = 1;
+  uint64 size_bytes = 2;
+  string media_type = 3;
+  TaskDataRequestAuthV1 request_auth = 4;
+}
+
+// UploadTaskResultObjectRequest defines the UploadTaskResultObjectRequest wire type.
+message UploadTaskResultObjectRequest {
+  // frame selects one supported variant.
+  oneof frame {
+    UploadTaskResultObjectHeaderV1 header = 1;
+    bytes chunk = 2;
+  }
+}
+
+// UploadTaskResultObjectResponse defines the UploadTaskResultObjectResponse wire type.
+message UploadTaskResultObjectResponse {
+  bool accepted = 1;
+  bool idempotent = 2;
+  TaskDataObjectMetadataV1 metadata = 3;
+}
+
+//
+// OutputStreamHeaderV1 defines the OutputStreamHeaderV1 wire type.
+message OutputStreamHeaderV1 {
+  string session_id = 1;
+  string task_id = 2;
+  string task_hash = 3;
+  TaskDataRequestAuthV1 request_auth = 4;
+}
+
+//
+// OutputChunkV1 defines the OutputChunkV1 wire type.
+message OutputChunkV1 {
+  uint64 seq = 1;
+  bytes text = 2;
+  bytes mmr_root = 3;
+  bytes worker_signature = 4;
+  // Phase 0 requires this field to be empty; any non-empty value fails closed.
+  // A future activation requires a new domain, limits, vectors and Wire release.
+  bytes attachment = 5;
+  // Phase 0 requires this field to be empty together with attachment.
+  bytes attachment_signature = 6;
+}
+
+//
+// OutputFinV1 defines the OutputFinV1 wire type.
+message OutputFinV1 {
+  uint64 final_seq = 1;
+  bytes output_mmr_root = 2;
+  task.v1.FinishReasonV1 finish_reason = 3;
+  bytes worker_signature = 4;
+}
+
+// UploadTaskOutputStreamRequest defines the UploadTaskOutputStreamRequest wire type.
+message UploadTaskOutputStreamRequest {
+  // frame selects one supported variant.
+  oneof frame {
+    OutputStreamHeaderV1 header = 1;
+    OutputChunkV1 chunk = 2;
+    OutputFinV1 fin = 3;
+  }
+}
+
+// OutputStreamProgressV1 defines the OutputStreamProgressV1 wire type.
+message OutputStreamProgressV1 {
+  optional uint64 last_seq = 1;
+  bytes mmr_root = 2;
+  bool last_frame_short = 3;
+}
+
+// OutputStreamResultV1 defines the OutputStreamResultV1 wire type.
+message OutputStreamResultV1 {
+  reserved 5;
+  reserved "storage_confirmation";
+
+  bool accepted = 1;
+  uint64 last_seq = 2;
+  bytes output_mmr_root = 3;
+  uint64 leaf_count = 4;
+}
+
+// UploadTaskOutputStreamResponse defines the UploadTaskOutputStreamResponse wire type.
+message UploadTaskOutputStreamResponse {
+  // reply selects one supported variant.
+  oneof reply {
+    OutputStreamProgressV1 progress = 1;
+    OutputStreamResultV1 result = 2;
+  }
+}
+
+// GetTaskDataMetadataRequest defines the GetTaskDataMetadataRequest wire type.
+message GetTaskDataMetadataRequest {
+  TaskDataObjectRefV1 object_ref = 1;
+  TaskDataRequestAuthV1 request_auth = 2;
+}
+
+// GetTaskDataMetadataResponse defines the GetTaskDataMetadataResponse wire type.
+message GetTaskDataMetadataResponse {
+  TaskDataObjectMetadataV1 metadata = 1;
+  EvidenceBundleSummaryV1 evidence_bundle = 2;
+  task.v1.InferReceiptV2 infer_receipt = 3;
+  uint64 retain_until_height = 4;
+}
+
+// FetchTaskDataRequest defines the FetchTaskDataRequest wire type.
+message FetchTaskDataRequest {
+  TaskDataObjectRefV1 object_ref = 1;
+  optional ByteRangeV1 range = 2;
+  TaskDataRequestAuthV1 request_auth = 3;
+}
+
+// FetchTaskDataHeaderV1 defines the FetchTaskDataHeaderV1 wire type.
+message FetchTaskDataHeaderV1 {
+  TaskDataObjectRefV1 object_ref = 1;
+  uint64 total_size_bytes = 2;
+  string media_type = 3;
+  ByteRangeV1 served_range = 4;
+}
+
+// FetchTaskDataChunkV1 defines the FetchTaskDataChunkV1 wire type.
+message FetchTaskDataChunkV1 {
+  uint64 offset = 1;
+  bytes data = 2;
+  bool eof = 3;
+}
+
+// FetchTaskDataResponse defines the FetchTaskDataResponse wire type.
+message FetchTaskDataResponse {
+  // frame selects one supported variant.
+  oneof frame {
+    FetchTaskDataHeaderV1 header = 1;
+    FetchTaskDataChunkV1 chunk = 2;
+  }
+}
+
+// task_id, infer_receipt_hash, SHA256(receipt.service_signature))。
+// FinalizeTaskResultRequest defines the FinalizeTaskResultRequest wire type.
+message FinalizeTaskResultRequest {
+  string task_hash = 1;
+  string session_id = 2;
+  string task_id = 3;
+  task.v1.InferReceiptV2 receipt = 4;
+  TaskDataRequestAuthV1 request_auth = 5;
+}
+
+// FinalizeTaskResultResponse defines the FinalizeTaskResultResponse wire type.
+message FinalizeTaskResultResponse {
+  bool accepted = 1;
+  bool idempotent = 2;
+  BuilderStorageConfirmationV1 output_confirmation = 3;
+  repeated BuilderStorageConfirmationV1 evidence_bundle_confirmations = 4;
+}
+
+// task_hash / verify_round / verifier_evidence_bundle_hash / manifest size and manifest
+// task_id, verify_round, verifier_operator, result_receipt_signing_digest,
+// SHA256(receipt.service_signature))。
+// FinalizeVerifierEvidenceRequest defines the FinalizeVerifierEvidenceRequest wire type.
+message FinalizeVerifierEvidenceRequest {
+  string task_hash = 1;
+  string session_id = 2;
+  string task_id = 3;
+  uint32 verify_round = 4;
+  string verifier_operator = 5;
+  task.v1.ResultReceiptV2 receipt = 6;
+  TaskDataRequestAuthV1 request_auth = 7;
+}
+
+// FinalizeVerifierEvidenceResponse defines the FinalizeVerifierEvidenceResponse wire type.
+message FinalizeVerifierEvidenceResponse {
+  bool accepted = 1;
+  bool idempotent = 2;
+  BuilderStorageConfirmationV1 evidence_bundle_confirmation = 3;
+}
+
+// SubmitInferReceiptRequest defines the SubmitInferReceiptRequest wire type.
+message SubmitInferReceiptRequest {
+  task.v1.InferReceiptV2 receipt = 1;
+}
+
+// SubmitInferReceiptResponse defines the SubmitInferReceiptResponse wire type.
+message SubmitInferReceiptResponse {
+  reserved 4;
+  reserved "output_storage_confirmation";
+
+  bool relay_accepted = 1;
+  string infer_receipt_hash = 2;
+  bool idempotent = 3;
+}
+
+// SubmitVerifyCommitRequest defines the SubmitVerifyCommitRequest wire type.
+message SubmitVerifyCommitRequest {
+  task.v1.VerifyCommitV1 commit = 1;
+}
+
+// SubmitVerifyCommitResponse defines the SubmitVerifyCommitResponse wire type.
+message SubmitVerifyCommitResponse {
+  bool relay_accepted = 1;
+  string commit_key = 2;
+  string verify_commit_signing_digest = 3;
+  bool idempotent = 4;
+}
+
+// SubmitVerifyResultRequest defines the SubmitVerifyResultRequest wire type.
+message SubmitVerifyResultRequest {
+  task.v1.ResultReceiptV2 receipt = 1;
+}
+
+// SubmitVerifyResultResponse defines the SubmitVerifyResultResponse wire type.
+message SubmitVerifyResultResponse {
+  bool relay_accepted = 1;
+  string result_receipt_signing_digest = 2;
+  string result_payload_hash = 3;
+  bool idempotent = 4;
+}
+
+// CredentialV1 defines the CredentialV1 wire type.
+message CredentialV1 {
+  string credential_id = 1;    // = hex(sha256(sign_bytes))
+  string session_id = 2;
+  string task_id = 3;
+  string recipient = 4;
+  string usage = 5;            // SDK_DELIVERY / VERIFIER_FETCH / CHALLENGE_EVIDENCE / WATCHER_AUDIT
+  AccessLevel access_level = 6;
+  int64 valid_until = 7;
+  string issuer = 8;
+  bytes issuer_sig = 9;
+}
+
+// SubmitOrderRequest defines the SubmitOrderRequest wire type.
+message SubmitOrderRequest {
+  bytes order_envelope = 1;
+  string payload_ref = 2;
+  bytes signature = 3;
+  SDKRequestEnvelopeV1 request_envelope = 4;
+  string session_id = 5;
+  uint64 order_sequence = 6;
+  string user_address = 7;
+  string signature_scheme = 8;
+  bytes payload = 9;
+}
+
+// SubmitOrderResponse defines the SubmitOrderResponse wire type.
+message SubmitOrderResponse {
+  string task_id = 1;
+  bool accepted = 2;
+  string reason = 3;
+  string session_id = 4;
+}
+
+// AccessLevel defines the AccessLevel wire type.
+enum AccessLevel {
+  // ACCESS_LEVEL_PACKAGE_UNSPECIFIED identifies the corresponding protocol value.
+  ACCESS_LEVEL_PACKAGE_UNSPECIFIED = 0;
+  // ACCESS_LEVEL_SEALED_KEY identifies the corresponding protocol value.
+  ACCESS_LEVEL_SEALED_KEY = 1;
+}
+
+// FetchOutputRefRequest defines the FetchOutputRefRequest wire type.
+message FetchOutputRefRequest {
+  string task_id = 1;
+  string requester = 2;
+  bytes signature = 3;
+  string session_id = 4;
+  AccessLevel access_level = 5;
+  string usage = 6;             // SDK_DELIVERY / VERIFIER_FETCH / CHALLENGE_EVIDENCE / WATCHER_AUDIT
+  SDKRequestEnvelopeV1 request_envelope = 7;
+  bytes requester_pubkey = 8;
+}
+
+// FetchOutputRefResponse defines the FetchOutputRefResponse wire type.
+message FetchOutputRefResponse {
+  reserved 1;
+  reserved "output_ref";
+  CredentialV1 credential = 2;
+}
+
+// SubscribeOutputRequest defines the SubscribeOutputRequest wire type.
+message SubscribeOutputRequest {
+  string session_id = 1;
+  string task_id = 2;
+  SDKRequestEnvelopeV1 request_envelope = 3;
+  uint64 resume_after_seq = 4;
+}
+
+//
+// SubscribeOutputResponse defines the SubscribeOutputResponse wire type.
+message SubscribeOutputResponse {
+  string output_id = 1 [deprecated = true];
+  string session_id = 2 [deprecated = true];
+  string task_id = 3 [deprecated = true];
+  string output_text = 4 [deprecated = true];
+  bytes output_hash = 5 [deprecated = true];
+  int64 created_at = 6 [deprecated = true];
+  int64 expires_at = 7 [deprecated = true];
+  // frame selects one supported variant.
+  oneof frame {
+    OutputChunkV1 chunk = 8;
+    OutputFinV1 fin = 9;
+  }
+}
+
+//
+// （04-task/02-data_plane_and_evidence_transport §9.4）。
+// AckOutputRequest defines the AckOutputRequest wire type.
+message AckOutputRequest {
+  string session_id = 1;
+  string task_id = 2;
+  string output_id = 3 [deprecated = true];
+  SDKRequestEnvelopeV1 request_envelope = 4;
+  uint64 last_seq = 5;
+}
+
+// AckOutputResponse defines the AckOutputResponse wire type.
+message AckOutputResponse {
+  bool acked = 1;
+  bool already_acked = 2;
+  int64 acked_at = 3;
+}
+
+// GetTaskEventsRequest defines the GetTaskEventsRequest wire type.
+message GetTaskEventsRequest {
+  string session_id = 1;
+  string task_id = 2;
+  string from_cursor = 3;
+  SDKRequestEnvelopeV1 request_envelope = 4;
+}
+
+//
+//   ORDER_RECEIVED, WORKER_HANDRAISES_ACCEPTED, WORKER_ASSIGNMENT_FINALIZED,
+//   OUTPUT_DATA_RECEIVED, VERIFIER_ASSIGNMENT_FINALIZED, RESULT_ACCEPTED,
+//   TASK_SETTLED, SWEEP_OBSERVED, TASK_CLOSED, TASK_RECOVERED
+// GetTaskEventsResponse defines the GetTaskEventsResponse wire type.
+message GetTaskEventsResponse {
+  string cursor = 1;
+  string state = 2;
+  string task_phase = 3;
+  string event_code = 4;
+  int64 chain_height = 5;
+}
+
+// RefreshCredentialRequest defines the RefreshCredentialRequest wire type.
+message RefreshCredentialRequest {
+  CredentialV1 credential = 1;
+  string session_id = 2;
+  string task_id = 3;
+  string recipient = 4;
+  string usage = 5;
+  int64 requested_valid_until = 6;
+  SDKRequestEnvelopeV1 request_envelope = 7;
+}
+
+// RefreshCredentialResponse defines the RefreshCredentialResponse wire type.
+message RefreshCredentialResponse {
+  CredentialV1 credential = 1;
+  reserved 2;
+  reserved "output_ref";
+}
+
+// PrepareChallengeRequest defines the PrepareChallengeRequest wire type.
+message PrepareChallengeRequest {
+  string session_id = 1;
+  string task_id = 2;
+  string challenge_kind = 3;
+  bytes local_evidence_digest = 4;
+  SDKRequestEnvelopeV1 request_envelope = 5;
+}
+
+// PrepareChallengeResponse defines the PrepareChallengeResponse wire type.
+message PrepareChallengeResponse {
+  bool challenge_open = 1;
+  uint64 challenge_close_height = 2;
+  repeated string required_evidence = 3;
+  Coin estimated_bond = 4;
+  uint64 estimated_gas = 5;
+}
+
+// Coin defines the Coin wire type.
+message Coin {
+  string denom = 1;
+  string amount = 2;
+}
+
+// GetTaskStatusRequest defines the GetTaskStatusRequest wire type.
+message GetTaskStatusRequest {
+  string task_id = 1;
+  string session_id = 2;
+}
+
+//
+// GetTaskStatusResponse defines the GetTaskStatusResponse wire type.
+message GetTaskStatusResponse {
+  string state = 1;
+  string stage = 2;
+  string set_id = 3;
+  int64 updated_at = 4;
+  string task_phase = 5;
+}

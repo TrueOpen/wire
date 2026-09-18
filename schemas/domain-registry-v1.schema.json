@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TrueOpen/wire/schemas/domain-registry-v1.schema.json",
+  "title": "TrueOpen Domain Registry V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "source_repository",
+    "source_commit",
+    "domains"
+  ],
+  "properties": {
+    "schema": {
+      "const": "trueopen-domain-registry-v1"
+    },
+    "status": {
+      "enum": ["bootstrap-copy", "authoritative"]
+    },
+    "source_repository": {
+      "type": "string",
+      "format": "uri"
+    },
+    "source_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "domains": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "domain",
+          "framing",
+          "fields",
+          "producer",
+          "consumers",
+          "store",
+          "event",
+          "query",
+          "contract_section",
+          "registered_in_contract",
+          "preimage_diverges_from_contract"
+        ],
+        "properties": {
+          "domain": {
+            "type": "string",
+            "pattern": "^TRUEOPEN_[A-Z0-9_]+_V[1-9][0-9]*$"
+          },
+          "origin": {
+            "comment": "Absent means the row is a byte-level copy of the node registry at source_commit. A version above V1 postdates that commit, so it has to name the review that authorized it.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["repository", "commit", "review"],
+            "properties": {
+              "repository": { "type": "string", "format": "uri" },
+              "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+              "review": { "type": "string", "minLength": 1 }
+            }
+          },
+          "supersedes": {
+            "comment": "registered:false means the replaced generation never had a row here, which reason has to justify; registered:true requires the predecessor row to name this domain in superseded_by.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["domain", "registered"],
+            "properties": {
+              "domain": {
+                "type": "string",
+                "pattern": "^TRUEOPEN_[A-Z0-9_]+_V[1-9][0-9]*$"
+              },
+              "registered": { "type": "boolean" },
+              "reason": { "type": "string", "minLength": 1 }
+            }
+          },
+          "superseded_by": {
+            "type": "string",
+            "pattern": "^TRUEOPEN_[A-Z0-9_]+_V[1-9][0-9]*$"
+          },
+          "framing": {
+            "enum": ["H_V1", "H_FIELDS_V1", "MERKLE_ROOT_V1"]
+          },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "producer": { "type": "string", "minLength": 1 },
+          "consumers": { "type": "string", "minLength": 1 },
+          "store": { "type": "string", "minLength": 1 },
+          "event": { "type": "string", "minLength": 1 },
+          "query": { "type": "string", "minLength": 1 },
+          "contract_section": { "type": "string", "minLength": 1 },
+          "registered_in_contract": { "type": "boolean" },
+          "preimage_diverges_from_contract": { "type": "boolean" },
+          "note": { "type": "string" }
+        }
+      }
+    }
+  }
+}

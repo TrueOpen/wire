@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TrueOpen/wire/schemas/release-manifest-v1.schema.json",
+  "title": "TrueOpen Wire Release Manifest V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "protocol_version",
+    "git_commit",
+    "buf_version",
+    "descriptor",
+    "fixture_manifest",
+    "registries",
+    "proto_packages",
+    "compatibility"
+  ],
+  "properties": {
+    "schema": { "const": "trueopen-wire-release-manifest-v1" },
+    "protocol_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "git_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "buf_version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "descriptor": { "$ref": "#/$defs/artifact" },
+    "fixture_manifest": { "$ref": "#/$defs/artifact" },
+    "registries": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "proto_packages": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "compatibility": {
+      "comment": "reviewed-breaking is not a softer 'pass'. It records that buf breaking DID report findings and that release/reviewed-breaking.json authorized exactly those, naming the review. A consumer reading this manifest has to be able to tell a compatible release from an incompatible one that was approved.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result"],
+      "properties": {
+        "result": { "enum": ["bootstrap", "pass", "reviewed-breaking"] },
+        "against_version": { "type": "string" },
+        "reviewed_breaking": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["declaration", "review", "finding_count"],
+          "properties": {
+            "declaration": { "$ref": "#/$defs/artifact" },
+            "review": { "type": "string", "minLength": 1 },
+            "finding_count": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    }
+  }
+}

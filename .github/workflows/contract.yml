@@ -1,0 +1,334 @@
+name: Wire contract
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.10"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.22.0"
+
+      - name: Lint protobuf contract
+        run: go run github.com/bufbuild/buf/cmd/buf@v1.71.0 lint
+
+      - name: Build descriptor image
+        run: |
+          mkdir -p build
+          go run github.com/bufbuild/buf/cmd/buf@v1.71.0 build -o build/wire.binpb
+          go run github.com/bufbuild/buf/cmd/buf@v1.71.0 build -o build/image.json
+
+      # keeper_api_contract.md §1.1a: every bytes leaf under the six public Hub/Task
+      # Msg, Query and event services needs explicit client metadata, including
+      # binary-only gRPC methods. Native protobuf remains raw; HTTP generation
+      # below consumes the same option for its smaller OpenAPI projection.
+      - name: Verify public bytes encoding annotations
+        working-directory: tools
+        run: go run ./verify-rest-encoding -image ../build/image.json
+
+      - name: Verify public Msg Amino names
+        working-directory: tools
+        run: go run ./verify-amino -image ../build/image.json
+
+      # ADR-0013's import direction is a structural rule, and a structural rule
+      # that only a document asserts is not one. Without this step the next
+      # `import "hub/v1/common.proto"` in a task file builds cleanly
+      # here and surfaces downstream as a Go import cycle with nothing attached
+      # explaining where it came from.
+      - name: Verify descriptor import direction
+        working-directory: tools
+        run: go run ./verify-import-boundaries -image ../build/image.json
+
+      - name: Verify language-neutral fixtures
+        working-directory: tools
+        run: go run ./verify-fixtures -manifest ../testdata/v1/manifest.json
+
+      - name: Verify canonical domain registry
+        run: go run ./tools/verify-registry/main.go
+
+      - name: Test wire verification tools
+        working-directory: tools
+        run: go test ./...
+
+      - name: Test canonical bus signing implementation
+        run: go test ./bus/...
+
+      - name: Install TypeScript generator
+        run: npm ci --prefix gen/typescript
+
+      - name: Generate and type-check TypeScript
+        run: |
+          go run github.com/bufbuild/buf/cmd/buf@v1.71.0 generate --template gen/typescript/buf.gen.yaml
+          gen/typescript/node_modules/.bin/tsc -p gen/typescript/tsconfig.json
+
+      # protoc-gen-openapiv2 does not know shared.v1.rest_bytes_encoding and
+      # renders every bytes field as Base64, including the Hash32 path variables
+      # REST carries as 64 lowercase hex. §1.1a requires the OpenAPI generator
+      # and the runtime gateway to read the same option, so the projection is a
+      # required half of generation rather than an optional polish step.
+      - name: Generate OpenAPI
+        run: |
+          go run github.com/bufbuild/buf/cmd/buf@v1.71.0 generate \
+            --template gen/openapi/buf.gen.yaml \
+            --path proto/hub/v1/query.proto \
+            --path proto/task/v1/query.proto
+          cd tools && go run ./apply-rest-encoding \
+            -image ../build/image.json \
+            -openapi ../build/gen/openapi
+
+      # The breaking gate is never disabled, not even for a reviewed breaking
+      # release. buf still runs and still reports everything it finds; what
+      # changes is who decides. release/reviewed-breaking.json declares the exact
+      # findings a release is authorized to produce, and tools/reviewed-breaking
+      # requires an exact match - an undeclared finding fails, and a declared
+      # finding that no longer occurs fails too. With no declaration on disk the
+      # ordinary rule applies unchanged: any finding is a failure.
+      #
+      # The baseline comes out of the declaration rather than being chosen here,
+      # so CI cannot check against one ref while the declaration authorizes
+      # findings produced against another.
+      #
+      # A declaration adds a comparison rather than replacing one. Against its own
+      # baseline tag the match must be exact, which is what the reviewer approved.
+      # But the baseline is behind main for the whole life of a release, and a
+      # field this release introduces does not exist there at all - so deleting
+      # that field again, any time between merge and tag, produces no finding
+      # against the baseline and nobody is told. Comparing against main as well
+      # closes that window. Against main the rule is subset rather than exact,
+      # because once the declared break merges, those findings correctly stop
+      # firing there and requiring them would fail every later pull request.
+      - name: Check backward compatibility
+        if: github.event_name == 'pull_request'
+        run: |
+          mkdir -p build
+          check_against() { # ref label extra-args...
+            local ref="$1" label="$2"; shift 2
+            set +e
+            go run github.com/bufbuild/buf/cmd/buf@v1.71.0 breaking \
+              --against "$ref" --error-format=json > "build/breaking-${label}.json"
+            local buf_exit=$?
+            set -e
+            echo "--- findings against ${label} ---"
+            cat "build/breaking-${label}.json"
+            go run ./tools/reviewed-breaking/main.go \
+              -findings "build/breaking-${label}.json" -buf-exit-code "$buf_exit" "$@"
+          }
+
+          have_main=false
+          if git cat-file -e main:buf.yaml 2>/dev/null; then
+            have_main=true
+          fi
+
+          if [ -f release/reviewed-breaking.json ]; then
+            if ! baseline="$(go run ./tools/reviewed-breaking/main.go -baseline)" || [ -z "$baseline" ]; then
+              echo "release/reviewed-breaking.json exists but its baseline could not be read." >&2
+              exit 1
+            fi
+            echo "Reviewed breaking declaration present; checking exactly against tag ${baseline}."
+            check_against ".git#tag=${baseline}" "${baseline}"
+            if [ "$have_main" = true ]; then
+              echo "Also checking against main, where only declared findings are permitted."
+              check_against '.git#branch=main' main -subset
+            fi
+          elif [ "$have_main" = true ]; then
+            check_against '.git#branch=main' main
+          else
+            echo "No wire baseline on main; bootstrap import skips breaking check."
+          fi
+
+      # Exercised on every run, not only at tag time. A release manifest that
+      # first executes while a tag is being cut is a release-day surprise; this
+      # proves the whole path - release scope frozen against proto/, every
+      # artifact present and hashable, manifest re-verifiable - before anyone
+      # tags. The version is a placeholder because the real one comes from the tag.
+      # The dry run exercises whichever compatibility result the tree actually
+      # implies. A release carrying a reviewed break must not first exercise the
+      # reviewed-breaking manifest path on release day.
+      - name: Dry-run release manifest
+        run: |
+          args=(
+            -write build/release-manifest-dryrun.json
+            -version v0.0.0-dryrun
+            -git-commit "${{ github.sha }}"
+            -buf-version v1.71.0
+          )
+          if [ -f release/reviewed-breaking.json ]; then
+            if ! baseline="$(go run ./tools/reviewed-breaking/main.go -baseline)" || [ -z "$baseline" ]; then
+              echo "release/reviewed-breaking.json exists but its baseline could not be read." >&2
+              exit 1
+            fi
+            args+=( -compatibility reviewed-breaking -against-version "$baseline" \
+                    -reviewed-breaking release/reviewed-breaking.json )
+          else
+            args+=( -compatibility bootstrap )
+          fi
+          go run ./tools/release-manifest/main.go "${args[@]}"
+          go run ./tools/release-manifest/main.go -manifest build/release-manifest-dryrun.json
+
+      - name: Upload descriptor image
+        uses: actions/upload-artifact@v4
+        with:
+          name: trueopen-wire-${{ github.sha }}
+          path: build/wire.binpb
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload generated compatibility artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: trueopen-wire-generated-${{ github.sha }}
+          path: build/gen
+          if-no-files-found: error
+          retention-days: 30
+
+  # The release job runs only for a v* tag, and only after contract has passed.
+  # It publishes what release/README.md requires of a release: the descriptor
+  # image, its SHA-256, and a manifest naming every artifact by size and digest
+  # so a consumer can verify a download without trusting the release page.
+  #
+  # It re-verifies the manifest it just wrote rather than assuming the writer was
+  # correct, and it rebuilds the descriptor from the tagged tree rather than
+  # reusing the contract job's artifact, so the published bytes are produced from
+  # the same commit the tag names.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: contract
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.10"
+
+      - name: Build descriptor image
+        run: |
+          mkdir -p build
+          go run github.com/bufbuild/buf/cmd/buf@v1.71.0 build -o build/wire.binpb
+          ( cd build && sha256sum wire.binpb > wire.binpb.sha256 )
+
+      # compatibility mirrors the contract job's breaking check, through the same
+      # tool, so a tag cannot record a different verdict than the PR did. The
+      # first release has no predecessor, so schemas/release-manifest-v1.schema.json's
+      # "bootstrap" result is the honest value; once a previous tag exists the
+      # check runs against it. A clean check is "pass"; a check whose findings are
+      # exactly those release/reviewed-breaking.json authorizes is
+      # "reviewed-breaking", which is recorded as such and never as "pass".
+      - name: Resolve compatibility baseline
+        id: baseline
+        run: |
+          mkdir -p build
+          version="${GITHUB_REF_NAME}"
+          newest="$(git tag --list 'v*' --sort=-v:refname | grep -v "^${version}$" | head -n1 || true)"
+          if [ -f release/reviewed-breaking.json ]; then
+            previous="$(go run ./tools/reviewed-breaking/main.go -baseline)"
+            # The declaration names its own baseline so CI cannot check against a
+            # different ref than the review approved. That freedom cuts both ways:
+            # a declaration naming an older tag would compute its findings against
+            # that tag and never see what the tags in between changed, so a break
+            # introduced by one of them would ship undeclared and unreviewed.
+            if [ -n "$newest" ] && [ "$previous" != "$newest" ]; then
+              echo "release/reviewed-breaking.json is declared against ${previous}, but the tag before ${version} is ${newest}." >&2
+              echo "Findings computed against ${previous} would skip everything ${newest} changed. Re-run the gate against ${newest} and re-author the declaration." >&2
+              exit 1
+            fi
+          else
+            previous="$newest"
+          fi
+          if [ -z "$previous" ]; then
+            echo "result=bootstrap" >> "$GITHUB_OUTPUT"
+            echo "against=" >> "$GITHUB_OUTPUT"
+            echo "No previous v* tag; recording a bootstrap compatibility result."
+            exit 0
+          fi
+          set +e
+          go run github.com/bufbuild/buf/cmd/buf@v1.71.0 breaking \
+            --against ".git#tag=${previous}" --error-format=json > build/breaking.json
+          buf_exit=$?
+          set -e
+          cat build/breaking.json
+          # -release-version is what stops a stale declaration from authorizing a
+          # later tag: the approval is scoped to one version and is not inherited.
+          go run ./tools/reviewed-breaking/main.go \
+            -findings build/breaking.json -buf-exit-code "$buf_exit" \
+            -release-version "$version"
+          if [ "$buf_exit" -eq 0 ]; then
+            echo "result=pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=reviewed-breaking" >> "$GITHUB_OUTPUT"
+          fi
+          echo "against=${previous}" >> "$GITHUB_OUTPUT"
+
+      - name: Write and verify release manifest
+        run: |
+          args=(
+            -write build/release-manifest.json
+            -version "${GITHUB_REF_NAME}"
+            -git-commit "${{ github.sha }}"
+            -buf-version v1.71.0
+            -compatibility "${{ steps.baseline.outputs.result }}"
+          )
+          if [ -n "${{ steps.baseline.outputs.against }}" ]; then
+            args+=( -against-version "${{ steps.baseline.outputs.against }}" )
+          fi
+          if [ "${{ steps.baseline.outputs.result }}" = "reviewed-breaking" ]; then
+            args+=( -reviewed-breaking release/reviewed-breaking.json )
+          fi
+          go run ./tools/release-manifest/main.go "${args[@]}"
+          go run ./tools/release-manifest/main.go -manifest build/release-manifest.json
+
+      # Every fixture the manifest covers is published, not just the manifest
+      # that lists them: a consumer that cannot download the bytes cannot check
+      # the digest, which would make the manifest an assertion rather than
+      # evidence. A reviewed break also publishes its declaration, so the
+      # approval a consumer is asked to trust is auditable from the release page.
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          assets=(
+            build/wire.binpb
+            build/wire.binpb.sha256
+            build/release-manifest.json
+            registry/v1/domains.json
+            registry/v1/framing.json
+            testdata/v1/manifest.json
+          )
+          while IFS= read -r fixture; do
+            assets+=( "$fixture" )
+          done < <(find testdata/v1 -name '*.json' -not -name manifest.json | sort)
+          if [ -f release/reviewed-breaking.json ]; then
+            assets+=( release/reviewed-breaking.json )
+          fi
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "TrueOpen wire ${GITHUB_REF_NAME}" \
+            --notes-file CHANGELOG.md \
+            "${assets[@]}"

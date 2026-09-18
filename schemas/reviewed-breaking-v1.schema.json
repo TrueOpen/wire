@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TrueOpen/wire/schemas/reviewed-breaking-v1.schema.json",
+  "title": "TrueOpen Wire Reviewed Breaking Declaration V1",
+  "description": "The committed authorization for a breaking release. tools/reviewed-breaking checks buf breaking's findings against this file and requires an exact match in both directions: an undeclared finding fails the build, and a declared finding that no longer occurs fails it too. Scoped to one protocol_version and one baseline so that no later release inherits the approval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "protocol_version",
+    "against",
+    "review",
+    "notes",
+    "findings"
+  ],
+  "properties": {
+    "schema": { "const": "trueopen-wire-reviewed-breaking-v1" },
+    "protocol_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "against": {
+      "type": "string",
+      "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "review": { "type": "string", "minLength": 1 },
+    "notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "findings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "type", "message"],
+        "properties": {
+          "path": {
+            "comment": "Proto file the finding was reported against, relative to the buf module root. Empty for a module-level finding.",
+            "type": "string"
+          },
+          "type": {
+            "comment": "buf breaking rule id, e.g. FIELD_NO_DELETE.",
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "comment": "buf's own text. It carries the specifics a reviewer checks; line and column are deliberately not part of a finding's identity.",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

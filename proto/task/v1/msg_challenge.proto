@@ -1,0 +1,37 @@
+syntax = "proto3";
+package task.v1;
+
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "shared/v1/amount.proto";
+import "shared/v1/common.proto";
+import "shared/v1/round_economics.proto";
+import "shared/v1/rest_encoding.proto";
+
+option go_package = "github.com/TrueOpen/node/x/task/types";
+
+// MsgOpenChallengeRound is the only Phase 0 dispute entry point. It opens the
+// fixed second verification round; callers cannot submit a round number, proof,
+// verdict, verifier count, bill, or effect plan.
+// MsgOpenChallengeRound defines the MsgOpenChallengeRound wire type.
+message MsgOpenChallengeRound {
+  option (cosmos.msg.v1.signer) = "opener_address";
+  option (amino.name) = "trueopen/x/task/MsgOpenChallengeRound";
+
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  shared.v1.Amount max_total_debit = 2 [(gogoproto.nullable) = false];
+  string opener_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgOpenChallengeRoundResponse returns the Keeper-derived round identity and
+// funding quote committed by the same transaction.
+// MsgOpenChallengeRoundResponse defines the MsgOpenChallengeRoundResponse wire type.
+message MsgOpenChallengeRoundResponse {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint32 verify_round = 2;
+  bytes round_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  shared.v1.RoundFundingQuoteV1 funding = 4 [(gogoproto.nullable) = false];
+  shared.v1.MutationStatusV1 status = 5;
+}

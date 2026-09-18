@@ -1,0 +1,31 @@
+syntax = "proto3";
+package hub.v1;
+
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "shared/v1/common.proto";
+import "shared/v1/rest_encoding.proto";
+
+option go_package = "github.com/TrueOpen/node/x/hub/types";
+
+// MsgRegisterVrfKey registers or rotates a validator's independent ECVRF key.
+// The Keeper derives pending_from_epoch as current_epoch + 1.
+// MsgRegisterVrfKey defines the MsgRegisterVrfKey wire type.
+message MsgRegisterVrfKey {
+  option (cosmos.msg.v1.signer) = "operator_address";
+  option (amino.name) = "trueopen/x/hub/MsgRegisterVrfKey";
+
+  bytes vrf_pubkey = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  bytes vrf_key_pop = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  uint64 vrf_authorization_nonce = 3;
+  string operator_address = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgRegisterVrfKeyResponse reports the pending activation and accepted nonce.
+message MsgRegisterVrfKeyResponse {
+  string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint64 pending_from_epoch = 2;
+  uint64 vrf_authorization_nonce = 3;
+  shared.v1.MutationStatusV1 status = 4;
+}

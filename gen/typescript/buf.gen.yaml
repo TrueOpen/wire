@@ -1,0 +1,15 @@
+version: v2
+managed:
+  enabled: true
+plugins:
+  - local:
+      - node
+      - gen/typescript/node_modules/ts-proto/protoc-gen-ts_proto
+    out: build/gen/typescript
+    strategy: all
+    opt:
+      - snakeToCamel=true
+      - esModuleInterop=true
+      - forceLong=string
+      - oneof=unions-value
+      - outputServices=grpc-js

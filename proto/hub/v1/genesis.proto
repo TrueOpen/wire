@@ -1,0 +1,145 @@
+syntax = "proto3";
+package hub.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "hub/v1/beacon.proto";
+import "hub/v1/bridge.proto";
+import "hub/v1/builder.proto";
+import "hub/v1/candidate_pool.proto";
+import "hub/v1/daily_support.proto";
+import "hub/v1/emergency_freeze.proto";
+import "hub/v1/fault.proto";
+import "hub/v1/model_profile_state.proto";
+import "hub/v1/params.proto";
+import "hub/v1/participant_identity.proto";
+import "hub/v1/reward.proto";
+import "hub/v1/service_bond.proto";
+import "hub/v1/treasury.proto";
+import "hub/v1/vrf.proto";
+
+option go_package = "github.com/TrueOpen/node/x/hub/types";
+
+// GenesisState defines the hub module genesis state.
+//
+// Fresh genesis: a deleted collection has no compatibility or "must be empty"
+// field. Its former name and number remain reserved and cannot be reused.
+//
+// Deleted in this revision (previously fields 40/43/47/48/49/50/51/56/70):
+//   valid_task_counts, model_support_p30_candidates, performance_scores,
+//   performance_positive_tasks, reward_competition_unique_identities,
+//   builder_reward_epochs, treasury_epochs, claim_receipts, freeze_votes.
+// Builder reward and treasury epochs are replaced by RewardCompetitionEpochState plus TreasuryState;
+// claim receipts do not exist because ClaimEarnings is a STATE_TRANSITION and
+// creates no request-level nullifier; freeze votes are EmergencyFreezeVoteState.
+//
+// Derived state is NOT exported and is rebuilt from the primary rows with a
+// two-way invariant check at import (keeper_data_structure_contract.md §3.3 and §6.x):
+//   OperatorCandidateSlotState, ParameterBucketPruneIndex,
+//   TreasurySpendReceiptPruneIndex,
+//   VrfKeyActivationIndex, VrfKeyPruneIndex, FreezeSignalDeadlineIndex,
+//   FreezeSignalPruneIndex, FreezeRiskWindowScheduleIndex,
+//   TaskFailureClassWindowPruneIndex, RoleFaultPruneIndex and every
+//   CandidatePool index.
+// MarkGateExpiryIndex and EarningsPendingMaturityIndex are absent rather than
+// derived: Phase 0 runs no RewardMark/MarkGate (ADR-0020) and holds no pending
+// earning, so neither has a primary row to rebuild from.
+// RewardEpochPruneIndex is an operational schedule that cannot be reconstructed
+// from current parameters and is therefore exported in field 100.
+// GenesisState defines the GenesisState wire type.
+message GenesisState {
+  reserved 23;
+  reserved "builder_contributions";
+
+  HubParamsV2 params = 1 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+  HubParamsMetaState params_meta = 2 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true
+  ];
+
+  repeated ModelState models = 10 [(gogoproto.nullable) = false];
+  repeated ProfileState profiles = 11 [(gogoproto.nullable) = false];
+  repeated CortexNodeState cortex_nodes = 12 [(gogoproto.nullable) = false];
+  repeated ServiceBondState service_bonds = 13 [(gogoproto.nullable) = false];
+  repeated UnbondingState service_unbondings = 14 [(gogoproto.nullable) = false];
+  repeated ProfileCapabilityState profile_capabilities = 15 [(gogoproto.nullable) = false];
+  repeated ModelSupportState model_supports = 16 [(gogoproto.nullable) = false];
+  repeated DailySupportState daily_supports = 17 [(gogoproto.nullable) = false];
+  repeated UnbondingReceiptState service_unbonding_receipts = 18 [(gogoproto.nullable) = false];
+  repeated SupportDeactivateCursorState support_deactivate_cursors = 19 [(gogoproto.nullable) = false];
+
+  repeated BuilderState builders = 20 [(gogoproto.nullable) = false];
+  repeated BuilderSetState builder_sets = 21 [(gogoproto.nullable) = false];
+  repeated BuilderAdmissionState builder_admissions = 22 [(gogoproto.nullable) = false];
+  repeated BuilderFaultState builder_faults = 24 [(gogoproto.nullable) = false];
+  CurrentBuilderSetState current_builder_set = 25 [(gogoproto.nullable) = false];
+  repeated ServiceDescriptorState service_descriptors = 26 [(gogoproto.nullable) = false];
+  repeated TaskLiabilityReservationState task_liability_reservations = 27 [(gogoproto.nullable) = false];
+  repeated ServiceKeyResponsibilityState service_key_responsibilities = 28 [(gogoproto.nullable) = false];
+  BuilderSetPendingReplacementState pending_builder_set_replacement = 29;
+
+  // Jail and tombstone facts are operator-global counters on ServiceBondState
+  // (status / jail_count / normal_action_count_since_jail) per
+  // keeper_data_structure_contract.md §6.4, so there is no separate jail or tombstone
+  // collection to export.
+  repeated RoleFaultState role_faults = 30 [(gogoproto.nullable) = false];
+  repeated SlashSummaryState slash_summaries = 31 [(gogoproto.nullable) = false];
+
+  // Treasury singleton plus its bounded governance spend receipts.
+  TreasuryState treasury = 33 [(gogoproto.nullable) = false];
+  repeated TreasurySpendReceiptState treasury_spend_receipts = 34 [(gogoproto.nullable) = false];
+
+  // Versioned TimeoutBucket governance rows (§6.7). Bodies plus the at most one
+  // current and one pending pointer per (kind, key); task_ref_count is
+  // recomputed from the Task module's surviving refs and a mismatch is rejected.
+  repeated ParameterBucketVersionState parameter_bucket_versions = 35 [(gogoproto.nullable) = false];
+  repeated ParameterBucketCurrentPointerState parameter_bucket_current_pointers = 36 [(gogoproto.nullable) = false];
+  repeated ParameterBucketPendingPointerState parameter_bucket_pending_pointers = 37 [(gogoproto.nullable) = false];
+
+  repeated RewardEpochCursorState reward_epoch_cursors = 45 [(gogoproto.nullable) = false];
+  repeated RewardCompetitionEpochState reward_competition_epochs = 53 [(gogoproto.nullable) = false];
+  repeated EarningsState earnings = 54 [(gogoproto.nullable) = false];
+  repeated RewardEpochPruneCursorState reward_epoch_prune_cursors = 57 [(gogoproto.nullable) = false];
+  repeated RewardEpochAuditState reward_epoch_audits = 58 [(gogoproto.nullable) = false];
+
+  repeated BeaconState beacons = 60 [(gogoproto.nullable) = false];
+  repeated BeaconCheckpointState beacon_checkpoints = 61 [(gogoproto.nullable) = false];
+  repeated VrfKeyState vrf_keys = 62 [(gogoproto.nullable) = false];
+  repeated VrfKeyHistoryState vrf_key_history = 63 [(gogoproto.nullable) = false];
+  BridgeGenesisV1 bridge = 64 [(gogoproto.nullable) = false];
+  repeated ValidatorBridgeSignerState validator_bridge_signers = 65 [(gogoproto.nullable) = false];
+  // beacon_prune_indexes exports pending or rescheduled beacon prune rows
+  // verbatim. VrfKeyActivationIndex and VrfKeyPruneIndex are deliberately
+  // absent: InitGenesis rebuilds them from VrfKeyState's pending pair and from
+  // VrfKeyHistoryState.retired_at_epoch plus BeaconParamsV1 field 6, then
+  // checks both directions.
+  repeated BeaconPruneIndex beacon_prune_indexes = 66 [(gogoproto.nullable) = false];
+
+  repeated FreezeSignalState freeze_signals = 71 [(gogoproto.nullable) = false];
+  repeated EmergencyFreezeVoteState emergency_freeze_votes = 72 [(gogoproto.nullable) = false];
+  repeated FreezeSignalBuildCursorState freeze_signal_build_cursors = 73 [(gogoproto.nullable) = false];
+  repeated FreezeSignalByWindowIndex freeze_signal_window_bindings = 74 [(gogoproto.nullable) = false];
+
+  // Global CandidatePool primaries (§3.2/§3.3). The two singletons are the
+  // build status and the current pool pointer; OperatorCandidateSlotState and
+  // every CandidatePool index are rebuilt from these rows and double-checked,
+  // never trusted from the import.
+  repeated CandidatePoolSnapshotState candidate_pool_snapshots = 90 [(gogoproto.nullable) = false];
+  repeated CandidatePoolActiveSegmentState candidate_pool_active_segments = 91 [(gogoproto.nullable) = false];
+  repeated CandidatePoolMemberState candidate_pool_members = 92 [(gogoproto.nullable) = false];
+  repeated CandidateSlotCurrentState candidate_slot_currents = 93 [(gogoproto.nullable) = false];
+  repeated CandidateSlotBindingState candidate_slot_bindings = 94 [(gogoproto.nullable) = false];
+  repeated CandidatePoolBuildCursorState candidate_pool_build_cursors = 95 [(gogoproto.nullable) = false];
+  CandidatePoolBuildStatusState candidate_pool_build_status = 96 [(gogoproto.nullable) = false];
+  CurrentCandidatePoolState current_candidate_pool = 97 [(gogoproto.nullable) = false];
+  repeated CandidatePoolTaskRefState candidate_pool_task_refs = 98 [(gogoproto.nullable) = false];
+  repeated BuilderSetTaskRefState builder_set_task_refs = 99 [(gogoproto.nullable) = false];
+  repeated RewardEpochPruneIndex reward_epoch_prune_indexes = 100 [(gogoproto.nullable) = false];
+  repeated TreasurySpendProposalState treasury_spend_proposals = 101 [(gogoproto.nullable) = false];
+  repeated TreasurySpendEpochState treasury_spend_epochs = 102 [(gogoproto.nullable) = false];
+  repeated TreasurySpendRecipientEpochState treasury_spend_recipient_epochs = 103 [(gogoproto.nullable) = false];
+  repeated TreasurySpendEpochCleanupCursorState treasury_spend_epoch_cleanup_cursors = 104 [(gogoproto.nullable) = false];
+}

@@ -1,0 +1,178 @@
+syntax = "proto3";
+
+package hub.v1;
+
+import "google/api/annotations.proto";
+import "hub/v1/query_bridge.proto";
+import "hub/v1/query_registry.proto";
+import "hub/v1/query_rewards.proto";
+
+option go_package = "github.com/TrueOpen/node/x/hub/types";
+
+// Query defines Hub-owned global registry, custody, reward, and governance queries.
+service Query {
+  // Params returns Hub parameters.
+  rpc Params(QueryHubParamsRequest) returns (QueryHubParamsResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/params";
+  }
+  // Beacon returns one verified beacon by height.
+  rpc Beacon(QueryBeaconRequest) returns (QueryBeaconResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/beacon/{height}";
+  }
+  // VrfKey returns one validator operator's active and pending VRF key.
+  rpc VrfKey(QueryVrfKeyRequest) returns (QueryVrfKeyResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/vrf_key/{operator_address}";
+  }
+  // BuilderSet returns one builder set selected by exactly one stable selector.
+  rpc BuilderSet(QueryBuilderSetRequest) returns (QueryBuilderSetResponse) {
+    option (google.api.http) = {
+      get: "/TrueOpen/hub/v1/builder_set/by_height/{height}"
+      additional_bindings: {get: "/TrueOpen/hub/v1/builder_set/by_id/{builder_set_id}"}
+    };
+  }
+  // Builder returns one builder identity.
+  rpc Builder(QueryBuilderRequest) returns (QueryBuilderResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/builder/{builder_address}";
+  }
+  // Builders pages the whole builder registry. It is the only way to enumerate
+  // builders: Query/Builder needs an address the caller already knows, so
+  // without this RPC a fresh client cannot discover one. V1 takes no status
+  // selector because BuilderState has no status index (api_contract §16.3).
+  // Builders executes the Builders operation.
+  rpc Builders(QueryBuildersRequest) returns (QueryBuildersResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/builders";
+  }
+  // Fault returns one immutable role-fault attribution row.
+  rpc Fault(QueryFaultRequest) returns (QueryFaultResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/fault/{fault_id}";
+  }
+  // Earnings returns one address earnings ledger.
+  rpc Earnings(QueryEarningsRequest) returns (QueryEarningsResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/earnings/{address}";
+  }
+  // Model returns one registered model.
+  rpc Model(QueryModelRequest) returns (QueryModelResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/model/{model_id}";
+  }
+  // Models pages the whole model registry. It is the only way to enumerate
+  // models: Query/Model needs a model_id the caller already knows, so without
+  // this RPC a fresh client cannot discover one. V1 takes no status selector
+  // because ModelState has no status index (api_contract §16.3).
+  // Models executes the Models operation.
+  rpc Models(QueryModelsRequest) returns (QueryModelsResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/models";
+  }
+  // Profile returns one model profile.
+  rpc Profile(QueryProfileRequest) returns (QueryProfileResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/profile/{model_id}/{profile_version}";
+  }
+  // CortexNode returns one stable service identity.
+  rpc CortexNode(QueryCortexNodeRequest) returns (QueryCortexNodeResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/cortex_node/{operator_address}";
+  }
+  // ServiceBond returns the node's single service bond and reserved liability.
+  rpc ServiceBond(QueryServiceBondRequest) returns (QueryServiceBondResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/service_bond/{operator_address}";
+  }
+  // ServiceUnbondings pages one operator's unbonding entries by status.
+  rpc ServiceUnbondings(QueryServiceUnbondingsRequest) returns (QueryServiceUnbondingsResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/service_unbondings/{operator_address}";
+  }
+  // CurrentServiceKey returns the sole current key binding for one operator,
+  // including its ACTIVE or REVOKED lifecycle status.
+  // CurrentServiceKey executes the CurrentServiceKey operation.
+  rpc CurrentServiceKey(QueryCurrentServiceKeyRequest) returns (QueryCurrentServiceKeyResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/current_service_key/{participant_type}/{operator_address}";
+  }
+  // ServiceDescriptor returns one current bounded service descriptor.
+  rpc ServiceDescriptor(QueryServiceDescriptorRequest) returns (QueryServiceDescriptorResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/service_descriptor/{participant_type}/{operator_address}";
+  }
+  // ServiceLifecycle combines the identity and bond authorities of one operator.
+  rpc ServiceLifecycle(QueryServiceLifecycleRequest) returns (QueryServiceLifecycleResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/service_lifecycle/{operator_address}";
+  }
+  // ProfileCapability returns one operator/profile capability row.
+  rpc ProfileCapability(QueryProfileCapabilityRequest) returns (QueryProfileCapabilityResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/profile_capability/{operator_address}/{model_id}/{profile_version}";
+  }
+  // ModelSupport returns one P30 support row.
+  rpc ModelSupport(QueryModelSupportRequest) returns (QueryModelSupportResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/model_support/{operator_address}/{model_id}/{profile_version}";
+  }
+  // DailySupport returns one operator/epoch heartbeat row.
+  rpc DailySupport(QueryDailySupportRequest) returns (QueryDailySupportResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/daily_support/{operator_address}/{epoch}";
+  }
+  // CurrentCandidatePool returns the single global pool the current pointer
+  // resolves to (api_contract §16.3, empty request). Per-profile pools no longer
+  // exist, so the old model_id/profile_version/duty path variables are gone.
+  // CurrentCandidatePool executes the CurrentCandidatePool operation.
+  rpc CurrentCandidatePool(QueryCurrentCandidatePoolRequest) returns (QueryCurrentCandidatePoolResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/candidate_pool/current";
+  }
+  // CandidatePoolSnapshot returns a retained snapshot header by immutable ID.
+  rpc CandidatePoolSnapshot(QueryCandidatePoolSnapshotRequest) returns (QueryCandidatePoolSnapshotResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/candidate_pool/snapshot/{snapshot_id}";
+  }
+  // CandidatePoolMember returns one stable slot of one snapshot.
+  rpc CandidatePoolMember(QueryCandidatePoolMemberRequest) returns (QueryCandidatePoolMemberResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/candidate_pool/snapshot/{snapshot_id}/member/{candidate_slot}";
+  }
+  // CandidatePoolMembers pages one snapshot's members in slot order.
+  rpc CandidatePoolMembers(QueryCandidatePoolMembersRequest) returns (QueryCandidatePoolMembersResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/candidate_pool/snapshot/{snapshot_id}/members";
+  }
+  // CompetitionEpoch returns one reward competition epoch.
+  rpc CompetitionEpoch(QueryCompetitionEpochRequest) returns (QueryCompetitionEpochResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/competition_epoch/{reward_bucket}/{epoch}";
+  }
+  // RewardEpochCursor returns bounded reward processing progress.
+  rpc RewardEpochCursor(QueryRewardEpochCursorRequest) returns (QueryRewardEpochCursorResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/reward_epoch_cursor/{epoch}/{reward_bucket}";
+  }
+  // RewardEpochAudit returns the immutable root retained after bounded prune.
+  rpc RewardEpochAudit(QueryRewardEpochAuditRequest) returns (QueryRewardEpochAuditResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/reward_epoch_audit/{source_epoch}/{reward_bucket}";
+  }
+  // Treasury returns the single treasury row.
+  rpc Treasury(QueryTreasuryRequest) returns (QueryTreasuryResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/treasury";
+  }
+  // BridgeStatus returns the canonical route, controls, usage, supply, and live invariants.
+  rpc BridgeStatus(QueryBridgeStatusRequest) returns (QueryBridgeStatusResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/bridge/status";
+  }
+  // ValidatorBridgeSigner returns one validator's registered bridge signer.
+  rpc ValidatorBridgeSigner(QueryValidatorBridgeSignerRequest) returns (QueryValidatorBridgeSignerResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/bridge/validator_signer/{operator_address}";
+  }
+  // FreezeSignal returns one retained freeze signal header.
+  rpc FreezeSignal(QueryFreezeSignalRequest) returns (QueryFreezeSignalResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/freeze_signal/{freeze_signal_id}";
+  }
+  // FreezeSignals pages one profile's freeze signals; status is a closed enum.
+  rpc FreezeSignals(QueryFreezeSignalsRequest) returns (QueryFreezeSignalsResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/freeze_signals/{model_id}/{profile_version}/{status}";
+  }
+  // EmergencyFreezeVotes lists votes for one signal.
+  rpc EmergencyFreezeVotes(QueryEmergencyFreezeVotesRequest) returns (QueryEmergencyFreezeVotesResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/emergency_freeze_votes/{freeze_signal_id}";
+  }
+  // TimeoutBucket returns an exact or effective timeout bucket. The RPC moved
+  // here from task.v1.Query with the governance writer (§2.4).
+  // TimeoutBucket executes the TimeoutBucket operation.
+  rpc TimeoutBucket(QueryTimeoutBucketRequest) returns (QueryTimeoutBucketResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/timeout_bucket/{bucket_key}";
+  }
+}
+
+// De-registered on purpose (no alias, no compatibility projection):
+//   QueryPerformanceScore   - keeper_api_contract.md §16 registers no performance
+//     Query and there is no production PerformanceScoreState collection.
+//   QueryChallengeEffectPool - K-BLOCK-03/04: V1 registers no public challenge
+//     custody Query.
+//   QueryBuilderRewardEpoch / QueryTreasuryEpoch - the per-epoch builder reward
+//     and treasury epoch ledgers are deleted; QueryCompetitionEpoch and
+//     QueryTreasury are the registered surfaces.
+//   QueryCandidatePool      - replaced by QueryCandidatePoolSnapshot (§16.3).

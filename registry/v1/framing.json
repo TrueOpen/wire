@@ -1,0 +1,59 @@
+{
+  "schema": "trueopen-framing-registry-v1",
+  "status": "bootstrap-copy",
+  "source_repository": "https://github.com/TrueOpen/node",
+  "source_commit": "8b1dd7919a36519e001a946c341d7d980d18aa1f",
+  "hash": "SHA-256",
+  "integer_encoding": {
+    "uint32": "4-byte big-endian",
+    "uint64": "8-byte big-endian",
+    "int32": "two's-complement 4-byte big-endian",
+    "int64": "two's-complement 8-byte big-endian",
+    "enum": "uint32 big-endian",
+    "bool_false": "00",
+    "bool_true": "01"
+  },
+  "framings": [
+    {
+      "name": "H_V1",
+      "preimage": "ascii('TRUEOPEN_FRAME_V1') || u32_be(len(domain)) || domain || u64_be(len(payload)) || payload",
+      "digest": "SHA256(preimage)"
+    },
+    {
+      "name": "H_FIELDS_V1",
+      "preimage": "frame(domain) || repeated frame(field), where frame(x) = u64_be(len(x)) || x",
+      "digest": "SHA256(preimage)"
+    },
+    {
+      "name": "MERKLE_ROOT_V1",
+      "domain_frame": "u32_be(len(domain)) || domain",
+      "leaf": "SHA256(ascii('TRUEOPEN_MERKLE_LEAF_V1') || domain_frame || raw_hash32_leaf)",
+      "node": "SHA256(ascii('TRUEOPEN_MERKLE_NODE_V1') || domain_frame || left_hash32 || right_hash32)",
+      "empty": "SHA256(ascii('TRUEOPEN_MERKLE_EMPTY_V1') || domain_frame)",
+      "odd_node": "promote the final unpaired node unchanged",
+      "sorting": "caller-owned; the Merkle primitive never sorts, deduplicates, or pads"
+    },
+    {
+      "name": "MMR_ROOT_V1",
+      "domain_frame": "u32_be(len(domain)) || domain",
+      "leaf": "SHA256(ascii('TRUEOPEN_MMR_LEAF_V1') || domain_frame || u64_be(leaf_index) || u64_be(len(leaf_bytes)) || leaf_bytes)",
+      "node": "SHA256(ascii('TRUEOPEN_MMR_NODE_V1') || domain_frame || left_hash32 || right_hash32)",
+      "empty": "SHA256(ascii('TRUEOPEN_MMR_EMPTY_V1') || domain_frame)",
+      "peaks": "append each leaf as a height-0 peak, then while the last two peaks have equal height replace them with node(left, right) at height + 1; the shape that results is one peak per set bit of the leaf count, highest on the left, and an implementation may not choose another",
+      "fold": "right to left: acc = rightmost peak, then acc = node(peak, acc) over the remaining peaks from right to left; one leaf roots to that leaf with no extra node layer",
+      "sorting": "caller-owned ordering; the leaf index enters the leaf preimage, and the MMR primitive never sorts, deduplicates, or pads"
+    }
+  ],
+  "signature_encoding": {
+    "algorithm": "secp256k1 ECDSA",
+    "public_key": "33-byte compressed secp256k1",
+    "signature": "64-byte compact R||S",
+    "hex": "lowercase without prefix",
+    "requirements": [
+      "R and S are non-zero and in scalar range",
+      "S is low-S",
+      "DER and 65-byte recoverable encodings are rejected"
+    ],
+    "signature_digest": "SHA256(raw 64-byte signature), never SHA256(hex text)"
+  }
+}

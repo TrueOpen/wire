@@ -1,0 +1,22 @@
+syntax = "proto3";
+package shared.v1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/TrueOpen/node/x/shared/types";
+
+// Amount is the public wire representation of a non-negative amount in the
+// chain's single native settlement denomination.
+// Amount defines the Amount wire type.
+message Amount {
+  option (gogoproto.equal) = true;
+
+  string atomic_units = 1;
+}
+
+// SignedAmount is used only for bounded deltas; zero is encoded as "0".
+message SignedAmount {
+  option (gogoproto.equal) = true;
+
+  string atomic_units = 1;
+}

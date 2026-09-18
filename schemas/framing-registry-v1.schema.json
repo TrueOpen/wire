@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TrueOpen/wire/schemas/framing-registry-v1.schema.json",
+  "title": "TrueOpen Framing Registry V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "source_repository",
+    "source_commit",
+    "hash",
+    "integer_encoding",
+    "framings",
+    "signature_encoding"
+  ],
+  "properties": {
+    "schema": { "const": "trueopen-framing-registry-v1" },
+    "status": { "enum": ["bootstrap-copy", "authoritative"] },
+    "source_repository": { "type": "string", "format": "uri" },
+    "source_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "hash": { "const": "SHA-256" },
+    "integer_encoding": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "framings": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "enum": ["H_V1", "H_FIELDS_V1", "MERKLE_ROOT_V1"] }
+        }
+      }
+    },
+    "signature_encoding": {
+      "type": "object",
+      "required": ["algorithm", "public_key", "signature", "hex", "requirements", "signature_digest"]
+    }
+  }
+}

@@ -1,0 +1,3158 @@
+{
+  "schema": "trueopen-domain-registry-v1",
+  "status": "bootstrap-copy",
+  "source_repository": "https://github.com/TrueOpen/node",
+  "source_commit": "8b1dd7919a36519e001a946c341d7d980d18aa1f",
+  "domains": [
+    {
+      "domain": "TRUEOPEN_ASSIGNMENT_LEGAL_SET_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "candidate_pool_snapshot_id",
+        "candidate_pool_hash",
+        "union_bitmap_hash",
+        "candidate_count",
+        "repeated(canonical TaskCandidateFactState) in slot ascending"
+      ],
+      "producer": "Task Keeper at Worker proposal-window finalize",
+      "consumers": "Worker weighted draw, Builder/Cortex clients and auditors",
+      "store": "AssignmentCandidateSetState.assignment_candidate_set_hash and TaskAssignmentState.assignment_candidate_set_hash",
+      "event": "worker_assignment_finalized",
+      "query": "QueryTaskAssignment and QueryAssignmentRandomness",
+      "contract_section": "keeper_api_contract.md §1.4, §4.3",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BATCH_RESULT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "batch_kind",
+        "item_count",
+        "repeated(object_id, status)"
+      ],
+      "producer": "Hub batch handler",
+      "consumers": "exact replay and auditor",
+      "store": "not persisted; returned in the batch response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "keeper_api_contract.md §1.4, §9.6b",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "CONTRACT-GAP: the domain is registered but §9.6b never enumerates the closed set of batch_kind values. Node freezes MODEL_SUPPORT / VERIFY_COMMIT / VERIFY_RESULT as the V1 string set; the document side must register the same closed set in §9.6b."
+    },
+    {
+      "domain": "TRUEOPEN_BEACON_AGGREGATE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "start_height",
+        "beacon_count",
+        "repeated randomness in height ascending order"
+      ],
+      "producer": "Hub AggregateBeacon",
+      "consumers": "Task assignment, verifier selection and reward randomness",
+      "store": "not persisted; derived from retained BeaconState rows",
+      "event": "none",
+      "query": "QueryBeacon range inputs",
+      "contract_section": "keeper_api_contract.md §1.4 aggregate formula",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BEACON_CHECKPOINT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "checkpoint_index",
+        "start_height",
+        "current_height",
+        "previous_root",
+        "randomness",
+        "proof_digest",
+        "proposer_consensus_address"
+      ],
+      "producer": "BeaconCheckpointStep",
+      "consumers": "Genesis, beacon auditor and prune gate",
+      "store": "BeaconCheckpointState.checkpoint_root and cursor rolling_root",
+      "event": "none",
+      "query": "QueryBeaconCheckpoint",
+      "contract_section": "keeper_data_structure_contract.md §6.3",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BEACON_VRF_INPUT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "uint64_be(height)",
+        "prior_randomness",
+        "proposer_consensus_address_raw"
+      ],
+      "producer": "PrepareProposal in the Hub consensus integration",
+      "consumers": "ProcessProposal, PreBlock and the VRF verifier",
+      "store": "not persisted; it is the ECVRF alpha input and is recomputable from chain_id, height, the previous verified beacon and the proposer address. Only BeaconState keeps R_h and proof_digest, and the raw 80-byte proof is discarded after verification",
+      "query": "QueryBeacon reaches it only indirectly, through the previous height",
+      "contract_section": "10-protocol_specifications/07-randomness_and_sampling/randomness_and_sampling_protocol.md §2, §3; keeper_api_contract.md §1.4",
+      "note": "prior_randomness is 32 zero bytes when height is 1 or equals a nonzero vrf_required_from_height, and otherwise the verified BeaconState[h-1].R_h raw32. The input deliberately omits the ABCI round, the validator set hash and the VRF public key: it binds the proposer consensus address instead of the key so an epoch-boundary rotation cannot yield two recomputable inputs.",
+      "event": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BEGIN_BRIDGE_CUTOVER_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "proposal_id",
+        "expected_current_ism_id",
+        "expected_current_signer_set_hash",
+        "uint32_be(signer_count)",
+        "repeated(signer address bytes)",
+        "uint32_be(next_threshold)",
+        "evm_ingress_pause_tx_hash",
+        "evm_ingress_pause_block_number",
+        "evm_ingress_pause_block_hash",
+        "optional(last_delivered_inbound_message_id)",
+        "uint32_be(reason)"
+      ],
+      "producer": "x/gov action, recomputed by the Hub Keeper",
+      "consumers": "governance receipt, event and auditors",
+      "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
+      "event": "123 bridge_cutover_begun; 127 bridge_signer_rotated also fires inside this action",
+      "query": "QueryBridgeStatus",
+      "contract_section": "keeper_api_contract.md §9.6c",
+      "note": "The digest is not the message field order: it inserts chain_id, expands next_signer_set into a count plus repeated 20-byte addresses that ascend uniquely, and wraps next_threshold and reason in uint32_be. next_threshold must equal (2 * count + 2) / 3 with count at least 4.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BRIDGE_DEPLOYMENT_MANIFEST_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "canonical BridgeDeploymentManifestV1 fields"
+      ],
+      "producer": "Deployment release tooling, confirmed through x/gov",
+      "consumers": "Genesis, cutover gate, query and auditors",
+      "store": "BridgeControlState.deployment_manifest_hash; the manifest body stays a release artifact and never enters the Store",
+      "event": "124 bridge_cutover_confirmed field 6",
+      "query": "QueryBridgeStatus",
+      "contract_section": "keeper_api_contract.md §9.6c",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "canonical BridgeDeploymentManifestV1 fields is the required nested FRAME_V1 over fields 1..23. agents ascends uniquely by operator raw bytes and must match ValidatorBridgeSignerState item for item, relayers ascends uniquely by address raw bytes, EVM addresses are exactly 20 bytes and every code, tx and block hash is exactly 32."
+    },
+    {
+      "domain": "TRUEOPEN_BRIDGE_INFLIGHT_MANIFEST_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "cutover_proposal_id",
+        "freeze_height",
+        "uint32_be(item_count)",
+        "repeated(NestedFieldFrameV1(canonical BridgeInflightItemV1) sorted by message_id raw bytes)"
+      ],
+      "producer": "Bridge operations, confirmed through x/gov",
+      "consumers": "the cutover gate and auditors",
+      "store": "BridgeCutoverState.inflight_manifest_hash with .inflight_message_count; the manifest body is a reviewable release artifact and never enters the Store",
+      "event": "124 bridge_cutover_confirmed fields 7 and 8",
+      "query": "QueryBridgeStatus",
+      "contract_section": "keeper_api_contract.md §9.6c",
+      "note": "Item ids ascend strictly and uniquely, every item is OUTBOUND, and at confirm time every disposition must be DELIVERED_OLD_ISM.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BRIDGE_SIGNER_POP_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "operator_address",
+        "bridge_signer_address_raw20",
+        "uint64_be(key_version)"
+      ],
+      "producer": "The Validator bridge key holder, recomputed by the Keeper",
+      "consumers": "Genesis, MintBond and RotateBridgeSigner admission",
+      "store": "not persisted; only the signature over it is stored, as ValidatorBridgeSignerState.pop_signature, and the digest is recomputable from that row plus chain_id",
+      "event": "-",
+      "query": "QueryValidatorBridgeSigner recomputes it but does not return it",
+      "contract_section": "10-protocol_specifications/10-cross_chain_assets/cross_chain_asset_bridge_protocol.md §4.1; keeper_api_contract.md §1.4",
+      "note": "The signature is a low-S recoverable secp256k1 R||S||V of exactly 65 bytes with V in {27,28}; the recovered address must byte-equal bridge_signer_address_raw20.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BRIDGE_SIGNER_SET_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "uint32_be(threshold)",
+        "uint32_be(n)",
+        "repeated(bridge_signer_address_raw20 in ascending byte order)"
+      ],
+      "producer": "The bridge guard, recomputed by the Keeper from the upstream Mailbox and default ISM rows",
+      "consumers": "local and EVM ISM invariant checks and query",
+      "store": "BridgeSignerSetState.local_signer_set_hash and .confirmed_evm_signer_set_hash; BridgeCutoverState.next_signer_set_hash and .confirmed_evm_signer_set_hash",
+      "event": "carried as field 3 of 123 bridge_cutover_begun and field 3 of 124 bridge_cutover_confirmed",
+      "query": "QueryBridgeStatus",
+      "contract_section": "10-protocol_specifications/10-cross_chain_assets/cross_chain_asset_bridge_protocol.md §4.2; keeper_api_contract.md §1.4",
+      "note": "threshold is derived, not free: it is (2n + 2) / 3 by integer division with n at least 4. The guard must recompute from the upstream rows rather than trusting the cached hash.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "oneof_tag"
+      ],
+      "discriminator": "oneof_tag",
+      "variants": [
+        {
+          "key": "oneof_tag=2",
+          "fields": [
+            "lower_bus_signing_digest",
+            "higher_bus_signing_digest"
+          ]
+        },
+        {
+          "key": "oneof_tag=3",
+          "fields": [
+            "bus_signing_digest",
+            "violation"
+          ]
+        },
+        {
+          "key": "oneof_tag=5",
+          "fields": [
+            "task_id",
+            "verify_round",
+            "builder_operator"
+          ]
+        }
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in keeper_api_contract.md §5.5"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V1",
+        "registered": false,
+        "reason": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V1 committed the BusEnvelope V1 era evidence body. keeper_api_contract.md §1.4 registers only the V2 content digest, and the v0.3.0 fresh schema deletes the V1 row rather than keeping an entry no producer may write."
+      },
+      "producer": "task/keeper Builder evidence handler after Task authority checks; the hub fault kernel recomputes it from the shared fact",
+      "consumers": "Builder evidence ID and fault ID producers",
+      "store": "BuilderFaultState.canonical_evidence_digest",
+      "event": "109 builder_evidence_accepted",
+      "query": "Builder fault query pending D-13",
+      "contract_section": "keeper_api_contract.md §5.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The tags are the BuilderEvidenceV2 oneof field numbers: 2 equivocation, 3 invalid_stage_submission, 5 data_unavailable. Tag 4 is permanently reserved - the OBJECTIVE_MISSED_DUTY kind stays a Keeper-internal derivation and never becomes a public oneof branch again, so the old tag is never reused. The raw ECDSA signature is proof only and enters neither this digest nor the ordering: two valid low-S signatures over one bus_signing_digest must derive one evidence identity. For tag 2 the two raw32 signing digests are ordered by ascending lexicographic bytes, so one equivocation has one identity whichever envelope the submitter sent first."
+    },
+    {
+      "domain": "TRUEOPEN_BUILDER_EVIDENCE_ID_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "builder_operator",
+        "evidence_kind",
+        "scope_id",
+        "canonical_evidence_digest"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in keeper_api_contract.md §5.5"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_BUILDER_EVIDENCE_ID_V1",
+        "registered": false,
+        "reason": "TRUEOPEN_BUILDER_EVIDENCE_ID_V1 keyed evidence by the retired V1 content digest. keeper_api_contract.md §1.4 registers only the V2 pair, so the v0.3.0 fresh schema deletes the V1 row instead of linking an ID nothing can recompute."
+      },
+      "producer": "task/keeper Builder evidence handler; the hub fault kernel recomputes it from local chain context and the shared fact, never trusting a caller-supplied ID",
+      "consumers": "task.v1.Msg.SubmitBuilderEvidence idempotency key and event 109",
+      "store": "BuilderFaultState.evidence_id",
+      "event": "109 builder_evidence_accepted",
+      "query": "Msg response; Builder fault query pending D-13",
+      "contract_section": "keeper_api_contract.md §5.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "scope_id is the existing authoritative primary key of the fact being attributed - task_id for all three active kinds - and introduces no new hash semantics. builder_operator is always the stable operator address, never a service address."
+    },
+    {
+      "domain": "TRUEOPEN_BUILDER_FAULT_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "builder_operator",
+        "evidence_kind",
+        "scope_id",
+        "canonical_evidence_digest"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in keeper_api_contract.md §5.5"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_BUILDER_FAULT_V1",
+        "registered": false,
+        "reason": "TRUEOPEN_BUILDER_FAULT_V1 derived the fault ID from the retired V1 evidence content. keeper_api_contract.md §1.4 registers only TRUEOPEN_BUILDER_FAULT_V2, so the v0.3.0 fresh schema deletes the V1 row rather than retaining a fault ID with no reachable producer."
+      },
+      "producer": "hub fault kernel",
+      "consumers": "Builder fault, slash and jail",
+      "store": "BuilderFaultState.fault_id",
+      "event": "109 builder_evidence_accepted",
+      "query": "Builder fault query pending D-13",
+      "contract_section": "keeper_api_contract.md §5.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The field list is deliberately identical to TRUEOPEN_BUILDER_EVIDENCE_ID_V2; only the domain literal differs. evidence_id is the submission idempotency key and fault_id is the punishable-fact primary key derived from it, so the two digests must stay distinct values and neither may substitute for the other."
+    },
+    {
+      "domain": "TRUEOPEN_BUILDER_SET_MEMBERS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "active_builder_count",
+        "repeated rank_index and builder_operator_address in frozen set order"
+      ],
+      "producer": "hub/keeper.BuilderSetMembersHash",
+      "consumers": "BuilderSet header producer, event, Builder, Nexus and SDK",
+      "store": "BuilderSetSnapshot.builder_set_members_hash",
+      "event": "60 builder_set_updated",
+      "query": "QueryBuilderSet through builder_set_hash",
+      "contract_section": "keeper_api_contract.md §1.4 formula block",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BUILDER_SET_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "term_id",
+        "builder_set_id",
+        "start_epoch",
+        "end_epoch",
+        "snapshot_height",
+        "builder_duty_score_method_version",
+        "active_builder_count",
+        "builder_set_members_hash"
+      ],
+      "producer": "hub/keeper.BuilderSetHash",
+      "consumers": "SignedOrder admission, Task Builder selection, Builder, Nexus and SDK",
+      "store": "BuilderSetSnapshot.set_hash",
+      "event": "60 builder_set_updated",
+      "query": "QueryBuilderSet",
+      "contract_section": "keeper_api_contract.md §1.4 formula block",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "builder_operator_address",
+        "service_authorization_nonce",
+        "canonical TaskDataObjectRefV1",
+        "size_bytes",
+        "artifact_total_size_bytes",
+        "retention_until_height"
+      ],
+      "producer": "The Builder that stored the object, signing with its current service key",
+      "consumers": "SDK and Cortex reconciliation, availability fallback and accountability material",
+      "store": "not persisted on chain; the confirmation travels in the OpenTask, ConfirmOpenTask and Finalize responses and is kept by the receiving party",
+      "event": "-",
+      "query": "-",
+      "contract_section": "20-service_design/nexus/task_data_api_design.md §6.3a; 20-service_design/nexus/API_and_topic_catalog.md §4.2.1 for the object ref projection at monorepo main@15b282ff1e3c8d862c1f796ae8e826e4086b0d0b",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "One confirmation type covers INPUT, OUTPUT and a complete evidence bundle; the object difference is carried by the already frozen TaskDataObjectRefV1 rather than by a second near-identical message. service_signature is excluded from its own digest. The nonce must equal the signer's current ACTIVE service binding and be non-zero; a later key rotation neither invalidates an already verified confirmation nor lets the old key sign a new one. retention_until_height is a floor, so extending the window needs no re-signing. EVIDENCE_ARTIFACT is never confirmed on its own: it is covered by its manifest hash and that bundle's confirmation."
+    },
+    {
+      "domain": "TRUEOPEN_BURN_BOND_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "uint64_be(proposal_id)",
+        "target_address_raw"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
+        "review": "monorepo#142 freezes the Phase 0 validator bond governance action domains and replay locator in governance_protocol.md §8.1"
+      },
+      "producer": "x/gov accepted BurnBondV1 action; recomputed by the Hub Keeper",
+      "consumers": "validator-bond removal receipt, consensus ValidatorSet update, event and auditors",
+      "store": "governance action receipt keyed by (proposal_id, action_kind, target_address_raw)",
+      "event": "validator bond governance action result",
+      "query": "x/gov proposal result and validator bond state",
+      "contract_section": "10-protocol_specifications/08-governance/governance_protocol.md §8.1; keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "target_address_raw is the canonical Bech32-decoded account address. An exact locator replay must compare this digest; BurnBondV1 carries no caller-selected amount."
+    },
+    {
+      "domain": "TRUEOPEN_BUS_ENVELOPE_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "subject",
+        "kind",
+        "sender_participant_type",
+        "sender_operator_address",
+        "service_authorization_nonce",
+        "message_id",
+        "nonce",
+        "issued_at_unix_ms",
+        "expires_at_unix_ms",
+        "payload_type",
+        "payload_digest"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in 10-protocol_specifications/04-task/07-task_builder_coordination.md §7.2"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_BUS_ENVELOPE_V1",
+        "registered": false,
+        "reason": "TRUEOPEN_BUS_ENVELOPE_V1 names the retired 20-field trueopen-cjson-v1 projection. ADR-0013 retires it outright because it never reached production activation, so it has no row here to link and never gained one: registering it now would publish a projection nothing is allowed to produce."
+      },
+      "producer": "Nexus or Cortex sender, signing with its current service key",
+      "consumers": "Nexus and Cortex live receivers; the Node Builder evidence proof-only verifier",
+      "store": "not persisted on chain; retained as the Bus replay-store tombstone digest and as the evidence content input",
+      "event": "-",
+      "query": "-",
+      "contract_section": "10-protocol_specifications/04-task/07-task_builder_coordination.md §7.2",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The projection is exactly bus.v1.BusEnvelopeV1 fields 1..12 plus field 14. Field 13 payload is bound only transitively through payload_digest, and field 15 service_signature cannot enter its own preimage. The V2 generation is not a schema bump of the protobuf message - that message is still named BusEnvelopeV1 - it is the signing domain, because one domain must never cover two different signed field sets."
+    },
+    {
+      "domain": "TRUEOPEN_BUS_PAYLOAD_V2",
+      "framing": "H_V1",
+      "fields": [
+        "payload: exact transmitted bus.v1.BusEnvelopeV1.payload bytes, canonicalization is identity"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in 10-protocol_specifications/04-task/07-task_builder_coordination.md §7.1"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_BUS_PAYLOAD_V1",
+        "registered": false,
+        "reason": "There was never a TRUEOPEN_BUS_PAYLOAD_V1 domain: the payload commitment it replaces was an unregistered bare SHA-256 over the payload bytes, retired together with BusEnvelope V1. canonical_encoding_and_domain_hashing.md §9.3 closes the bare-SHA-256 producer set at three values and forbids a fourth, so the commitment starts at V2 under a registered H_V1 domain rather than being back-registered as V1."
+      },
+      "producer": "Nexus or Cortex sender, over the bytes it publishes once and reuses on every retry",
+      "consumers": "Nexus and Cortex receivers, over the bytes they received before any decoding; the Node Builder evidence proof-only verifier",
+      "store": "bus.v1.BusEnvelopeV1.payload_digest, field 14",
+      "event": "-",
+      "query": "-",
+      "contract_section": "10-protocol_specifications/04-task/07-task_builder_coordination.md §7.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The H_V1 payload object is the opaque byte string itself, so canonicalization is the identity function: this commits to a transport publication, not to a semantic identity, and two semantically equal protobuf encodings of one payload are two different publications. No hop may re-marshal the payload to recompute the digest, and receivers compute it before decoding."
+    },
+    {
+      "domain": "TRUEOPEN_CANDIDATE_ACTIVE_BITMAP_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "slot_capacity",
+        "segment_count",
+        "repeated(segment_index, segment_bitmap_bytes) in segment_index ascending"
+      ],
+      "producer": "Hub Keeper at snapshot finalize",
+      "consumers": "pool validator, candidate_pool_hash",
+      "store": "CandidatePoolSnapshotState.active_bitmap_hash",
+      "event": "-",
+      "query": "QueryCandidatePoolSnapshot / QueryCurrentCandidatePool header",
+      "contract_section": "keeper_api_contract.md §1.4, §3.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Covers all segment_count segments, including the all-zero ones the Store may omit; trailing bits above slot_capacity must be zero or the bitmap is rejected before hashing (§3.1)."
+    },
+    {
+      "domain": "TRUEOPEN_CANDIDATE_MEMBERSHIP_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "candidate_pool_snapshot_id",
+        "candidate_pool_hash",
+        "slot",
+        "slot_version",
+        "operator_address"
+      ],
+      "producer": "Query server / SDK, recomputed from the authoritative member row",
+      "consumers": "auditors only; it is never a Msg input and never a Store source of truth",
+      "store": "not persisted",
+      "event": "-",
+      "query": "QueryCandidatePoolMember",
+      "contract_section": "keeper_api_contract.md §1.4, §3.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "§3.5 is explicit that this is an audit digest, not a Merkle inclusion proof: security comes from the on-chain lookup of the ACTIVE snapshot bitmap plus the immutable binding, so no interface may advertise it as verifiable without state."
+    },
+    {
+      "domain": "TRUEOPEN_CANDIDATE_MEMBER_SET_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "active_count",
+        "repeated(slot, slot_version, operator_address, binding_hash) in slot ascending"
+      ],
+      "producer": "Hub Keeper at snapshot finalize",
+      "consumers": "pool validator, candidate_pool_hash, member query",
+      "store": "CandidatePoolSnapshotState.member_set_hash",
+      "event": "-",
+      "query": "QueryCandidatePoolMembers",
+      "contract_section": "keeper_api_contract.md §1.4, §3.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Slot ascending, never operator ascending: §4.5 fixes slot order as the candidate base order, so a second ordering here would make the pool hash and the draw disagree."
+    },
+    {
+      "domain": "TRUEOPEN_CANDIDATE_POOL_SEGMENT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "target_epoch",
+        "segment_index",
+        "segment_bitmap_bytes",
+        "active_member_count",
+        "repeated(slot, slot_version, binding_hash) in slot ascending"
+      ],
+      "producer": "Hub Keeper (bounded EndBlock pool build, one dirty segment per step)",
+      "consumers": "pool validator, Genesis segment/member cross-check",
+      "store": "CandidatePoolActiveSegmentState.segment_hash",
+      "event": "-",
+      "query": "-",
+      "contract_section": "keeper_api_contract.md §1.4, §3.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "segment_bitmap_bytes is exactly candidate_bitmap_segment_bytes long; a segment omitted from the Store must be framed as that many zero bytes (§3.1). A fixed bitmap_64 encoding is forbidden."
+    },
+    {
+      "domain": "TRUEOPEN_CANDIDATE_SLOT_BINDING_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "slot",
+        "slot_version",
+        "operator_address",
+        "allocated_epoch"
+      ],
+      "producer": "Hub Keeper on slot allocation and on safe reuse (slot_version = checked_add(old,1))",
+      "consumers": "pool build, snapshot segment/member hashes, Task member lookup",
+      "store": "CandidateSlotBindingState.binding_hash, copied into CandidatePoolMemberState.binding_hash",
+      "event": "-",
+      "query": "QueryCandidatePoolMember (member + membership_binding)",
+      "contract_section": "keeper_api_contract.md §1.4, §3.5; keeper_data_structure_contract.md §3.2/§3.3",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "No chain_id: the binding is scoped by (slot, slot_version) inside one chain's store and is only ever consumed through candidate_pool_hash, which does bind chain_id. slot_version must stay in the preimage because the binding is immutable identity history for a reusable slot."
+    },
+    {
+      "domain": "TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "failure_class",
+        "classification_source",
+        "classified_height",
+        "infer_receipt_hash_or_zero32",
+        "task_evidence_root_or_zero32",
+        "settlement_id_or_zero32",
+        "superseded_by_challenge_id_or_zero32",
+        "accepted_commit_count",
+        "accepted_result_receipt_count"
+      ],
+      "producer": "Task failure-classification executor",
+      "consumers": "TaskFailureClassState, RoleFaultState, event 9 and auditors",
+      "store": "TaskFailureClassState.evidence_digest",
+      "event": "9 task_failure_class_updated",
+      "query": "QueryTaskFailureClass",
+      "contract_section": "keeper_api_contract.md §1.4, §10.12",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_COMMIT_KEY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "verifier_operator_address"
+      ],
+      "producer": "Task Keeper; SDK recomputes. Never a caller field.",
+      "consumers": "commit/result/reveal primary key, BatchItemResultV1.object_id, §9.7 leaf ordering",
+      "store": "CommitState / ResultReceiptState / FullResultRevealState primary key",
+      "event": "verify commit and result events carry it",
+      "query": "QueryVerifyCommit, QueryResultReceipt, QueryFullResultReveal",
+      "contract_section": "keeper_api_contract.md §1.4 line 205, §10.9 lines 3283-3287",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "§10.9 is explicit that chain_id must be inside: commit_key is simultaneously a Store primary key, a response field, a batch object_id and a leaf ordering key, so a missing chain binding would let cross-chain material reuse one key. verify_round is uint32_be and the verifier address is stable operator address codec bytes, not the service address and not Bech32 text."
+    },
+    {
+      "domain": "TRUEOPEN_COMMIT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "verifier_operator_address",
+        "service_authorization_nonce",
+        "commit_hash",
+        "expiry_height"
+      ],
+      "producer": "selected Verifier current service key; Task Keeper recomputes on MsgSubmitVerifyCommit",
+      "consumers": "Task Keeper commit acceptance and full-reveal cross-check",
+      "store": "CommitState.commit_signing_digest",
+      "event": "verify commit accepted event",
+      "query": "QueryVerifyCommit",
+      "contract_section": "keeper_api_contract.md §1.4 line 203, §5.14 lines 1353-1357",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "commit_hash must be the canonical TRUEOPEN_RESULT_COMMITMENT_V1 value; §5.14 forbids a \"non-empty placeholder\" and forbids a \"looks like a SHA256\" conditional branch. Same 8-field shape as the two handraise digests: chain/task scope plus service_authorization_nonce plus expiry_height."
+    },
+    {
+      "domain": "TRUEOPEN_CONFIRM_BRIDGE_CUTOVER_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "proposal_id",
+        "cutover_proposal_id",
+        "expected_local_ism_id",
+        "expected_signer_set_hash",
+        "evm_ism_address",
+        "evm_signer_set_hash",
+        "evm_chain_id",
+        "evm_block_number",
+        "evm_block_hash",
+        "deployment_manifest_hash",
+        "inflight_manifest_hash",
+        "uint32_be(inflight_message_count)"
+      ],
+      "producer": "x/gov action, recomputed by the Hub Keeper",
+      "consumers": "governance receipt, event and auditors",
+      "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
+      "event": "124 bridge_cutover_confirmed",
+      "query": "QueryBridgeStatus",
+      "contract_section": "keeper_api_contract.md §9.6c",
+      "note": "Only inflight_message_count takes a uint32_be wrapper; evm_chain_id and evm_block_number are bare uint64. Confirmation fills the optional tail of BridgeCutoverState and does not unfreeze the bridge.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_CONSENSUS_CLUSTER_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "cluster_member_count",
+        "repeated(selected_verifier_index, verifier_operator_address, commit_key, result_receipt_signing_digest, metric_summary_hash, sample_verdict, accepted_height) in selected_verifier_index ascending"
+      ],
+      "producer": "Task Keeper BuildSettlementFacts after signature, commitment, summary and aggregate-proof validation",
+      "consumers": "settlement, challenge and auditors",
+      "store": "SettlementFactsV1.consensus_cluster_hash",
+      "event": "task_settled indirectly through settlement_facts_hash after K-BLOCK-16",
+      "query": "settlement facts view",
+      "contract_section": "keeper_api_contract.md §1.4, §10.10a",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_ID_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "epoch_index",
+        "operator_address"
+      ],
+      "producer": "Hub Keeper in MsgBatchConfirmModelSupport",
+      "consumers": "TRUEOPEN_BATCH_RESULT_V1 batch_digest object_id slot",
+      "store": "not persisted; only folded into the response batch_digest",
+      "event": "-",
+      "query": "-",
+      "contract_section": "keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The active monorepo table defines this ID as (chain_id, epoch_index, operator_address); it is only a BATCH_RESULT object_id and is not persisted independently."
+    },
+    {
+      "domain": "TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "operator_address",
+        "epoch_index",
+        "service_authorization_nonce",
+        "expiry_height",
+        "profile_count",
+        "repeated(NestedFieldFrameV1(model_id, profile_version)) in (model_id bytes, profile_version) ascending"
+      ],
+      "producer": "Cortex current service key, one signature per confirmation",
+      "consumers": "Hub daily support heartbeat and support freshness",
+      "store": "not persisted; DailySupportState keeps signature_digest = SHA256(raw64) instead",
+      "event": "-",
+      "query": "QueryDailySupport",
+      "contract_section": "keeper_api_contract.md §1.4, §5.7",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The relayer/gas payer is read from Tx context only and never enters the preimage."
+    },
+    {
+      "domain": "TRUEOPEN_DATA_UNAVAILABLE_AGGREGATE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "builder_operator_address",
+        "valid_report_count",
+        "required_report_count",
+        "selected_verifier_count",
+        "repeated(optional report_digest) in selected Verifier slot order"
+      ],
+      "producer": "Task Keeper at commit deadline close",
+      "consumers": "deadline, Builder fault classification and query",
+      "store": "BuilderDataUnavailableAggregateState.aggregate_hash",
+      "event": "builder_data_unavailable",
+      "query": "QueryBuilderDataUnavailable",
+      "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.6",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DATA_UNAVAILABLE_BITMAP_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "task_builder_count",
+        "unavailable_task_builder_bitmap"
+      ],
+      "producer": "Task Keeper recompute from MsgReportDataUnavailable and the frozen Task Builder count",
+      "consumers": "data_unavailable_reported event and auditors",
+      "store": "none; derived event commitment",
+      "event": "data_unavailable_reported.unavailable_builder_bitmap_hash",
+      "query": "QueryDataUnavailableReports",
+      "contract_section": "keeper_api_contract.md §1.4 formula block, §10.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The digest commits raw bitmap bytes; decoding bit positions remains blocked until §10.5 freezes the bit-order rule."
+    },
+    {
+      "domain": "TRUEOPEN_DATA_UNAVAILABLE_REPORT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "verifier_operator_address",
+        "unavailable_task_builder_bitmap",
+        "service_authorization_nonce_snapshot"
+      ],
+      "producer": "Task Keeper from the current selected Verifier service signer and authoritative Task Builder order",
+      "consumers": "commit deadline, fault classification and query",
+      "store": "DataUnavailableReportState.report_digest",
+      "event": "data_unavailable_reported",
+      "query": "QueryDataUnavailableReports",
+      "contract_section": "keeper_api_contract.md §1.4, §10.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_EPOCH_TASK_SUMMARY_FOLD_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "epoch",
+        "previous_root",
+        "source_hash",
+        "source_count"
+      ],
+      "producer": "Task epoch summary runner",
+      "consumers": "epoch summary receipt",
+      "store": "EpochTaskSummaryCursorState.running_root",
+      "event": "none",
+      "query": "QueryEpochTaskSummary",
+      "contract_section": "keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Active bounded epoch-summary fold registered by the monorepo keeper contract."
+    },
+    {
+      "domain": "TRUEOPEN_EPOCH_TASK_SUMMARY_RECEIPT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "epoch",
+        "start_height",
+        "end_height",
+        "due_height",
+        "dispatched_height",
+        "task_count",
+        "valid_task_count",
+        "histogram",
+        "support_candidate_seen_count",
+        "support_candidates",
+        "source_root"
+      ],
+      "producer": "Task epoch summary runner",
+      "consumers": "Hub adapter and replay guard",
+      "store": "EpochTaskSummaryReceiptState.receipt_hash",
+      "event": "none; the retained epoch summary is not a public protocol event",
+      "query": "QueryEpochTaskSummary",
+      "contract_section": "keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "histogram and support_candidates are independent scalar REPEATED_V1 fields; retained truncation counts remain state metadata."
+    },
+    {
+      "domain": "TRUEOPEN_EPOCH_TASK_SUMMARY_SOURCE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "epoch",
+        "settlement_height",
+        "task_id",
+        "failure_class",
+        "support_candidate",
+        "model_id",
+        "profile_version"
+      ],
+      "producer": "Task epoch summary runner",
+      "consumers": "epoch source fold",
+      "store": "EpochTaskSummaryCursorState.running_root",
+      "event": "none",
+      "query": "QueryEpochTaskSummary",
+      "contract_section": "keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Active bounded epoch-summary source projection registered by the monorepo keeper contract."
+    },
+    {
+      "domain": "TRUEOPEN_EVIDENCE_BUNDLE_MANIFEST_V1",
+      "framing": "H_V1",
+      "fields": [
+        "payload: exact canonical JSON EvidenceBundleManifestV1 bytes as transmitted"
+      ],
+      "producer": "The Worker or Verifier data-plane producer",
+      "consumers": "result admission, data availability and challenge",
+      "store": "ResultReceiptState.verifier_evidence_bundle_hash with its manifest size for a Verifier bundle; InferReceiptState.required_evidence_commitments[] for a Worker bundle. The manifest body never enters the chain",
+      "query": "QueryResultReceipt and QueryInferReceipt",
+      "contract_section": "10-protocol_specifications/04-task/02-data_plane_and_evidence_transport.md §2, §2.1; keeper_api_contract.md §1.4",
+      "note": "The payload is UTF-8 canonical JSON, not a typed frame: no BOM, no whitespace, object keys ascending by UTF-8 bytes, uint64 as a decimal string without leading zeros and Hash32 as 64 lowercase hex without 0x. A relay must hash the exact bytes it received and must never parse and re-serialise first. There is no separate Worker bundle hash field; the Worker side is committed through required_evidence_commitments[].",
+      "event": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_EVIDENCE_SCHEMA_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "model_id",
+        "profile_version",
+        "schema_hash",
+        "tokenizer_hash",
+        "generation_type",
+        "required_top_k",
+        "batch_verification",
+        "verification_profile_id",
+        "judgment_function_version",
+        "canonical_encoding_version",
+        "metric_aggregate_proof_version",
+        "verification_mode",
+        "token_scope",
+        "include_generated_special_tokens",
+        "include_prompt_tokens",
+        "include_padding_tokens",
+        "require_output_token_ids",
+        "require_finish_reason",
+        "metric_spec",
+        "requirement_count",
+        "repeated canonical InferEvidenceRequirementV1 frames"
+      ],
+      "producer": "Hub profile registration and Genesis validation",
+      "consumers": "InferReceipt admission, Worker and Builder profile consumers",
+      "store": "VerificationProfile.evidence_schema_hash and EvidenceSchemaV1",
+      "event": "profile registration event carries the committed profile",
+      "query": "QueryProfile",
+      "contract_section": "Issue #98 Q3 proposal; keeper_api_contract.md §5.14 and §9.7",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Active evidence-schema commitment registered by the monorepo keeper contract."
+    },
+    {
+      "domain": "TRUEOPEN_FAULT_SUMMARY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "fault_count",
+        "repeated(fault_id, operator_address, duty, fault_class, classification_source, evidence_digest, jail_delta, status) in fault_id bytes ascending"
+      ],
+      "producer": "Task settlement / deadline transition that applies the task's role faults",
+      "consumers": "SettlementFactsV1.fault_summary_hash, TaskTerminalSummaryState and auditors",
+      "store": "TaskFailureClassState.fault_summary_hash, copied into TaskTerminalSummaryState.fault_summary_hash",
+      "event": "-",
+      "query": "QueryTaskFailureClass and QueryTask terminal summary",
+      "contract_section": "keeper_data_structure_contract.md §6.6",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_FREEZE_FAILURE_REFS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "previous_root",
+        "task_id",
+        "settlement_id_or_empty",
+        "task_finality_height",
+        "failure_class",
+        "evidence_digest"
+      ],
+      "producer": "Hub Keeper freeze build cursor",
+      "consumers": "freeze signal ID, query and event audit",
+      "store": "FreezeSignalBuildCursorState.rolling_failure_refs_hash / FreezeSignalState.included_failure_task_refs_hash",
+      "event": "95 freeze_signal_submitted",
+      "query": "QueryFreezeSignal",
+      "contract_section": "keeper_api_contract.md §1.4, §10.0a",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_FREEZE_SIGNAL_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "model_id",
+        "profile_version",
+        "risk_window_id",
+        "risk_window_start_height",
+        "risk_window_end_height",
+        "included_failure_task_ref_count",
+        "included_failure_task_refs_hash"
+      ],
+      "producer": "Hub Keeper on freeze signal creation",
+      "consumers": "freeze vote, freeze query",
+      "store": "FreezeSignalState.freeze_signal_id",
+      "event": "95 freeze_signal_submitted",
+      "query": "QueryFreezeSignal",
+      "contract_section": "keeper_api_contract.md §1.4, §10.0a",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_GAS_REIMBURSEMENTS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "uint32_be(count)",
+        "repeated(canonical TaskGasReimbursementV1)"
+      ],
+      "producer": "Settlement builder",
+      "consumers": "SettlementPlanV1, TaskSettlementState and QuerySettlement",
+      "store": "TaskSettlementState.gas_reimbursements_hash and SettlementPlanV1.gas_reimbursements_hash",
+      "event": "-",
+      "query": "QueryTaskGasReimbursements, QuerySettlement",
+      "contract_section": "keeper_api_contract.md §1.4, §10.10b; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The array ascends strictly and uniquely by (tx_hash raw bytes, item_index). These two domains are the only producers of a gas receipt digest."
+    },
+    {
+      "domain": "TRUEOPEN_GAS_REIMBURSEMENT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "canonical TaskGasReimbursementV1"
+      ],
+      "producer": "Task post-handler on a successful reimbursable Msg",
+      "consumers": "TRUEOPEN_GAS_REIMBURSEMENTS_V1, TaskBudget accounting and auditors",
+      "store": "not persisted as its own row; the receipt body lives in TaskGasReimbursementV1 and only the vector hash is stored",
+      "event": "28 task_gas_reimbursement_recorded",
+      "query": "QueryTaskGasReimbursements",
+      "contract_section": "keeper_api_contract.md §1.4, §5.10, §10.10b; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "canonical TaskGasReimbursementV1 is the required nested 11-field frame of §5.10, in proto field order."
+    },
+    {
+      "domain": "TRUEOPEN_GENERATED_TOKEN_IDS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "token_ids_raw = uint32_be(token_count) || repeated uint32_be(token_id)"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
+        "review": "monorepo#142 freezes token-ID commitments as one raw H_FIELDS_V1 field in 04-task/05-verification_algorithm.md §7/§7.0"
+      },
+      "producer": "Cortex from the exact generated token-ID vector",
+      "consumers": "selected Verifier and TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
+      "store": "not persisted as a separate chain row; committed inside WorkerValueCommitmentV2",
+      "event": "-",
+      "query": "-",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7 and §7.0; keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The count occurs exactly once at the start of the single raw field. Token IDs retain their original order and are neither sorted nor individually framed."
+    },
+    {
+      "domain": "TRUEOPEN_GLOBAL_CANDIDATE_POOL_SNAPSHOT_ID_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "epoch",
+        "candidate_pool_hash"
+      ],
+      "producer": "Hub Keeper at snapshot finalize",
+      "consumers": "whole repo: Task locks (task_id, snapshot_id), union bitmap hash, verifier window",
+      "store": "CandidatePoolSnapshotState.snapshot_id, CandidatePoolTaskRefState key component",
+      "event": "-",
+      "query": "QueryCandidatePoolSnapshot(snapshot_id)",
+      "contract_section": "keeper_api_contract.md §1.4 (candidate_pool_snapshot_id), §3.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Decision 28: the domain is TRUEOPEN_GLOBAL_CANDIDATE_POOL_SNAPSHOT_ID_V1. It is a separate domain from the pool hash even though the only extra binding is epoch: §1.4 rule 1 forbids reusing one domain for both the content hash and the locator."
+    },
+    {
+      "domain": "TRUEOPEN_GLOBAL_CANDIDATE_POOL_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "epoch",
+        "slot_capacity",
+        "effective_height",
+        "expires_height",
+        "active_count",
+        "active_bitmap_hash",
+        "member_set_hash"
+      ],
+      "producer": "Hub Keeper (single publisher; there is no permissionless publish Msg)",
+      "consumers": "Builder, Cortex, Task Keeper (first Worker proposal locks this pool)",
+      "store": "CandidatePoolSnapshotState.pool_hash; CurrentCandidatePoolState.pool_hash",
+      "event": "-",
+      "query": "QueryCurrentCandidatePool, QueryCandidatePoolSnapshot",
+      "contract_section": "keeper_api_contract.md §1.4 (candidate_pool_hash), §3.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Decision 28: the domain is TRUEOPEN_GLOBAL_CANDIDATE_POOL_V1. source_revision is an audit field and is deliberately outside this preimage (§3.2), so a rebuild that observes the same membership reproduces the same pool_hash. expires_height is exclusive."
+    },
+    {
+      "domain": "TRUEOPEN_HUB_PARAMS_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "new_version",
+        "canonical HubParamsV2"
+      ],
+      "producer": "The authority Msg MsgUpdateHubParams; recomputed by the Keeper",
+      "consumers": "params query, Genesis and auditors",
+      "store": "HubParamsMetaState.params_hash, written in the same transaction as the active params",
+      "event": "110 hub_params_updated field 3",
+      "query": "hub.v1.Query/Params",
+      "contract_section": "keeper_api_contract.md §18.0",
+      "note": "canonical HubParamsV2 recurses by ascending field number over all 15 required sub-messages; protobuf marshal, skipping unknown fields and omitting default-valued fields are all forbidden. monorepo never names a TRUEOPEN_HUB_PARAMS_V1 and the V2 suffix tracks HubParamsV2.schema_version = 2; the superseded row below is the Wire v0.2.x registry entry being removed here, not an upstream domain.",
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
+        "review": "monorepo#100 wire v0.3 contract closure; keeper_api_contract.md §18.0 registers only TRUEOPEN_HUB_PARAMS_V2 and monorepo carries no TRUEOPEN_HUB_PARAMS_V1 name"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_HUB_PARAMS_V1",
+        "registered": false,
+        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+      },
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_INFER_EVIDENCE_COMMITMENTS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "uint32_be(count)",
+        "repeated(FieldFrameV1(evidence_kind, evidence_hash_or_root, encoded_size_bytes)) in evidence_kind ascending"
+      ],
+      "producer": "selected Worker; Task Keeper recomputes from InferReceiptV2.required_evidence_commitments",
+      "consumers": "TRUEOPEN_INFER_RECEIPT_V2 preimage field 10, Open Verify, settlement and challenge",
+      "store": "InferReceiptState.evidence_commitments_hash (with evidence_commitment_count)",
+      "event": "-",
+      "query": "QueryInferReceipt",
+      "contract_section": "keeper_api_contract.md §1.4 line 190 (\"Infer evidence commitments\"), §5.14 lines 1335-1338; byte-exact expansion in proto/task/v1/infer_receipt.proto",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "No chain_id and no task_id: §5.14 makes this a pure content commitment whose consumer TRUEOPEN_INFER_RECEIPT_V2 already binds chain_id, task_id, task_hash and the worker. The locked Profile requires the non-empty, exact evidence-kind set; count = 0 remains a well-defined framing digest but is not admissible for an accepted Phase 0 receipt."
+    },
+    {
+      "domain": "TRUEOPEN_INFER_RECEIPT_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "worker_operator_address",
+        "service_authorization_nonce",
+        "generation_params_digest",
+        "output_hash",
+        "output_size_bytes",
+        "evidence_commitments_hash",
+        "expiry_height",
+        "generated_token_count",
+        "output_leaf_count"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
+        "review": "monorepo#142 freezes InferReceiptV2 and its MMR leaf-count field in keeper_api_contract.md §5.14/C.3"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_INFER_RECEIPT_V1",
+        "registered": false,
+        "reason": "Fresh Phase 0 deletes the V1 row and decoder in the same coordinated release; output_hash now means TRUEOPEN_OUTPUT_MMR_V1 and output_leaf_count enters the signed preimage."
+      },
+      "producer": "selected Worker current service key; Task Keeper recomputes on MsgSubmitInferReceipt",
+      "consumers": "Builder relay, Task Keeper, Verifier handraise, task_evidence_root INFER_RECEIPT leaf",
+      "store": "InferReceiptState.infer_receipt_hash = .infer_receipt_signing_digest",
+      "event": "12 infer_receipt_accepted",
+      "query": "QueryInferReceipt",
+      "contract_section": "keeper_api_contract.md §1.4 line 191, §5.14 lines 1345-1351",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "infer_receipt_hash and infer_receipt_signing_digest are the same value. service_signature (wire field 12) is excluded and required_evidence_commitments enters only through the Keeper-derived evidence_commitments_hash. worker_operator_address is address codec bytes, schema_version is exactly 2, and output_leaf_count is uint64_be."
+    },
+    {
+      "domain": "TRUEOPEN_INPUT_TOKEN_IDS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "token_ids_raw = uint32_be(token_count) || repeated uint32_be(token_id)"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
+        "review": "monorepo#142 freezes token-ID commitments as one raw H_FIELDS_V1 field in 04-task/05-verification_algorithm.md §7/§7.0"
+      },
+      "producer": "Cortex from the exact input token-ID vector",
+      "consumers": "selected Verifier and TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
+      "store": "not persisted as a separate chain row; committed inside WorkerValueCommitmentV2",
+      "event": "-",
+      "query": "-",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7 and §7.0; keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The count occurs exactly once at the start of the single raw field. Token IDs retain their original order and are neither sorted nor individually framed."
+    },
+    {
+      "domain": "TRUEOPEN_METRIC_SUMMARY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "FieldFrameV1(metric_summary: finite_count, missing_compared_count, mean_abs_logprob_diff_fp_1e6, abs_logprob_diff_p95_fp_1e6, abs_logprob_diff_p99_fp_1e6, rank_delta_nonzero_rate_fp_1e6, optional topk_jaccard_mean_fp_1e6, optional union_js_p99_fp_1e6, compared_topk_count, compared_rank_count)"
+      ],
+      "producer": "Task Keeper recompute; the request never carries an asserted hash",
+      "consumers": "settlement, challenge",
+      "store": "ResultReceiptState.metric_summary_hash",
+      "event": "-",
+      "query": "QueryResultReceipt",
+      "contract_section": "keeper_api_contract.md §1.4 line 206, §5.14 line 1373",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "§5.14 gives the domain and the \"canonical MetricSummaryV1\" input but no field enumeration, so the ordered preimage is the message's own schema field order per §1.2."
+    },
+    {
+      "domain": "TRUEOPEN_MINT_BOND_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "uint64_be(proposal_id)",
+        "target_address_raw",
+        "consensus_pubkey",
+        "disclosure_digest",
+        "bridge_signer_address_raw20",
+        "bridge_signer_pop_signature"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
+        "review": "monorepo#142 freezes the Phase 0 validator bond governance action domains and replay locator in governance_protocol.md §8.1"
+      },
+      "producer": "x/gov accepted MintBondV1 action; recomputed by the Hub Keeper",
+      "consumers": "validator-bond creation receipt, consensus ValidatorSet update, bridge signer registration, event and auditors",
+      "store": "governance action receipt keyed by (proposal_id, action_kind, target_address_raw)",
+      "event": "validator bond governance action result",
+      "query": "x/gov proposal result and validator bond state",
+      "contract_section": "10-protocol_specifications/08-governance/governance_protocol.md §8.1; keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "consensus_pubkey is raw32 Ed25519, disclosure_digest raw32, bridge signer raw20 and its low-S recoverable R||S||V proof raw65. The message is validated before framing and the generic governance digest is not an alias."
+    },
+    {
+      "domain": "TRUEOPEN_MODEL_CHAIN_PROJECTION_V2",
+      "framing": "H_V1",
+      "fields": [
+        "payload: canonical_json_v1(MsgRegisterModelProfile.profile)"
+      ],
+      "producer": "The registrant SDK; recomputed by the Keeper",
+      "consumers": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V2 and the Hub registry",
+      "store": "not persisted; ProfileState stores the projection field by field and only the registration digest is kept as a hash",
+      "query": "-",
+      "contract_section": "10-protocol_specifications/03-model/03-model_registration_chain_structure_and_manifest.md §2.5, §2.6; keeper_api_contract.md §1.4, §10.0.2",
+      "note": "canonical_json_v1 is the protocol canonicaliser, not protobuf ProtoJSON: object keys ascend by UTF-8 bytes, integers carry no float, exponent or leading zero, and bytes32 is lowercase 0x hex. Inside this projection PricingProfile.initial_output_price and min_order_value stay denomless u64; turning them into Coin or Amount breaks the upstream fixture.",
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
+        "review": "monorepo#100 wire v0.3 contract closure; 10-protocol_specifications/03-model/03-model_registration_chain_structure_and_manifest.md defines only the V2 projection and monorepo carries no TRUEOPEN_MODEL_CHAIN_PROJECTION_V1 name"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_MODEL_CHAIN_PROJECTION_V1",
+        "registered": false,
+        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+      },
+      "event": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V2",
+      "framing": "H_V1",
+      "fields": [
+        "payload: canonical_json_v1 over chain_id, chain_projection_hash, manifest_hash, profile_version, proposer_address"
+      ],
+      "producer": "The registrant SDK; recomputed by the Keeper",
+      "consumers": "Hub registry as the registration idempotency key and audit receipt",
+      "store": "ProfileState.registration_digest and RegistrationReceipt, which is keyed by the digest itself",
+      "query": "QueryProfile",
+      "contract_section": "10-protocol_specifications/03-model/03-model_registration_chain_structure_and_manifest.md §2.6; keeper_api_contract.md §1.4, §10.0.2",
+      "note": "The five JSON keys already ascend by UTF-8 bytes. chain_projection_hash and manifest_hash appear as 0x-prefixed 64 hex strings. proposer_address is simultaneously the Cosmos Msg signer, the registrant and the fee payer, so no second detached signature over this digest is accepted. RegistrationReceipt is a pure replay nullifier rebuilt from ProfileState and is not exported in Genesis.",
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
+        "review": "monorepo#100 wire v0.3 contract closure; 10-protocol_specifications/03-model/03-model_registration_chain_structure_and_manifest.md defines only the V2 digest and monorepo carries no TRUEOPEN_MODEL_REGISTRATION_DIGEST_V1 name"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V1",
+        "registered": false,
+        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+      },
+      "event": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_NATS_USER_BINDING_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "participant_type",
+        "operator_address",
+        "service_authorization_nonce",
+        "nats_user_pubkey",
+        "issued_at_unix_ms"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "db70714bb6a2e767c0020c70e669ae6bcb8df697",
+        "review": "ADR-0016 v0.4 decision three (Cortex joins NATS with its on-chain identity), TrueOpen/monorepo#148; preimage in 10-protocol_specifications/04-task/07-task_builder_coordination.md §7.5"
+      },
+      "producer": "Cortex, signing with its current service key over a locally generated NATS user key",
+      "consumers": "the NATS auth callout service run beside NATS by the NATS operator; Cortex re-verifies its own declaration before presenting it",
+      "store": "not persisted on chain; carried in the NATS CONNECT auth_token as bus.v1.NatsUserBindingV1 and held by Cortex for reuse until the service key binding changes",
+      "event": "-",
+      "query": "QueryCurrentServiceKey and QueryCortexNode supply the verification inputs; the domain itself has no query",
+      "contract_section": "10-protocol_specifications/04-task/07-task_builder_coordination.md §7.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The projection is bus.v1.NatsUserBindingV1 fields 1..7; field 8 service_signature cannot enter its own preimage. nats_user_pubkey is framed as the UTF-8 text of the nkey public key, not its decoded 32 bytes, so the preimage and the byte-for-byte comparison with the NATS CONNECT nkey field agree. The declaration has no expiry: the verifier requires an ACTIVE current service key binding at the carried service_authorization_nonce before checking the signature, so rotation or revocation invalidates every binding that key signed. Possession of the NATS user key is proven separately by the NATS-standard ed25519 nonce signature, which is NATS's own contract and not a registered domain."
+    },
+    {
+      "domain": "TRUEOPEN_OPEN_VERIFY_PROPOSAL_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "stage",
+        "candidate_pool_snapshot_id",
+        "candidate_pool_hash",
+        "proposer_operator_or_empty",
+        "data_ready_attestation_or_empty",
+        "handraise_count",
+        "repeated(handraise_signing_digest) in slot ascending"
+      ],
+      "producer": "Builder and Task Keeper recomputation for OPEN_VERIFY proposals",
+      "consumers": "Task Keeper proposal acceptance and exact replay checks",
+      "store": "BuilderStageProposalState.proposal_digest",
+      "event": "verifier_handraises_accepted",
+      "query": "Task stage proposal receipts",
+      "contract_section": "keeper_api_contract.md §1.4, §4.2.2",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_ORDER_OPENING_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "user_address",
+        "session_id",
+        "order_sequence",
+        "model_id",
+        "profile_version",
+        "task_type",
+        "input_hash",
+        "input_size_bytes",
+        "input_bucket",
+        "output_budget_bucket",
+        "generation_params_digest",
+        "earliest_submit_height",
+        "order_expire_height",
+        "deadline_policy",
+        "timeout_bucket_version",
+        "session_anchor_height",
+        "session_anchor_block_hash",
+        "builder_set_id",
+        "builder_set_hash"
+      ],
+      "producer": "Task Keeper",
+      "consumers": "Task lifecycle and settlement audit",
+      "store": "TaskCoreState.accepted_order_opening_hash",
+      "query": "QueryTask",
+      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §6; keeper_api_contract.md §1.4, §10.1",
+      "note": "The light projection of the 25-field order: it drops schema_version and the four amounts, and replaces the nested generation_params with generation_params_digest. deadline_policy stays byte-identical to the order frame. No signature bytes or signature digest enters this preimage, and Phase 0 exposes no public challenge opening Msg for it.",
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
+        "review": "monorepo#100 wire v0.3 contract closure; 10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §7 keeps no V1 opening verification branch"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_ORDER_OPENING_V1",
+        "registered": false,
+        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+      },
+      "event": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_OUTPUT_CHUNK_EQUIVOCATION_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_id",
+        "accepted_infer_receipt_hash",
+        "uint64_be(seq)",
+        "streamed_mmr_root",
+        "worker_signature",
+        "uint32_be(proof_count)",
+        "REPEATED_V1(OutputMMRPeakProofV1 as NESTED_V1(peak_hash, REPEATED_V1(final_inclusion_path hashes)))"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
+        "review": "monorepo#142 freezes the Worker output-chunk equivocation projection and vectors in 04-task/06-challenges_and_evidence.md §6.3"
+      },
+      "producer": "Task Keeper after strict WorkerEvidenceV1 decode and MMR proof verification",
+      "consumers": "Worker objective-fault kernel, compact evidence receipt, event 29 and QueryWorkerEvidence",
+      "store": "WorkerEvidenceReceiptState.evidence_digest; raw signature, peaks and paths are discarded after verification",
+      "event": "29 worker_evidence_accepted",
+      "query": "QueryWorkerEvidence",
+      "contract_section": "10-protocol_specifications/04-task/06-challenges_and_evidence.md §6.3; keeper_api_contract.md §1.4 and Appendix C.3",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The root proof_count must equal the count derived inside the outer REPEATED_V1. Every proof and every path retain their own NESTED_V1/REPEATED_V1 container; flattening either level is invalid."
+    },
+    {
+      "domain": "TRUEOPEN_OUTPUT_CHUNK_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_hash",
+        "seq",
+        "mmr_root"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "f190ed3155f4ffda22ceb074de3b2fc8cb3b3115",
+        "review": "ADR-0017 streaming OUTPUT delivery, TrueOpen/monorepo#102; both domains and the MMR_ROOT_V1 framing are registered in 04-task/05-verification_algorithm.md §8.1"
+      },
+      "producer": "selected Worker service key, once per output frame while generating",
+      "consumers": "every Task Builder on receipt of the frame, SDK on SubscribeOutput, Task Keeper when it judges an output equivocation",
+      "store": "off chain: Builder frame records and SDK frame verification state. OutputChunkEquivocationV1 is the only on-chain proof carrier and is registered separately",
+      "event": "none; an output frame is a data-plane message and emits no chain event",
+      "query": "none; frames are served by Nexus SubscribeOutput, never by a chain query",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 for both domains and their vectors; 00-fundamentals/canonical_encoding_and_domain_hashing.md §9 for the tree and §11.5 for its primitive vectors",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "mmr_root is the prefix root of the first seq + 1 leaves, so a frame signature commits to the whole prefix rather than to one chunk's bytes; that is what makes \"streamed one thing, committed another\" provable. seq is u64_be and mmr_root is raw32, never hex text. Activates with TRUEOPEN_INFER_RECEIPT_V2 and accepts no material before that batch. Vectors: testdata/v1/task/output_mmr_v1.json."
+    },
+    {
+      "domain": "TRUEOPEN_OUTPUT_FIN_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_hash",
+        "uint64_be(final_seq)",
+        "output_mmr_root",
+        "uint32_be(finish_reason)"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/wire",
+        "commit": "e2552264c79dde977fa9807743f1ed02fafaaef4",
+        "review": "TrueOpen/wire#35 freezes a Worker-authenticated OUTPUT terminal frame"
+      },
+      "producer": "selected Worker service key, once after the last accepted output chunk",
+      "consumers": "every Task Builder on receipt of Fin and SDK on SubscribeOutput",
+      "store": "off chain: Builder stores the original OutputFinV1 for byte-identical subscription replay; finish_reason does not enter the OUTPUT MMR or TaskDataObjectMetadataV1",
+      "event": "none; Fin is a data-plane message and emits no chain event",
+      "query": "none; Fin is served by Nexus SubscribeOutput, never by a chain query",
+      "contract_section": "TrueOpen/wire#35; testdata/v1/task/output_mmr_v1.json",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "finish_reason is the FinishReasonV1 enum number encoded as uint32_be. Only EOS_TOKEN, STOP_SEQUENCE, MAX_OUTPUT_TOKENS and MAX_OUTPUT_DURATION are valid; UNSPECIFIED and unknown values fail closed before digest verification. Error and cancellation outcomes do not produce OutputFinV1. The output_mmr_root is raw32 and worker_signature is excluded from its own preimage. Vectors: testdata/v1/task/output_mmr_v1.json."
+    },
+    {
+      "domain": "TRUEOPEN_OUTPUT_MMR_V1",
+      "framing": "MMR_ROOT_V1",
+      "fields": [
+        "leaves: the CANONICAL_OUTPUT_TEXT_V1 TEXT component in emission order, leaf index = chunk sequence number and leaf bytes = that chunk's UTF-8 bytes; chunk count and boundaries are part of the commitment"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "f190ed3155f4ffda22ceb074de3b2fc8cb3b3115",
+        "review": "ADR-0017 streaming OUTPUT delivery, TrueOpen/monorepo#102; both domains and the MMR_ROOT_V1 framing are registered in 04-task/05-verification_algorithm.md §8.1"
+      },
+      "producer": "selected Worker, which appends one leaf per emitted chunk",
+      "consumers": "Builder recomputing the root per frame, Verifier reconstructing it from chunk_lengths, SDK verifying delivery, Task Keeper through InferReceipt.output_hash",
+      "store": "InferReceiptState.output_hash, once TRUEOPEN_INFER_RECEIPT_V2 changes that field's semantics from a whole-blob hash to this root",
+      "event": "12 infer_receipt_accepted, as output_hash, from the activation of TRUEOPEN_INFER_RECEIPT_V2",
+      "query": "QueryInferReceipt",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 for both domains and their vectors; 00-fundamentals/canonical_encoding_and_domain_hashing.md §9 for the tree and §11.5 for its primitive vectors",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "An MMR, not MERKLE_ROOT_V1: a prefix root has to be recomputable outside the final tree, and the prefix of a Merkle tree is not a subtree of it. The root alone does not fix the tree shape, so InferReceipt carries output_leaf_count beside it; that count is a receipt field and enters no digest here. An empty output is one zero-length leaf, so MmrEmptyV1 of this domain is never a legal output_hash. Activates with TRUEOPEN_INFER_RECEIPT_V2. Vectors: testdata/v1/task/output_mmr_v1.json for this domain, testdata/v1/shared/mmr_primitive_v1.json for the tree itself."
+    },
+    {
+      "domain": "TRUEOPEN_PAID_ROLES_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "settlement_id",
+        "paid_role_count",
+        "repeated(duty, operator_address) sorted by duty then operator bytes"
+      ],
+      "producer": "Task Keeper from SettlementFactsV1.paid_roles",
+      "consumers": "settlement event, reward and auditors",
+      "store": "terminal settlement commitment after K-BLOCK-16",
+      "event": "task_settled.paid_roles_hash after K-BLOCK-16",
+      "query": "Task settlement view after K-BLOCK-16",
+      "contract_section": "keeper_api_contract.md §1.4, §10.10a",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_PARAMETER_BUCKET_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "bucket_kind",
+        "bucket_key",
+        "new_version",
+        "effective_height",
+        "entry_count",
+        "repeated(canonical entry in order)"
+      ],
+      "producer": "Hub governance action",
+      "consumers": "Task snapshot/query/auditor",
+      "store": "ParameterBucketVersionState.content_hash",
+      "event": "5 parameter_bucket_updated",
+      "query": "QueryTimeoutBucket",
+      "contract_section": "keeper_api_contract.md §1.4, §5.2",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "QueryReferenceBucket was removed with the governed ReferenceBucket pricing path; TimeoutBucket is the only remaining parameter bucket consumer."
+    },
+    {
+      "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "leaf_version",
+        "canonical_leaf_bytes"
+      ],
+      "producer": "The selected Verifier, one leaf per compared output position",
+      "consumers": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V2 and challenge opening",
+      "store": "not persisted; leaves exist only inside the metric root and its openings",
+      "query": "-",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "leaf_version is 1 and canonical_leaf_bytes is a single nested FRAME_V1 over 25 fields, not 25 additional outer fields. The two optional ratios encode presence in band, and their presence is decided solely by the locked profile's compare flags. A missing or non-finite leaf pins both logprobs, the absolute difference, both ranks and rank_delta to zero and leaves both optionals absent; missing_flag and finite_flag both true is rejected.",
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
+        "review": "monorepo#100 wire v0.3 contract closure; 10-protocol_specifications/04-task/05-verification_algorithm.md records that the V1 preimage bound neither task_hash nor verify_round and is frozen for historical verifiers only"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V1",
+        "registered": false,
+        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+      },
+      "event": "-"
+    },
+    {
+      "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V2",
+      "framing": "MERKLE_ROOT_V1",
+      "fields": [
+        "leaves: TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2 hashes in output_position ascending order, positions contiguous and unique"
+      ],
+      "producer": "The selected Verifier",
+      "consumers": "ResultReceipt, settlement and challenge",
+      "store": "ResultReceiptState.metric_root",
+      "query": "QueryResultReceipt",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7 for leaves and ordering; canonical_encoding_and_domain_hashing.md §8 for the tree; keeper_api_contract.md §1.4",
+      "note": "Tree rules are the shared MerkleLeafV1, MerkleNodeV1 and MerkleEmptyV1 prefixes: an odd trailing node is promoted unchanged, never duplicated or zero-padded, and an empty set roots to MerkleEmptyV1(domain) rather than 32 zero bytes. The leaf ordering is defined once, in 10-protocol_specifications/04-task/05-verification_algorithm.md §7.",
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
+        "review": "monorepo#100 wire v0.3 contract closure; 10-protocol_specifications/04-task/05-verification_algorithm.md lists the root as versioned up together with its leaf and requires every fixture to be regenerated"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V1",
+        "registered": false,
+        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+      },
+      "event": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_PROFILE_VERIFICATION_SNAPSHOT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "manifest_hash",
+        "tokenizer_hash",
+        "runtime_class",
+        "required_top_k",
+        "generation_type",
+        "verification_profile",
+        "verification_thresholds",
+        "batch_verification",
+        "schema_hash"
+      ],
+      "producer": "ProfileExecutionSnapshotHash",
+      "consumers": "Task assignment, settlement and auditor",
+      "store": "TaskAssignmentState.profile_execution_snapshot_hash",
+      "event": "11 worker_assignment_finalized",
+      "query": "QueryTaskAssignment",
+      "contract_section": "keeper_api_contract.md §1.4 and §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "verification_profile, verification_thresholds, batch_verification and metrics frame recursively in proto field-number order; manifest_hash and generation_type are retained execution inputs registered by the current monorepo formula."
+    },
+    {
+      "domain": "TRUEOPEN_QUERY_RPC_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "rpc_method"
+      ],
+      "producer": "QueryRPCDigestV1",
+      "consumers": "page token RPC binding only; never enters consensus state",
+      "store": "not persisted",
+      "event": "-",
+      "query": "every paginated Query that emits or consumes PageTokenV1",
+      "contract_section": "keeper_api_contract.md §1.4, §16.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "rpc_method is the ASCII fully-qualified /package.Service/Method literal. The closed set of eleven paginated RPCs is QueryPageSelectorSchemaV1's key set; QueryRPCDigestV1 refuses any other method."
+    },
+    {
+      "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "rpc_method_digest"
+      ],
+      "discriminator": "rpc_method_digest",
+      "variants": [
+        {
+          "key": "/hub.v1.Query/Builders",
+          "note": "§16.3 line 4004/4024: the discovery RPCs take only page, so the selector binds chain_id and the RPC digest and nothing else; padding it with a placeholder input would let a token minted for one scope verify under another"
+        },
+        {
+          "key": "/hub.v1.Query/CandidatePoolMembers",
+          "fields": [
+            "snapshot_id"
+          ]
+        },
+        {
+          "key": "/hub.v1.Query/EmergencyFreezeVotes",
+          "fields": [
+            "freeze_signal_id"
+          ]
+        },
+        {
+          "key": "/hub.v1.Query/FreezeSignals",
+          "fields": [
+            "model_id",
+            "profile_version",
+            "status"
+          ]
+        },
+        {
+          "key": "/hub.v1.Query/Models",
+          "note": "§16.3 line 4004/4024: the discovery RPCs take only page, so the selector binds chain_id and the RPC digest and nothing else; padding it with a placeholder input would let a token minted for one scope verify under another"
+        },
+        {
+          "key": "/hub.v1.Query/PendingEarnings",
+          "fields": [
+            "address"
+          ]
+        },
+        {
+          "key": "/hub.v1.Query/RewardEligibleTasks",
+          "fields": [
+            "epoch",
+            "reward_bucket",
+            "order_value_bucket"
+          ]
+        },
+        {
+          "key": "/hub.v1.Query/ServiceUnbondings",
+          "fields": [
+            "operator_address",
+            "status"
+          ]
+        },
+        {
+          "key": "/task.v1.Query/DataUnavailableReports",
+          "fields": [
+            "task_id",
+            "verify_round"
+          ]
+        },
+        {
+          "key": "/task.v1.Query/RoleActiveTasks",
+          "fields": [
+            "operator_address",
+            "duty"
+          ]
+        },
+        {
+          "key": "/task.v1.Query/SessionsByOwner",
+          "fields": [
+            "user_address"
+          ]
+        }
+      ],
+      "producer": "QueryPageDigestsV1",
+      "consumers": "page token binding only; never enters consensus state",
+      "store": "not persisted",
+      "event": "-",
+      "query": "every paginated Query that binds its page token to a selector",
+      "contract_section": "keeper_api_contract.md §1.4, §16.1; the RPC tables are §16.2, §16.3 and §16.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The eleven variants are frozen against three other statements of the same set: the proto descriptors (a request message carrying QueryPageRequestV1), QueryPageSelectorSchemaV1, and the golden vectors. The document side was reviewed row by row against §16.2 lines 3977/3982/3988, §16.3 lines 4004/4007/4008/4014/4021/4022/4024 and §16.4 line 4049 and agrees with all three."
+    },
+    {
+      "domain": "TRUEOPEN_REPLACE_BUILDER_SET_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "proposal_id",
+        "expected_current_version",
+        "expected_current_set_hash",
+        "next_builder_set_id",
+        "uint32_be(member_count)",
+        "repeated(member address bytes)",
+        "effective_height"
+      ],
+      "producer": "An x/gov accepted typed action; recomputed by the Hub Keeper",
+      "consumers": "pending replacement, receipt, event and auditors",
+      "store": "BuilderSetPendingReplacementState.action_digest",
+      "event": "60 builder_set_updated, whose payload does not carry the digest",
+      "query": "QueryBuilderSet",
+      "contract_section": "keeper_api_contract.md §9.6c",
+      "note": "Not a Tx Msg: it is only invoked by an accepted x/gov typed action. members ascend strictly and uniquely by address codec raw bytes with builders_per_task at most count at most builder_set_cap, effective_height is at least accepted_height plus builder_set_update_lead_blocks, and at most one pending replacement exists per height. An identical action is a noop while a conflicting expected version or hash is rejected.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_RESULT_COMMITMENT_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "verify_round",
+        "verifier_operator_address",
+        "result_payload_hash",
+        "salt"
+      ],
+      "producer": "The selected Verifier; recomputed by the Task Keeper",
+      "consumers": "result admission and challenge opening",
+      "store": "CommitState.commit_hash",
+      "event": "16 commit_accepted field 5",
+      "query": "QueryVerifyCommit",
+      "contract_section": "10-protocol_specifications/04-task/04-task_execution_verification_and_settlement.md §9; keeper_api_contract.md §1.4, §5.14",
+      "note": "Addresses enter as canonical bech32 decoded through the configured address codec, never as HRP or bech32 text. salt must be a non-ZERO32 Hash32. The caller does not assert result_payload_hash: the Keeper rebuilds it from authoritative state and compares byte for byte.",
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
+        "review": "monorepo#100 wire v0.3 contract closure; 10-protocol_specifications/04-task/05-verification_algorithm.md records that V1 bound neither task_hash, payload schema nor salt"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_RESULT_COMMITMENT_V1",
+        "registered": false,
+        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+      },
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_RESULT_RECEIPT_REFS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "cluster_member_count",
+        "repeated(selected_verifier_index, verifier_operator_address, commit_key, result_receipt_signing_digest) in selected_verifier_index ascending"
+      ],
+      "producer": "Task Keeper BuildSettlementFacts",
+      "consumers": "SettlementFactsV1, TaskEvidenceRoot and auditors",
+      "store": "SettlementFactsV1.result_receipt_refs_hash and TaskEvidenceRootState.result_receipt_refs_hash",
+      "event": "task_settled indirectly through settlement_facts_hash after K-BLOCK-16",
+      "query": "settlement and TaskEvidenceRoot views",
+      "contract_section": "keeper_api_contract.md §1.4, §10.10a",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_RESULT_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "verifier_operator_address",
+        "service_authorization_nonce",
+        "generation_params_digest",
+        "metric_root",
+        "canonical metric_summary",
+        "aggregate_proof_hash",
+        "verifier_evidence_bundle_hash",
+        "verifier_evidence_manifest_size_bytes",
+        "salt",
+        "expiry_height"
+      ],
+      "producer": "The selected Verifier",
+      "consumers": "Task Keeper result admission",
+      "store": "ResultReceiptState.result_receipt_signing_digest",
+      "event": "17 result_accepted field 5",
+      "query": "QueryResultReceipt",
+      "contract_section": "keeper_api_contract.md §1.4, §5.14",
+      "note": "canonical metric_summary is the required nested MetricSummaryV1 frame, not its hash. ResultReceiptV2 field 15 service_signature stays out of the preimage. Every composite is length-framed field by field; protobuf marshal bytes must never be hashed.",
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
+        "review": "monorepo#100 wire v0.3 contract closure; keeper_api_contract.md §5.14 states the old TRUEOPEN_RESULT_V1 does not enter the fresh Phase 0 producer set and Wire v0.3.0 keeps no synonymous alias"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_RESULT_V1",
+        "registered": false,
+        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+      },
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_REWARD_BUCKET_BOUNDARIES_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "boundary_count",
+        "repeated frame(boundary_index, canonical Amount.atomic_units)"
+      ],
+      "producer": "RewardOrderValueBucketBoundariesHash",
+      "consumers": "Reward competition epoch recorder and Genesis validation",
+      "store": "RewardCompetitionEpochState.order_value_bucket_boundaries_hash",
+      "event": "none",
+      "query": "QueryCompetitionEpoch",
+      "contract_section": "keeper_data_structure_contract.md §6.7",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Each boundary is NestedFieldFrameV1(boundary_index, canonical Amount.atomic_units) inside one REPEATED_V1 field."
+    },
+    {
+      "domain": "TRUEOPEN_REWARD_EPOCH_AUDIT_FOLD_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "source_epoch",
+        "reward_bucket",
+        "previous_root",
+        "leaf_hash"
+      ],
+      "producer": "Reward epoch audit prune runner",
+      "consumers": "Reward audit root",
+      "store": "RewardEpochPruneCursorState",
+      "event": "none",
+      "query": "QueryRewardEpochAudit",
+      "contract_section": "keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Active bounded reward-audit fold registered by the monorepo keeper contract."
+    },
+    {
+      "domain": "TRUEOPEN_REWARD_EPOCH_AUDIT_LEAF_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "source_epoch",
+        "reward_bucket",
+        "phase",
+        "primary_key_frame",
+        "state_frame"
+      ],
+      "producer": "Reward epoch audit prune runner",
+      "consumers": "Reward audit fold",
+      "store": "RewardEpochPruneCursorState",
+      "event": "none",
+      "query": "QueryRewardEpochAudit",
+      "contract_section": "keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Active bounded reward-audit leaf registered by the monorepo keeper contract."
+    },
+    {
+      "domain": "TRUEOPEN_REWARD_EPOCH_AUDIT_ROOT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "source_epoch",
+        "reward_bucket",
+        "folded_root",
+        "eligible_task_count",
+        "mark_count",
+        "accrual_count",
+        "contribution_count",
+        "total_count"
+      ],
+      "producer": "Reward epoch audit prune runner",
+      "consumers": "Reward audit query",
+      "store": "RewardEpochAuditState",
+      "event": "none",
+      "query": "QueryRewardEpochAudit",
+      "contract_section": "keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Active immutable reward-audit root registered by the monorepo keeper contract."
+    },
+    {
+      "domain": "TRUEOPEN_ROLE_FAULT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "operator_address",
+        "duty",
+        "fault_class",
+        "evidence_digest"
+      ],
+      "producer": "Task/Hub fault executor",
+      "consumers": "jail, slash, fault query",
+      "store": "RoleFaultState.fault_id",
+      "event": "50 fault_recorded, 51 role_jailed, 52 role_slashed",
+      "query": "QueryRoleFault",
+      "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.7",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The evidence_digest field is copied byte-for-byte from the matching TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1 TaskFailureClassState (§10.12)."
+    },
+    {
+      "domain": "TRUEOPEN_ROTATE_BRIDGE_SIGNER_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "proposal_id",
+        "target_operator",
+        "expected_key_version",
+        "next_bridge_signer_address_raw20",
+        "next_bridge_signer_pop_signature"
+      ],
+      "producer": "x/gov action, recomputed by the Hub Keeper",
+      "consumers": "governance receipt, event and auditors",
+      "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
+      "event": "127 bridge_signer_rotated",
+      "query": "QueryBridgeStatus",
+      "contract_section": "keeper_api_contract.md §9.6c",
+      "note": "No integer wrappers here: expected_key_version is a bare uint64. raw20 is exactly 20 bytes and the PoP signature exactly 65. Must execute in the same proposal and transaction as BeginBridgeCutoverV1, and key_version is checked to advance by exactly one.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_ROUND_EFFECT_PLAN_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "uint32_be(effect_count)",
+        "repeated(effect_index, effect_kind, optional source_address, optional destination_address, requested_amount)"
+      ],
+      "producer": "Task Keeper when it freezes the round effect plan",
+      "consumers": "The effect executor and TRUEOPEN_ROUND_EFFECT_ROOT_V1",
+      "store": "VerificationRoundState.round_effect_plan_root",
+      "event": "-",
+      "query": "QueryVerificationRound",
+      "contract_section": "keeper_api_contract.md §1.4, §10.14a; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The explicit count must equal the number of repeated entries, which ascend by contiguous effect_index. This domain freezes the planned fields only; applied_amount, unfilled_amount and status belong to the root."
+    },
+    {
+      "domain": "TRUEOPEN_ROUND_EFFECT_ROOT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "round_effect_plan_root",
+        "uint32_be(effect_count)",
+        "repeated(effect_index, applied_amount, unfilled_amount, status)"
+      ],
+      "producer": "The effect executor once every effect reaches APPLIED",
+      "consumers": "VerificationRoundState, task finality and the terminal summary",
+      "store": "VerificationRoundState.round_effect_root",
+      "event": "27 verification_round_closed",
+      "query": "QueryVerificationRound",
+      "contract_section": "keeper_api_contract.md §1.4, §10.14a; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Binds the plan root so execution results cannot be re-attributed to another plan. A terminal root must not be written before every effect is APPLIED."
+    },
+    {
+      "domain": "TRUEOPEN_ROUND_FUNDING_LOCK_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "opener",
+        "challenge_open_bond",
+        "verifier_budget"
+      ],
+      "producer": "MsgOpenChallengeRound",
+      "consumers": "RoundFundingState, round close and the effect executor",
+      "store": "RoundFundingState.funding_lock_hash",
+      "event": "26 challenge_round_opened",
+      "query": "QueryVerificationRound",
+      "contract_section": "keeper_api_contract.md §1.4 supplementary table, §10.15; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_ROUND_FUNDING_RESOLUTION_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "outcome",
+        "verifier_paid",
+        "bond_refund",
+        "bond_slash",
+        "opener_recovery",
+        "treasury_residual"
+      ],
+      "producer": "Round close and the effect executor",
+      "consumers": "RoundFundingState, settlement and auditors",
+      "store": "RoundFundingState.funding_resolution_hash",
+      "event": "27 verification_round_closed",
+      "query": "QueryVerificationRound",
+      "contract_section": "keeper_api_contract.md §1.4 supplementary table, §10.15; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_SELECTED_TASK_BUILDERS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "builder_set_id",
+        "builder_set_hash",
+        "repeated(builder_operator_address) in frozen selection order"
+      ],
+      "producer": "Task Keeper at Task Builder selection",
+      "consumers": "stage duty checks, cleanup, auditors",
+      "store": "TaskBuilderSelectionState.selected_task_builders_hash",
+      "event": "task builders selected event",
+      "query": "QueryTaskBuilders (registered by the unblock round in query.proto)",
+      "contract_section": "keeper_api_contract.md §1.4 line 164; keeper_data_structure_contract.md §6.5 lines 1136-1137",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "selected_task_builders is a scalar Address REPEATED_V1 field in the frozen selection order; its inner count is the authoritative list length."
+    },
+    {
+      "domain": "TRUEOPEN_SELECTED_VERIFIERS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "verifier_legal_set_hash",
+        "randomness_height",
+        "randomness_beacon",
+        "selected_count",
+        "repeated(selection_index, slot, slot_version, operator_address) in selection order"
+      ],
+      "producer": "Task Keeper after future Beacon B selects Verifiers without replacement",
+      "consumers": "Verification, settlement, cleanup and auditors",
+      "store": "VerifierAssignmentState.selected_verifiers_hash",
+      "event": "verifier_assignment_finalized",
+      "query": "Verifier assignment and task views",
+      "contract_section": "keeper_api_contract.md §1.4, §10.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_SERVICE_DESCRIPTOR_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "participant_type",
+        "operator_address",
+        "descriptor_version",
+        "endpoint_count",
+        "repeated(endpoint_kind, uri, protocol_version, tls_pubkey_hash) in (endpoint_kind, uri) ascending"
+      ],
+      "producer": "participant; Hub Keeper recomputes in MsgUpdateServiceDescriptor",
+      "consumers": "descriptor query and event",
+      "store": "ServiceDescriptorState.descriptor_hash",
+      "event": "EventServiceDescriptorUpdated",
+      "query": "QueryServiceDescriptor",
+      "contract_section": "keeper_api_contract.md §1.4, §9.6b",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "§9.6b deliberately omits chain_id from this preimage; the digest is scoped by (participant_type, operator_address, descriptor_version). tls_pubkey_hash is a caller-authored opaque 32-byte value (§1.4 rule 7) and is framed as an empty field when absent."
+    },
+    {
+      "domain": "TRUEOPEN_SERVICE_KEY_RESPONSIBILITY_ID_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "participant_type",
+        "responsibility_kind",
+        "session_id",
+        "task_id",
+        "scope_id",
+        "operator_address"
+      ],
+      "producer": "Task Keeper service responsibility lifecycle",
+      "consumers": "Hub service-key rotation gate and Task cleanup",
+      "store": "ServiceKeyResponsibilityState.responsibility_id",
+      "event": "none",
+      "query": "internal responsibility audit",
+      "contract_section": "keeper_api_contract.md §1.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Active canonical responsibility primary key registered by the monorepo keeper contract."
+    },
+    {
+      "domain": "TRUEOPEN_SERVICE_KEY_ROTATION_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "participant_type",
+        "operator_address",
+        "new_service_pubkey",
+        "expected_current_service_authorization_nonce",
+        "next_service_authorization_nonce"
+      ],
+      "producer": "new service key; Hub Keeper recomputes in MsgRotateServiceKey",
+      "consumers": "Hub identity rotation proof-of-possession check",
+      "store": "not persisted; the accepted binding lands in the participant identity row",
+      "event": "EventServiceKeyRotated",
+      "query": "QueryCurrentServiceKey",
+      "contract_section": "keeper_api_contract.md §1.4, §10.0c1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "next nonce is Keeper-derived checked_add(current, 1); the old service key never re-signs."
+    },
+    {
+      "domain": "TRUEOPEN_SERVICE_REGISTRATION_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "participant_type",
+        "operator_address",
+        "service_pubkey",
+        "initial_service_authorization_nonce"
+      ],
+      "producer": "new Cortex or Builder service key; Hub Keeper recomputes in keeper/service_provider_runtime.go prepareRegisterService (Cortex) and keeper/msg_server_builder.go RegisterBuilder (Builder)",
+      "consumers": "Hub identity registration proof-of-possession check",
+      "store": "not persisted; the accepted binding lands in CortexNodeState.current_service_pubkey or BuilderState.current_service_pubkey",
+      "event": "6 service_stake_changed, 112 service_registered, 105 builder_registered",
+      "query": "QueryCurrentServiceKey (binding, not the digest)",
+      "contract_section": "keeper_api_contract.md §1.4, §10.0c step 1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "initial_service_authorization_nonce is Keeper-derived and fixed to 1; caller must not submit it. participant_type separates service identities, while Cortex and Builder registration intentionally share the same identity proof producer."
+    },
+    {
+      "domain": "TRUEOPEN_SESSION_SEQUENCE_ROOT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "previous_root",
+        "order_sequence",
+        "status",
+        "task_id",
+        "consumed_height",
+        "cancelled_height"
+      ],
+      "producer": "Task Keeper session history compaction",
+      "consumers": "SessionTerminalSummary query and auditors",
+      "store": "SessionTerminalSummaryState.sequence_root",
+      "event": "none",
+      "query": "QuerySessionTerminalSummary",
+      "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.2",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Rolling root updated in strictly increasing order_sequence order during bounded history compaction."
+    },
+    {
+      "domain": "TRUEOPEN_SESSION_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "user_address",
+        "session_nonce"
+      ],
+      "producer": "Task Keeper in MsgCreateSession (chain-generated; the caller never submits it)",
+      "consumers": "SDK, task_id derivation, every session-scoped Store row and Query",
+      "store": "StreamState.session_id key; SessionNonceState.next_session_nonce is its counter",
+      "event": "session created event",
+      "query": "QuerySession, QuerySessionsByOwner",
+      "contract_section": "keeper_api_contract.md §1.4, §5.13; keeper_data_structure_contract.md §6.2",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "No chain_id: §5.13 scopes session_id inside the user namespace only, and every consumer that needs cross-chain separation goes through task_id or an explicitly chain-bound digest. SessionNonceState is retained forever so a session_id is never reused. There is no implicit first-order session creation."
+    },
+    {
+      "domain": "TRUEOPEN_SETTLEMENT_BILL_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "worker_operator_address",
+        "infer_receipt_ref",
+        "fee_rule_version",
+        "generated_token_count",
+        "work_unit"
+      ],
+      "producer": "PHASE0_PER_OUTPUT_TOKEN_V2 adapter",
+      "consumers": "SettlementPlanV1, TaskSettlementState and QuerySettlement",
+      "store": "TaskSettlementState.settlement_bill_hash_or_zero32",
+      "event": "-",
+      "query": "QuerySettlement",
+      "contract_section": "keeper_api_contract.md §1.4 supplementary table, §10.10a; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The one domain in the settlement group that does not open with chain_id: the bill is scoped by infer_receipt_ref, which already binds the chain through the receipt."
+    },
+    {
+      "domain": "TRUEOPEN_SETTLEMENT_FACTS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "settlement_id",
+        "FieldFrameV1(settlement_facts: task_id, verify_round, settlement_height, settlement_facts_cutoff_height, settlement_duty_builder_operator, consensus_cluster_hash, verdict, failure_class, fault_summary_hash, paid_roles, infer_receipt_ref, result_receipt_refs_hash, registered_full_result_refs_hash, challenge_close_height)"
+      ],
+      "producer": "Task Keeper BuildSettlementFacts",
+      "consumers": "verdict, TaskEvidenceRoot, query, event and auditors",
+      "store": "terminal settlement facts commitment after K-BLOCK-16",
+      "event": "task_settled.settlement_facts_hash after K-BLOCK-16",
+      "query": "QueryTask settlement view after K-BLOCK-16",
+      "contract_section": "keeper_api_contract.md §1.4, §10.10a",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "SettlementFactsV1 contains no amount and does not authorize a funded terminal transition while K-BLOCK-16 remains open."
+    },
+    {
+      "domain": "TRUEOPEN_SETTLEMENT_PLAN_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "settlement_id",
+        "canonical SettlementPlanV1"
+      ],
+      "producer": "Task Keeper BuildSettlementPlan",
+      "consumers": "TaskSettlementState, QuerySettlement, the settled event and auditors",
+      "store": "TaskSettlementState.settlement_plan_hash",
+      "event": "task_settled",
+      "query": "QuerySettlement",
+      "contract_section": "keeper_api_contract.md §1.4, §10.10a; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "canonical SettlementPlanV1 is the required nested 19-field frame in proto field order. It embeds the verifier payout and gas receipt arrays inline as well as their vector hash, so a mismatch between the inline array and gas_reimbursements_hash changes the digest."
+    },
+    {
+      "domain": "TRUEOPEN_SET_BRIDGE_FREEZE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "proposal_id",
+        "frozen",
+        "uint32_be(expected_lifecycle)"
+      ],
+      "producer": "x/gov action, recomputed by the Hub Keeper",
+      "consumers": "governance receipt, event and auditors",
+      "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
+      "event": "122 bridge_freeze_changed",
+      "query": "QueryBridgeStatus",
+      "contract_section": "keeper_api_contract.md §9.6c",
+      "note": "frozen is a bare bool; only expected_lifecycle is wrapped. A successful unfreeze deletes the BridgeCutoverState row.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_SET_BRIDGE_LIMIT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "proposal_id",
+        "expected_inbound_limit_per_epoch",
+        "expected_outbound_limit_per_epoch",
+        "next_inbound_limit_per_epoch",
+        "next_outbound_limit_per_epoch"
+      ],
+      "producer": "x/gov action, recomputed by the Hub Keeper",
+      "consumers": "governance receipt, event and auditors",
+      "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
+      "event": "125 bridge_limits_scheduled on the pending write and 126 bridge_limits_activated at the epoch boundary",
+      "query": "QueryBridgeStatus",
+      "contract_section": "keeper_api_contract.md §9.6c",
+      "note": "All four limits are typed Amount with no integer wrapper. The action writes exactly one BridgePendingLimitState row with effective_epoch set to the current reward epoch plus one; runtime limits never move through MsgUpdateHubParams.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_SUPPORT_PROFILES_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "profile_count",
+        "repeated(NestedFieldFrameV1(model_id, profile_version)) in caller-canonical ascending order"
+      ],
+      "producer": "Hub Keeper in MsgBatchConfirmModelSupport",
+      "consumers": "DailySupportState replay equality check",
+      "store": "DailySupportState.supported_profiles_hash",
+      "event": "-",
+      "query": "QueryDailySupport",
+      "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_BUILDERS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "builder_set_hash",
+        "session_anchor_block_hash"
+      ],
+      "producer": "TaskBuilderSeed",
+      "consumers": "Task Builder selection",
+      "store": "TaskBuilderSelectionState",
+      "event": "none",
+      "query": "QueryTaskBuilders",
+      "contract_section": "keeper_api_contract.md §5.13",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_BUILDER_RANK_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_builder_seed",
+        "builder_operator_address"
+      ],
+      "producer": "task/types.TaskBuilderRank",
+      "consumers": "Node Task Builder selection, Builder and SDK",
+      "store": "not persisted; selected result commits through TRUEOPEN_SELECTED_TASK_BUILDERS_V1",
+      "event": "none",
+      "query": "QueryTaskBuilders after admission",
+      "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Raw rank bytes sort ascending with canonical address as tie-break; the selected result is committed separately by TRUEOPEN_SELECTED_TASK_BUILDERS_V1."
+    },
+    {
+      "domain": "TRUEOPEN_TASK_DATA_FETCH_BODY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "canonical TaskDataObjectRefV1",
+        "optional ByteRangeV1(offset, length)"
+      ],
+      "producer": "The original User SDK or a Cortex service holding the current duty",
+      "consumers": "TaskDataRequestAuthV1.body_digest for FetchTaskData",
+      "store": "not persisted on chain; bound into the StoreOnce row body_digest",
+      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1 at monorepo main@15b282ff1e3c8d862c1f796ae8e826e4086b0d0b",
+      "note": "canonical TaskDataObjectRefV1 is the required nested eight-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. A whole-object read must sign range absent and must not rewrite it as a zero offset and length; a present range needs length above zero with offset plus length neither overflowing nor exceeding the object.",
+      "event": "-",
+      "query": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_DATA_FINALIZE_RESULT_BODY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_hash",
+        "session_id",
+        "task_id",
+        "infer_receipt_hash",
+        "infer_receipt_signature_digest"
+      ],
+      "producer": "The selected Worker finalizing its result",
+      "consumers": "TaskDataRequestAuthV1.body_digest for FinalizeTaskResult",
+      "store": "not persisted on chain; bound into the StoreOnce row body_digest",
+      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1 at monorepo main@15b282ff1e3c8d862c1f796ae8e826e4086b0d0b",
+      "note": "infer_receipt_signature_digest is SHA256 over the raw 64-byte service signature, which stops a different signature being substituted into an already authenticated body.",
+      "event": "-",
+      "query": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_DATA_FINALIZE_VERIFIER_BODY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_hash",
+        "session_id",
+        "task_id",
+        "verify_round",
+        "verifier_operator",
+        "result_receipt_signing_digest",
+        "result_receipt_signature_digest"
+      ],
+      "producer": "A round 1 or round 2 selected Verifier finalizing its evidence bundle",
+      "consumers": "TaskDataRequestAuthV1.body_digest for FinalizeVerifierEvidence",
+      "store": "not persisted on chain; bound into the StoreOnce row body_digest",
+      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1 at monorepo main@15b282ff1e3c8d862c1f796ae8e826e4086b0d0b",
+      "note": "result_receipt_signature_digest is SHA256 over the raw 64-byte service signature. verify_round distinguishes the two rounds; a round 1 bundle is never readable as round 2 input.",
+      "event": "-",
+      "query": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_DATA_METADATA_BODY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "canonical TaskDataObjectRefV1"
+      ],
+      "producer": "The original User SDK or a Cortex service holding the current duty",
+      "consumers": "TaskDataRequestAuthV1.body_digest for GetTaskDataMetadata",
+      "store": "not persisted on chain; bound into the StoreOnce row body_digest",
+      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1 at monorepo main@15b282ff1e3c8d862c1f796ae8e826e4086b0d0b",
+      "note": "canonical TaskDataObjectRefV1 is the required nested eight-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator. Transport carries Hash32 as lowercase hex, but the preimage takes raw32.",
+      "event": "-",
+      "query": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_DATA_REQUEST_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "builder_operator_address",
+        "rpc_method",
+        "body_digest",
+        "requester_kind",
+        "requester_address",
+        "service_authorization_nonce",
+        "request_nonce",
+        "expiry_height"
+      ],
+      "producer": "A CORTEX_SERVICE requester signing with its current service key",
+      "consumers": "Nexus Ingress request authentication for the five Task-data RPCs",
+      "store": "not persisted on chain; each Builder keeps a durable StoreOnce row keyed by (chain_id, builder_operator_address, requester_kind, requester_address, service_authorization_nonce, request_nonce)",
+      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1 at monorepo main@15b282ff1e3c8d862c1f796ae8e826e4086b0d0b",
+      "note": "CORTEX_SERVICE only. The USER path signs the same ten fields as EIP-712 v4 typed data under the TrueOpen Task Data Request domain and never reaches this digest, so requester_kind alone selects the verifier: exactly 64 raw bytes here, exactly 65 there, with no length sniffing and no caller-supplied pubkey.",
+      "event": "-",
+      "query": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_DATA_UPLOAD_BODY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "canonical TaskDataObjectRefV1",
+        "size_bytes",
+        "media_type"
+      ],
+      "producer": "The uploading Cortex service, over the stream header only",
+      "consumers": "TaskDataRequestAuthV1.body_digest for UploadTaskResultObject",
+      "store": "not persisted on chain; bound into the StoreOnce row body_digest",
+      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1 at monorepo main@15b282ff1e3c8d862c1f796ae8e826e4086b0d0b",
+      "note": "canonical TaskDataObjectRefV1 is the required nested eight-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. Only the header is signed; the chunks that follow must end up matching the signed content_hash and size_bytes exactly.",
+      "event": "-",
+      "query": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_GENERATION_PARAMS_V1",
+      "framing": "H_V1",
+      "fields": [
+        "payload: canonical_json_v1 typed GenerationParamsV1"
+      ],
+      "producer": "CanonicalGenerationParamsV1 / GenerationParamsDigest",
+      "consumers": "Worker receipt, verifier result, evidence and settlement copy-through",
+      "store": "TaskAssignmentState.generation_params_digest",
+      "event": "11 worker_assignment_finalized",
+      "query": "TaskAssignmentViewV1 field 16",
+      "contract_section": "keeper_api_contract.md §1.4 and §5.6",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_ID_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "session_id",
+        "order_sequence"
+      ],
+      "producer": "DeriveTaskIDFromRawSession / SDK recomputation",
+      "consumers": "Task lifecycle, Builder, Cortex and auditor",
+      "store": "all task-scoped primary and index keys",
+      "event": "task lifecycle events",
+      "query": "QueryTask",
+      "contract_section": "keeper_api_contract.md §1.4 and §5.13",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_ORDER_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "user_address",
+        "session_id",
+        "order_sequence",
+        "model_id",
+        "profile_version",
+        "task_type",
+        "input_hash",
+        "input_size_bytes",
+        "input_bucket",
+        "output_budget_bucket",
+        "generation_params",
+        "price_bid",
+        "max_fee",
+        "assignment_priority_fee",
+        "tx_fee_reserve",
+        "earliest_submit_height",
+        "order_expire_height",
+        "deadline_policy",
+        "timeout_bucket_version",
+        "session_anchor_height",
+        "session_anchor_block_hash",
+        "builder_set_id",
+        "builder_set_hash"
+      ],
+      "producer": "SDK or User",
+      "consumers": "Builder, Cortex and the Task Keeper",
+      "store": "TaskCoreState.accepted_task_hash, written atomically when the first valid proposal is accepted",
+      "query": "QueryTask returns the authoritative accepted_task_hash",
+      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1; keeper_api_contract.md §1.4, §5.13",
+      "note": "Exactly 25 top-level fields. price_bid, max_fee, assignment_priority_fee and tx_fee_reserve are AmountV1, that is FRAME_V1(ascii(canonical u64 decimal)) and never a bare u64_be. deadline_policy is a required nested FRAME_V1(u32_be(latency_class)). generation_params is the nested frame of 10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.3, and both of its repeated members encode their count frame even when empty.",
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
+        "review": "monorepo#100 wire v0.3 contract closure; 10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4 freezes V2 as the only fresh-genesis order schema and rejects V1, field aliases and compatibility decoders"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_TASK_ORDER_V1",
+        "registered": false,
+        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+      },
+      "event": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_PARAMS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "params_version",
+        "params"
+      ],
+      "producer": "TaskParamsHashV1",
+      "consumers": "MsgUpdateTaskParams response, params metadata, genesis validation",
+      "store": "TaskParamsMetaState.params_hash",
+      "event": "111 task_params_updated",
+      "query": "QueryParams",
+      "contract_section": "keeper_api_contract.md §1.4 and §18.0",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "params is ONE nested position, parallel to TRUEOPEN_HUB_PARAMS_V2: NESTED_V1(TaskParamsV1) frames the message's twelve proto fields recursively in field-number order. The two messages use the same fundamentals §4.4 nested encoding; testdata/v1/shared/params_v1.json publishes both trees."
+    },
+    {
+      "domain": "TRUEOPEN_TASK_ROUND_SUMMARY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "max_verify_round",
+        "open_round_count",
+        "effective_verify_round",
+        "optional challenge_open_height",
+        "optional challenge_close_height",
+        "rounds_closed_height",
+        "round1_facts_hash",
+        "round2_facts_hash_or_zero32",
+        "round_outcome",
+        "round_effect_root"
+      ],
+      "producer": "Task Keeper at FinalizeTaskRounds",
+      "consumers": "settlement, task finality, cleanup and auditors",
+      "store": "TaskRoundSummaryState; projected into TaskSettlementState.task_round_summary_hash",
+      "event": "-",
+      "query": "QueryVerificationRound after the round body is trimmed",
+      "contract_section": "keeper_api_contract.md §1.4, §10.15, §10.14b; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "The two challenge heights are optional and encode presence as FRAME(0x01 then FRAME(value)). A task with no round 2 carries ZERO32 in round2_facts_hash_or_zero32 and an UNSPECIFIED round_outcome."
+    },
+    {
+      "domain": "TRUEOPEN_TASK_SETTLEMENT_ID_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "verify_round",
+        "settlement_facts_cutoff_height",
+        "settlement_height"
+      ],
+      "producer": "Task Keeper BuildSettlementFacts",
+      "consumers": "settlement, event, reward, challenge and auditors",
+      "store": "TaskEvidenceRootState.settlement_id and terminal settlement references after K-BLOCK-16",
+      "event": "task_settled after K-BLOCK-16",
+      "query": "QueryTask settlement view",
+      "contract_section": "keeper_api_contract.md §1.4, §10.10a",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_TASK_STAGE_ADDED_BITMAP_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "stage",
+        "proposal_digest",
+        "added_member_count",
+        "repeated(slot) in slot ascending"
+      ],
+      "producer": "Task Keeper when a proposal is accepted",
+      "consumers": "proposal receipt and proposal-accepted event",
+      "store": "not persisted as a field; BuilderStageProposalState keeps proposal_digest and new_member_count",
+      "event": "proposal accepted event payload",
+      "query": "-",
+      "contract_section": "keeper_api_contract.md §1.4 formula block; keeper_data_structure_contract.md §4.2",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Slots only, no operator addresses: identity is resolved through the locked snapshot's member rows, so this digest cannot drift from the pool."
+    },
+    {
+      "domain": "TRUEOPEN_TASK_STAGE_UNION_BITMAP_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "stage",
+        "candidate_pool_snapshot_id",
+        "slot_capacity",
+        "segment_count",
+        "union_count",
+        "repeated(segment_index, segment_bitmap_bytes) in segment_index ascending"
+      ],
+      "producer": "Task Keeper when a Builder stage proposal is accepted / at stage finalize",
+      "consumers": "verifier_legal_set_hash, assignment_candidate_set_hash, finalize, event",
+      "store": "TaskStageHandraiseUnionState.union_bitmap_hash AND AssignmentCandidateSetState.union_bitmap_hash",
+      "event": "stage finalize event payload",
+      "query": "TaskStageViewV1",
+      "contract_section": "keeper_api_contract.md §1.4 formula block; keeper_data_structure_contract.md §4.2/§4.3",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "§1.4 (lines 337-341) requires the value stored on the union header and on AssignmentCandidateSetState to be byte-identical: the two are the same commitment landing in two rows, not two formulas. stage uses the §5.10 BuilderDutyStageV1 numbering, and a missing segment frames as candidate_bitmap_segment_bytes zero bytes."
+    },
+    {
+      "domain": "TRUEOPEN_TASK_TERMINAL_SUMMARY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "session_id",
+        "order_sequence",
+        "task_hash",
+        "terminal_phase",
+        "verdict",
+        "finality_status",
+        "model_id",
+        "profile_version",
+        "task_type",
+        "candidate_pool_snapshot_id",
+        "candidate_pool_hash",
+        "assignment_candidate_set_hash",
+        "candidate_pool_ref_released",
+        "winner_worker",
+        "selected_verifiers_hash",
+        "builder_set_id",
+        "builder_set_hash",
+        "selected_task_builders_hash",
+        "profile_execution_snapshot_hash",
+        "generation_params_digest",
+        "settlement_id",
+        "settlement_facts_cutoff_height",
+        "settlement_height",
+        "settlement_facts_hash",
+        "task_evidence_root",
+        "challenge_summary_hash",
+        "fault_summary_hash",
+        "task_economic_effect_root",
+        "created_height",
+        "finality_height",
+        "compacted_height",
+        "failure_class",
+        "support_candidate"
+      ],
+      "producer": "Task cleanup runner",
+      "consumers": "Task terminal query and epoch summary runner",
+      "store": "TaskTerminalSummaryState.summary_hash",
+      "event": "none",
+      "query": "QueryTask",
+      "contract_section": "keeper_data_structure_contract.md §6.6",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Active bounded terminal summary projection registered by the monorepo data-structure contract."
+    },
+    {
+      "domain": "TRUEOPEN_TREASURY_SPEND_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "proposal_id",
+        "item_index",
+        "recipient",
+        "amount",
+        "purpose_code",
+        "not_before_height",
+        "expiry_height"
+      ],
+      "producer": "x/gov accepted action and Hub Keeper recomputation",
+      "consumers": "TreasurySpend receipt, event and auditor",
+      "store": "TreasurySpendReceiptState.action_digest",
+      "event": "81 treasury_adjusted",
+      "query": "QueryTreasury and x/gov proposal result",
+      "contract_section": "keeper_api_contract.md §1.4, §9.6c",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_UNBONDING_ID_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "participant_type",
+        "operator_address",
+        "new_bond_version",
+        "amount",
+        "request_height",
+        "mature_height"
+      ],
+      "producer": "Hub bond handler; shared by service and Builder unbonding",
+      "consumers": "unbonding/withdraw/slash ordering",
+      "store": "UnbondingState.unbonding_id, UnbondingMaturityIndex",
+      "event": "7 service_unbonding_started, 107 builder_unbonding_started",
+      "query": "QueryServiceUnbondings",
+      "contract_section": "keeper_api_contract.md §1.4, §10.0c step 4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "One domain for both participant types; participant_type separates the namespaces. No counter and no randomness: new_bond_version is the checked +1 written in the same Tx."
+    },
+    {
+      "domain": "TRUEOPEN_UNBONDING_RECEIPT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "unbonding_id",
+        "operator_address",
+        "original_amount",
+        "withdrawn_amount",
+        "slashed_amount",
+        "terminal_status",
+        "terminal_height"
+      ],
+      "producer": "Hub bond handler on withdraw/full-slash terminal transition",
+      "consumers": "exact replay, Genesis, unbonding query",
+      "store": "UnbondingReceiptState.receipt_hash, pruned via UnbondingReceiptPruneIndex",
+      "event": "-",
+      "query": "QueryServiceUnbondings terminal rows",
+      "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_USDC_ROUTE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "uint32_be(hyperlane_local_domain)",
+        "uint32_be(origin_domain)",
+        "origin_token_address",
+        "origin_warp_router_address",
+        "origin_mailbox_address",
+        "uint32_be(origin_decimals)",
+        "business_denom",
+        "local_mailbox_id",
+        "local_warp_token_id",
+        "local_origin_denom"
+      ],
+      "producer": "Genesis, recomputed by the Keeper",
+      "consumers": "bridge guard, query and auditors",
+      "store": "BridgeRouteState.usdc_route_id, a Genesis-frozen singleton; also copied into BridgeBootstrapState.route_id",
+      "event": "carried as payload field 2 of 120 bridge_inbound_processed and 121 bridge_outbound_dispatched",
+      "query": "QueryBridgeStatus",
+      "contract_section": "10-protocol_specifications/10-cross_chain_assets/cross_chain_asset_bridge_protocol.md §2.1; keeper_api_contract.md §1.4",
+      "note": "The eleven fields are permanently frozen once historical state or a minted voucher references the route id. local_mailbox_id and local_warp_token_id are pinned upstream HexAddress raw32; the three origin EVM addresses remain raw20.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_VALIDATOR_SET_SNAPSHOT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "validator_snapshot_height",
+        "validator_count",
+        "total_voting_power_snapshot",
+        "repeated validator_consensus_address and voting_power in address-byte order"
+      ],
+      "producer": "Hub Keeper through the staking snapshot adapter when a freeze signal opens",
+      "consumers": "freeze vote membership, event and Genesis validation",
+      "store": "FreezeSignalState.validator_set_hash",
+      "event": "97 emergency_freeze_accepted",
+      "query": "QueryFreezeSignal",
+      "contract_section": "keeper_api_contract.md §1.4 formula block, §10.0a",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_VERIFIER_FINALIZE_CURSOR_FOLD_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "previous_commitment",
+        "leaf_hash",
+        "materialized_count"
+      ],
+      "producer": "Task Keeper bounded OPEN_VERIFY legal-set runner",
+      "consumers": "Task Keeper cursor restart validation",
+      "store": "TaskCandidateFinalizeCursorState.running_commitment",
+      "event": "-",
+      "query": "-",
+      "contract_section": "keeper_api_contract.md §4.6",
+      "registered_in_contract": false,
+      "preimage_diverges_from_contract": false,
+      "note": "CONTRACT-GAP: internal resumable cursor fold; final consensus output remains TRUEOPEN_VERIFIER_LEGAL_SET_V1."
+    },
+    {
+      "domain": "TRUEOPEN_VERIFIER_FINALIZE_CURSOR_LEAF_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "canonical_materialized_fact_chunk"
+      ],
+      "producer": "Task Keeper bounded OPEN_VERIFY legal-set runner",
+      "consumers": "Task Keeper cursor restart validation",
+      "store": "TaskCandidateFinalizeCursorState.running_commitment",
+      "event": "-",
+      "query": "-",
+      "contract_section": "keeper_api_contract.md §4.6",
+      "registered_in_contract": false,
+      "preimage_diverges_from_contract": false,
+      "note": "CONTRACT-GAP: internal resumable cursor leaf; it never replaces the registered flat verifier_legal_set_hash."
+    },
+    {
+      "domain": "TRUEOPEN_VERIFIER_HANDRAISE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "infer_receipt_hash",
+        "output_hash",
+        "model_id",
+        "profile_version",
+        "FieldFrameV1(member: candidate_pool_snapshot_id, slot, slot_version, operator_address)",
+        "duty",
+        "service_authorization_nonce",
+        "expiry_height"
+      ],
+      "producer": "Cortex current service key; carried inside a Builder Open Verify proposal",
+      "consumers": "Builder, Task Keeper (verifier legal set, proposal digest input)",
+      "store": "not persisted; only the handraise_signing_digest enters the proposal digest and replay key",
+      "event": "-",
+      "query": "QueryVerifierCandidateWindow (window, not the raw handraise)",
+      "contract_section": "keeper_api_contract.md §1.4 line 188, §4.1 lines 543-556 and 566",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Same framing rules as TRUEOPEN_WORKER_HANDRAISE_V1; duty is always DUTY_VERIFIER. verify_round is uint32_be, never decimal text."
+    },
+    {
+      "domain": "TRUEOPEN_VERIFIER_LEGAL_SET_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "candidate_pool_snapshot_id",
+        "candidate_pool_hash",
+        "verifier_window_hash",
+        "union_bitmap_hash",
+        "candidate_count",
+        "repeated(canonical TaskCandidateFactState) in slot ascending"
+      ],
+      "producer": "Task Keeper at OPEN_VERIFY proposal-window finalization",
+      "consumers": "Verifier weighted draw, cleanup and auditors",
+      "store": "VerifierAssignmentState.verifier_legal_set_hash",
+      "event": "verifier_assignment_finalized",
+      "query": "QueryVerifierCandidateWindow and task assignment views",
+      "contract_section": "keeper_api_contract.md §1.4, §10.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V1",
+      "framing": "H_V1",
+      "fields": [
+        "payload: FRAME_V1 over utf8(\"VERIFIER_RESULT_REVEAL_V1\"), utf8(chain_id), task_id, task_hash, u32_be(verify_round), u32_be(selected_verifier_index), address_codec_bytes(verifier_operator_address), infer_receipt_hash, profile_execution_snapshot_hash, generation_params_digest, metric_root, u32_be(metric_leaf_count), metric_summary_hash, aggregate_proof_hash, verifier_evidence_bundle_hash, u64_be(verifier_evidence_manifest_size_bytes)"
+      ],
+      "producer": "The selected Verifier; recomputed by the Task Keeper from authoritative state",
+      "consumers": "result admission and challenge",
+      "store": "ResultReceiptState.result_payload_hash",
+      "event": "17 result_accepted field 6",
+      "query": "QueryResultReceipt",
+      "contract_section": "10-protocol_specifications/04-task/04-task_execution_verification_and_settlement.md §9; keeper_api_contract.md §1.4, §5.14",
+      "note": "The first framed element of the payload is the ASCII literal VERIFIER_RESULT_REVEAL_V1, which is not the domain name; the domain only appears in the outer H_V1. The payload carries no verdict and does not repeat the Worker evidence commitments. task_hash, selected_verifier_index, infer_receipt_hash, profile_execution_snapshot_hash, metric_leaf_count and metric_summary_hash are all filled in by the Keeper from authoritative state, never from the request.",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_VERIFIER_WINDOW_RANK_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "infer_receipt_hash",
+        "candidate_pool_snapshot_id",
+        "candidate_pool_hash",
+        "verifier_window_source_hash",
+        "verifier_window_randomness_height",
+        "verifier_window_randomness_beacon",
+        "slot",
+        "slot_version",
+        "operator_address"
+      ],
+      "producer": "Task Keeper when ranking a frozen Verifier eligibility source",
+      "consumers": "Verifier window builder and auditors",
+      "store": "VerifierCandidateWindowMemberState.verifier_window_rank",
+      "event": "verifier candidate window materialization",
+      "query": "QueryVerifierCandidateWindow",
+      "contract_section": "keeper_api_contract.md §1.4, §4.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_VERIFIER_WINDOW_SOURCE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "infer_receipt_hash",
+        "candidate_pool_snapshot_id",
+        "candidate_pool_hash",
+        "eligibility_frozen_height",
+        "eligible_count",
+        "eligibility_segment_count",
+        "repeated(segment_index, segment_bitmap_bytes) in segment_index ascending"
+      ],
+      "producer": "Task Keeper when an InferReceipt freezes Verifier eligibility",
+      "consumers": "Verifier window builder, Genesis and auditors",
+      "store": "VerifierCandidateWindowState.verifier_window_source_hash",
+      "event": "infer_receipt_accepted",
+      "query": "QueryVerifierCandidateWindow",
+      "contract_section": "keeper_api_contract.md §1.4, §4.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_VERIFIER_WINDOW_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "infer_receipt_hash",
+        "candidate_pool_snapshot_id",
+        "candidate_pool_hash",
+        "verifier_window_source_hash",
+        "eligible_count",
+        "verifier_window_randomness_height",
+        "verifier_window_randomness_beacon",
+        "window_size",
+        "repeated(rank_index, slot, slot_version, operator_address, verifier_window_rank) in rank order"
+      ],
+      "producer": "Task Keeper after future Beacon A materializes the Verifier window",
+      "consumers": "Builder, Cortex, Verifier legal-set finalization and auditors",
+      "store": "VerifierCandidateWindowState.verifier_window_hash",
+      "event": "verifier candidate window materialization",
+      "query": "QueryVerifierCandidateWindow",
+      "contract_section": "keeper_api_contract.md §1.4, §4.4",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_VERIFY_ROUND_FACTS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "verify_round",
+        "round_open_height",
+        "round_close_deadline_height",
+        "infer_receipt_ref",
+        "result_receipt_refs_hash",
+        "consensus_cluster_hash",
+        "generated_token_count",
+        "verdict",
+        "failure_class",
+        "profile_execution_snapshot_hash",
+        "generation_params_digest"
+      ],
+      "producer": "Task Keeper when the round closes",
+      "consumers": "VerificationRoundState, the next round prev_round_facts_hash anchor and settlement",
+      "store": "VerificationRoundState.round_facts_hash",
+      "event": "27 verification_round_closed",
+      "query": "QueryVerificationRound",
+      "contract_section": "keeper_api_contract.md §1.4, §10.15; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_VERIFY_ROUND_ID_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_hash",
+        "verify_round"
+      ],
+      "producer": "Task Keeper when a verification round is opened",
+      "consumers": "VerificationRoundState identity, the next round anchor and settlement",
+      "store": "VerificationRoundState.round_id",
+      "event": "26 challenge_round_opened",
+      "query": "QueryVerificationRound",
+      "contract_section": "keeper_api_contract.md §1.4, §10.15; 04-task/04-task_execution_verification_and_settlement.md §10.1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Round identity derives from (task_hash, verify_round) only. Phase 0 registers no challenge_id domain, so nothing else may key a round."
+    },
+    {
+      "domain": "TRUEOPEN_VRF_KEY_POP_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "operator_address",
+        "vrf_pubkey_raw32",
+        "uint64_be(vrf_authorization_nonce)"
+      ],
+      "producer": "The new VRF key, as a single ECVRF prove over this digest; the Keeper recomputes the digest",
+      "consumers": "the MsgRegisterVrfKey handler in the Hub Keeper",
+      "store": "neither the digest nor the proof is persisted; VrfKeyState keeps the public key and the monotonic nonce, and the raw private key never reaches chain state, Genesis or query",
+      "query": "QueryVrfKey reaches it only indirectly",
+      "contract_section": "10-protocol_specifications/07-randomness_and_sampling/randomness_and_sampling_protocol.md §3.1; keeper_api_contract.md §1.4",
+      "note": "The possession proof is an ECVRF prove over this digest rather than a signature, because what must be proven is that the key can execute Prove. effective_from_epoch stays out of the preimage: the Keeper derives it as current_epoch + 1, so signing it would invalidate any delayed transaction. Both keeper_api_contract.md and the data-structure contract point at 10-protocol_specifications/07-randomness_and_sampling/randomness_and_sampling_protocol.md §3.1 for the golden vector, but that section currently carries only the formula.",
+      "event": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_WEIGHTED_DRAW_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "purpose",
+        "task_id",
+        "legal_set_hash",
+        "randomness_height",
+        "randomness_beacon",
+        "counter"
+      ],
+      "producer": "Task Keeper (bounded rejection sampling for Worker winner and Verifier selection)",
+      "consumers": "auditors recomputing the selection from frozen facts",
+      "store": "not persisted; the accepted counter lands in winner_draw_digest / selected_verifiers_hash",
+      "event": "-",
+      "query": "QueryAssignmentRandomness (inputs, not the intermediate draws)",
+      "contract_section": "keeper_api_contract.md §1.4, §4.5",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "counter is uint64 big-endian, never decimal text. purpose is WORKER_ASSIGNMENT (legal_set_hash = assignment_candidate_set_hash) or VERIFIER_SELECTION (legal_set_hash = verifier_legal_set_hash). Candidate base order is fixed slot ascending. At most max_weighted_draw_attempts_per_selection attempts; exhaustion is an invariant error that keeps the task pending, and a missing beacon keeps it pending while still consuming this block's visited budget. Falling back to modulo, address order or a local RNG is forbidden."
+    },
+    {
+      "domain": "TRUEOPEN_WINNER_DRAW_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "assignment_candidate_set_hash",
+        "assignment_randomness_height",
+        "beacon_randomness",
+        "accepted_draw_counter",
+        "winner_slot",
+        "winner_slot_version",
+        "winner_worker"
+      ],
+      "producer": "Task Keeper at winner finalize",
+      "consumers": "auditors, QueryTaskAssignment, QueryAssignmentRandomness",
+      "store": "TaskAssignmentState.winner_draw_digest",
+      "event": "worker assigned event",
+      "query": "TaskAssignmentViewV1 field 11, AssignmentRandomnessViewV1 field 7",
+      "contract_section": "keeper_api_contract.md §1.4, §10.2",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "This is an audit commitment over the draw's inputs and result; it never participates in the selection itself. accepted_draw_counter is uint32 big-endian and is the counter of the accepted attempt only. It replaces the unregistered TRUEOPEN_WINNER_RANK_V1 / WinnerRankSeedHash, which derived a second seed/rank hash that §10.2 forbids."
+    },
+    {
+      "domain": "TRUEOPEN_WORKER_HANDRAISE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "model_id",
+        "profile_version",
+        "FieldFrameV1(member: candidate_pool_snapshot_id, slot, slot_version, operator_address)",
+        "duty",
+        "service_authorization_nonce",
+        "expiry_height"
+      ],
+      "producer": "Cortex current service key; carried inside a Builder Worker proposal",
+      "consumers": "Builder, Task Keeper (stage union OR, proposal digest input)",
+      "store": "not persisted; only the handraise_signing_digest enters the proposal digest and replay key",
+      "event": "-",
+      "query": "TaskStageViewV1 (union, not the raw handraise)",
+      "contract_section": "keeper_api_contract.md §1.4 line 178, §4.1 lines 531-541 and 566",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "§4.1 pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (§1.2 enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy."
+    },
+    {
+      "domain": "TRUEOPEN_WORKER_PROPOSAL_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "stage",
+        "candidate_pool_snapshot_id",
+        "candidate_pool_hash",
+        "proposer_operator_or_empty",
+        "data_ready_attestation_or_empty",
+        "handraise_count",
+        "repeated(handraise_signing_digest) in slot ascending"
+      ],
+      "producer": "Builder and Task Keeper recomputation for OPEN_TASK proposals",
+      "consumers": "Task Keeper proposal acceptance and exact replay checks",
+      "store": "BuilderStageProposalState.proposal_digest",
+      "event": "worker_handraises_accepted",
+      "query": "Task stage proposal receipts",
+      "contract_section": "keeper_api_contract.md §1.4, §4.2.2",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "accepted_task_hash",
+        "worker_operator_address",
+        "generation_params_digest",
+        "evidence_schema_hash",
+        "output_hash",
+        "output_size_bytes",
+        "finish_reason",
+        "trace_root",
+        "trace_encoded_size_bytes",
+        "checkpoint_root",
+        "checkpoint_encoded_size_bytes",
+        "generated_token_count",
+        "output_leaf_count",
+        "input_token_ids_hash",
+        "generated_token_ids_hash",
+        "input_token_ids_size_bytes",
+        "generated_token_ids_size_bytes"
+      ],
+      "origin": {
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
+        "review": "monorepo#142 freezes WorkerValueCommitmentV2 and its four-artifact projection in 04-task/05-verification_algorithm.md §7.0b"
+      },
+      "supersedes": {
+        "domain": "TRUEOPEN_WORKER_VALUE_COMMITMENT_V1",
+        "registered": false,
+        "reason": "Fresh Phase 0 deletes V1 in the same coordinated release; V2 adds output_leaf_count and the two exact token-ID commitments and sizes, with no compatibility decoder."
+      },
+      "producer": "selected Worker and Cortex; Nexus and selected Verifier recompute from four exact artifacts",
+      "consumers": "InferReceiptV2 WORKER_VALUE_OPENING and selected Verifier opening validation",
+      "store": "EvidenceCommitmentV1.evidence_hash_or_root",
+      "event": "12 infer_receipt_accepted binds the outer receipt digest",
+      "query": "QueryTask retained InferReceipt",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7 and §7.0b; keeper_api_contract.md §1.4 and §5.14",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "schema_version is exactly 2. encoded_size_bytes on the outer EvidenceCommitmentV1 is the checked sum of trace, checkpoint, input-token and generated-token artifact sizes; Node retains the digest opaquely and does not fetch those artifacts."
+    }
+  ]
+}

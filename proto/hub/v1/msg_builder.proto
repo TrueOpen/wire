@@ -1,0 +1,56 @@
+syntax = "proto3";
+package hub.v1;
+
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "hub/v1/builder.proto";
+import "hub/v1/participant_identity.proto";
+import "shared/v1/common.proto";
+import "shared/v1/rest_encoding.proto";
+
+option go_package = "github.com/TrueOpen/node/x/hub/types";
+
+// MsgRegisterBuilder creates a Builder identity, active current service key,
+// and descriptor. It does not create admission, bond, or set membership.
+// MsgRegisterBuilder defines the MsgRegisterBuilder wire type.
+message MsgRegisterBuilder {
+  option (cosmos.msg.v1.signer) = "builder_operator_address";
+  option (amino.name) = "trueopen/x/hub/MsgRegisterBuilder";
+
+  bytes service_pubkey = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  bytes service_key_proof = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  ServiceDescriptorV1 descriptor = 3 [(gogoproto.nullable) = false];
+  string builder_operator_address = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgRegisterBuilderResponse returns the identity and current admission status.
+// A newly registered Phase 0 Builder is REVOKED until governance admits it.
+// MsgRegisterBuilderResponse defines the MsgRegisterBuilderResponse wire type.
+message MsgRegisterBuilderResponse {
+  string builder_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  BuilderStatus builder_status = 2;
+  uint64 descriptor_version = 3;
+  shared.v1.MutationStatusV1 status = 4;
+}
+
+// MsgRunBuilderTerm is predeclared for a future dynamic Builder protocol.
+// Phase 0 keeps the wire stable but the Node always returns FEATURE_DISABLED.
+// MsgRunBuilderTerm defines the MsgRunBuilderTerm wire type.
+message MsgRunBuilderTerm {
+  option (cosmos.msg.v1.signer) = "submitter_address";
+  option (amino.name) = "trueopen/x/hub/MsgRunBuilderTerm";
+
+  uint64 target_term = 1;
+  uint32 max_items = 2;
+  string submitter_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgRunBuilderTermResponse is retained with the predeclared request.
+message MsgRunBuilderTermResponse {
+  uint32 visited = 1;
+  uint32 advanced = 2;
+  optional string builder_set_id = 3;
+  shared.v1.MutationStatusV1 status = 4;
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TrueOpen/wire/schemas/fixture-manifest-v1.schema.json",
+  "title": "TrueOpen Wire Fixture Manifest V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "source_repository",
+    "source_commit",
+    "files"
+  ],
+  "properties": {
+    "schema": {
+      "const": "trueopen-wire-fixture-manifest-v1"
+    },
+    "status": {
+      "enum": ["bootstrap-copy", "authoritative"]
+    },
+    "source_repository": {
+      "type": "string",
+      "format": "uri"
+    },
+    "source_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "notes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "bytes", "sha256"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^(shared|hub|task|bus)/[a-z0-9_]+\\.json$"
+          },
+          "origin": {
+            "enum": ["node", "wire"]
+          },
+          "source_path": {
+            "type": "string",
+            "pattern": "^x/trueopen(shared|hub|task)/(types|keeper)/testdata/[a-z0-9_]+\\.json$|^testdata/[a-z0-9_]+\\.json$"
+          },
+          "contract_section": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "allOf": [
+          {
+            "comment": "A node-origin fixture is a byte copy, so it names the path it was copied from and nothing else.",
+            "if": {
+              "anyOf": [
+                { "properties": { "origin": { "const": "node" } }, "required": ["origin"] },
+                { "not": { "required": ["origin"] } }
+              ]
+            },
+            "then": {
+              "required": ["source_path"],
+              "not": { "required": ["contract_section"] }
+            }
+          },
+          {
+            "comment": "A wire-authored fixture has no upstream copy, so it names the monorepo rule it pins instead.",
+            "if": {
+              "properties": { "origin": { "const": "wire" } },
+              "required": ["origin"]
+            },
+            "then": {
+              "required": ["contract_section"],
+              "not": { "required": ["source_path"] }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

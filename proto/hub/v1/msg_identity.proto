@@ -1,0 +1,70 @@
+syntax = "proto3";
+package hub.v1;
+
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "hub/v1/common.proto";
+import "hub/v1/participant_identity.proto";
+import "shared/v1/common.proto";
+import "shared/v1/rest_encoding.proto";
+
+option go_package = "github.com/TrueOpen/node/x/hub/types";
+
+// MsgRotateServiceKey replaces the current service key binding of one stable operator (10.0c1).
+message MsgRotateServiceKey {
+  option (cosmos.msg.v1.signer) = "operator_address";
+  option (amino.name) = "trueopen/x/hub/MsgRotateServiceKey";
+  shared.v1.ParticipantType participant_type = 1;
+  bytes new_service_pubkey = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  uint64 expected_current_service_authorization_nonce = 3;
+  bytes new_service_key_proof = 4 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  string operator_address = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgRotateServiceKeyResponse returns the new service address and authorization nonce.
+message MsgRotateServiceKeyResponse {
+  string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string new_service_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint64 new_nonce = 3;
+  shared.v1.MutationStatusV1 status = 4;
+}
+
+// MsgRevokeServiceKey immediately revokes the current service key binding (9.6a).
+message MsgRevokeServiceKey {
+  option (cosmos.msg.v1.signer) = "operator_address";
+  option (amino.name) = "trueopen/x/hub/MsgRevokeServiceKey";
+  shared.v1.ParticipantType participant_type = 1;
+  uint64 expected_current_service_authorization_nonce = 2;
+  ServiceKeyRevocationReason reason_code = 3;
+  string operator_address = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgRevokeServiceKeyResponse returns the revoked service address and the
+// unchanged authorization nonce. Revoke changes only the binding status;
+// rotation is the only operation that increments the nonce.
+// MsgRevokeServiceKeyResponse defines the MsgRevokeServiceKeyResponse wire type.
+message MsgRevokeServiceKeyResponse {
+  string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string revoked_service_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint64 authorization_nonce = 3;
+  shared.v1.MutationStatusV1 status = 4;
+}
+
+// MsgUpdateServiceDescriptor publishes one bounded descriptor version (9.6a).
+message MsgUpdateServiceDescriptor {
+  option (cosmos.msg.v1.signer) = "operator_address";
+  option (amino.name) = "trueopen/x/hub/MsgUpdateServiceDescriptor";
+  shared.v1.ParticipantType participant_type = 1;
+  uint64 expected_descriptor_version = 2;
+  ServiceDescriptorV1 descriptor = 3 [(gogoproto.nullable) = false];
+  string operator_address = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgUpdateServiceDescriptorResponse returns the new version and its descriptor hash.
+message MsgUpdateServiceDescriptorResponse {
+  uint64 new_descriptor_version = 1;
+  bytes descriptor_hash = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  shared.v1.MutationStatusV1 status = 3;
+}

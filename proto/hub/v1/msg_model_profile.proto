@@ -1,0 +1,31 @@
+syntax = "proto3";
+package hub.v1;
+
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "shared/v1/amount.proto";
+import "shared/v1/model_profile.proto";
+import "shared/v1/rest_encoding.proto";
+
+option go_package = "github.com/TrueOpen/node/x/hub/types";
+
+// MsgRegisterModelProfile atomically registers one immutable profile projection.
+message MsgRegisterModelProfile {
+  option (cosmos.msg.v1.signer) = "proposer_address";
+  option (amino.name) = "trueopen/x/hub/MsgRegisterModelProfile";
+
+  string proposer_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  shared.v1.ModelProfileProjection profile = 2 [(gogoproto.nullable) = false];
+}
+
+// MsgRegisterModelProfileResponse returns the committed registration receipt.
+message MsgRegisterModelProfileResponse {
+  string model_id = 1;
+  uint32 profile_version = 2;
+  bytes registration_digest = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bool idempotent_replay = 4;
+  uint64 registered_height = 5;
+  shared.v1.Amount registration_fee_paid = 6 [(gogoproto.nullable) = false];
+}
