@@ -86,62 +86,6 @@
       "producer": "BuilderSetMembersHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4 formula block",
-      "digest_hex": "527b418183a3ca51974fbe54d53e7c05aa1b9f67b5e74b311de1b9e4f21c96b1",
-      "domain": "TRUEOPEN_BUILDER_SET_V1",
-      "fields": [
-        {
-          "name": "chain_id",
-          "type": "string",
-          "utf8": "trueopen-fixture-1"
-        },
-        {
-          "name": "term_id",
-          "type": "uint64",
-          "value": 7
-        },
-        {
-          "name": "builder_set_id",
-          "type": "string",
-          "utf8": "7"
-        },
-        {
-          "name": "start_epoch",
-          "type": "uint64",
-          "value": 700
-        },
-        {
-          "name": "end_epoch",
-          "type": "uint64",
-          "value": 706
-        },
-        {
-          "name": "snapshot_height",
-          "type": "uint64",
-          "value": 900123
-        },
-        {
-          "name": "builder_duty_score_method_version",
-          "type": "string",
-          "utf8": "duty-score-raw-q16-v1"
-        },
-        {
-          "name": "active_builder_count",
-          "type": "uint32",
-          "value": 3
-        },
-        {
-          "hex": "9197f6b31d08c0d7e8356c1d8a9efee891cb299117119eea585cc0b538a307bb",
-          "name": "builder_set_members_hash",
-          "type": "bytes"
-        }
-      ],
-      "framing": "H_FIELDS_V1",
-      "name": "builder_set_v1",
-      "preimage_hex": "0000000000000017545255454f50454e5f4255494c4445525f5345545f56310000000000000012747275656f70656e2d666978747572652d3100000000000000080000000000000007000000000000000137000000000000000800000000000002bc000000000000000800000000000002c2000000000000000800000000000dbc1b0000000000000015647574792d73636f72652d7261772d7131362d763100000000000000040000000300000000000000209197f6b31d08c0d7e8356c1d8a9efee891cb299117119eea585cc0b538a307bb",
-      "producer": "BuilderSetHash"
-    },
-    {
       "contract_section": "keeper_api_contract.md §1.4 aggregate formula",
       "digest_hex": "9bf9dd864a90dab49879219653d410cd1d83298c0425ad339f31f66602091e26",
       "domain": "TRUEOPEN_BEACON_AGGREGATE_V1",

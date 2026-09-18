@@ -196,7 +196,8 @@
           "field": 4,
           "name": "nonce_least_significant_byte"
         }
-      ]
+      ],
+      "producer": "serviceRegistrationDigest"
     },
     {
       "contract_section": "keeper_api_contract.md §10.0c1",
@@ -395,7 +396,8 @@
           "field": 5,
           "name": "next_nonce_most_significant_byte"
         }
-      ]
+      ],
+      "producer": "serviceKeyRotationDigest"
     },
     {
       "contract_section": "keeper_api_contract.md §9.6b (no chain_id in this preimage)",
@@ -542,7 +544,8 @@
           "field": 4,
           "name": "endpoints_first_bit"
         }
-      ]
+      ],
+      "producer": "CanonicalServiceDescriptorHash"
     },
     {
       "contract_section": "keeper_api_contract.md §10.0c step 4",
@@ -731,7 +734,8 @@
           "field": 6,
           "name": "mature_height_least_significant_byte"
         }
-      ]
+      ],
+      "producer": "serviceUnbondingID"
     },
     {
       "contract_section": "keeper_data_structure_contract.md §6.4",
@@ -933,7 +937,8 @@
           "field": 7,
           "name": "terminal_height_least_significant_byte"
         }
-      ]
+      ],
+      "producer": "unbondingReceiptHash"
     },
     {
       "contract_section": "keeper_api_contract.md §5.7",
@@ -1085,7 +1090,8 @@
           "field": 6,
           "name": "profiles_first_bit"
         }
-      ]
+      ],
+      "producer": "CanonicalDailySupportConfirmationSigningBytesV1"
     },
     {
       "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.1",
@@ -1176,7 +1182,8 @@
           "field": 1,
           "name": "profiles_first_bit"
         }
-      ]
+      ],
+      "producer": "CanonicalSupportedProfilesHashV1"
     },
     {
       "contract_section": "monorepo@d286744 canonical_encoding_and_domain_hashing.md §4.4 and keeper_api_contract.md §5.2",
@@ -1340,7 +1347,8 @@
           "field": 6,
           "name": "entries"
         }
-      ]
+      ],
+      "producer": "ParameterBucketContentHash"
     },
     {
       "contract_section": "keeper_data_structure_contract.md §6.3",
@@ -1737,7 +1745,7 @@
       "producer": "CanonicalValidatorSetSnapshot"
     },
     {
-      "contract_section": "Issue #98 Q3 proposal; keeper_api_contract.md §5.14 and §9.7",
+      "contract_section": "keeper_api_contract.md §5.14 and §9.7",
       "digest_hex": "33467931aeebd4db18fd664d48f9a67820bb98f8675f6dcda6b7075af284ee93",
       "domain": "TRUEOPEN_EVIDENCE_SCHEMA_V1",
       "fields": [

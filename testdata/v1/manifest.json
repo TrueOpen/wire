@@ -1,204 +1,204 @@
 {
-    "schema":  "trueopen-wire-fixture-manifest-v1",
-    "status":  "bootstrap-copy",
-    "source_repository":  "https://github.com/TrueOpen/node",
-    "source_commit":  "8b1dd7919a36519e001a946c341d7d980d18aa1f",
-    "notes":  [
-                  "source_commit pins the origin:node entries only: those are byte copies of the node fixture tree at that commit, and source_path names the file each was copied from.",
-                  "origin:wire entries are authored in this repository because no upstream file exists to copy. They name the monorepo section they implement in contract_section, which is what a reviewer checks them against.",
-                  "Every fixture listed here is published as a release asset, so a consumer can verify the bytes it downloaded against this manifest without trusting the release page."
-              ],
-    "files":  [
-                  {
-                      "path":  "shared/framing_v1.json",
-                      "source_path":  "x/shared/types/testdata/framing_v1.json",
-                      "bytes":  32768,
-                      "sha256":  "1e4121aff727abb136ef3e5c5cc3580b68c8f41292ae62416180344bc58197df"
-                  },
-                  {
-                      "path":  "shared/account_signing_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/00-fundamentals/account_and_signature_protocol.md §2-§8 (eth_secp256k1 account derivation, the Cosmos Web3 and TrueOpen Task Order EIP-712 domains, signature canonical form and conformance vectors); 20-service_design/nexus/API_and_topic_catalog.md §4.2.1 (the TrueOpen Task Data Request domain, which reuses this file\u0027s account)",
-                      "bytes":  7881,
-                      "sha256":  "47f992318379f64cc294f96439e01b0256915c707847f203a27becc3a806a697"
-                  },
-                  {
-                      "path":  "hub/candidate_pool_v1.json",
-                      "source_path":  "x/hub/types/testdata/candidate_pool_v1.json",
-                      "bytes":  13515,
-                      "sha256":  "22ce74ad25c02d05e148602984a726f70db9e7e401cce4eb313d1061772291f6"
-                  },
-                  {
-                      "path":  "hub/hub_domains_v1.json",
-                      "source_path":  "x/hub/types/testdata/hub_domains_v1.json",
-                      "bytes":  81239,
-                      "sha256":  "cf903df237a2fcc6be72eb25aa87ee551a26cbbeb64d98f392ca69cdfb85d29b"
-                  },
-                  {
-                      "path":  "hub/model_profile_canonical_v2.json",
-                      "source_path":  "x/hub/types/testdata/model_profile_canonical_v2.json",
-                      "bytes":  5936,
-                      "sha256":  "5d3febe9cdf5c83628521be4fc21e43ec1f79a3e210f6ed44751a45402f28dce"
-                  },
-                  {
-                      "path":  "task/generation_params_v1.json",
-                      "source_path":  "x/task/types/testdata/generation_params_v1.json",
-                      "bytes":  1497,
-                      "sha256":  "089bf97ecb6cb32b09d0c9b29542b833b44ec1f01cc50842a56c62189baf7a76"
-                  },
-                  {
-                      "path":  "task/task_builder_rank_v1.json",
-                      "source_path":  "x/task/types/testdata/task_builder_rank_v1.json",
-                      "bytes":  5285,
-                      "sha256":  "648aef18a3be1a2be7f83e9f0e385fff736e3930f75a47e04641a7546e256495"
-                  },
-                  {
-                      "path":  "task/task_data_plane_v1_golden.json",
-                      "source_path":  "x/task/types/testdata/task_data_plane_v1_golden.json",
-                      "bytes":  480,
-                      "sha256":  "5e1bd37658824e342f4056903ed16506621b30c796cc5697d1a7eb50b4867914"
-                  },
-                  {
-                      "path":  "task/task_domains_v1.json",
-                      "source_path":  "x/task/types/testdata/task_domains_v1.json",
-                      "bytes":  78202,
-                      "sha256":  "e7d850f6a39785163636e4e7b47f747f8156181caf4145979566e444999d8894"
-                  },
-                  {
-                      "path":  "task/worker_value_commitment_v2.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/05-verification_algorithm.md §7.0b (WorkerValueCommitmentV2 four-artifact projection)",
-                      "bytes":  5305,
-                      "sha256":  "76eaca115e7659ed06e5a538f256989a565a00046dfd0a1ad414513471ccb3a6"
-                  },
-                  {
-                      "path":  "hub/hub_keeper_domains_v1.json",
-                      "source_path":  "x/hub/keeper/testdata/hub_keeper_domains_v1.json",
-                      "bytes":  15831,
-                      "sha256":  "3919c88f4ac5351bcc94b4408fefd9fb728d7253b62790b09d0ccb0857d25a3b"
-                  },
-                  {
-                      "path":  "shared/shared_domains_v1.json",
-                      "source_path":  "x/shared/types/testdata/shared_domains_v1.json",
-                      "bytes":  3685,
-                      "sha256":  "cf15a008b0c2ab70eabb8c0839093311ae72196a0c3830a1c552ba1650b527e9"
-                  },
-                  {
-                      "path":  "task/task_keeper_domains_v1.json",
-                      "source_path":  "x/task/keeper/testdata/task_keeper_domains_v1.json",
-                      "bytes":  93172,
-                      "sha256":  "6b4bee0ad039378c15d49512f03b5fc7f4d955572c3977f5022d00b647e205ea"
-                  },
-                  {
-                      "path":  "shared/query_page_v1.json",
-                      "source_path":  "x/shared/types/testdata/query_page_v1.json",
-                      "bytes":  44329,
-                      "sha256":  "d405f120b68b569f7c19258c55641a206b53e20f03027f54f378b7e098df2060"
-                  },
-                  {
-                      "path":  "shared/params_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "20-service_design/node/keeper_api_contract.md §18.0 (HubParamsV2 and TaskParamsV1 recursive canonical frames)",
-                      "bytes":  54385,
-                      "sha256":  "eb7b69906c5ddd5363131531ee4d93440fe968b4e6c44f5197466a83b3bd49d4"
-                  },
-                  {
-                      "path":  "task/round_settlement_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/04-task_execution_verification_and_settlement.md §10.1 (round 2 economics, settlement plan and gas reimbursement conformance vectors); keeper_api_contract.md §1.4, §10.10a-§10.10b, §10.14a, §10.15",
-                      "bytes":  96425,
-                      "sha256":  "26f4aa8d068424c3e233892d98c331a1f28d39b9c0ae19c61534c006e19ccbde"
-                  },
-                  {
-                      "path":  "hub/bridge_vrf_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/10-cross_chain_assets/cross_chain_asset_bridge_protocol.md §2.1/§10.1 (raw32 local identifiers); 10-protocol_specifications/08-governance/governance_protocol.md §8.1 (MintBondV1/BurnBondV1); 10-protocol_specifications/07-randomness_and_sampling/randomness_and_sampling_protocol.md §3.1",
-                      "bytes":  40379,
-                      "sha256":  "0779b60cffcef511ffbec0a8cfc73311fff395e85664f2d1648e90b3b0d314ed"
-                  },
-                  {
-                      "path":  "bus/bus_envelope_v2_vectors.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/07-task_builder_coordination.md §7.1-§7.4 (ADR-0013); 20-service_design/node/keeper_api_contract.md §5.5 (monorepo#79, verify-round numbering updated by monorepo#87)",
-                      "bytes":  22562,
-                      "sha256":  "af2b725a5aaa6c73f1bcf83279fae95d2ed57bd731cf10b38e5c1cb843286446"
-                  },
-                  {
-                      "path":  "bus/nats_user_binding_v1_vectors.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/07-task_builder_coordination.md §7.5 (TRUEOPEN_NATS_USER_BINDING_V1 projection, signing rule and minimum vector); 20-service_design/nexus/API_and_topic_catalog.md §5.14 (NatsUserBindingV1 message shape and auth_token encoding)",
-                      "bytes":  5345,
-                      "sha256":  "05c96ef8a630275865a9b4bbaa7fa7edc3a1c0b224fd7cf91f599dfedb130c0e"
-                  },
-                  {
-                      "path":  "task/metric_leaf_v2.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/05-verification_algorithm.md §7 and §7.0a (TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2 canonical leaf expansion and both optional-presence vectors)",
-                      "bytes":  33618,
-                      "sha256":  "a563e4a31d2b772cd770ea2b673f68cf478b416f69dda310f72d5aa8c9dfd0e5"
-                  },
-                  {
-                      "path":  "task/result_receipt_v2.json",
-                      "origin":  "wire",
-                      "contract_section":  "keeper_api_contract.md §5.14 and 04-task/05-verification_algorithm.md §7.1 (ResultReceiptV2 digest chain: metric summary, payload, commitment, signing digest)",
-                      "bytes":  27913,
-                      "sha256":  "4c6d97434bface8ca770d3f2fc141bf4bd5302cb2cec0f58ce5c7ed7ee04398e"
-                  },
-                  {
-                      "path":  "task/canonical_json_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/02-data_plane_and_evidence_transport.md §2.1 and 08-task_order_hashing_and_signing.md §5 (the two H_V1 canonical-JSON digests)",
-                      "bytes":  5292,
-                      "sha256":  "9b810fd70bd80a475103773f46650811d9e2269614186c6d6e3fd4a30f36b98f"
-                  },
-                  {
-                      "path":  "task/task_data_auth_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "20-service_design/nexus/API_and_topic_catalog.md §4.2.1 (TaskDataRequestAuthV1 body domains and the CORTEX_SERVICE request digest)",
-                      "bytes":  32768,
-                      "sha256":  "47962551135ea3586aa3ae7122763de5c05c2b0bae88254006b435a9c7ab5759"
-                  },
-                  {
-                      "path":  "task/builder_confirmation_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "20-service_design/nexus/task_data_api_design.md §6.3a (BuilderStorageConfirmationV1 and TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1, covering INPUT, OUTPUT and both evidence producer roles)",
-                      "bytes":  35301,
-                      "sha256":  "f375f4e472c09a6321986170022f25c85db78ed4c98faa78688a291b8e8752f5"
-                  },
-                  {
-                      "path":  "shared/mmr_primitive_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/00-fundamentals/canonical_encoding_and_domain_hashing.md §9 (MMR_ROOT_V1 leaf, node and empty framing, peak shape, fold direction) and §11.5 (primitive conformance vectors, including the reversed-fold negative value)",
-                      "bytes":  6252,
-                      "sha256":  "c3b3486a37137f504c215317058dd9056da15bac18d38e755ed282ea0ad649ed"
-                  },
-                  {
-                      "path":  "task/output_mmr_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 (TRUEOPEN_OUTPUT_MMR_V1 prefix and final roots, empty output and TRUEOPEN_OUTPUT_CHUNK_V1 vectors); TrueOpen/wire#35 (TRUEOPEN_OUTPUT_FIN_V1 preimage, accepted finish reasons and mutation cases)",
-                      "bytes":  10813,
-                      "sha256":  "5a973cb9af627a41212ba381676e1310195167859c4926d864325be7fd97fa2e"
-                  },
-                  {
-                      "path":  "task/token_ids_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/05-verification_algorithm.md §7 and §7.0 (single raw-field input/generated token-ID commitments)",
-                      "bytes":  2378,
-                      "sha256":  "e0b563a19e234358b97fbcd3ed09b1e5f247e1fec34b22faae4b2b723dfefdbb"
-                  },
-                  {
-                      "path":  "task/infer_receipt_v2.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/04-task_execution_verification_and_settlement.md §5.1 (InferReceiptV2 signing digest and commitment list)",
-                      "bytes":  5070,
-                      "sha256":  "166127b1f01ebab9733ba74ffc64d19636aa7ed26cbee34f0147f86dc03b24e9"
-                  },
-                  {
-                      "path":  "task/output_chunk_equivocation_v1.json",
-                      "origin":  "wire",
-                      "contract_section":  "10-protocol_specifications/04-task/06-challenges_and_evidence.md §6.3 (positive objective-fault proof and zero-write mutations)",
-                      "bytes":  5747,
-                      "sha256":  "089a953196846e6e545b1d3009d41cdce653c04b256f9304a12baeaea75d7a50"
-                  }
-              ]
+  "schema": "trueopen-wire-fixture-manifest-v1",
+  "status": "bootstrap-copy",
+  "source_repository": "https://github.com/TrueOpen/node",
+  "source_commit": "8b1dd7919a36519e001a946c341d7d980d18aa1f",
+  "notes": [
+    "source_commit pins the origin:node entries only: those are byte copies of the node fixture tree at that commit, and source_path names the file each was copied from.",
+    "origin:wire entries are authored in this repository because no upstream file exists to copy. They name the monorepo section they implement in contract_section, which is what a reviewer checks them against.",
+    "Every fixture listed here is published as a release asset, so a consumer can verify the bytes it downloaded against this manifest without trusting the release page."
+  ],
+  "files": [
+    {
+      "path": "shared/framing_v1.json",
+      "source_path": "x/shared/types/testdata/framing_v1.json",
+      "bytes": 32768,
+      "sha256": "d21e2243116ebe99aed7c4c0348da6d75d35e77aac3867a0e10e75de12c08687"
+    },
+    {
+      "path": "shared/account_signing_v1.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/00-fundamentals/account_and_signature_protocol.md §2-§8 (eth_secp256k1 account derivation, the Cosmos Web3 and TrueOpen Task Order EIP-712 domains, signature canonical form and conformance vectors); 20-service_design/nexus/API_and_topic_catalog.md §4.2.1 (the TrueOpen Task Data Request domain, which reuses this file's account)",
+      "bytes": 7881,
+      "sha256": "47f992318379f64cc294f96439e01b0256915c707847f203a27becc3a806a697"
+    },
+    {
+      "path": "hub/candidate_pool_v1.json",
+      "source_path": "x/hub/types/testdata/candidate_pool_v1.json",
+      "bytes": 13515,
+      "sha256": "ef791b48994bba1e58194a7d9ebc4f3c2fdf8db247611cd4523ecee7c4752419"
+    },
+    {
+      "path": "hub/hub_domains_v1.json",
+      "source_path": "x/hub/types/testdata/hub_domains_v1.json",
+      "bytes": 81614,
+      "sha256": "cb7ccdcb5fdef31be70a63fad929da46d90a1afafac4fe623ba7cab440f0e45f"
+    },
+    {
+      "path": "hub/model_profile_canonical_v2.json",
+      "source_path": "x/hub/types/testdata/model_profile_canonical_v2.json",
+      "bytes": 5936,
+      "sha256": "9a707da18993410097e6b1c5f57f2a9a4610da586fa4d92b4925ab4d3a89eb02"
+    },
+    {
+      "path": "task/generation_params_v1.json",
+      "source_path": "x/task/types/testdata/generation_params_v1.json",
+      "bytes": 1531,
+      "sha256": "3fdc74453ead0c338f0dd0c10fb1e069945704cfa503a0e289d7a83cfbb41946"
+    },
+    {
+      "path": "task/task_builder_rank_v1.json",
+      "source_path": "x/task/types/testdata/task_builder_rank_v1.json",
+      "bytes": 5274,
+      "sha256": "6ed870d34b89f47e9bb2d07f6263c2234ee0b43ef89247fc5bda3ff0b75c5bb3"
+    },
+    {
+      "path": "task/task_data_plane_v1_golden.json",
+      "source_path": "x/task/types/testdata/task_data_plane_v1_golden.json",
+      "bytes": 480,
+      "sha256": "5e1bd37658824e342f4056903ed16506621b30c796cc5697d1a7eb50b4867914"
+    },
+    {
+      "path": "task/task_domains_v1.json",
+      "source_path": "x/task/types/testdata/task_domains_v1.json",
+      "bytes": 78190,
+      "sha256": "bb51dfd3cfffe250038f675bae4e3569577cf23ee5a2c9f3bdee29f49f7fd23b"
+    },
+    {
+      "path": "task/worker_value_commitment_v2.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7.0b (WorkerValueCommitmentV2 four-artifact projection)",
+      "bytes": 5305,
+      "sha256": "76eaca115e7659ed06e5a538f256989a565a00046dfd0a1ad414513471ccb3a6"
+    },
+    {
+      "path": "hub/hub_keeper_domains_v1.json",
+      "source_path": "x/hub/keeper/testdata/hub_keeper_domains_v1.json",
+      "bytes": 13962,
+      "sha256": "4d1d0ab54c75666b586a438dbf89955d56c5c8f5490d4e67495bb631e1f033f3"
+    },
+    {
+      "path": "shared/shared_domains_v1.json",
+      "source_path": "x/shared/types/testdata/shared_domains_v1.json",
+      "bytes": 3685,
+      "sha256": "6f95a778cee24f33172dc7db50a41421e4cf9bbf23202082a0fc06017703f1cc"
+    },
+    {
+      "path": "task/task_keeper_domains_v1.json",
+      "source_path": "x/task/keeper/testdata/task_keeper_domains_v1.json",
+      "bytes": 93134,
+      "sha256": "5d261a4914a34526fb34477123f8ad97596bb4486714e696ea19bf14ddcafa60"
+    },
+    {
+      "path": "shared/query_page_v1.json",
+      "source_path": "x/shared/types/testdata/query_page_v1.json",
+      "bytes": 39101,
+      "sha256": "4096a1063a79d66df17ad4edf0441f73e661ef12366150d89890df101ebd9d3c"
+    },
+    {
+      "path": "shared/params_v1.json",
+      "origin": "wire",
+      "contract_section": "20-service_design/node/keeper_api_contract.md §18.0 (HubParamsV2 and TaskParamsV1 recursive canonical frames)",
+      "bytes": 54385,
+      "sha256": "b5fadfce321ef459c830343b804a1a887c71ee8252f058bddf4301573408202c"
+    },
+    {
+      "path": "task/round_settlement_v1.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/04-task_execution_verification_and_settlement.md §10.1 (round 2 economics, settlement plan and gas reimbursement conformance vectors); keeper_api_contract.md §1.4, §10.10a-§10.10b, §10.14a, §10.15",
+      "bytes": 96425,
+      "sha256": "26f4aa8d068424c3e233892d98c331a1f28d39b9c0ae19c61534c006e19ccbde"
+    },
+    {
+      "path": "hub/bridge_vrf_v1.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/10-cross_chain_assets/cross_chain_asset_bridge_protocol.md §2.1/§10.1 (raw32 local identifiers); 10-protocol_specifications/08-governance/governance_protocol.md §8.1 (MintBondV1/BurnBondV1); 10-protocol_specifications/07-randomness_and_sampling/randomness_and_sampling_protocol.md §3.1",
+      "bytes": 40379,
+      "sha256": "0779b60cffcef511ffbec0a8cfc73311fff395e85664f2d1648e90b3b0d314ed"
+    },
+    {
+      "path": "bus/bus_envelope_v2_vectors.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/07-task_builder_coordination.md §7.1-§7.4 (ADR-0013); 20-service_design/node/keeper_api_contract.md §5.5 (monorepo#79, verify-round numbering updated by monorepo#87)",
+      "bytes": 22562,
+      "sha256": "af2b725a5aaa6c73f1bcf83279fae95d2ed57bd731cf10b38e5c1cb843286446"
+    },
+    {
+      "path": "bus/nats_user_binding_v1_vectors.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/07-task_builder_coordination.md §7.5 (TRUEOPEN_NATS_USER_BINDING_V1 projection, signing rule and minimum vector); 20-service_design/nexus/API_and_topic_catalog.md §5.14 (NatsUserBindingV1 message shape and auth_token encoding)",
+      "bytes": 5345,
+      "sha256": "05c96ef8a630275865a9b4bbaa7fa7edc3a1c0b224fd7cf91f599dfedb130c0e"
+    },
+    {
+      "path": "task/metric_leaf_v2.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7 and §7.0a (TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2 canonical leaf expansion and both optional-presence vectors)",
+      "bytes": 33618,
+      "sha256": "a563e4a31d2b772cd770ea2b673f68cf478b416f69dda310f72d5aa8c9dfd0e5"
+    },
+    {
+      "path": "task/result_receipt_v2.json",
+      "origin": "wire",
+      "contract_section": "keeper_api_contract.md §5.14 and 04-task/05-verification_algorithm.md §7.1 (ResultReceiptV2 digest chain: metric summary, payload, commitment, signing digest)",
+      "bytes": 27403,
+      "sha256": "235b2e7c14d05f8b5ab1ba9de1f5bb4089a5824cae432d846cd51ac920055973"
+    },
+    {
+      "path": "task/canonical_json_v1.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/02-data_plane_and_evidence_transport.md §2.1 and 08-task_order_hashing_and_signing.md §5 (the two H_V1 canonical-JSON digests)",
+      "bytes": 5292,
+      "sha256": "9b810fd70bd80a475103773f46650811d9e2269614186c6d6e3fd4a30f36b98f"
+    },
+    {
+      "path": "task/task_data_auth_v1.json",
+      "origin": "wire",
+      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1 (TaskDataRequestAuthV1 body domains and the CORTEX_SERVICE request digest)",
+      "bytes": 32768,
+      "sha256": "47962551135ea3586aa3ae7122763de5c05c2b0bae88254006b435a9c7ab5759"
+    },
+    {
+      "path": "task/builder_confirmation_v1.json",
+      "origin": "wire",
+      "contract_section": "20-service_design/nexus/task_data_api_design.md §6.3a (BuilderStorageConfirmationV1 and TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1, covering INPUT, OUTPUT and both evidence producer roles)",
+      "bytes": 35301,
+      "sha256": "f375f4e472c09a6321986170022f25c85db78ed4c98faa78688a291b8e8752f5"
+    },
+    {
+      "path": "shared/mmr_primitive_v1.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/00-fundamentals/canonical_encoding_and_domain_hashing.md §9 (MMR_ROOT_V1 leaf, node and empty framing, peak shape, fold direction) and §11.5 (primitive conformance vectors, including the reversed-fold negative value)",
+      "bytes": 6252,
+      "sha256": "c3b3486a37137f504c215317058dd9056da15bac18d38e755ed282ea0ad649ed"
+    },
+    {
+      "path": "task/output_mmr_v1.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 (TRUEOPEN_OUTPUT_MMR_V1 prefix and final roots, empty output and TRUEOPEN_OUTPUT_CHUNK_V1 vectors); TrueOpen/wire#35 (TRUEOPEN_OUTPUT_FIN_V1 preimage, accepted finish reasons and mutation cases)",
+      "bytes": 10813,
+      "sha256": "5a973cb9af627a41212ba381676e1310195167859c4926d864325be7fd97fa2e"
+    },
+    {
+      "path": "task/token_ids_v1.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7 and §7.0 (single raw-field input/generated token-ID commitments)",
+      "bytes": 2378,
+      "sha256": "e0b563a19e234358b97fbcd3ed09b1e5f247e1fec34b22faae4b2b723dfefdbb"
+    },
+    {
+      "path": "task/infer_receipt_v2.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/04-task_execution_verification_and_settlement.md §5.1 (InferReceiptV2 signing digest and commitment list)",
+      "bytes": 5070,
+      "sha256": "166127b1f01ebab9733ba74ffc64d19636aa7ed26cbee34f0147f86dc03b24e9"
+    },
+    {
+      "path": "task/output_chunk_equivocation_v1.json",
+      "origin": "wire",
+      "contract_section": "10-protocol_specifications/04-task/06-challenges_and_evidence.md §6.3 (positive objective-fault proof and zero-write mutations)",
+      "bytes": 5747,
+      "sha256": "5858fdf2213b6718885d1f678b8b0c73a8f7e04649e700da3780c264174c7ef8"
+    }
+  ]
 }

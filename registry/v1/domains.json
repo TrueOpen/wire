@@ -895,7 +895,7 @@
       "store": "VerificationProfile.evidence_schema_hash and EvidenceSchemaV1",
       "event": "profile registration event carries the committed profile",
       "query": "QueryProfile",
-      "contract_section": "Issue #98 Q3 proposal; keeper_api_contract.md §5.14 and §9.7",
+      "contract_section": "keeper_api_contract.md §5.14 and §9.7",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Active evidence-schema commitment registered by the monorepo keeper contract."

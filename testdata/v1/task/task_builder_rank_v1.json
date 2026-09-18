@@ -4,7 +4,7 @@
     "H_FIELDS_V1(\"TRUEOPEN_TASK_BUILDER_RANK_V1\", task_builder_seed, builder_operator_address). Two fields, in that order; the registry row names both.",
     "builder_operator_address frames the address codec bytes, never the Bech32 text (Decision 24). The bech32 column is a self-check so a non-Go implementation can validate its own decoder here instead of discovering a broken one as a digest mismatch.",
     "The vectors share one seed and differ only in the Builder, which is what the rank is for: one task_builder_seed maps every candidate Builder onto its own rank, and selection is the ascending order of those ranks.",
-    "Until issue #141 this file published (seed, address) -\u003e rank pairs with no per-vector preimage, so the rank VALUES were pinned but the field ORDER was not: swapping the two fields inside the producer would have moved every rank and agreed with a regenerated file. The preimage below is what the root differential compares against the registry row."
+    "This file used to publish (seed, address) -\u003e rank pairs with no per-vector preimage, so the rank VALUES were pinned but the field ORDER was not: swapping the two fields inside the producer would have moved every rank and agreed with a regenerated file. The preimage below is what the root differential compares against the registry row."
   ],
   "schema_version": "trueopen-task-builder-rank-v1",
   "sort": "rank_bytes_asc_then_address_codec_bytes_asc",

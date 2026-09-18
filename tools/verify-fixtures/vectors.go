@@ -77,6 +77,13 @@ func validatePublishedVector(where string, object map[string]any) error {
 	framing, _ := object["framing"].(string)
 	fields, hasFields := object["fields"].([]any)
 	preimageHex, hasPreimage := object["preimage_hex"].(string)
+
+	if err := validatePublishedTreeRoot(where, object, domain, framing); err != nil {
+		return err
+	}
+	if err := validatePublishedMutations(where, object, domain); err != nil {
+		return err
+	}
 	if hasPreimage && hasFields && typedFields(fields) && (framing == "" || framing == "H_FIELDS_V1") {
 		preimage, err := encodeHFields(domain, fields)
 		if err != nil {
