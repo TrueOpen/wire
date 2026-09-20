@@ -205,7 +205,7 @@
       "origin": "wire",
       "contract_section": "§4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection, both boundary vectors and the §8.4 mutation set)",
       "bytes": 85109,
-      "sha256": "2955deb70754dfa08df3635e9ae9ae9acc820f3376a1a15d378bd256fb105bc5"
+      "sha256": "43e2cf01a1ab18139d654bf5bbf110c6dc940ba35d7e6d92ce7df94e088a841d"
     }
   ]
 }
