@@ -22,7 +22,7 @@
 //
 //	# Once, by a human, to author the declaration that then gets reviewed.
 //	reviewed-breaking -findings build/breaking.json -write release/reviewed-breaking.json \
-//	  -version v0.2.0 -against v0.1.1 -review 'TrueOpen/monorepo#74 (ADR-0013)'
+//	  -version v0.2.0 -against v0.1.1 -review 'bus envelope V2 and shared wire ownership'
 //
 // A finding is identified by (path, type, message) and never by line or column:
 // an unrelated edit above a deleted field would shift the line and silently

@@ -26,7 +26,7 @@ service Msg {
   rpc ClaimEarnings(MsgClaimEarnings) returns (MsgClaimEarningsResponse);
   // RegisterBuilder creates one Builder primary row.
   rpc RegisterBuilder(MsgRegisterBuilder) returns (MsgRegisterBuilderResponse);
-  // SubmitBuilderEvidence moved to task.v1.Msg by ADR-0013 / §5.5: the Task
+  // SubmitBuilderEvidence moved to task.v1.Msg (§5.5): the Task
   // module owns the BusEnvelope payload and the Task authority check and only
   // hands the Hub fault kernel a shared objective fact. No deprecated stub, no
   // alias and no forwarding rpc is kept here.

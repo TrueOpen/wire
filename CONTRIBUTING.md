@@ -13,7 +13,7 @@
   files, and nothing else - and `task.v1` and `bus.v1` have zero direct
   and zero transitive proto imports of `hub.v1`, with `hub.v1`
   importing `shared.v1` only. This replaces the earlier rule that allowed
-  `task` to import `hub`: monorepo ADR-0013 deliberately superseded it,
+  `task` to import `hub`: the module split deliberately superseded it,
   because a cross-domain type parked in an owner package keeps the module split
   from being real, and a Task-owned evidence message that reaches Bus payload
   types through the Hub package closes a Task -> Bus -> Task import cycle in the

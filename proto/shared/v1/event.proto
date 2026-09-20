@@ -5,8 +5,8 @@ import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/TrueOpen/node/x/shared/types";
 
-// This file is the single home of the public event-stream common wire of
-// ADR-0013: the one protocol event code registry plus the stream metadata shared
+// This file is the single home of the public event-stream common wire:
+// the one protocol event code registry plus the stream metadata shared
 // by every public event service. task.v1.TaskEventService and
 // hub.v1.HubEventService both reference these declarations, so the
 // module-split closure rule (§5.3 shared symbol manifest) makes them shared.

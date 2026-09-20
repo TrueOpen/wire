@@ -1,7 +1,6 @@
 // Package bus is the canonical Go implementation of the
 // TRUEOPEN_BUS_ENVELOPE_V2 signing projection, verification order and replay
-// keys for the trueopen.* NATS task-control wire (TrueOpen/nexus#52,
-// proto/bus/v1).
+// keys for the trueopen.* NATS task-control wire (proto/bus/v1).
 //
 // It is contract logic only: pure functions over plain field values, with no
 // dependency on generated protobuf code, NATS, storage engines or chain

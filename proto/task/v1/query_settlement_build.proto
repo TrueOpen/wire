@@ -42,7 +42,7 @@ message QueryInferReceiptResponse {
 // QueryVerifierCandidateWindowRequest selects one task round's verifier window.
 message QueryVerifierCandidateWindowRequest {
   bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  // Every verify_round in this file uses ADR-0014 v1.1 numbering: 1 is the
+  // Every verify_round in this file uses the frozen numbering: 1 is the
   // initial verification, values >= 2 are challenge rounds, and 0 is invalid.
   uint32 verify_round = 2;
 }

@@ -51,7 +51,7 @@ jobs:
         working-directory: tools
         run: go run ./verify-amino -image ../build/image.json
 
-      # ADR-0013's import direction is a structural rule, and a structural rule
+      # The import direction is a structural rule, and a structural rule
       # that only a document asserts is not one. Without this step the next
       # `import "hub/v1/common.proto"` in a task file builds cleanly
       # here and surfaces downstream as a Go import cycle with nothing attached

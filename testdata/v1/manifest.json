@@ -119,9 +119,9 @@
     {
       "path": "bus/bus_envelope_v2_vectors.json",
       "origin": "wire",
-      "contract_section": "10-protocol_specifications/04-task/07-task_builder_coordination.md §7.1-§7.4 (ADR-0013); 20-service_design/node/keeper_api_contract.md §5.5 (monorepo#79, verify-round numbering updated by monorepo#87)",
-      "bytes": 22562,
-      "sha256": "af2b725a5aaa6c73f1bcf83279fae95d2ed57bd731cf10b38e5c1cb843286446"
+      "contract_section": "10-protocol_specifications/04-task/07-task_builder_coordination.md §7.1-§7.4; 20-service_design/node/keeper_api_contract.md §5.5 (monorepo#79, verify-round numbering updated by monorepo#87)",
+      "bytes": 22526,
+      "sha256": "fed076207ff326c7512d4e303385734d39499e5bd2d5430f76afa346273ac571"
     },
     {
       "path": "bus/nats_user_binding_v1_vectors.json",
@@ -169,15 +169,15 @@
       "path": "shared/mmr_primitive_v1.json",
       "origin": "wire",
       "contract_section": "10-protocol_specifications/00-fundamentals/canonical_encoding_and_domain_hashing.md §9 (MMR_ROOT_V1 leaf, node and empty framing, peak shape, fold direction) and §11.5 (primitive conformance vectors, including the reversed-fold negative value)",
-      "bytes": 6252,
-      "sha256": "c3b3486a37137f504c215317058dd9056da15bac18d38e755ed282ea0ad649ed"
+      "bytes": 6269,
+      "sha256": "8090ef1983a3f722032a1db35b13aa1fec36af45a92116c611854d012b5e97d6"
     },
     {
       "path": "task/output_mmr_v1.json",
       "origin": "wire",
-      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 (TRUEOPEN_OUTPUT_MMR_V1 prefix and final roots, empty output and TRUEOPEN_OUTPUT_CHUNK_V1 vectors); TrueOpen/wire#35 (TRUEOPEN_OUTPUT_FIN_V1 preimage, accepted finish reasons and mutation cases)",
-      "bytes": 10813,
-      "sha256": "5a973cb9af627a41212ba381676e1310195167859c4926d864325be7fd97fa2e"
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 (TRUEOPEN_OUTPUT_MMR_V1 prefix and final roots, empty output and TRUEOPEN_OUTPUT_CHUNK_V1 vectors); TRUEOPEN_OUTPUT_FIN_V1 preimage, accepted finish reasons and mutation cases",
+      "bytes": 10830,
+      "sha256": "385a77ba7ac2fe55d2f4b6eb3e57d688c06c7c40f106ffbe2f50ff76b074a73a"
     },
     {
       "path": "task/token_ids_v1.json",

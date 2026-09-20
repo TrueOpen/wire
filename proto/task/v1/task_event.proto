@@ -22,7 +22,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 // untyped string status, string hash and attribute map is gone with them, and no
 // reserved field number is kept.
 //
-// ADR-0013 moved SubscribeProtocolEvents to hub.v1.HubEventService: the
+// SubscribeProtocolEvents moved to hub.v1.HubEventService: the
 // non-task operating-state stream carries Hub-owned payloads, so the Hub owns the
 // RPC. Nothing is left behind here, not even a deprecated stub.
 //

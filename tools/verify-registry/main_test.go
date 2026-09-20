@@ -158,7 +158,7 @@ func TestVerifyRegistryGenerationRules(t *testing.T) {
 		return &domainOrigin{
 			Repository: "https://github.com/TrueOpen/monorepo",
 			Commit:     monorepoCommit,
-			Review:     "ADR-0013",
+			Review:     "bus envelope V2",
 		}
 	}
 	// valid holds one superseded V1 and its reviewed V2 successor, sorted.
@@ -263,7 +263,7 @@ func TestVerifyRegistryAcceptsUnregisteredPredecessor(t *testing.T) {
 	value.Domains[0].Origin = &domainOrigin{
 		Repository: "https://github.com/TrueOpen/monorepo",
 		Commit:     "2222222222222222222222222222222222222222",
-		Review:     "ADR-0013",
+		Review:     "bus envelope V2",
 	}
 	value.Domains[0].Supersedes = &supersession{
 		Domain:     "TRUEOPEN_A_V1",
