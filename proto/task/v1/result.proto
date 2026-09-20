@@ -89,7 +89,7 @@ message ResultReceiptV2 {
 }
 
 // ResultReceiptState is the first accepted verifier result credential keyed by
-// commit_key (keeper_data_structure_contract.md §6.6). It retains enough authoritative scope
+// commit_key. It retains enough authoritative scope
 // and commitments to reconstruct result_payload_hash and verify the accepted
 // TRUEOPEN_RESULT_COMMITMENT_V2 without storing a full-result body on chain.
 // ResultReceiptState defines the ResultReceiptState wire type.

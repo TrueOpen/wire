@@ -444,8 +444,8 @@ message TaskStageHandraiseUnionSegmentState {
   bytes bitmap = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
 }
 
-// TaskBuilderSelectionState is the frozen Task Builder selection of one Task
-// (keeper_data_structure_contract.md §6.5, key = task_id). Task admission is the only writer
+// TaskBuilderSelectionState is the frozen Task Builder selection of one Task.
+// Task admission is the only writer
 // of its frozen selection content; terminal and EvidenceCleanup helpers may only
 // advance the lifecycle fields described below. Every later Task stage reads it:
 // §10.1 writes it together with the first accepted Worker proposal, §10.4/§10.5

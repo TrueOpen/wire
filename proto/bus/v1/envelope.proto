@@ -152,8 +152,8 @@ enum BusPayloadType {
 //   8. only after the signature verifies: decode the typed payload, reject
 //      unknown fields, and check task / task_hash / stage / BuilderSet scope
 //
-// On-chain Builder evidence uses a different, proof-only 7-step profile
-// (keeper_api_contract.md §5.5 lines 879-890): it has no actual NATS subject and no
+// On-chain Builder evidence uses a different, proof-only 7-step profile:
+// it has no actual NATS subject and no
 // receive-time wall clock, so it never rejects an already signed objective fact
 // for being past expires_at_unix_ms, it never writes the live replay store
 // (outer canonical evidence digest/ID does the exact-replay check instead), and

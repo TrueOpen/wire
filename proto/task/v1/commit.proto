@@ -60,9 +60,9 @@ message VerifyCommitV1 {
   bytes service_signature = 9 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
 }
 
-// CommitState is the first accepted verifier commit, keyed by commit_key
-// (keeper_data_structure_contract.md §6.6). commit_key has exactly one ordered preimage in
-// the whole repository (keeper_api_contract.md §10.9):
+// CommitState is the first accepted verifier commit, keyed by commit_key.
+// commit_key has exactly one ordered preimage in
+// the whole repository:
 //
 //   commit_key = H_FIELDS_V1("TRUEOPEN_COMMIT_KEY_V1",
 //     chain_id, task_id, verify_round, verifier_operator_address)

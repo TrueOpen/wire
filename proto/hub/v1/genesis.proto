@@ -34,7 +34,7 @@ option go_package = "github.com/TrueOpen/node/x/hub/types";
 // creates no request-level nullifier; freeze votes are EmergencyFreezeVoteState.
 //
 // Derived state is NOT exported and is rebuilt from the primary rows with a
-// two-way invariant check at import (keeper_data_structure_contract.md §3.3 and §6.x):
+// two-way invariant check at import:
 //   OperatorCandidateSlotState, ParameterBucketPruneIndex,
 //   TreasurySpendReceiptPruneIndex,
 //   VrfKeyActivationIndex, VrfKeyPruneIndex, FreezeSignalDeadlineIndex,

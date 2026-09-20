@@ -46,8 +46,7 @@ enum TreasurySourceKind {
   TREASURY_SOURCE_KIND_GOVERNANCE = 3;
 }
 
-// TreasuryState is the protocol treasury balance and its monotonic version
-// (keeper_data_structure_contract.md §6.7).
+// TreasuryState is the protocol treasury balance and its monotonic version.
 //
 // V1 has no maintenance-rate controller and no automatic infrastructure
 // reward: keeper_api_contract.md §5.4 restricts Treasury outflow to x/gov approved

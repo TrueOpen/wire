@@ -101,8 +101,8 @@ message QueryResultReceiptResponse {
   ResultReceiptState receipt = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryDataUnavailableReportsRequest pages one (task, round) report list
-// (keeper_api_contract.md §16.2). The §16.1 pagination wire now lives in exactly one
+// QueryDataUnavailableReportsRequest pages one (task, round) report list.
+// The §16.1 pagination wire now lives in exactly one
 // place, shared/v1/query_page.proto, so this RPC can finally be declared.
 // QueryDataUnavailableReportsRequest defines the QueryDataUnavailableReportsRequest wire type.
 message QueryDataUnavailableReportsRequest {

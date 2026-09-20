@@ -77,8 +77,8 @@ message MsgEmergencyFreezeVoteResponse {
   shared.v1.MutationStatusV1 status = 4;
 }
 
-// MsgUpdateTimeoutBucket applies one x/gov accepted timeout bucket version
-// (keeper_api_contract.md §9.6a / §5.2). It is registered on the Hub Msg service
+// MsgUpdateTimeoutBucket applies one x/gov accepted timeout bucket version.
+// It is registered on the Hub Msg service
 // because keeper_data_structure_contract.md §2.4 makes the Hub governance handler the only
 // writer of the TimeoutBucket version and pointer rows. The
 // resulting timeout combination must cover the complete task window, so a

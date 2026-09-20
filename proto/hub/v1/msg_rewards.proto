@@ -13,8 +13,8 @@ import "shared/v1/rest_encoding.proto";
 
 option go_package = "github.com/TrueOpen/node/x/hub/types";
 
-// MsgUpdateHubParams replaces the whole typed HubParamsV2 body
-// (keeper_api_contract.md §9.6a / §18.0). Cross-field clamps run before any write
+// MsgUpdateHubParams replaces the whole typed HubParamsV2 body.
+// Cross-field clamps run before any write
 // and genesis-only fields must reject a runtime change.
 // MsgUpdateHubParams defines the MsgUpdateHubParams wire type.
 message MsgUpdateHubParams {
@@ -71,7 +71,7 @@ message MsgClaimEarningsResponse {
 }
 
 // MsgRunRewardEpoch is the permissionless entry point of the bounded
-// RewardEpoch runner (keeper_api_contract.md §9.6a). It is a BOUNDED_RUNNER: it
+// RewardEpoch runner. It is a BOUNDED_RUNNER: it
 // resumes from RewardEpochCursorState and reports this call's visited/advanced
 // counts instead of pretending to be a first receipt. Chain ID, current height
 // and rates come from context and params, never from the request.

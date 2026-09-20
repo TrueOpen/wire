@@ -38,7 +38,7 @@ enum ServiceKeyRevocationReason {
 }
 
 // ServiceKeyResponsibilityKind is the closed set of online responsibilities that
-// block MsgRotateServiceKey (keeper_api_contract.md §B.1.2 / §10.0c1). The builder
+// block MsgRotateServiceKey. The builder
 // stage kinds feed BuilderState/CortexNodeState.pending_stage_duty_count and the
 // challenge/evidence kinds feed pending_evidence_submission_count; task duty
 // liability is counted by active_task_liability_count and no longer stored as a

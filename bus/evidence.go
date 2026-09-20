@@ -21,15 +21,14 @@ const (
 // Oneof tags of task.v1.BuilderEvidenceV2. Tag 4 is permanently reserved:
 // OBJECTIVE_MISSED_DUTY stays a Keeper-internal derivation from an authoritative
 // duty receipt, so the old public branch is never reused and a future public
-// wire takes a new tag (keeper_api_contract.md §5.5).
+// wire takes a new tag.
 const (
 	EvidenceTagEquivocation           uint32 = 2
 	EvidenceTagInvalidStageSubmission uint32 = 3
 	EvidenceTagDataUnavailable        uint32 = 5
 )
 
-// BuilderEvidenceKind values, mirrored value-for-value by BuilderFaultKind
-// (keeper_api_contract.md §9.6b).
+// BuilderEvidenceKind values, mirrored value-for-value by BuilderFaultKind.
 const (
 	EvidenceKindUnspecified              int32 = 0
 	EvidenceKindProposalEquivocation     int32 = 1
@@ -121,7 +120,7 @@ type DataUnavailableContent struct {
 // equivocation has one identity whichever envelope the submitter happened to
 // send first. The raw signatures are absent by design: they are proof only, and
 // two valid low-S signatures over one bus_signing_digest have to derive the same
-// evidence identity (keeper_api_contract.md §5.5).
+// evidence identity.
 func EquivocationDigest(content EquivocationContent) ([32]byte, error) {
 	if len(content.DigestA) != 32 || len(content.DigestB) != 32 {
 		return [32]byte{}, fmt.Errorf("%w: equivocation needs two raw32 signing digests", ErrEvidence)

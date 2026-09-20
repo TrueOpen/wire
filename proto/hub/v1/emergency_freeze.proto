@@ -129,8 +129,7 @@ message FreezeFailureClassCountsV1 {
   uint32 worker_evidence_fault = 4;
 }
 
-// FreezeSignalState is the profile-level risk object validators vote on
-// (keeper_data_structure_contract.md §6.1).
+// FreezeSignalState is the profile-level risk object validators vote on.
 //
 // The Keeper builds it from the single next fully closed fixed risk window and
 // only from TaskFailureClassState rows with freeze_signal_eligible=true; the
@@ -162,8 +161,8 @@ message FreezeSignalState {
   uint64 closed_height = 19;
 }
 
-// FreezeSignalBuildCursorState makes the risk window scan resumable and bounded
-// (keeper_data_structure_contract.md §6.1, key (model_id, profile_version)).
+// FreezeSignalBuildCursorState makes the risk window scan resumable and
+// bounded, keyed (model_id, profile_version).
 //
 // The cursor walks TaskFailureClassByProfileWindowIndex in stable
 // (task_finality_height, failure_class, task_id) order, revalidates finality,
@@ -206,8 +205,8 @@ message EmergencyFreezeVoteState {
   uint64 accepted_height = 5;
 }
 
-// FreezeSignalByWindowIndex binds one profile fixed window to its outcome
-// (keeper_data_structure_contract.md §6.1, key (model_id, profile_version, risk_window_id)).
+// FreezeSignalByWindowIndex binds one profile fixed window to its outcome,
+// keyed (model_id, profile_version, risk_window_id).
 // It is the exact-replay guard for MsgSubmitFreezeSignal: a window already
 // recorded here is a noop instead of a second signal.
 // FreezeSignalByWindowIndex defines the FreezeSignalByWindowIndex wire type.

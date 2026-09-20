@@ -115,8 +115,8 @@ message InferReceiptV2 {
 // The Phase 0 TEXT profile requires exactly WORKER_VALUE_OPENING with commitment
 // schema version 2, so an empty list has a defined digest but is not admissible.
 
-// InferReceiptState is the authoritative accepted receipt row keyed by task_id
-// (keeper_data_structure_contract.md §6.6). Field numbers follow the frozen field order of
+// InferReceiptState is the authoritative accepted receipt row keyed by task_id.
+// Field numbers follow the frozen field order of
 // that section. required_evidence_commitments is deleted once every challenge
 // and evidence consumer has finished; evidence_commitments_hash and
 // evidence_commitment_count stay for audit, so a shorter list than
