@@ -20,7 +20,7 @@
       "origin": "wire",
       "contract_section": "§2-§8 (eth_secp256k1 account derivation, the Cosmos Web3 and TrueOpen Task Order EIP-712 domains, signature canonical form and conformance vectors); §4.2.1 (the TrueOpen Task Data Request domain, which reuses this file's account)",
       "bytes": 7759,
-      "sha256": "4c22c1e86c8442a357d6488a8070efc30b5cb489cf945a79b37d0fe65cd23f85"
+      "sha256": "a4642da834b83eb03267ef6232006f7c5d5c29218877a62985bedf85882eace2"
     },
     {
       "path": "hub/candidate_pool_v1.json",
