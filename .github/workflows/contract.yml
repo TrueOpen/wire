@@ -39,7 +39,7 @@ jobs:
           go run github.com/bufbuild/buf/cmd/buf@v1.71.0 build -o build/wire.binpb
           go run github.com/bufbuild/buf/cmd/buf@v1.71.0 build -o build/image.json
 
-      # keeper_api_contract.md §1.1a: every bytes leaf under the six public Hub/Task
+      # Every bytes leaf under the six public Hub/Task
       # Msg, Query and event services needs explicit client metadata, including
       # binary-only gRPC methods. Native protobuf remains raw; HTTP generation
       # below consumes the same option for its smaller OpenAPI projection.

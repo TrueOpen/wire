@@ -1,7 +1,7 @@
 // Command apply-rest-encoding projects the REST bytes encoding contract into
 // the generated OpenAPI documents.
 //
-// keeper_api_contract.md §1.1a fixes the projection:
+// the API contract fixes the projection:
 //
 //	HASH32_LOWER_HEX -> {type:string, format:trueopen-hash32,
 //	                     pattern:^[0-9a-f]{64}$, minLength:64, maxLength:64}

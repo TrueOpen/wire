@@ -9,7 +9,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 
 // MetricSampleVerdictV1 is the per-sample judgment produced by JudgeMetricSample
 // from the task-snapshot verification thresholds. Frozen values:
-// keeper_api_contract.md §9.6b. Verifiers never submit a verdict field, and
+// the API contract. Verifiers never submit a verdict field, and
 // METRIC_SAMPLE_VERDICT_V1_INCONCLUSIVE can never become a final task verdict.
 // MetricSampleVerdictV1 defines the MetricSampleVerdictV1 wire type.
 enum MetricSampleVerdictV1 {
@@ -28,7 +28,7 @@ enum MetricSampleVerdictV1 {
 }
 
 // MetricSummaryV1 is the typed canonical verification summary. Field numbers and
-// order are frozen by keeper_api_contract.md §9.7 because they are part of both
+// order are frozen because they are part of both
 // metric_summary_hash = H_FIELDS_V1("TRUEOPEN_METRIC_SUMMARY_V1", canonical
 // MetricSummaryV1) and result_receipt_signing_digest. Maps, free JSON, floats and
 // implementation-defined extensions are forbidden; whether fields 7 and 8 are
@@ -49,7 +49,7 @@ message MetricSummaryV1 {
 
 // ResultReceiptV2 is the verifier-signed result credential carried by
 // MsgSubmitVerifyResult and MsgBatchSubmitVerifyResult. Field numbers, types and
-// order are frozen by keeper_api_contract.md §5.14 and are the length-framed preimage
+// order are frozen and are the length-framed preimage
 // of
 //
 //   result_receipt_signing_digest = H_FIELDS_V1("TRUEOPEN_RESULT_V2",

@@ -13,8 +13,8 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// The linked Builder evidence vectors of keeper_api_contract.md §5.5 after
-// monorepo#87, byte for byte. §5.5 requires the wire fixtures to contain them
+// The linked Builder evidence vectors, byte for byte. §5.5 requires the wire
+// fixtures to contain them
 // verbatim, so they are transcribed here rather than paraphrased. This test checks
 // that this implementation and the document agree; a restated fixture would only
 // check the implementation against itself.
@@ -259,7 +259,7 @@ type errBinding struct{}
 func (errBinding) Error() string { return "no current binding at that authorization nonce" }
 
 // TestEvidenceIdentityGolden reproduces both linked vectors of §5.5 lines
-// 1012-1039 and then the two invariants lines 1042-1044 require.
+// 1012-1039 and then the two invariants require.
 func TestEvidenceIdentityGolden(t *testing.T) {
 	digestA := mustHex(t, envelopeABusSigningDigest)
 	digestB := mustHex(t, envelopeBBusSigningDigest)
@@ -316,7 +316,7 @@ func assertIdentity(t *testing.T, label string, content [32]byte, kind int32, wa
 	}
 }
 
-// TestEvidenceIdentityIgnoresRawSignature is the invariant of §5.5 line 1043
+// TestEvidenceIdentityIgnoresRawSignature is the invariant of §5.5
 // that the identity must not move when a signature is replaced by another valid
 // low-S signature over the same digest. The identity is built from the signing
 // digest alone, so re-signing cannot fork one fault into two.
@@ -434,7 +434,7 @@ func TestEquivocationPreconditionsIdentifySenderByCodecBytes(t *testing.T) {
 }
 
 // TestEvidenceReservedTagIsNotAttributable pins the permanently reserved oneof
-// tag. keeper_api_contract.md §5.5 keeps OBJECTIVE_MISSED_DUTY as a Keeper-internal
+// tag. The API contract keeps OBJECTIVE_MISSED_DUTY as a Keeper-internal
 // derivation, so the public branch must not be revivable by number.
 func TestEvidenceReservedTagIsNotAttributable(t *testing.T) {
 	for _, tag := range []uint32{EvidenceTagEquivocation, EvidenceTagInvalidStageSubmission, EvidenceTagDataUnavailable} {

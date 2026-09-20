@@ -15,7 +15,7 @@ import (
 var (
 	commitPattern = regexp.MustCompile(`^[0-9a-f]{40}$`)
 	// domainPattern accepts any registered generation, not only V1. Canonical
-	// encoding_and_domain_hashing.md §7 requires a new _V2-or-higher domain whenever a preimage
+	//requires a new _V2-or-higher domain whenever a preimage
 	// changes shape, so a verifier that only ever accepts _V1 cannot express the
 	// upgrade the same section mandates. The version is not waved through: see
 	// validateGeneration.
@@ -276,7 +276,7 @@ func splitGeneration(name string) (string, int, error) {
 // anything". A V1 row may be a plain copy of the node registry at source_commit.
 // A higher generation cannot be: source_commit predates the decision that
 // created it, so the row has to name the review that authorized it, and it has
-// to name the generation it replaces - Canonical encoding_and_domain_hashing.md §7 upgrades a
+// to name the generation it replaces - Canonicalupgrades a
 // domain, it does not invent an unrelated one.
 func validateGeneration(item domain, sourceCommit string) error {
 	base, version, err := splitGeneration(item.Domain)

@@ -58,7 +58,7 @@ type decoded map[uint32][]value
 
 // strictDecode parses one message against its pinned table.
 //
-// The rules are keeper_api_contract.md §5.5 step 1: reject unknown fields, reject a
+// The rules are the API contract step 1: reject unknown fields, reject a
 // duplicate singular field, reject a wrong wire type, and check a length before
 // allocating against it. Nothing is skipped and nothing is retained as an
 // unknown-field set - "we decoded it and ignored the rest" is exactly the
@@ -283,7 +283,7 @@ func (d decoded) bytesAt(number uint32) []byte {
 }
 
 // hash32At enforces the raw32 width every Hash32 field in the projection
-// declares. keeper_api_contract.md §1.1a is explicit that a present Hash32 is exactly
+// declares. The API contract is explicit that a present Hash32 is exactly
 // 32 bytes and that a zero-length value is not a way to express absence.
 func (d decoded) hash32At(name string, number uint32) ([]byte, error) {
 	raw := d.bytesAt(number)

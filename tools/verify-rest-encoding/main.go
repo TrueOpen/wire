@@ -6,7 +6,7 @@
 // is decoration: a public Msg, Query or event RPC can pull an unannotated
 // message into the client-facing descriptor closure and every generated client
 // will quietly guess an encoding for its bytes leaves - which is exactly the
-// field-name-table behaviour keeper_api_contract.md §1.1a exists to abolish. The
+// field-name-table behaviour the API contract exists to abolish. The
 // guess is invisible until two implementations guess differently about the
 // same field.
 //
@@ -20,7 +20,7 @@
 //	buf build -o build/image.json
 //	verify-rest-encoding -image build/image.json
 //
-// Four rules, all from §1.1a (lines 88-89, 100-113):
+// Four rules, all from §1.1a:
 //
 //  1. The option may only sit on a `bytes` field. Anywhere in the image, not
 //     just under REST.

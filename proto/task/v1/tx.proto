@@ -15,7 +15,7 @@ import "task/v1/msg_verification.proto";
 option go_package = "github.com/TrueOpen/node/x/task/types";
 
 // Msg defines Task-owned session, execution, verification and settlement
-// transactions. Every rpc below is registered ACTIVE by keeper_api_contract.md §9.6a
+// transactions. Every rpc below is registered ACTIVE
 // and its request carries exactly one explicit canonical Address field bound by
 // option (cosmos.msg.v1.signer).
 // Msg defines the Msg wire type.

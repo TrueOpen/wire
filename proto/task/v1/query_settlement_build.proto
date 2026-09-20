@@ -15,7 +15,7 @@ import "task/v1/settlement.proto";
 
 option go_package = "github.com/TrueOpen/node/x/task/types";
 
-// This file carries the V1 verification Query wire of keeper_api_contract.md §16.2.
+// This file carries the V1 verification Query wire.
 //
 // There is no settlement-build preview RPC. Settlement queries expose only a
 // committed TaskSettlementState/SettlementPlanV1 or retained facts.

@@ -10,7 +10,7 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 // the closure rule of the module-split design (§5.3 shared symbol manifest) puts
 // it in shared.v1 instead of the package that used to hold the file it came
 // from. The enum numbers, message field numbers and business meanings are the
-// ones frozen by keeper_api_contract.md §9.6b; the migration only changed the
+// ones frozen; the migration only changed the
 // protobuf FQN, the generated symbol and the import path. No alias, duplicate
 // enum or compatibility shim is kept in hub.v1.
 
@@ -74,11 +74,11 @@ enum FailureClassificationSource {
 
 // StoredBodyStatus tells whether the bounded member body of a committed
 // collection row is still resident or has been pruned while its count and hash
-// stay auditable. keeper_api_contract.md §16.5 registers the two values (and §9.6b
+// stay auditable. The API contract registers the two values (and §9.6b
 // lists §16.5 as the numeric authority for them).
 //
 // CONTRACT-GAP: §16.5 calls this a Query-only projection enum that never lands in
-// Store, yet keeper_data_structure_contract.md §6.5 gives both BuilderSetState and
+// Store, yet the data-structure contract gives both BuilderSetState and
 // TaskBuilderSelectionState a stored `body_status = ACTIVE / PRUNED` field with
 // exactly these two values. Declaring a second Store-only enum would break the
 // §9.6b rule of one numeric definition per closed enum, so the single definition
@@ -128,7 +128,7 @@ enum TaskFinalityStatusV1 {
 }
 
 // BuilderEvidenceKind is the closed typed Builder evidence registry frozen by
-// keeper_api_contract.md §9.6b and consumed by the ACTIVE evidence submission API.
+// the API contract and consumed by the ACTIVE evidence submission API.
 // BuilderEvidenceKind defines the BuilderEvidenceKind wire type.
 enum BuilderEvidenceKind {
   reserved 3;

@@ -126,7 +126,7 @@ message MsgSubmitVerifierHandraisesResponse {
 
 // MsgReportDataUnavailable lets a selected verifier report on chain that the fixed
 // Task Builders did not deliver a complete, commitment-checked input/output/
-// required-evidence set before the commit deadline (keeper_api_contract.md §9.6a,
+// required-evidence set before the commit deadline (the API contract,
 // §10.5). There is no relay path: the Cosmos Tx signer must be the current service
 // address of a selected verifier operator for this round. chain_id, the stable
 // operator and the current service binding version are derived by the Keeper, and

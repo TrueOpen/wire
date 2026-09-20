@@ -15,7 +15,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 // with (chain_height, tx_hash, tx_index, event_index).
 //
 // The two local TaskEventCode / ProtocolEventCode enums are deleted: they were a
-// second numeric authority for the same event facts, which keeper_api_contract.md
+// second numeric authority for the same event facts, which the API contract
 // §9.6b (one numeric definition per closed enum) and §17 (§5.11 is the only event
 // code registry) both forbid. Filters and envelopes now use
 // shared.v1.ProtocolEventCodeV1 and the two §5.11 typed payload oneofs. Every

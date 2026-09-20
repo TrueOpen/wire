@@ -11,7 +11,7 @@ import (
 // projection produced.
 func sha256Sum(preimage []byte) [32]byte { return sha256.Sum256(preimage) }
 
-// Subject prefixes of the trueopen.* task-control subjects. keeper_api_contract.md §5.5
+// Subject prefixes of the trueopen.* task-control subjects. The API contract
 // derives the expected subject from the typed payload and then compares it with
 // the signed subject, so these are the only place the templates appear: a second
 // copy in a caller would be a second authority on what the signer committed to.
@@ -27,8 +27,8 @@ const (
 	domainTaskIDV1                  string = "TRUEOPEN_TASK_ID_V1"
 )
 
-// BusActionScopeV2 is the plain business projection of a decoded payload, fixed
-// by keeper_api_contract.md §5.5. It is deliberately not a protobuf message, not a
+// BusActionScopeV2 is the plain business projection of a decoded payload, and
+// its shape is fixed. It is deliberately not a protobuf message, not a
 // Store row and not an API type: it exists so a Task Keeper can look up Task
 // authority without the Bus generated package entering its import graph.
 //
@@ -60,7 +60,7 @@ type BusActionScopeV2 struct {
 
 // DecodedEnvelope is what the import-leaf decoder returns: the plain signing
 // fields, the exact payload bytes as transmitted, the raw signature, and the
-// business scope. keeper_api_contract.md §5.5 fixes this return shape so that Node
+// business scope. The API contract fixes this return shape so that Node
 // keeps no second envelope struct, kind numbering, payload map or signing helper.
 type DecodedEnvelope struct {
 	Fields Fields
@@ -190,8 +190,8 @@ func decodeEnvelope(raw []byte, project bool) (DecodedEnvelope, error) {
 // DecodeEnvelopeHeader is DecodeEnvelope without the typed payload projection.
 //
 // The split exists because the two happen at different points in the verified
-// order. keeper_api_contract.md §5.5 decodes the typed payload at step 6, after the
-// signature has verified at step 5, and 07-task_builder_coordination.md §7.3 step 8 says
+// order. The API contract decodes the typed payload at step 6, after the
+// signature has verified at step 5, andstep 8 says
 // the same for the live profile. Doing it earlier does not change which
 // envelopes are accepted, but it changes how a rejection reads: an envelope with
 // a valid signature and a malformed payload would come back as ErrDecode, which
@@ -213,7 +213,7 @@ func (d DecodedEnvelope) ProjectPayload() (BusActionScopeV2, []byte, error) {
 }
 
 // projectScope implements the kind -> field-path -> Subject table of
-// keeper_api_contract.md §5.5. The field numbers come from the pinned tables in
+// the API contract. The field numbers come from the pinned tables in
 // prototable.go, which are checked against the .proto sources, so nothing here
 // resolves a field by guessing at its name.
 func projectScope(kind, payloadType int32, payload []byte) (BusActionScopeV2, []byte, error) {

@@ -290,7 +290,7 @@ func parseProtoSources(t *testing.T, root string) map[string]messageSpec {
 	return out
 }
 
-// TestStrictDecodeRejections covers the rules keeper_api_contract.md §5.5 step 1
+// TestStrictDecodeRejections covers the rules the API contract step 1
 // requires. Each case is a byte string a permissive decoder would accept, and
 // each acceptance would let two implementations disagree about what was signed.
 func TestStrictDecodeRejections(t *testing.T) {

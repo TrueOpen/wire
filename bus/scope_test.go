@@ -9,7 +9,7 @@ import (
 )
 
 // The golden vector covers OPEN_VERIFY only, so seven of the eight scope
-// projections in keeper_api_contract.md §5.5 lines 863-870 would otherwise be
+// projections would otherwise be
 // unexercised - and a wrong field number there attributes an action to the wrong
 // participant, or looks up the wrong Task, rather than failing. These tests build
 // a minimal payload for each kind and assert the whole projection.

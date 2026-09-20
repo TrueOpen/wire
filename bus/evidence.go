@@ -8,9 +8,9 @@ import (
 )
 
 // Domains of the Builder objective-evidence identity chain, registered in
-// registry/v1/domains.json and defined once in keeper_api_contract.md §5.5. All three
+// registry/v1/domains.json and defined once. All three
 // are V2 because the BusEnvelope V2 cutover changed the nested evidence schema,
-// the kind numbers and the signing rule, and canonical_encoding_and_domain_hashing.md §7 forbids
+// the kind numbers and the signing rule, andforbids
 // reinterpreting a domain rather than replacing it.
 const (
 	EvidenceContentDomain = "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2"
@@ -270,7 +270,7 @@ type ProofKeyLookup func(participantType int32, operatorAddress string, authoriz
 // EvidenceVerifyOptions configures the chain proof-only profile.
 //
 // There is deliberately no clock and no replay store here. Both are in
-// VerifyOptions for the live receiver, and keeper_api_contract.md §5.5 is explicit
+// VerifyOptions for the live receiver, and the API contract is explicit
 // that the chain profile has neither: expires_at bounds live transport delivery
 // only, so rejecting an already-signed objective fact by current wall clock
 // would let a Builder outlive its own evidence. Exact replay is done by the
@@ -291,7 +291,7 @@ type VerifiedEvidenceEnvelope struct {
 }
 
 // VerifyEvidenceEnvelope runs the chain proof-only profile of
-// keeper_api_contract.md §5.5 over one exact serialized BusEnvelopeV1.
+// the API contract over one exact serialized BusEnvelopeV1.
 //
 // The order matters and is the document's: size and strict structure, then
 // schema and chain and kind and the fixed TTL bound, then the payload digest
@@ -392,7 +392,7 @@ func VerifyEvidenceEnvelope(raw []byte, opts EvidenceVerifyOptions) (VerifiedEvi
 }
 
 // EquivocationPreconditions checks what makes two verified envelopes one
-// equivocation rather than two unrelated messages, per keeper_api_contract.md §5.5:
+// equivocation rather than two unrelated messages,:
 // identical chain, subject, kind, sender, authorization nonce, message_id,
 // payload_type, expiry and payload-derived action scope, but different signing
 // digests - which is exactly the dual-key live replay conflict.
