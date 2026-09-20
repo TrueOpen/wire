@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -163,6 +164,12 @@ func encodePublishedField(field map[string]any) ([]byte, error) {
 			return nil, err
 		}
 		return publishedU64(value), nil
+	case "int32":
+		value, err := publishedInt(field["value"])
+		if err != nil || value < math.MinInt32 || value > math.MaxInt32 {
+			return nil, fmt.Errorf("invalid int32 value")
+		}
+		return publishedU32(uint32(int32(value))), nil
 	case "int64":
 		value, err := publishedInt(field["value"])
 		if err != nil {
