@@ -34,7 +34,7 @@ option go_package = "github.com/TrueOpen/node/x/hub/types";
 // creates no request-level nullifier; freeze votes are EmergencyFreezeVoteState.
 //
 // Derived state is NOT exported and is rebuilt from the primary rows with a
-// two-way invariant check at import (keeper_data_structure_contract.md §3.3 and §6.x):
+// two-way invariant check at import:
 //   OperatorCandidateSlotState, ParameterBucketPruneIndex,
 //   TreasurySpendReceiptPruneIndex,
 //   VrfKeyActivationIndex, VrfKeyPruneIndex, FreezeSignalDeadlineIndex,
@@ -83,7 +83,7 @@ message GenesisState {
 
   // Jail and tombstone facts are operator-global counters on ServiceBondState
   // (status / jail_count / normal_action_count_since_jail) per
-  // keeper_data_structure_contract.md §6.4, so there is no separate jail or tombstone
+  // the data-structure contract, so there is no separate jail or tombstone
   // collection to export.
   repeated RoleFaultState role_faults = 30 [(gogoproto.nullable) = false];
   repeated SlashSummaryState slash_summaries = 31 [(gogoproto.nullable) = false];

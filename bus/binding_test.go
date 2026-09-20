@@ -14,7 +14,7 @@ import (
 )
 
 // bindingVectorFile mirrors testdata/v1/bus/nats_user_binding_v1_vectors.json.
-// The first case is the minimum vector frozen in 07-task_builder_coordination.md §7.5.4,
+// The first case is the minimum vector frozen in,
 // whose preimage and digest were derived independently of this package (a
 // standalone Go program over raw framing, re-checked with xxd | sha256sum);
 // this test is the implementation leg of that cross-check.

@@ -11,7 +11,7 @@ import (
 )
 
 // BindingDomain is the H_FIELDS_V1 signing domain of the NATS user binding
-// declaration (07-task_builder_coordination.md §7.5). It is the service key's second
+// declaration. It is the service key's second
 // signing use next to TRUEOPEN_BUS_ENVELOPE_V2 and therefore its own domain: one
 // domain never interprets two projections.
 const BindingDomain = "TRUEOPEN_NATS_USER_BINDING_V1"
@@ -19,7 +19,7 @@ const BindingDomain = "TRUEOPEN_NATS_USER_BINDING_V1"
 // BindingSchemaVersion is the only schema_version NatsUserBindingV1 accepts.
 const BindingSchemaVersion uint32 = 1
 
-// MaxBindingBytes bounds the encoded NatsUserBindingV1 (API_and_topic_catalog.md
+// MaxBindingBytes bounds the encoded NatsUserBindingV1 (
 // §5.14.1). It is checked before the token is decoded and before the protobuf
 // bytes are parsed.
 const MaxBindingBytes = 1024

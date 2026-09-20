@@ -8,9 +8,9 @@ import (
 )
 
 // Domains of the Builder objective-evidence identity chain, registered in
-// registry/v1/domains.json and defined once in keeper_api_contract.md §5.5. All three
+// registry/v1/domains.json and defined once. All three
 // are V2 because the BusEnvelope V2 cutover changed the nested evidence schema,
-// the kind numbers and the signing rule, and canonical_encoding_and_domain_hashing.md §7 forbids
+// the kind numbers and the signing rule, andforbids
 // reinterpreting a domain rather than replacing it.
 const (
 	EvidenceContentDomain = "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2"
@@ -21,15 +21,14 @@ const (
 // Oneof tags of task.v1.BuilderEvidenceV2. Tag 4 is permanently reserved:
 // OBJECTIVE_MISSED_DUTY stays a Keeper-internal derivation from an authoritative
 // duty receipt, so the old public branch is never reused and a future public
-// wire takes a new tag (keeper_api_contract.md §5.5).
+// wire takes a new tag.
 const (
 	EvidenceTagEquivocation           uint32 = 2
 	EvidenceTagInvalidStageSubmission uint32 = 3
 	EvidenceTagDataUnavailable        uint32 = 5
 )
 
-// BuilderEvidenceKind values, mirrored value-for-value by BuilderFaultKind
-// (keeper_api_contract.md §9.6b).
+// BuilderEvidenceKind values, mirrored value-for-value by BuilderFaultKind.
 const (
 	EvidenceKindUnspecified              int32 = 0
 	EvidenceKindProposalEquivocation     int32 = 1
@@ -121,7 +120,7 @@ type DataUnavailableContent struct {
 // equivocation has one identity whichever envelope the submitter happened to
 // send first. The raw signatures are absent by design: they are proof only, and
 // two valid low-S signatures over one bus_signing_digest have to derive the same
-// evidence identity (keeper_api_contract.md §5.5).
+// evidence identity.
 func EquivocationDigest(content EquivocationContent) ([32]byte, error) {
 	if len(content.DigestA) != 32 || len(content.DigestB) != 32 {
 		return [32]byte{}, fmt.Errorf("%w: equivocation needs two raw32 signing digests", ErrEvidence)
@@ -271,7 +270,7 @@ type ProofKeyLookup func(participantType int32, operatorAddress string, authoriz
 // EvidenceVerifyOptions configures the chain proof-only profile.
 //
 // There is deliberately no clock and no replay store here. Both are in
-// VerifyOptions for the live receiver, and keeper_api_contract.md §5.5 is explicit
+// VerifyOptions for the live receiver, and the API contract is explicit
 // that the chain profile has neither: expires_at bounds live transport delivery
 // only, so rejecting an already-signed objective fact by current wall clock
 // would let a Builder outlive its own evidence. Exact replay is done by the
@@ -292,7 +291,7 @@ type VerifiedEvidenceEnvelope struct {
 }
 
 // VerifyEvidenceEnvelope runs the chain proof-only profile of
-// keeper_api_contract.md §5.5 over one exact serialized BusEnvelopeV1.
+// the API contract over one exact serialized BusEnvelopeV1.
 //
 // The order matters and is the document's: size and strict structure, then
 // schema and chain and kind and the fixed TTL bound, then the payload digest
@@ -393,7 +392,7 @@ func VerifyEvidenceEnvelope(raw []byte, opts EvidenceVerifyOptions) (VerifiedEvi
 }
 
 // EquivocationPreconditions checks what makes two verified envelopes one
-// equivocation rather than two unrelated messages, per keeper_api_contract.md §5.5:
+// equivocation rather than two unrelated messages,:
 // identical chain, subject, kind, sender, authorization nonce, message_id,
 // payload_type, expiry and payload-derived action scope, but different signing
 // digests - which is exactly the dual-key live replay conflict.

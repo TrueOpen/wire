@@ -17,7 +17,7 @@ import (
 // TestPinnedTableMatchesProtoSources is what makes prototable.go a projection
 // rather than a second, drifting definition of the wire format.
 //
-// The decoder cannot import generated code (keeper_api_contract.md §5.5), so
+// The decoder cannot import generated code, so
 // the field numbers live in a hand-committed table. A table nobody checks is
 // worse than no table: it would keep decoding confidently after a .proto changed
 // underneath it, and a field the decoder does not know about is a field it
@@ -290,7 +290,7 @@ func parseProtoSources(t *testing.T, root string) map[string]messageSpec {
 	return out
 }
 
-// TestStrictDecodeRejections covers the rules keeper_api_contract.md §5.5 step 1
+// TestStrictDecodeRejections covers the rules the API contract step 1
 // requires. Each case is a byte string a permissive decoder would accept, and
 // each acceptance would let two implementations disagree about what was signed.
 func TestStrictDecodeRejections(t *testing.T) {

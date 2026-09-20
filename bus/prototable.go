@@ -6,7 +6,7 @@ package bus
 // the task.v1 payload messages the bus reuses verbatim, and the generated-
 // code-free BuilderEvidenceV2 subtree.
 //
-// It is a table rather than generated code on purpose. keeper_api_contract.md §5.5
+// It is a table rather than generated code on purpose. The API contract
 // requires a decoder with no generated Hub/Task/Bus code dependency, because a
 // Task-owned evidence message that imported the Bus generated package - which in
 // turn references Task payload types - would close a Task -> Bus -> Task import

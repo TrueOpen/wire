@@ -148,7 +148,7 @@ func TestVerifyRegistryVariantRules(t *testing.T) {
 }
 
 // TestVerifyRegistryGenerationRules covers the reviewed-V2 mechanism. Canonical
-// encoding_and_domain_hashing.md §7 requires a new _V2 domain whenever a preimage changes shape,
+//requires a new _V2 domain whenever a preimage changes shape,
 // so the verifier has to accept one - but a row that postdates the pinned node
 // source_commit is no longer a copy of it, and every case below is a way of
 // adding such a row without leaving a reviewer anything to check.

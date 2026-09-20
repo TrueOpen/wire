@@ -7,7 +7,7 @@ import "shared/v1/rest_encoding.proto";
 option go_package = "github.com/TrueOpen/node/x/hub/types";
 
 // CandidatePoolSnapshotStatus is the snapshot lifecycle. Numeric values are
-// frozen by keeper_api_contract.md §9.6b (sole closed-enum authority).
+// frozen (sole closed-enum authority).
 // CandidatePoolSnapshotStatus defines the CandidatePoolSnapshotStatus wire type.
 enum CandidatePoolSnapshotStatus {
   // Never written; rejects zero-value rows.
