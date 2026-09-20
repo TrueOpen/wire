@@ -37,7 +37,8 @@ Pull requests are checked for breaking changes against `main`. See
 - `testdata/v1`: language-neutral positive, tamper, replay, and hash vectors.
 - `schemas`: machine-readable manifests and registry schemas.
 - `gen`: pinned TypeScript and OpenAPI compatibility generation profiles.
-- `release`: release manifest policy; no tag publishing is enabled during bootstrap.
+- `release`: release manifest policy. A release is cut by pushing a `v*` tag;
+  see [release/README.md](release/README.md) and [VERSIONING.md](VERSIONING.md).
 
 See [Canonical Encoding V1](docs/CANONICAL_ENCODING_V1.md) for the current
 implemented framing boundary. Entries marked unregistered or divergent remain
