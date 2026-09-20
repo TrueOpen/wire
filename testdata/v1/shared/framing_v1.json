@@ -1,6 +1,6 @@
 {
   "schema": "trueopen.shared.framing.v1",
-  "source": "monorepo@d286744 docs/10-protocol_specifications/00-fundamentals/canonical_encoding_and_domain_hashing.md §§3-10 and docs/10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §§2-8",
+  "source": "§§3-10 and §§2-8",
   "notes": [
     "All hex is lowercase. Every *_hex expectation is an output; every other field is an input.",
     "Typed value encoding (fundamentals §§3-4): {\"type\":\"bytes\",\"hex\":..} raw bytes; {\"type\":\"string\",\"utf8\":..} strict UTF-8 bytes; {\"type\":\"uint32\"|\"uint64\"|\"enum\",\"value\":..} 4/8/4-byte big-endian; {\"type\":\"bool\",\"value\":..} 0x00/0x01; {\"type\":\"repeat\",\"hex\":..,\"count\":..} the unit repeated count times; {\"type\":\"frame\",\"fields\":[..]} a nested FRAME_V1 with no domain prefix.",

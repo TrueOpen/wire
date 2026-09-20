@@ -8,10 +8,10 @@
     "Vectors for domains removed in Wire v0.3.0 were deleted from this file in the same revision that removed the domains, so it is no longer a byte copy of the upstream node fixture; source_path still records where the retained vectors came from."
   ],
   "schema": "trueopen.hub.keeper-domains.v1",
-  "source": "keeper_api_contract.md §1.4 registry rows for the listed domains; producers live in x/hub/keeper and are unexported, so the binding test is an internal (package keeper) test",
+  "source": "§1.4 registry rows for the listed domains; producers live in x/hub/keeper and are unexported, so the binding test is an internal (package keeper) test",
   "vectors": [
     {
-      "contract_section": "keeper_api_contract.md §1.4 formula block",
+      "contract_section": "§1.4 formula block",
       "digest_hex": "9197f6b31d08c0d7e8356c1d8a9efee891cb299117119eea585cc0b538a307bb",
       "domain": "TRUEOPEN_BUILDER_SET_MEMBERS_V1",
       "fields": [
@@ -86,7 +86,7 @@
       "producer": "BuilderSetMembersHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4 aggregate formula",
+      "contract_section": "§1.4 aggregate formula",
       "digest_hex": "9bf9dd864a90dab49879219653d410cd1d83298c0425ad339f31f66602091e26",
       "domain": "TRUEOPEN_BEACON_AGGREGATE_V1",
       "fields": [
@@ -133,7 +133,7 @@
       "producer": "beaconAggregateDigest"
     },
     {
-      "contract_section": "keeper_api_contract.md §9.6b defines batch_digest but not this object_id",
+      "contract_section": "§9.6b defines batch_digest but not this object_id",
       "digest_hex": "b62b9a4647ae93d1b3c477417200eaee915c95cf5527ad24dcbf8eb7ba6f7c39",
       "domain": "TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_ID_V1",
       "fields": [
@@ -159,7 +159,7 @@
       "producer": "dailySupportConfirmationID"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4, §10.0a",
+      "contract_section": "§1.4, §10.0a",
       "digest_hex": "87ef0e34138ff15b5f479d46083a007506bc43373a285dda79cefb64349b9689",
       "domain": "TRUEOPEN_FREEZE_FAILURE_REFS_V1",
       "fields": [
@@ -200,7 +200,7 @@
       "producer": "freezeFailureRefsRoot"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4, §10.0a",
+      "contract_section": "§1.4, §10.0a",
       "digest_hex": "699254472e1ef394a7af1ea78cc934b26a949d9fe1b5e0f265939cf6c5ad5fd9",
       "domain": "TRUEOPEN_FREEZE_SIGNAL_V1",
       "fields": [
@@ -251,7 +251,7 @@
       "producer": "freezeSignalID"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.7",
+      "contract_section": "§1.4; §6.7",
       "digest_hex": "6cdab7c029a9c3bcabc4f8de23e0a18e59febf3689b6c50ece3d4fb079aacd6e",
       "domain": "TRUEOPEN_ROLE_FAULT_V1",
       "fields": [
@@ -292,7 +292,7 @@
       "producer": "roleFaultID"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4, §9.6c",
+      "contract_section": "§1.4, §9.6c",
       "digest_hex": "a8780a9f2a8f6d9df923b971af6f17f60442b5078a1b7830daadde81acf036af",
       "domain": "TRUEOPEN_TREASURY_SPEND_V1",
       "fields": [

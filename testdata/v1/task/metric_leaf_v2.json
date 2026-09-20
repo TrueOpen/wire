@@ -10,10 +10,10 @@
     "Each vector carries mutations[]: one per encodable leaf plus the semantic cases §10.1 names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here."
   ],
   "schema": "trueopen.task.metric_leaf.v2",
-  "source": "10-protocol_specifications/04-task/05-verification_algorithm.md §7 and §7.0a publish the leaf expansion and both vectors byte for byte. Authored here because no upstream node fixture covers the V2 metric leaf.",
+  "source": "§7 and §7.0a publish the leaf expansion and both vectors byte for byte. Authored here because no upstream node fixture covers the V2 metric leaf.",
   "vectors": [
     {
-      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7, §7.0a",
+      "contract_section": "§7, §7.0a",
       "digest_hex": "01b3afa909a1fc8bbc4eacf0ea132740c6ad46397d94fa6183eac092ecf8853a",
       "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2",
       "fields": [
@@ -372,7 +372,7 @@
       "producer": "MetricLeafHash"
     },
     {
-      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7, §7.0a",
+      "contract_section": "§7, §7.0a",
       "digest_hex": "9f6cd96cc8b9069333b35afb5f256c566c5ed93b1738ff318b8a544423bb7524",
       "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2",
       "fields": [
@@ -703,7 +703,7 @@
       "producer": "MetricLeafHash"
     },
     {
-      "contract_section": "04-task/05-verification_algorithm.md §7, §7.0a; canonical_encoding_and_domain_hashing.md §8",
+      "contract_section": "04-task/§7, §7.0a; §8",
       "digest_hex": "b490f1374e513d14e69856e3aae1a69ce97abd15b4c5feda39a5d8814696c1a0",
       "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V2",
       "framing": "MERKLE_ROOT_V1",

@@ -147,7 +147,7 @@
       "task_id": "1111111111111111111111111111111111111111111111111111111111111111",
       "verify_round": 1
     },
-    "source": "docs/20-service_design/node/keeper_api_contract.md §5.5, transcribed byte for byte",
+    "source": "§5.5, transcribed byte for byte",
     "structural_cases": [
       {
         "builder_operator": "trueopen1wltmkp6cpvulh9ya7z0hhw0cpgwsvsdccd5man",

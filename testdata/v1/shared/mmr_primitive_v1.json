@@ -117,5 +117,5 @@
     "negative left_to_right_fold is the only case that separates the two fold directions: leaf counts 1 through 6 agree byte for byte and 7 is the first that does not. An implementation that folds the other way passes every positive vector above, then diverges at any leaf count whose popcount is 3 or more."
   ],
   "schema": "trueopen.shared.mmr_primitive.v1",
-  "source": "10-protocol_specifications/00-fundamentals/canonical_encoding_and_domain_hashing.md §9 defines MMR_ROOT_V1 and §11.5 publishes these vectors byte for byte. Authored in this repository because the primitive has no upstream node fixture: streaming OUTPUT delivery introduced it and no chain type uses it until TRUEOPEN_INFER_RECEIPT_V2."
+  "source": "§9 defines MMR_ROOT_V1 and §11.5 publishes these vectors byte for byte. Authored in this repository because the primitive has no upstream node fixture: streaming OUTPUT delivery introduced it and no chain type uses it until TRUEOPEN_INFER_RECEIPT_V2."
 }

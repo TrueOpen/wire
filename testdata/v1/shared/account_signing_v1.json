@@ -9,7 +9,7 @@
     "pub_compressed": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
     "pub_uncompressed_xy": "1b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f70beaf8f588b541507fed6a642c5ab42dfdf8120a7f639de5122d47a69a8e8d1"
   },
-  "contract": "TrueOpen/monorepo@f607f0d docs/10-protocol_specifications/00-fundamentals/account_and_signature_protocol.md",
+  "contract": "the account and signature protocol",
   "msg_create_session_transaction": {
     "account_number": "7",
     "amino_name": "trueopen/x/task/MsgCreateSession",
@@ -50,7 +50,7 @@
   "schema": "trueopen-account-signing-v1",
   "task_data_request": {
     "body_digest_source": "task/task_data_auth_v1.json vector task_data_fetch_body_v1, domain TRUEOPEN_TASK_DATA_FETCH_BODY_V1",
-    "contract": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1",
+    "contract": "§4.2.1",
     "domain": {
       "chain_id": "424242",
       "domain_separator": "43a9e01264c13d99f777f935bb9125ec78f6d19732efca7d1e4328de85dd0d4f",

@@ -5,10 +5,10 @@
     "EvidenceCommitmentV1.encoded_size_bytes for this vector is the checked sum 5 + 7 + 12 + 16 = 40."
   ],
   "schema": "trueopen.task.worker_value_commitment.v2",
-  "source": "10-protocol_specifications/04-task/05-verification_algorithm.md §7.0b, reviewed at TrueOpen/monorepo@05afeeaf7f68ce477051683a45795040e8ea9fb3",
+  "source": "§7.0b",
   "vectors": [
     {
-      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §7 and §7.0b",
+      "contract_section": "§7 and §7.0b",
       "digest_hex": "fa05047203b16b229e016fc61d1572cf51ab75c87c4bc01ecd365d0656b1d16d",
       "domain": "TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
       "expected_encoded_size_bytes": 40,

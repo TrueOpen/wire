@@ -27,10 +27,10 @@
     "service signature included in the receipt preimage"
   ],
   "schema": "trueopen.task.infer_receipt.v2",
-  "source": "10-protocol_specifications/04-task/04-task_execution_verification_and_settlement.md §5.1, reviewed at TrueOpen/monorepo@05afeeaf7f68ce477051683a45795040e8ea9fb3",
+  "source": "§5.1",
   "vectors": [
     {
-      "contract_section": "10-protocol_specifications/04-task/04-task_execution_verification_and_settlement.md §5.1",
+      "contract_section": "§5.1",
       "digest_hex": "3e3ba35e0267a39132f78d57d0e7ec20adf3d6a10f65936ac81b4036480cd2d0",
       "domain": "TRUEOPEN_INFER_RECEIPT_V2",
       "fields": [

@@ -6,10 +6,10 @@
     "Each vector carries mutations[]: one per encodable leaf plus the semantic cases §10.1 names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here."
   ],
   "schema": "trueopen.task.result_receipt.v2",
-  "source": "keeper_api_contract.md §5.14 publishes the payload bytes and all three digests; 04-task/05-verification_algorithm.md §7.1 publishes the MetricSummaryV1 inputs. Authored here because no upstream node fixture covers the V2 result chain.",
+  "source": "§5.14 publishes the payload bytes and all three digests; 04-task/§7.1 publishes the MetricSummaryV1 inputs. Authored here because no upstream node fixture covers the V2 result chain.",
   "vectors": [
     {
-      "contract_section": "keeper_api_contract.md §5.14; 04-task/05-verification_algorithm.md §7.1",
+      "contract_section": "§5.14; 04-task/§7.1",
       "digest_hex": "ded3683559777e9ac37623b9d04ab7967c3f4fd0686282d187d9de65381f53bf",
       "domain": "TRUEOPEN_METRIC_SUMMARY_V1",
       "fields": [
@@ -176,7 +176,7 @@
       "producer": "MetricSummaryHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §5.14; 04-task/05-verification_algorithm.md §7.1",
+      "contract_section": "§5.14; 04-task/§7.1",
       "digest_hex": "713e4ae41eb091d59a9205ffabf8f5ad3ff57b5a52e53f215f012696fa6d0517",
       "domain": "TRUEOPEN_RESULT_COMMITMENT_V2",
       "fields": [
@@ -274,7 +274,7 @@
       "producer": "ResultCommitHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §5.14; 04-task/05-verification_algorithm.md §7.1",
+      "contract_section": "§5.14; 04-task/§7.1",
       "digest_hex": "436017aad2b7e9611063df868aacb8cf1f5e9001a230bcf0b329fa00a00b42a2",
       "domain": "TRUEOPEN_RESULT_V2",
       "fields": [
@@ -598,7 +598,7 @@
       "producer": "ResultReceiptSigningDigest"
     },
     {
-      "contract_section": "04-task/04-task_execution_verification_and_settlement.md §9; keeper_api_contract.md §5.14",
+      "contract_section": "04-task/§9; §5.14",
       "digest_hex": "5eea4c55e3cc71e01f53669f8ae29d63732caeaad9886d63e74ba8dc61fdea36",
       "domain": "TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V1",
       "framing": "H_V1",

@@ -9,7 +9,7 @@
   "source": "Both payloads are published verbatim by the contract sections named in each vector. Authored here because no upstream node fixture covers either digest.",
   "vectors": [
     {
-      "contract_section": "10-protocol_specifications/04-task/02-data_plane_and_evidence_transport.md §2, §2.1",
+      "contract_section": "§2, §2.1",
       "digest_hex": "9b568692f6d7f01cbc7d6d8fa79d37c73c5e24e6e1f533fe7620be6ea2c9d341",
       "domain": "TRUEOPEN_EVIDENCE_BUNDLE_MANIFEST_V1",
       "framing": "H_V1",
@@ -40,7 +40,7 @@
       "producer": "EvidenceBundleHash"
     },
     {
-      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §5",
+      "contract_section": "§5",
       "digest_hex": "591b8bdbfda05974211176ff9f6d023bb64b703c8126d7c302ad4ac17725560e",
       "domain": "TRUEOPEN_TASK_GENERATION_PARAMS_V1",
       "framing": "H_V1",

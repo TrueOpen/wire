@@ -2,7 +2,7 @@
   "notes": [
     "Every vector is H_FIELDS_V1: preimage = u64_be(len(domain)) || domain || for each field u64_be(len(field)) || field; digest = SHA256(preimage).",
     "Field encoding (§1.2): string = strict UTF-8 bytes; bytes = raw bytes; uint32/uint64 = 4/8-byte big-endian; bool = 0x00/0x01; enum = uint32 big-endian; frame = domainless NestedFieldFrameV1.",
-    "operator_address is encoded as stable address-codec bytes whenever a vector carries it, per keeper_api_contract.md §1.2. Decision 17 aligned the daily support confirmation domain and Decision 24 aligned the remaining five identity/bond domains; no Hub domain frames Bech32 text. A non-Go implementation must decode Bech32 to 20-byte account bytes before framing.",
+    "operator_address is encoded as stable address-codec bytes whenever a vector carries it, per §1.2. Decision 17 aligned the daily support confirmation domain and Decision 24 aligned the remaining five identity/bond domains; no Hub domain frames Bech32 text. A non-Go implementation must decode Bech32 to 20-byte account bytes before framing.",
     "TRUEOPEN_SERVICE_REGISTRATION_V1 binds participant_type immediately after chain_id, matching the current monorepo registry. This separates Cortex and Builder identity proofs and makes cross_participant_type replay testable.",
     "tamper: XOR one bit of one framed field. \"byte\" indexes the framed field bytes and may be negative to count from the end; \"bit\" is the bit position inside that byte (0 = least significant). An absent optional value frames as an empty field and has no bit to flip, so it is covered by a replay case instead.",
     "replay: apply the listed field overrides (keeping the frozen field type) and expect a different digest. Covers cross-chain, cross-operator, cross-participant-type, stale-nonce/version/epoch and list-reorder replay.",
@@ -10,10 +10,10 @@
     "Regenerate with TRUEOPEN_REGEN_FIXTURES=1; the run rewrites expectations and then fails on purpose so the diff must be reviewed against the frozen contract."
   ],
   "schema": "trueopen.hub.domains.v1",
-  "source": "monorepo@d286744 docs/20-service_design/node/keeper_api_contract.md §1.4 registry; preimages at §10.0c, §10.0c1, §9.6b, §5.7 and keeper_data_structure_contract.md §6.1/§6.4",
+  "source": "§1.4 registry; preimages at §10.0c, §10.0c1, §9.6b, §5.7 and §6.1/§6.4",
   "vectors": [
     {
-      "contract_section": "keeper_api_contract.md §10.0c step 1",
+      "contract_section": "§10.0c step 1",
       "digest_hex": "9ab3141d52a2b3d3f2800405ec33b6f1d210d490c33de422fb6643723b4b98dc",
       "domain": "TRUEOPEN_SERVICE_REGISTRATION_V1",
       "fields": [
@@ -200,7 +200,7 @@
       "producer": "serviceRegistrationDigest"
     },
     {
-      "contract_section": "keeper_api_contract.md §10.0c1",
+      "contract_section": "§10.0c1",
       "digest_hex": "22470d271358f9c738b8c1346c60b553895839eb6199718a90987cb3b81fe600",
       "domain": "TRUEOPEN_SERVICE_KEY_ROTATION_V1",
       "fields": [
@@ -400,7 +400,7 @@
       "producer": "serviceKeyRotationDigest"
     },
     {
-      "contract_section": "keeper_api_contract.md §9.6b (no chain_id in this preimage)",
+      "contract_section": "§9.6b (no chain_id in this preimage)",
       "digest_hex": "c5ff6099bd3aa6ad1cbf8d4b2359d82b842dc93739a2643228bb61d240ddc166",
       "domain": "TRUEOPEN_SERVICE_DESCRIPTOR_V1",
       "fields": [
@@ -548,7 +548,7 @@
       "producer": "CanonicalServiceDescriptorHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §10.0c step 4",
+      "contract_section": "§10.0c step 4",
       "digest_hex": "8f6757b4c26d268142ad1691d1e846081856ec685638ddf1efa3f0494d15ca37",
       "domain": "TRUEOPEN_UNBONDING_ID_V1",
       "fields": [
@@ -738,7 +738,7 @@
       "producer": "serviceUnbondingID"
     },
     {
-      "contract_section": "keeper_data_structure_contract.md §6.4",
+      "contract_section": "§6.4",
       "digest_hex": "0ad047eae4752aae2d77addc728984343ba9253f5aeecb0fdcc3ffa9e2370b65",
       "domain": "TRUEOPEN_UNBONDING_RECEIPT_V1",
       "fields": [
@@ -941,7 +941,7 @@
       "producer": "unbondingReceiptHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §5.7",
+      "contract_section": "§5.7",
       "digest_hex": "833825eb13321610d0d4b4425f96364905931e525e3fc278d8131dfa67f786e3",
       "domain": "TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_V1",
       "fields": [
@@ -1094,7 +1094,7 @@
       "producer": "CanonicalDailySupportConfirmationSigningBytesV1"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4; keeper_data_structure_contract.md §6.1",
+      "contract_section": "§1.4; §6.1",
       "digest_hex": "d18bfd28146508b921e71b34b1dd97509eb0cb8eeb0f943afe6c85d42693a9e7",
       "domain": "TRUEOPEN_SUPPORT_PROFILES_V1",
       "fields": [
@@ -1186,7 +1186,7 @@
       "producer": "CanonicalSupportedProfilesHashV1"
     },
     {
-      "contract_section": "monorepo@d286744 canonical_encoding_and_domain_hashing.md §4.4 and keeper_api_contract.md §5.2",
+      "contract_section": "§4.4 and §5.2",
       "digest_hex": "26fae11ecb82627a7830a4013c7a45c78d3eb71081f4757ce23f313418c47ef2",
       "domain": "TRUEOPEN_PARAMETER_BUCKET_V1",
       "fields": [
@@ -1278,7 +1278,7 @@
       ],
       "framing": "H_FIELDS_V1",
       "name": "parameter_bucket_v1_timeout",
-      "note": "bucket_kind 1 is TIMEOUT. This vector predates monorepo#97, which removed the governed ReferenceBucket path; its inputs are unchanged and the digest still holds, but the old name and the pricing-main bucket_key describe a bucket kind that no longer exists. Renamed rather than regenerated because upstream publishes no replacement value.",
+      "note": "bucket_kind 1 is TIMEOUT. This vector predates, which removed the governed ReferenceBucket path; its inputs are unchanged and the digest still holds, but the old name and the pricing-main bucket_key describe a bucket kind that no longer exists. Renamed rather than regenerated because upstream publishes no replacement value.",
       "preimage_hex": "000000000000001c545255454f50454e5f504152414d455445525f4255434b45545f56310000000000000016706172616d657465722d6275636b65742d636861696e000000000000000400000001000000000000000c70726963696e672d6d61696e0000000000000008000000000000000400000000000000080000000000000019000000000000000400000002000000000000005e000000000000000400000002000000000000002100000000000000080000000000000064000000000000000900000000000000013300000000000000210000000000000008ffffffffffffffff0000000000000009000000000000000137",
       "replay": [
         {
@@ -1351,7 +1351,7 @@
       "producer": "ParameterBucketContentHash"
     },
     {
-      "contract_section": "keeper_data_structure_contract.md §6.3",
+      "contract_section": "§6.3",
       "digest_hex": "539022a65f54ca9171c8cbfdea2b257a5b349868066d69432f0ee54d7d7318cc",
       "domain": "TRUEOPEN_BEACON_CHECKPOINT_V1",
       "fields": [
@@ -1397,7 +1397,7 @@
       "producer": "BeaconCheckpointStep"
     },
     {
-      "contract_section": "keeper_data_structure_contract.md §6.7",
+      "contract_section": "§6.7",
       "digest_hex": "ddc073dc2628635cb9d901bf44e449c772b4788521de18dcfeeb9dcecb05b697",
       "domain": "TRUEOPEN_REWARD_BUCKET_BOUNDARIES_V1",
       "fields": [
@@ -1495,7 +1495,7 @@
       "producer": "RewardOrderValueBucketBoundariesHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4",
+      "contract_section": "§1.4",
       "digest_hex": "ae8eb86920e26be499ea3b2482a220c232f8b7aa8166265c9062e2673a3c7921",
       "domain": "TRUEOPEN_REWARD_EPOCH_AUDIT_LEAF_V1",
       "fields": [
@@ -1563,7 +1563,7 @@
       "producer": "RewardEpochAuditLeafHashFramesV1"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4",
+      "contract_section": "§1.4",
       "digest_hex": "d04127574b71e10708fcf24be56e7e8d4e1790006098a9d0535f923e085a5193",
       "domain": "TRUEOPEN_REWARD_EPOCH_AUDIT_FOLD_V1",
       "fields": [
@@ -1599,7 +1599,7 @@
       "producer": "RewardEpochAuditFoldHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4",
+      "contract_section": "§1.4",
       "digest_hex": "886d968abaeda2e2bc9be43e72dcb5b001ddb65689264cd59c8fd763ced02874",
       "domain": "TRUEOPEN_REWARD_EPOCH_AUDIT_ROOT_V1",
       "fields": [
@@ -1655,7 +1655,7 @@
       "producer": "RewardEpochAuditRootHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4 formula block, §10.0a",
+      "contract_section": "§1.4 formula block, §10.0a",
       "digest_hex": "2bc3ee94cf4d38569fabaf4816c19b3b2d5e284f990f8b5efe1a48845c56e23f",
       "domain": "TRUEOPEN_VALIDATOR_SET_SNAPSHOT_V1",
       "fields": [
@@ -1745,7 +1745,7 @@
       "producer": "CanonicalValidatorSetSnapshot"
     },
     {
-      "contract_section": "keeper_api_contract.md §5.14 and §9.7",
+      "contract_section": "§5.14 and §9.7",
       "digest_hex": "33467931aeebd4db18fd664d48f9a67820bb98f8675f6dcda6b7075af284ee93",
       "domain": "TRUEOPEN_EVIDENCE_SCHEMA_V1",
       "fields": [
@@ -1950,7 +1950,7 @@
       "producer": "EvidenceSchemaHash"
     },
     {
-      "contract_section": "keeper_api_contract.md §1.4 and §10.1; keeper_data_structure_contract.md §6.2",
+      "contract_section": "§1.4 and §10.1; §6.2",
       "digest_hex": "4a9ed54e0ff10f8f8449997e3cbe549c953f209533fa2debfaeb13978a82f3cc",
       "domain": "TRUEOPEN_PROFILE_VERIFICATION_SNAPSHOT_V1",
       "fields": [

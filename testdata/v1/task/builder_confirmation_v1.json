@@ -1,17 +1,17 @@
 {
   "notes": [
     "Every vector is H_FIELDS_V1 over the eight signed fields; service_signature is excluded from its own digest.",
-    "One confirmation type covers INPUT, OUTPUT and a complete evidence bundle. The object difference is carried entirely by canonical TaskDataObjectRefV1, the required nested eight-field projection of API_and_topic_catalog.md §4.2.1.",
+    "One confirmation type covers INPUT, OUTPUT and a complete evidence bundle. The object difference is carried entirely by canonical TaskDataObjectRefV1, the required nested eight-field projection of §4.2.1.",
     "INPUT and OUTPUT pin producer_kind UNSPECIFIED, verify_round 0, an absent producer_operator and artifact_total_size_bytes 0. An EVIDENCE_MANIFEST confirmation carries the producing role and round, sets size_bytes to the exact manifest bytes and artifact_total_size_bytes to the checked sum of its artifacts.",
     "EVIDENCE_ARTIFACT is never confirmed on its own: it is covered by its manifest hash and that bundle's confirmation, so no artifact vector exists here.",
     "The signing nonce must equal the Builder's current ACTIVE service binding and be non-zero. retention_until_height is a floor promised at signing time; extending the window later does not require re-signing.",
     "Each vector carries mutations[]: one per encodable leaf plus the semantic cases §10.1 names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here."
   ],
   "schema": "trueopen.task.builder_confirmation.v1",
-  "source": "20-service_design/nexus/task_data_api_design.md §6.3a publishes these vectors byte for byte. Authored here because the Builder storage confirmation is a Nexus data-plane material and has no upstream node fixture.",
+  "source": "§6.3a publishes these vectors byte for byte. Authored here because the Builder storage confirmation is a Nexus data-plane material and has no upstream node fixture.",
   "vectors": [
     {
-      "contract_section": "20-service_design/nexus/task_data_api_design.md §6.3a",
+      "contract_section": "§6.3a",
       "digest_hex": "4614aa75559105c1f59a16e8139618a5db84c391f9f30ef5d609c4238f3614e7",
       "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
       "fields": [
@@ -213,7 +213,7 @@
       "producer": "BuilderStorageConfirmationDigest"
     },
     {
-      "contract_section": "20-service_design/nexus/task_data_api_design.md §6.3a",
+      "contract_section": "§6.3a",
       "digest_hex": "444e59e09f10e1c269941d7106cd59208ee54a8994e8a3337ec304f0f10b4c6e",
       "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
       "fields": [
@@ -415,7 +415,7 @@
       "producer": "BuilderStorageConfirmationDigest"
     },
     {
-      "contract_section": "20-service_design/nexus/task_data_api_design.md §6.3a",
+      "contract_section": "§6.3a",
       "digest_hex": "4252e764e47f071920df42e0f71df91e2cc5beff98e22b532a64fecfbb83fa92",
       "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
       "fields": [
@@ -632,7 +632,7 @@
       "producer": "BuilderStorageConfirmationDigest"
     },
     {
-      "contract_section": "20-service_design/nexus/task_data_api_design.md §6.3a",
+      "contract_section": "§6.3a",
       "digest_hex": "e006c3fe30cce2d1478a07afd23222afb8f5dcc6ed1777577fb6a4d1d1410f41",
       "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
       "fields": [

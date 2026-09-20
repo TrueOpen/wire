@@ -105,5 +105,5 @@
     "worker_signature_raw64_hex": "1f84ebe71fe88461fee8847157e7adeda7f8d20dbc350dd551842d40626c5f316a8fdf419904e6cb016381660eb50f619bea6fef7f032ed5e8b0d219cba86ee4"
   },
   "schema": "trueopen.task.output_chunk_equivocation.v1",
-  "source": "10-protocol_specifications/04-task/06-challenges_and_evidence.md §6.3, reviewed at TrueOpen/monorepo@05afeeaf7f68ce477051683a45795040e8ea9fb3"
+  "source": "§6.3"
 }

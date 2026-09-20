@@ -8,14 +8,14 @@
     "Every digest here was produced by a generator whose selftest reproduces the pre-rename published values byte for byte, then re-run against the TrueOpen domains."
   ],
   "schema": "trueopen.task.task_order.v2",
-  "source": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
+  "source": "§4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
   "vectors": [
     {
       "name": "task_order_v2_core",
       "domain": "TRUEOPEN_TASK_ORDER_V2",
       "framing": "H_FIELDS_V1",
       "producer": "TaskOrderHash",
-      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
+      "contract_section": "§4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
       "fields": [
         {
           "name": "schema_version",
@@ -623,7 +623,7 @@
       "domain": "TRUEOPEN_ORDER_OPENING_V2",
       "framing": "H_FIELDS_V1",
       "producer": "AcceptedOrderOpeningHash",
-      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
+      "contract_section": "§4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
       "generation_params_digest_hex": "591b8bdbfda05974211176ff9f6d023bb64b703c8126d7c302ad4ac17725560e",
       "fields": [
         {
@@ -764,7 +764,7 @@
       "domain": "TRUEOPEN_TASK_ORDER_V2",
       "framing": "H_FIELDS_V1",
       "producer": "TaskOrderHash",
-      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
+      "contract_section": "§4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
       "fields": [
         {
           "name": "schema_version",
@@ -1324,7 +1324,7 @@
       "domain": "TRUEOPEN_ORDER_OPENING_V2",
       "framing": "H_FIELDS_V1",
       "producer": "AcceptedOrderOpeningHash",
-      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
+      "contract_section": "§4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
       "generation_params_digest_hex": "90e7b812af8e0fb30a9e458577e93acb4a34dc3f5861f6b139d304779691d411",
       "fields": [
         {
@@ -1465,7 +1465,7 @@
       "domain": "TRUEOPEN_TASK_ORDER_V2",
       "framing": "H_FIELDS_V1",
       "producer": "TaskOrderHash",
-      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
+      "contract_section": "§4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
       "fields": [
         {
           "name": "schema_version",
@@ -2073,7 +2073,7 @@
       "domain": "TRUEOPEN_ORDER_OPENING_V2",
       "framing": "H_FIELDS_V1",
       "producer": "AcceptedOrderOpeningHash",
-      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
+      "contract_section": "§4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection and both boundary vectors)",
       "generation_params_digest_hex": "591b8bdbfda05974211176ff9f6d023bb64b703c8126d7c302ad4ac17725560e",
       "fields": [
         {

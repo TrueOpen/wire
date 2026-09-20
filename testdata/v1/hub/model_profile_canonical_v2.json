@@ -93,7 +93,7 @@
   "canonical_projection_bytes": 2522,
   "chain_id": "trueopen-testnet-1",
   "chain_projection_hash": "761a6e8d76d31a43d02e35f681156dfafceed361effa6bfb68133e0430c0108d",
-  "contract": "TrueOpen/monorepo docs/10-protocol_specifications/03-model/03-model_registration_chain_structure_and_manifest.md §2.5-§2.6; byte-identical to Node model_profile_canonical_v2.json",
+  "contract": "TrueOpen/monorepo §2.5-§2.6; byte-identical to Node model_profile_canonical_v2.json",
   "evidence_schema_hash": "0x1a50512bbf59345321280a92bec7ccd6ed5c5020f28ca578d96973eab1070dc1",
   "notes": [
     "canonical_projection is canonical_json_v1 of MsgRegisterModelProfile.profile: object keys ascend by UTF-8 bytes, integers carry no float, exponent or leading zero, and bytes32 is lowercase 0x hex. It is the protocol canonicaliser, not protobuf ProtoJSON.",

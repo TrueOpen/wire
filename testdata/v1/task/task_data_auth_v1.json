@@ -9,10 +9,10 @@
     "Each vector carries mutations[]: one per encodable leaf plus the semantic cases §10.1 names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here."
   ],
   "schema": "trueopen.task.data_auth.v1",
-  "source": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1 publishes these vectors byte for byte. Authored in this repository because the Task data plane auth contract has no upstream node fixture: it authenticates Nexus Ingress requests and never enters chain state.",
+  "source": "§4.2.1 publishes these vectors byte for byte. Authored in this repository because the Task data plane auth contract has no upstream node fixture: it authenticates Nexus Ingress requests and never enters chain state.",
   "vectors": [
     {
-      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1",
+      "contract_section": "§4.2.1",
       "digest_hex": "34dbf62abb8ccc24737908fe9219be53972942337a71f1a9e1a311ab7ddda32a",
       "domain": "TRUEOPEN_TASK_DATA_UPLOAD_BODY_V1",
       "fields": [
@@ -168,7 +168,7 @@
       "producer": "TaskDataUploadBodyDigest"
     },
     {
-      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1",
+      "contract_section": "§4.2.1",
       "digest_hex": "bfc6626ea56873baea625da90a14fb23f27528ef2500c040f7d1bf71473474f7",
       "domain": "TRUEOPEN_TASK_DATA_FINALIZE_RESULT_BODY_V1",
       "fields": [
@@ -241,7 +241,7 @@
       "producer": "TaskDataFinalizeResultBodyDigest"
     },
     {
-      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1",
+      "contract_section": "§4.2.1",
       "digest_hex": "fed02d8d12c406b16a13a58c35c146cd3a5f5ccaf9ada0cf5aac0263d521c913",
       "domain": "TRUEOPEN_TASK_DATA_FINALIZE_VERIFIER_BODY_V1",
       "fields": [
@@ -339,7 +339,7 @@
       "producer": "TaskDataFinalizeVerifierBodyDigest"
     },
     {
-      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1",
+      "contract_section": "§4.2.1",
       "digest_hex": "6c228b37b0baa5bb0d92ca80579bf347bd3920ddc34e32f6add864cf8fc17f18",
       "domain": "TRUEOPEN_TASK_DATA_METADATA_BODY_V1",
       "fields": [
@@ -456,7 +456,7 @@
       "producer": "TaskDataMetadataBodyDigest"
     },
     {
-      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1",
+      "contract_section": "§4.2.1",
       "digest_hex": "f079d3b5e89705f4b65ca30e3d982aa2a62a1fee2aed291b28f088ca386fc964",
       "domain": "TRUEOPEN_TASK_DATA_FETCH_BODY_V1",
       "fields": [
@@ -617,7 +617,7 @@
       "producer": "TaskDataFetchBodyDigest"
     },
     {
-      "contract_section": "20-service_design/nexus/API_and_topic_catalog.md §4.2.1",
+      "contract_section": "§4.2.1",
       "digest_hex": "66b140f48e8b49c1c69eb8213334eb42db05db91630e7a496f64640ba70b94dc",
       "domain": "TRUEOPEN_TASK_DATA_REQUEST_V1",
       "fields": [

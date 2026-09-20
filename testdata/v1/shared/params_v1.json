@@ -3,14 +3,14 @@
     "Both domains frame exactly chain_id, params_version and one recursively framed params message.",
     "Nested fields follow current protobuf field-number order; reserved fields are absent and cannot be reused.",
     "Repeated values use one REPEATED_V1 frame beginning with the derived element count.",
-    "Values come from the checked localnet baseline plus explicit values for fields introduced by monorepo#142."
+    "Values come from the checked localnet baseline plus explicit values for fields introduced by."
   ],
   "schema": "trueopen-params-domains-v1",
-  "source": "keeper_api_contract.md §1.4 and §18.0; nested encoding is Canonical §1.2 and §4.4",
+  "source": "§1.4 and §18.0; nested encoding is Canonical §1.2 and §4.4",
   "vectors": [
     {
       "chain_id": "trueopen-hub-params-v2-vector-1",
-      "contract_section": "keeper_api_contract.md §1.4 and §18.0",
+      "contract_section": "§1.4 and §18.0",
       "digest_hex": "187c0f7039825886bfb365ba6367cd1cc37a334a5fce5fbba4f3c3346320e824",
       "domain": "TRUEOPEN_HUB_PARAMS_V2",
       "fields": [
@@ -912,7 +912,7 @@
     },
     {
       "chain_id": "trueopen-task-params-v1-vector-1",
-      "contract_section": "keeper_api_contract.md §1.4 and §18.0",
+      "contract_section": "§1.4 and §18.0",
       "digest_hex": "81927c449adbe3fb87abde4d97b21a7f509f2a02595452c70bce152ceba57d31",
       "domain": "TRUEOPEN_TASK_PARAMS_V1",
       "fields": [
