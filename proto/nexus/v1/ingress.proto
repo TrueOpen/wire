@@ -569,7 +569,7 @@ message SubscribeOutputRequest {
   string session_id = 1;
   string task_id = 2;
   SDKRequestEnvelopeV1 request_envelope = 3;
-  uint64 resume_after_seq = 4;
+  optional uint64 resume_after_seq = 4;
 }
 
 //
