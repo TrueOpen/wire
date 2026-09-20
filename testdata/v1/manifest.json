@@ -203,7 +203,7 @@
     {
       "path": "task/task_order_v2.json",
       "origin": "wire",
-      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection, both boundary vectors and the §8.4 mutation set); TrueOpen/wire#24",
+      "contract_section": "10-protocol_specifications/04-task/08-task_order_hashing_and_signing.md §4.1-§4.5, §6 and §8.3 (TaskOrderV2 25-field preimage, OrderOpeningV2 20-field projection, both boundary vectors and the §8.4 mutation set)",
       "bytes": 85613,
       "sha256": "6da6ebcde138fe9035c90035f4648d83dc482e8fe7bad505756b8e1c3c44ec49"
     }
