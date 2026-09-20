@@ -175,7 +175,7 @@
     {
       "path": "task/output_mmr_v1.json",
       "origin": "wire",
-      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 (TRUEOPEN_OUTPUT_MMR_V1 prefix and final roots, empty output and TRUEOPEN_OUTPUT_CHUNK_V1 vectors); TrueOpen/wire#35 (TRUEOPEN_OUTPUT_FIN_V1 preimage, accepted finish reasons and mutation cases)",
+      "contract_section": "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 (TRUEOPEN_OUTPUT_MMR_V1 prefix and final roots, empty output and TRUEOPEN_OUTPUT_CHUNK_V1 vectors); TRUEOPEN_OUTPUT_FIN_V1 preimage, accepted finish reasons and mutation cases",
       "bytes": 10813,
       "sha256": "5a973cb9af627a41212ba381676e1310195167859c4926d864325be7fd97fa2e"
     },

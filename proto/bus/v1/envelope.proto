@@ -7,7 +7,7 @@ import "shared/v1/common.proto";
 option go_package = "github.com/TrueOpen/wire/gen/bus/v1;busv1";
 
 // BusMessageKind is the closed business-kind set of the trueopen.* task-control
-// subjects (TrueOpen/nexus#52). Kind decides the sender permission matrix and
+// subjects. Kind decides the sender permission matrix and
 // maps 1:1 to BusPayloadType; receivers reject any kind/payload_type pair that
 // is not in the frozen mapping documented on BusPayloadType.
 // BusMessageKind defines the BusMessageKind wire type.
@@ -88,7 +88,7 @@ enum BusPayloadType {
 }
 
 // BusEnvelopeV1 is the transport envelope of every trueopen.* task-control NATS
-// message between nexus and cortex (TrueOpen/nexus#52). It replaces the
+// message between nexus and cortex. It replaces the
 // trueopen-cjson-v1 JSON envelope; there is no JSON fallback and no codec probing.
 //
 // Signing projection (typed H_FIELDS_V1, direct-digest secp256k1):
@@ -104,7 +104,7 @@ enum BusPayloadType {
 //
 // The domain is TRUEOPEN_BUS_ENVELOPE_V2, not V1: the V1 domain already names the
 // retired 20-field cjson projection, and one domain must never cover two
-// different signed field sets (see the review notes on TrueOpen/nexus#52).
+// different signed field sets.
 //
 // payload (field 13) does not enter the projection directly; payload_digest
 // (field 14) is the registered H_V1("TRUEOPEN_BUS_PAYLOAD_V2", exact transmitted

@@ -239,7 +239,7 @@
       "origin": {
         "repository": "https://github.com/TrueOpen/monorepo",
         "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in keeper_api_contract.md §5.5"
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership; preimage in keeper_api_contract.md §5.5"
       },
       "supersedes": {
         "domain": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V1",
@@ -269,7 +269,7 @@
       "origin": {
         "repository": "https://github.com/TrueOpen/monorepo",
         "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in keeper_api_contract.md §5.5"
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership; preimage in keeper_api_contract.md §5.5"
       },
       "supersedes": {
         "domain": "TRUEOPEN_BUILDER_EVIDENCE_ID_V1",
@@ -299,7 +299,7 @@
       "origin": {
         "repository": "https://github.com/TrueOpen/monorepo",
         "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in keeper_api_contract.md §5.5"
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership; preimage in keeper_api_contract.md §5.5"
       },
       "supersedes": {
         "domain": "TRUEOPEN_BUILDER_FAULT_V1",
@@ -422,7 +422,7 @@
       "origin": {
         "repository": "https://github.com/TrueOpen/monorepo",
         "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in 10-protocol_specifications/04-task/07-task_builder_coordination.md §7.2"
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership; preimage in 10-protocol_specifications/04-task/07-task_builder_coordination.md §7.2"
       },
       "supersedes": {
         "domain": "TRUEOPEN_BUS_ENVELOPE_V1",
@@ -448,7 +448,7 @@
       "origin": {
         "repository": "https://github.com/TrueOpen/monorepo",
         "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "ADR-0013 bus envelope V2 and shared wire ownership, TrueOpen/monorepo#74; preimage in 10-protocol_specifications/04-task/07-task_builder_coordination.md §7.1"
+        "review": "ADR-0013 bus envelope V2 and shared wire ownership; preimage in 10-protocol_specifications/04-task/07-task_builder_coordination.md §7.1"
       },
       "supersedes": {
         "domain": "TRUEOPEN_BUS_PAYLOAD_V1",
@@ -1272,7 +1272,7 @@
       "origin": {
         "repository": "https://github.com/TrueOpen/monorepo",
         "commit": "db70714bb6a2e767c0020c70e669ae6bcb8df697",
-        "review": "ADR-0016 v0.4 decision three (Cortex joins NATS with its on-chain identity), TrueOpen/monorepo#148; preimage in 10-protocol_specifications/04-task/07-task_builder_coordination.md §7.5"
+        "review": "ADR-0016 v0.4 decision three (Cortex joins NATS with its on-chain identity); preimage in 10-protocol_specifications/04-task/07-task_builder_coordination.md §7.5"
       },
       "producer": "Cortex, signing with its current service key over a locally generated NATS user key",
       "consumers": "the NATS auth callout service run beside NATS by the NATS operator; Cortex re-verifies its own declaration before presenting it",
@@ -1392,7 +1392,7 @@
       "origin": {
         "repository": "https://github.com/TrueOpen/monorepo",
         "commit": "f190ed3155f4ffda22ceb074de3b2fc8cb3b3115",
-        "review": "ADR-0017 streaming OUTPUT delivery, TrueOpen/monorepo#102; both domains and the MMR_ROOT_V1 framing are registered in 04-task/05-verification_algorithm.md §8.1"
+        "review": "ADR-0017 streaming OUTPUT delivery; both domains and the MMR_ROOT_V1 framing are registered in 04-task/05-verification_algorithm.md §8.1"
       },
       "producer": "selected Worker service key, once per output frame while generating",
       "consumers": "every Task Builder on receipt of the frame, SDK on SubscribeOutput, Task Keeper when it judges an output equivocation",
@@ -1417,14 +1417,14 @@
       "origin": {
         "repository": "https://github.com/TrueOpen/wire",
         "commit": "e2552264c79dde977fa9807743f1ed02fafaaef4",
-        "review": "TrueOpen/wire#35 freezes a Worker-authenticated OUTPUT terminal frame"
+        "review": "Freezes a Worker-authenticated OUTPUT terminal frame"
       },
       "producer": "selected Worker service key, once after the last accepted output chunk",
       "consumers": "every Task Builder on receipt of Fin and SDK on SubscribeOutput",
       "store": "off chain: Builder stores the original OutputFinV1 for byte-identical subscription replay; finish_reason does not enter the OUTPUT MMR or TaskDataObjectMetadataV1",
       "event": "none; Fin is a data-plane message and emits no chain event",
       "query": "none; Fin is served by Nexus SubscribeOutput, never by a chain query",
-      "contract_section": "TrueOpen/wire#35; testdata/v1/task/output_mmr_v1.json",
+      "contract_section": "testdata/v1/task/output_mmr_v1.json",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "finish_reason is the FinishReasonV1 enum number encoded as uint32_be. Only EOS_TOKEN, STOP_SEQUENCE, MAX_OUTPUT_TOKENS and MAX_OUTPUT_DURATION are valid; UNSPECIFIED and unknown values fail closed before digest verification. Error and cancellation outcomes do not produce OutputFinV1. The output_mmr_root is raw32 and worker_signature is excluded from its own preimage. Vectors: testdata/v1/task/output_mmr_v1.json."
@@ -1438,7 +1438,7 @@
       "origin": {
         "repository": "https://github.com/TrueOpen/monorepo",
         "commit": "f190ed3155f4ffda22ceb074de3b2fc8cb3b3115",
-        "review": "ADR-0017 streaming OUTPUT delivery, TrueOpen/monorepo#102; both domains and the MMR_ROOT_V1 framing are registered in 04-task/05-verification_algorithm.md §8.1"
+        "review": "ADR-0017 streaming OUTPUT delivery; both domains and the MMR_ROOT_V1 framing are registered in 04-task/05-verification_algorithm.md §8.1"
       },
       "producer": "selected Worker, which appends one leaf per emitted chunk",
       "consumers": "Builder recomputing the root per frame, Verifier reconstructing it from chunk_lengths, SDK verifying delivery, Task Keeper through InferReceipt.output_hash",
