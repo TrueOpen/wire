@@ -42,7 +42,7 @@ option go_package = "github.com/TrueOpen/node/x/hub/types";
 //   TaskFailureClassWindowPruneIndex, RoleFaultPruneIndex and every
 //   CandidatePool index.
 // MarkGateExpiryIndex and EarningsPendingMaturityIndex are absent rather than
-// derived: Phase 0 runs no RewardMark/MarkGate (ADR-0020) and holds no pending
+// derived: Phase 0 runs no RewardMark/MarkGate and holds no pending
 // earning, so neither has a primary row to rebuild from.
 // RewardEpochPruneIndex is an operational schedule that cannot be reconstructed
 // from current parameters and is therefore exported in field 100.

@@ -1,5 +1,5 @@
 // Command verify-import-boundaries enforces the descriptor import direction that
-// ADR-0013 makes this repository's structural rule.
+// the module split makes this repository's structural rule.
 //
 // Two claims are checked, both against the transitive descriptor closure rather
 // than the import lines of a single file:
@@ -58,7 +58,7 @@ var rules = []rule{
 		name:      "task.v1 does not reach hub.v1",
 		from:      "task/",
 		forbidden: []string{"hub/"},
-		why:       "ADR-0013 gives Task ownership of the evidence wire, which requires Task to stop depending on Hub",
+		why:       "Task owns the evidence wire, which requires Task to stop depending on Hub",
 	},
 	{
 		name:      "bus.v1 does not reach hub.v1",

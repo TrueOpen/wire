@@ -17,7 +17,7 @@ import "shared/v1/rest_encoding.proto";
 
 option go_package = "github.com/TrueOpen/node/x/hub/types";
 
-// ProtocolEventCodeV1 moved to shared/v1/event.proto by ADR-0013: both
+// ProtocolEventCodeV1 moved to shared/v1/event.proto: both
 // TaskEventService and HubEventService filter on it, so the one §5.11 code
 // registry is shared. Numbers are unchanged and no alias is kept here.
 

@@ -15,7 +15,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 // writer and leaves the Task module with reference counting only. BucketKind is
 // imported from shared/v1/common.proto instead of being redeclared:
 // keeper_api_contract.md §9.6b allows exactly one numeric definition per closed
-// enum, and ADR-0013 puts a declaration referenced by both Hub and Task in the
+// enum, and a declaration referenced by both Hub and Task belongs in the
 // shared leaf package.
 //
 // Lifecycle: the first accepted order of a Task writes exactly one row per

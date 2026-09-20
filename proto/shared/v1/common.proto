@@ -5,7 +5,7 @@ import "shared/v1/rest_encoding.proto";
 
 option go_package = "github.com/TrueOpen/node/x/shared/types";
 
-// This file is the single home of the cross-domain common values of ADR-0013.
+// This file is the single home of the cross-domain common values of the module split.
 // Every declaration below is referenced by more than one domain or transport, so
 // the closure rule of the module-split design (§5.3 shared symbol manifest) puts
 // it in shared.v1 instead of the package that used to hold the file it came
@@ -84,7 +84,7 @@ enum FailureClassificationSource {
 // §9.6b rule of one numeric definition per closed enum, so the single definition
 // lives here and is shared by the Store rows and the §16.5 views. It is declared
 // in shared/v1 because both x/hub and x/task store and project it,
-// and the ADR-0013 closure rule makes a declaration referenced by two domains
+// and the module-split closure rule makes a declaration referenced by two domains
 // shared. The contract must either drop the "Query-only" wording or register a
 // Store twin.
 // StoredBodyStatus defines the StoredBodyStatus wire type.

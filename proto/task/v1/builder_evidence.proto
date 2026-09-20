@@ -14,7 +14,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 // it verifies the evidence and then calls the Hub fault kernel with a shared
 // fact. The Hub never reads the Task Store in the other direction.
 //
-// Import boundary (ADR-0013 decision 6 and its rejected-alternatives section):
+// Import boundary:
 // this file must not import bus/v1/*. Embedding the generated
 // bus.v1.BusEnvelopeV1 was explicitly rejected because the Bus generated
 // package already carries payload types that reference task.v1 messages,
@@ -59,7 +59,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 // SignedEnvelopeProtocolFaultV1. Its only remaining reference is field 2 of
 // SignedEnvelopeProtocolFaultV2 below, and task.v1 may not import
 // hub.v1, so the declaration moves here rather than into shared.v1:
-// the ADR-0013 closure rule sends a declaration to shared because two domains
+// the module-split closure rule sends a declaration to shared because two domains
 // reference it, and the Hub fault kernel never sees a violation value. The Hub
 // receives only shared.v1.BuilderObjectiveEvidenceFactV2, which carries the
 // recomputed canonical_evidence_digest and no violation field. The numbers are

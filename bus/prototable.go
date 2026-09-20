@@ -10,7 +10,7 @@ package bus
 // requires a decoder with no generated Hub/Task/Bus code dependency, because a
 // Task-owned evidence message that imported the Bus generated package - which in
 // turn references Task payload types - would close a Task -> Bus -> Task import
-// cycle in the consumer. ADR-0013 rejects embedding the generated envelope for
+// cycle in the consumer. Embedding the generated envelope is rejected for
 // exactly this reason. A hand-maintained table would drift, so
 // TestPinnedTableMatchesProtoSources re-derives every entry from the .proto
 // sources and fails on any difference: the table is checked against the schema,

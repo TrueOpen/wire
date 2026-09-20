@@ -4,7 +4,7 @@
     "This file is the release SCOPE of the wire contract: which proto packages a release publishes as frozen, and which are deliberately withheld. release-manifest.proto_packages is generated from released[].",
     "It is frozen in both directions. released[] plus withheld[] must equal exactly the set of packages found under proto/, and the two must be disjoint: a new package cannot be silently published, and it cannot be silently omitted either. tools/release-manifest enforces this before it will emit a manifest.",
     "A withheld package stays in proto/ and keeps passing buf lint and buf breaking. Withholding says only that its fields are not frozen yet, so a release makes no compatibility promise about it - release/README.md requires that the fields intended for the cutover are frozen, and a package whose domain is still awaiting registration does not meet that.",
-    "bus.v1 was withheld in v0.1.1 pending two upstream decisions. Both are closed by ADR-0013, so it is released here: payload_digest is now a registered H_V1 commitment under TRUEOPEN_BUS_PAYLOAD_V2 rather than a fourth bare SHA-256, and TRUEOPEN_BUS_ENVELOPE_V2 has a registry row with its ordered 13-field projection. Both domains carry cross-language conformance vectors in testdata/v1/bus/."
+    "bus.v1 was withheld in v0.1.1 pending two upstream decisions. Both are now closed, so it is released here: payload_digest is now a registered H_V1 commitment under TRUEOPEN_BUS_PAYLOAD_V2 rather than a fourth bare SHA-256, and TRUEOPEN_BUS_ENVELOPE_V2 has a registry row with its ordered 13-field projection. Both domains carry cross-language conformance vectors in testdata/v1/bus/."
   ],
   "released": [
     "bus.v1",

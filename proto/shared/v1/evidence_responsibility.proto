@@ -9,7 +9,7 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 
 // This file holds the Builder objective-evidence values that cross the
 // Task -> Hub keeper boundary. keeper_api_contract.md §5.5 (lines 918-951) freezes
-// every field number below, and ADR-0013 decision 6 makes them shared: the Task
+// every field number below, and they belong to shared: the Task
 // module owns the payload and the Task authority check, the Hub module owns the
 // fault kernel, so the locator/fact/receipt values are referenced by two domains
 // and cannot live in either one of them. shared.v1 stays an import leaf, so

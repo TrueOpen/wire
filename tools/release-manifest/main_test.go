@@ -84,7 +84,7 @@ func TestReviewedBreakingCompatibility(t *testing.T) {
 			"schema":           "trueopen-wire-reviewed-breaking-v1",
 			"protocol_version": "v0.2.0",
 			"against":          "v0.1.1",
-			"review":           "ADR-0013 bus envelope V2",
+			"review":           "bus envelope V2 and shared wire ownership",
 			"notes":            []string{"authorizes exactly these findings"},
 			"findings": []map[string]string{
 				{"path": "a.proto", "type": "FIELD_NO_DELETE", "message": "field 5 was deleted"},
@@ -98,7 +98,7 @@ func TestReviewedBreakingCompatibility(t *testing.T) {
 		t.Fatalf("valid reviewed-breaking rejected: %v", err)
 	}
 	if compat.ReviewedBreaking == nil || compat.ReviewedBreaking.FindingCount != 1 ||
-		compat.ReviewedBreaking.Review != "ADR-0013 bus envelope V2" {
+		compat.ReviewedBreaking.Review != "bus envelope V2 and shared wire ownership" {
 		t.Fatalf("reviewed_breaking block is %+v", compat.ReviewedBreaking)
 	}
 	if err := verifyCompatibility(root, compat); err != nil {

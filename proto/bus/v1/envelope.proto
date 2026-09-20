@@ -110,8 +110,8 @@ enum BusPayloadType {
 // (field 14) is the registered H_V1("TRUEOPEN_BUS_PAYLOAD_V2", exact transmitted
 // payload bytes) commitment, so the signature transitively pins every payload
 // byte. It is deliberately NOT a bare SHA-256: canonical_encoding_and_domain_hashing.md §9.3
-// allows exactly three bare SHA-256 producers and ADR-0013 decision 2 refuses to
-// create a fourth for an opaque transport byte string. The digest only proves
+// allows exactly three bare SHA-256 producers and this contract does not add a
+// fourth for an opaque transport byte string. The digest only proves
 // the received bytes equal the bytes the sender first published; it does not
 // promote protobuf transport bytes to a business identity. Senders serialize the
 // payload once, persist the exact bytes, and reuse them together with message_id

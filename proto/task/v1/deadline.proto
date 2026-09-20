@@ -20,8 +20,8 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 // internal executor directly instead of constructing a Msg.
 //
 // ByIDV1 / BatchV1 are imported from shared/v1/common.proto because §9.6b
-// declares exactly one definition of those base types and ADR-0013 makes a
-// declaration referenced by two domains shared instead of Hub-owned.
+// declares exactly one definition of those base types and a
+// declaration referenced by two domains is shared instead of Hub-owned.
 
 // DeadlineKindV1 selects which deadline of a primary object is being swept.
 //

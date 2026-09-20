@@ -5,7 +5,7 @@ option go_package = "github.com/TrueOpen/node/x/hub/types";
 
 // This file keeps only the Hub-owned common enums. MutationStatusV1,
 // ParticipantType, Duty, FailureClassificationSource, StoredBodyStatus, ByIDV1
-// and BatchV1 moved to shared/v1/common.proto by ADR-0013 without any
+// and BatchV1 moved to shared/v1/common.proto without any
 // number or semantic change; no alias or duplicate is kept here.
 
 // ServiceKeyStatus is the lifecycle of one current Cortex service key binding (9.6b).

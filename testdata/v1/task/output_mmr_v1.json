@@ -227,5 +227,5 @@
     "Both domains activate with TRUEOPEN_INFER_RECEIPT_V2; before that batch no party's material under them is accepted."
   ],
   "schema": "trueopen.task.output_mmr.v1",
-  "source": "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 publishes these vectors byte for byte and registers the two domains. The tree primitive itself is shared/mmr_primitive_v1.json (00-fundamentals §9 and §11.5). Authored in this repository because ADR-0017 introduced both domains and no chain type carries them until TRUEOPEN_INFER_RECEIPT_V2."
+  "source": "10-protocol_specifications/04-task/05-verification_algorithm.md §8.1 publishes these vectors byte for byte and registers the two domains. The tree primitive itself is shared/mmr_primitive_v1.json (00-fundamentals §9 and §11.5). Authored in this repository because streaming OUTPUT delivery introduced both domains and no chain type carries them until TRUEOPEN_INFER_RECEIPT_V2."
 }

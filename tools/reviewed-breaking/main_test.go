@@ -36,7 +36,7 @@ func writeValidDeclaration(t *testing.T, path string, findings ...finding) {
 		Schema:          reviewedBreakingSchemaV1,
 		ProtocolVersion: "v0.2.0",
 		Against:         "v0.1.1",
-		Review:          "ADR-0013 bus envelope V2",
+		Review:          "bus envelope V2 and shared wire ownership",
 		Notes:           []string{"authorizes exactly these findings"},
 		Findings:        sortFindings(findings),
 	}
@@ -255,7 +255,7 @@ func TestWriteAuthorsASortedDeclaration(t *testing.T) {
 		bufLine(t, "a.proto", "ENUM_NO_DELETE", "enum X was deleted"),
 	)
 
-	if err := run(findingsPath, declarationPath, declarationPath, "v0.2.0", "v0.1.1", "ADR-0013 bus envelope V2", -1, "", false); err != nil {
+	if err := run(findingsPath, declarationPath, declarationPath, "v0.2.0", "v0.1.1", "bus envelope V2 and shared wire ownership", -1, "", false); err != nil {
 		t.Fatalf("write: %v", err)
 	}
 	value, err := readDeclaration(declarationPath)
@@ -281,7 +281,7 @@ func TestWrittenDeclarationMatchesThePublishedSchema(t *testing.T) {
 	findingsPath := filepath.Join(root, "breaking.json")
 	declarationPath := filepath.Join(root, "reviewed-breaking.json")
 	writeLines(t, findingsPath, bufLine(t, "a.proto", "ENUM_NO_DELETE", "enum X was deleted"))
-	if err := run(findingsPath, "", declarationPath, "v0.2.0", "v0.1.1", "ADR-0013 bus envelope V2", -1, "", false); err != nil {
+	if err := run(findingsPath, "", declarationPath, "v0.2.0", "v0.1.1", "bus envelope V2 and shared wire ownership", -1, "", false); err != nil {
 		t.Fatalf("write: %v", err)
 	}
 
