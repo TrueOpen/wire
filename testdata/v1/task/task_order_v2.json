@@ -572,7 +572,7 @@
           "field_path": "user_address",
           "change": "address written as bech32 text instead of codec bytes",
           "expect": "digest_changes",
-          "digest_hex": "1d67dfd28f383ee8b8ccfe9b15b1931d5a3e0292e048c673eadbb073d88583c7"
+          "digest_hex": "ad65772eccb8c1973f94e21e5083fbb65caebcd94b08bf09b0d1d31802f8b544"
         },
         {
           "name": "field.task_type",
@@ -1301,7 +1301,7 @@
           "field_path": "user_address",
           "change": "address written as bech32 text instead of codec bytes",
           "expect": "digest_changes",
-          "digest_hex": "5b2608b5d15a364fec9af2bf475a7c4bcb9b1a9d116101346af061b168877773"
+          "digest_hex": "14031e6d17b4e6f25e1e11032905431ad3f543aeb28342593b6a9cc1222cb6b5"
         },
         {
           "name": "field.task_type",
@@ -2022,7 +2022,7 @@
           "field_path": "user_address",
           "change": "address written as bech32 text instead of codec bytes",
           "expect": "digest_changes",
-          "digest_hex": "bbf423a532f567cf4930e3767e1abb51f5e0a914e544527a55c0d1a844978c8a"
+          "digest_hex": "cba2b33280741c3ff40bbe4e396b51274418c82f79630b3c323b70d417312132"
         },
         {
           "name": "field.task_type",

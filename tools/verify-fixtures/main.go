@@ -17,8 +17,14 @@ import (
 
 const fixtureManifestSchemaV1 = "trueopen-wire-fixture-manifest-v1"
 
-// fixtureAddressHRP is the only human-readable part a TrueOpen address may carry.
+// fixtureAddressHRP is the human-readable part of a TrueOpen account address.
 const fixtureAddressHRP = "trueopen"
+
+// fixtureOperatorHRP is the validator-operator form of the same 20 bytes. It is
+// a separate constant because a Bech32 checksum covers the HRP: the two strings
+// share a payload and cannot share a checksum, which is exactly the mistake
+// this check exists to catch.
+const fixtureOperatorHRP = fixtureAddressHRP + "valoper"
 
 var (
 	commitPattern = regexp.MustCompile(`^[0-9a-f]{40}$`)
@@ -248,6 +254,26 @@ func walkAddressColumns(where string, node any) error {
 }
 
 func checkAddressColumn(where string, object map[string]any) error {
+	// A vector that spells the same address in several forms names them
+	// <form>_bech32 alongside address_bytes, rather than the bech32/hex pair
+	// below. Those went unchecked until an operator address shipped carrying the
+	// checksum of a pre-rename HRP, which decodes to nothing and which nothing
+	// here noticed.
+	if rawHex, ok := object["address_bytes"].(string); ok {
+		for key, value := range object {
+			if !strings.HasSuffix(key, "bech32") {
+				continue
+			}
+			encoded, ok := value.(string)
+			if !ok {
+				continue
+			}
+			if err := checkBech32Against(fmt.Sprintf("%s.%s", where, key), encoded, rawHex); err != nil {
+				return err
+			}
+		}
+	}
+
 	encoded, ok := object["bech32"].(string)
 	if !ok {
 		return nil
@@ -259,12 +285,21 @@ func checkAddressColumn(where string, object map[string]any) error {
 	if !ok {
 		return fmt.Errorf("%s: bech32 column %q has no hex sibling to be checked against", where, encoded)
 	}
+	return checkBech32Against(where, encoded, rawHex)
+}
+
+// checkBech32Against decodes one Bech32 string and requires it to carry the
+// bytes its hex sibling declares. Decoding validates the checksum, so a string
+// whose HRP was rewritten without re-encoding fails here rather than reaching a
+// consumer that cannot parse it.
+func checkBech32Against(where, encoded, rawHex string) error {
 	hrp, decoded, err := decodeBech32(encoded)
 	if err != nil {
 		return fmt.Errorf("%s: bech32 %q does not decode: %w", where, encoded, err)
 	}
-	if hrp != fixtureAddressHRP {
-		return fmt.Errorf("%s: bech32 %q carries HRP %q, want %q", where, encoded, hrp, fixtureAddressHRP)
+	if hrp != fixtureAddressHRP && hrp != fixtureOperatorHRP {
+		return fmt.Errorf("%s: bech32 %q carries HRP %q, want %q or %q",
+			where, encoded, hrp, fixtureAddressHRP, fixtureOperatorHRP)
 	}
 	want, err := hex.DecodeString(rawHex)
 	if err != nil {
