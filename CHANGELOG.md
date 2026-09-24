@@ -1,5 +1,29 @@
 # Changelog
 
+## v0.2.1
+
+Additive. A new proto package arrives **withheld**, so the release makes no
+compatibility promise about it and no existing package changes.
+
+- `cortex.v1` moves here from `TrueOpen/cortex`: `ChatInferInput` (the request
+  body an SDK constructs), `ChatCompletionOutput`, and the
+  `ModelManagementService` Cortex/model-service boundary. `go_package` now
+  points at `github.com/TrueOpen/wire/gen/cortex/v1`, matching every sibling.
+
+  The reason to move it is that two repositories were reading one schema, and
+  the second copy is the one that drifts. `ChatInferInput` in particular is
+  constructed by the SDK and parsed by Cortex.
+
+  It is **withheld, not released**. Its fields are not frozen: ADR-0022 is still
+  open, and its back-write matrix assigns Cortex further changes to
+  `chat_input` — an `output_decoding` block, a `tool_calling` block, and
+  `manifest_version` 3. Releasing it now would mean breaking it next. Move it to
+  `released` once ADR-0022 is adopted and those fields have landed.
+
+  Documentation comments were added to 47 messages, RPCs and the service to
+  satisfy this repository's `COMMENTS` lint rule, which the originating
+  repository did not enforce. No field number, name or type changed in the move.
+
 ## v0.2.0
 
 Reviewed breaking change. One field gains explicit presence; no field number,
