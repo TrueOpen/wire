@@ -1,0 +1,484 @@
+syntax = "proto3";
+
+package cortex.v1;
+
+option go_package = "github.com/TrueOpen/wire/gen/cortex/v1;cortexv1";
+
+// ModelManagementService is the Cortex/model-service boundary: the RPCs a Cortex
+// node uses to discover what a model service can run, to run one inference or
+// one verification, and to stream the resulting artifacts back.
+//
+// It is NOT a chain-facing contract. Nothing here is signed or hashed into a
+// protocol commitment; the committed material is derived by Cortex from what
+// these calls return. Its stability requirement is therefore an operational one
+// (a Cortex and a model service deployed together must agree), not a consensus
+// one.
+service ModelManagementService {
+  // Health reports whether the service can accept work at all. It is the
+  // cheapest call and the one a readiness probe uses.
+  rpc Health(HealthRequest) returns (HealthResponse);
+  // ListCapabilities reports which (model, capability) pairs the service can
+  // serve and how much concurrency is left, so a node can decide whether to
+  // raise its hand for a task.
+  rpc ListCapabilities(ListCapabilitiesRequest) returns (ListCapabilitiesResponse);
+  // GetModelDetails returns the installed model's artifact digests and config
+  // summary. Cortex derives the registration manifest from this, so the values
+  // must describe the files actually on disk.
+  rpc GetModelDetails(GetModelDetailsRequest) returns (GetModelDetailsResponse);
+  // LoadModel asks the service to make one model resident. It is idempotent: a
+  // model already loaded is a success, not a conflict.
+  rpc LoadModel(LoadModelRequest) returns (LoadModelResponse);
+  // Estimate predicts cost and duration for a prospective job without running
+  // it, so a node can refuse work it cannot finish before the deadline.
+  rpc Estimate(EstimateRequest) returns (EstimateResponse);
+  // Infer runs one generation. The response carries artifact references rather
+  // than bytes; the caller streams the bytes back with FetchArtifact.
+  rpc Infer(InferRequest) returns (InferResponse);
+  // Verify re-derives a Worker's evidence by teacher-forcing over the token
+  // sequence that Worker already produced, and returns the per-position
+  // comparison the verifier turns into a result credential.
+  rpc Verify(VerifyRequest) returns (VerifyResponse);
+  // FetchArtifact streams one artifact named by a reference from an earlier
+  // Infer or Verify response.
+  rpc FetchArtifact(FetchArtifactRequest) returns (stream ArtifactChunk);
+}
+
+// ModelServiceError is the error envelope every response carries instead of a
+// transport-level failure. retryable separates "this attempt failed" from "this
+// request will always fail", which is what decides whether the caller spends a
+// retry or stops.
+message ModelServiceError {
+  string code = 1;
+  string message = 2;
+  bool retryable = 3;
+}
+
+// HealthRequest asks whether the service is able to accept work.
+message HealthRequest {
+  string request_id = 1;
+  string model_service_id = 2;
+  int64 deadline_ms = 3;
+}
+
+// HealthResponse answers HealthRequest. healthy false with no error means the
+// service is reachable but not serving.
+message HealthResponse {
+  string request_id = 1;
+  string model_service_id = 2;
+  bool healthy = 3;
+  ModelServiceError error = 4;
+}
+
+// ListCapabilitiesRequest asks what the service can currently serve.
+// include_unloaded widens the answer to models that are installed but not
+// resident, which a caller willing to pay a LoadModel can still use.
+message ListCapabilitiesRequest {
+  string request_id = 1;
+  string model_service_id = 2;
+  int64 deadline_ms = 3;
+  bool include_unloaded = 4;
+  string registry_filter = 5;
+  string readiness_level = 6;
+}
+
+// ListCapabilitiesResponse reports the servable (model, capability) pairs and
+// the live resource picture behind them.
+message ListCapabilitiesResponse {
+  string request_id = 1;
+  string model_service_id = 2;
+  repeated string model_management_api_versions = 3;
+  repeated ManagedModelCapability capabilities = 4;
+  ResourceSnapshot resource_snapshot = 5;
+  ModelServiceError error = 6;
+}
+
+// ManagedModelCapability is one servable (model, capability) pair and the
+// evidence kinds the service can produce for it. A capability whose evidence
+// the profile requires but the service cannot produce is not servable.
+message ManagedModelCapability {
+  string model_id = 1;
+  string capability = 2;
+  bool supports_trace = 3;
+  bool supports_checkpoint = 4;
+  bool supports_batch_log = 5;
+}
+
+// ResourceSnapshot is the concurrency picture at the moment the response was
+// built. It is a snapshot, not a reservation: a caller that acts on it can
+// still lose the slot to another job.
+message ResourceSnapshot {
+  int32 loaded_models = 1;
+  // Number of admitted jobs currently consuming the service concurrency
+  // budget.
+  uint32 queue_depth = 2;
+  // Current total concurrency budget available to admitted jobs.
+  uint32 max_concurrency = 3;
+}
+
+// LoadModelRequest asks the service to make one model resident.
+message LoadModelRequest {
+  string request_id = 1;
+  string model_service_id = 2;
+  int64 deadline_ms = 3;
+  string model_id = 4;
+  string capability = 5;
+}
+
+// LoadModelResponse answers LoadModelRequest. loaded true means the model is
+// resident now, whether or not this call is what loaded it.
+message LoadModelResponse {
+  string request_id = 1;
+  string model_service_id = 2;
+  string model_id = 3;
+  bool loaded = 4;
+  ModelServiceError error = 5;
+}
+
+// EstimateRequest asks for the cost of a prospective job without running it.
+message EstimateRequest {
+  string request_id = 1;
+  string model_service_id = 2;
+  int64 deadline_ms = 3;
+  string model_id = 4;
+  string capability = 5;
+  int64 input_bytes = 6;
+}
+
+// EstimateResponse is a prediction, not a commitment. A caller uses it to
+// refuse work it cannot finish before a deadline, and must still handle the
+// job running longer than this said.
+message EstimateResponse {
+  string request_id = 1;
+  string model_service_id = 2;
+  int64 estimated_ms = 3;
+  int64 estimated_bytes = 4;
+  ModelServiceError error = 5;
+}
+
+// Frozen integer values are transported without engine-specific float conversion.
+message DecodingParamsV1 {
+  bool sampling_enabled = 1;
+  uint32 temperature_milli = 2;
+  uint32 top_p_ppm = 3;
+  uint32 top_k = 4;
+  uint64 seed = 5;
+  int32 presence_penalty_milli = 6;
+  int32 frequency_penalty_milli = 7;
+  uint32 repetition_penalty_ppm = 8;
+  repeated string stop_sequences = 9;
+  repeated uint32 stop_token_ids = 10;
+}
+
+// GenerationParamsV1 is the generation budget and decoding parameters as the
+// chain committed them for this task. The service applies these rather than its
+// own defaults; a service that silently substitutes a default produces evidence
+// the verifier cannot reproduce.
+message GenerationParamsV1 {
+  uint32 generation_params_schema_version = 1;
+  uint64 max_output_tokens = 2;
+  // Milliseconds, bounded by the caller's RPC deadline as well.
+  uint64 max_output_duration = 3;
+  DecodingParamsV1 decoding_params = 4;
+}
+
+// GenerationContext is the chain-bound identity of the generation: which model
+// and profile, and under which committed parameters. It travels on Infer and
+// Verify so both sides derive from the same facts.
+message GenerationContext {
+  string model_id = 1;
+  uint32 profile_version = 2;
+  uint32 task_type = 3;
+  uint32 output_budget_bucket = 4;
+  GenerationParamsV1 params = 5;
+}
+
+// InferRequest runs one generation. input is opaque bytes whose interpretation
+// is the capability's: a raw prompt, or an OpenAI chat request body (see
+// chat_input.proto). generation and generation_params_digest bind the run to
+// what the chain committed.
+message InferRequest {
+  string request_id = 1;
+  string model_service_id = 2;
+  int64 deadline_ms = 3;
+  string job_id = 4;
+  string task_id = 5;
+  string model_id = 6;
+  string profile_version = 7;
+  bytes request_digest = 8;
+  string capability = 9;
+  bytes input = 10;
+  GenerationContext generation = 11;
+  bytes generation_params_digest = 12;
+}
+
+// InferResponse names the produced artifacts rather than carrying them, so a
+// large output crosses the wire once, under FetchArtifact, and only if the
+// caller wants it.
+message InferResponse {
+  string request_id = 1;
+  string model_service_id = 2;
+  string job_id = 3;
+  string task_id = 4;
+  string model_id = 5;
+  string profile_version = 6;
+  bytes request_digest = 7;
+  string output_ref = 8;
+  string trace_ref = 9;
+  string checkpoint_ref = 10;
+  ModelServiceError error = 11;
+  uint64 generated_token_count = 12;
+  uint64 work_unit = 13;
+  // finish_reason mirrors the model service's completion finish_reason string
+  // (e.g. "stop", "length"). Empty when the response is streamed or the
+  // finish reason is unavailable.
+  string finish_reason = 14;
+  // Successful responses must echo the validated digest of applied parameters.
+  bytes generation_params_digest = 15;
+}
+
+// VerifyEvidenceItem is one kind of Worker evidence to re-derive. Kinds are
+// listed rather than fixed as two fields so a capability can require a
+// different set without a wire change.
+message VerifyEvidenceItem {
+  // evidence_kind is the kind of evidence being verified (e.g. WORKER_VALUE_OPENING).
+  string evidence_kind = 1;
+  bytes trace = 2;
+  bytes checkpoint = 3;
+}
+
+// VerifyRequest re-derives a Worker's evidence. The service teacher-forces over
+// the token sequence the Worker already produced, so the comparison is
+// independent of the temperature or seed that originally sampled it.
+message VerifyRequest {
+  string request_id = 1;
+  string model_service_id = 2;
+  int64 deadline_ms = 3;
+  string job_id = 4;
+  string task_id = 5;
+  string model_id = 6;
+  string profile_version = 7;
+  bytes request_digest = 8;
+  string capability = 9;
+  bytes sample = 10;
+  // evidence is a list of per-kind evidence artifacts to verify.
+  // The capability determines which kinds are required.
+  repeated VerifyEvidenceItem evidence = 14;
+  GenerationContext generation = 15;
+  bytes generation_params_digest = 16;
+  // Deprecated: trace (11) and checkpoint (12) are replaced by evidence.
+  reserved 11, 12;
+  reserved "trace", "checkpoint";
+}
+
+// MetricOptionalFP carries an optional real-valued metric with explicit
+// presence. Absent and "present, measured zero" are different facts all the way
+// down to the fixed-point leaf encoding, so presence is a field rather than a
+// sentinel value.
+message MetricOptionalFP {
+  bool present = 1;
+  double value = 2;
+}
+
+// MetricSampleV1 is the verifier's prefill/teacher-forcing comparison at one
+// generated token position, in real units.
+//
+// The doubles here are transport, not preimage. Canonical encoding and domain
+// hashing §4.4 bans IEEE-754 from any hash input, and nothing on this RPC is
+// hashed: the verifier converts these to fp_1e6 with a single documented
+// rounding rule before any leaf is framed. Sending fixed point over this hop
+// instead would move that conversion into the model service, where a second
+// implementation of it could drift from the one the leaf encoder uses.
+message MetricSampleV1 {
+  uint32 output_position = 1;
+  uint32 emitted_token_id = 2;
+  double worker_logprob = 3;
+  double verifier_logprob = 4;
+  uint32 worker_rank = 5;
+  uint32 verifier_rank = 6;
+  MetricOptionalFP topk_jaccard = 7;
+  MetricOptionalFP union_js = 8;
+  bool missing_flag = 9;
+  bool finite_flag = 10;
+}
+
+// VerifyResponse is the per-position comparison the verifier turns into a
+// result credential. It reports measurements only: the verdict is the
+// verifier's to compute, and the chain recomputes it again from the summary.
+message VerifyResponse {
+  string request_id = 1;
+  string model_service_id = 2;
+  string job_id = 3;
+  string task_id = 4;
+  string model_id = 5;
+  string profile_version = 6;
+  bytes request_digest = 7;
+  int32 main_mismatch_count = 8;
+  repeated int32 selected_positions_or_checkpoints = 9;
+  string sample_value_sequence_ref = 10;
+  bytes sample_value_digest = 11;
+  bytes result_commit_material_digest = 12;
+  ModelServiceError error = 13;
+  // The metric material behind metric_root and metric_summary. A model service
+  // that does not fill these leaves the verifier unable to assemble the frozen
+  // result credential, and the verifier says so by name rather than signing a
+  // zero.
+  //
+  // There is deliberately no aggregate field beside it, and 15 stays reserved
+  // so nobody re-adds one: MetricSummaryV1 is derived from these samples by the
+  // verifier, so metric_root and metric_summary provably describe the same
+  // data. A model service that could state the aggregation separately could
+  // hand over honest samples and a summary about something else, and no party
+  // downstream would be able to tell.
+  repeated MetricSampleV1 metric_samples = 14;
+  reserved 15;
+  bytes generation_params_digest = 16;
+}
+
+// FetchArtifactRequest streams back one artifact named by an earlier response.
+// allow_empty distinguishes "this artifact is legitimately zero bytes" from
+// "this reference resolves to nothing", which are different faults.
+message FetchArtifactRequest {
+  string request_id = 1;
+  string model_service_id = 2;
+  int64 deadline_ms = 3;
+  string ref = 4;
+  bool allow_empty = 5;
+}
+
+// ArtifactChunk is one frame of a streamed artifact. offset makes the stream
+// resumable and chunk_digest lets the caller detect a corrupted frame without
+// waiting for the whole artifact.
+message ArtifactChunk {
+  string request_id = 1;
+  string artifact_id = 2;
+  int64 offset = 3;
+  bytes bytes = 4;
+  bool final_chunk = 5;
+  bytes chunk_digest = 6;
+}
+
+// GetModelDetailsRequest asks for the installed model's artifact digests and
+// configuration.
+message GetModelDetailsRequest {
+  string request_id = 1;
+  string model_service_id = 2;
+  int64 deadline_ms = 3;
+  string model_id = 4;
+}
+
+// GetModelDetailsResponse answers GetModelDetailsRequest.
+message GetModelDetailsResponse {
+  string request_id = 1;
+  string model_service_id = 2;
+  ModelDetails details = 3;
+  ModelServiceError error = 4;
+}
+
+// ModelDetails describes one installed model. Cortex derives the registration
+// manifest from this, so every digest must be computed from the files actually
+// present rather than copied from a model card.
+message ModelDetails {
+  ModelArtifacts artifacts = 1;
+  ModelDerivation derivation = 2;
+  ModelIdentity identity = 3;
+  ModelMetadata metadata = 4;
+  ModelConfigSummary model_config_summary = 5;
+  string model_dir = 6;
+  string model_ref = 7;
+  ModelSource source = 8;
+}
+
+// ModelArtifacts are the content digests of the files that make up the model.
+// These reach the on-chain profile, so two nodes serving the same model must
+// produce identical values here.
+message ModelArtifacts {
+  string chat_template_hash = 1;
+  string file_manifest_hash = 2;
+  repeated ModelArtifactFile files = 3;
+  string generation_config_hash = 4;
+  string model_config_hash = 5;
+  string model_weight_digest = 6;
+  string quant_config_hash = 7;
+  string tokenizer_config_hash = 8;
+  string tokenizer_hash = 9;
+}
+
+// ModelArtifactFile is one file in the model directory, with the role it plays
+// (weights, tokenizer, config, ...) and its content digest.
+message ModelArtifactFile {
+  string digest = 1;
+  string path = 2;
+  string role = 3;
+  uint64 size_bytes = 4;
+}
+
+// ModelDerivation records how the digests above were obtained, so a disagreement
+// between two nodes can be traced to the inputs rather than argued about.
+// warnings carries anything the service had to assume.
+message ModelDerivation {
+  ModelArtifactSources artifact_sources = 1;
+  repeated string warnings = 2;
+}
+
+// ModelArtifactSources names the paths each artifact digest was computed from.
+message ModelArtifactSources {
+  string chat_template_source = 1;
+  string config_path = 2;
+  string generation_config_path = 3;
+  string quant_config_source = 4;
+  string tokenizer_config_path = 5;
+  repeated string tokenizer_paths = 6;
+  repeated string weight_paths = 7;
+}
+
+// ModelIdentity is the model's protocol identity. model_id is the chain
+// identifier; display_name is presentation only and enters no commitment.
+message ModelIdentity {
+  string display_name = 1;
+  string model_id = 2;
+}
+
+// ModelMetadata carries licensing provenance for the installed weights.
+message ModelMetadata {
+  repeated string license_files = 1;
+  string license_ref = 2;
+}
+
+// ModelConfigSummary is the architecture summary a profile records: enough to
+// tell two models apart and to size a deployment, not a full config dump.
+message ModelConfigSummary {
+  uint64 active_params = 1;
+  string architecture = 2;
+  uint64 context_length = 3;
+  repeated string modality = 4;
+  ModelMOESummary moe = 5;
+  ModelQuantizationSummary quantization = 6;
+  uint64 total_params = 7;
+}
+
+// ModelMOESummary describes a mixture-of-experts layout, where active_params
+// and total_params differ.
+message ModelMOESummary {
+  bool enabled = 1;
+  uint64 num_experts = 2;
+  uint64 num_experts_per_tok = 3;
+}
+
+// ModelQuantizationSummary describes the weight quantization. It is part of the
+// model's identity: the same weights at a different quantization are a
+// different model for verification purposes.
+message ModelQuantizationSummary {
+  uint64 bits = 1;
+  string method = 2;
+}
+
+// ModelSource is the upstream the weights came from, pinned to an immutable
+// revision so the installed files can be traced back.
+message ModelSource {
+  string provider = 1;
+  string repo_id = 2;
+  string repo_type = 3;
+  string resolver_version = 4;
+  string revision = 5;
+  string source_uri = 6;
+}
