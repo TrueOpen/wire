@@ -1415,19 +1415,19 @@
         "uint32_be(finish_reason)"
       ],
       "origin": {
-        "repository": "https://github.com/TrueOpen/wire",
-        "commit": "e2552264c79dde977fa9807743f1ed02fafaaef4",
-        "review": "Freezes a Worker-authenticated OUTPUT terminal frame"
+        "repository": "https://github.com/TrueOpen/monorepo",
+        "commit": "ADR-0027-signed-fin-and-finish-reason-source",
+        "review": "Signed Fin is the authoritative source of finish_reason; 04-task/§8.1 registers the framing and field order"
       },
       "producer": "selected Worker service key, once after the last accepted output chunk",
-      "consumers": "every Task Builder on receipt of Fin and SDK on SubscribeOutput",
-      "store": "off chain: Builder stores the original OutputFinV1 for byte-identical subscription replay; finish_reason does not enter the OUTPUT MMR or TaskDataObjectMetadataV1",
+      "consumers": "every Task Builder on receipt of Fin, SDK on SubscribeOutput, and SDK on GetTaskDataMetadata(OUTPUT)",
+      "store": "off chain: Builder stores the original OutputFinV1 for byte-identical subscription replay, and returns it on TaskDataObjectMetadataV1.fin so a non-streaming fetch reaches the same fact; finish_reason does not enter the OUTPUT MMR",
       "event": "none; Fin is a data-plane message and emits no chain event",
-      "query": "none; Fin is served by Nexus SubscribeOutput, never by a chain query",
+      "query": "none from the chain; Nexus serves it on SubscribeOutput and on GetTaskDataMetadata(OUTPUT)",
       "contract_section": "testdata/v1/task/output_mmr_v1.json",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "finish_reason is the FinishReasonV1 enum number encoded as uint32_be. Only EOS_TOKEN, STOP_SEQUENCE, MAX_OUTPUT_TOKENS and MAX_OUTPUT_DURATION are valid; UNSPECIFIED and unknown values fail closed before digest verification. Error and cancellation outcomes do not produce OutputFinV1. The output_mmr_root is raw32 and worker_signature is excluded from its own preimage. Vectors: testdata/v1/task/output_mmr_v1.json."
+      "note": "finish_reason is the FinishReasonV1 enum number encoded as uint32_be. The closed set is EOS_TOKEN, STOP_SEQUENCE, MAX_OUTPUT_TOKENS, MAX_OUTPUT_DURATION, USER_STOP and STOP_TOKEN (1..6); UNSPECIFIED and unknown values fail closed before digest verification. A user stop produces a USER_STOP Fin -- a receipt implies a Fin -- and only a Worker's own failure or abandonment, which produces no receipt either, produces none. USER_STOP and MAX_OUTPUT_DURATION are Worker assertions: neither the stop signal nor elapsed wall-clock time is in any commitment, so no consumer can contradict them. The output_mmr_root is raw32 and worker_signature is excluded from its own preimage. Vectors: testdata/v1/task/output_mmr_v1.json."
     },
     {
       "domain": "TRUEOPEN_OUTPUT_MMR_V1",
