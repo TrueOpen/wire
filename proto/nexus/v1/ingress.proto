@@ -152,6 +152,23 @@ message TaskDataObjectMetadataV1 {
   TaskDataObjectReadinessV1 readiness = 4;
   repeated uint32 chunk_lengths = 5;
   uint64 output_leaf_count = 6;
+  // fin is the Worker-signed terminal frame of this object's output stream,
+  // byte-identical to the one the Builder received and replays on subscription.
+  //
+  // It is here so that whether a caller can tell "the model finished" from "the
+  // budget cut it off" does not depend on which retrieval path they chose.
+  // Before this, finish_reason existed only on the subscription's terminal
+  // frame, so a non-streaming fetch returned text with no way to know whether
+  // it was complete, and retrieval is meant to be a transport detail rather
+  // than something that changes which facts are obtainable.
+  //
+  // Present only for OUTPUT objects that have reached STORED; absent for INPUT
+  // and EVIDENCE, which have no output stream, and absent before the stream is
+  // terminated. The signature is the Worker's over TRUEOPEN_OUTPUT_FIN_V1 and
+  // is what makes this a fact the caller can check rather than a Builder
+  // assertion: verify it against the Worker's current service key and compare
+  // output_mmr_root with the receipt before trusting finish_reason.
+  optional OutputFinV1 fin = 7;
 }
 
 // EvidenceBundleSummaryV1 defines the EvidenceBundleSummaryV1 wire type.

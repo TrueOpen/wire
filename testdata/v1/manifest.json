@@ -176,8 +176,8 @@
       "path": "task/output_mmr_v1.json",
       "origin": "wire",
       "contract_section": "§8.1 (TRUEOPEN_OUTPUT_MMR_V1 prefix and final roots, empty output and TRUEOPEN_OUTPUT_CHUNK_V1 vectors); TRUEOPEN_OUTPUT_FIN_V1 preimage, accepted finish reasons and mutation cases",
-      "bytes": 10766,
-      "sha256": "a0bfdbdd855f83848b69a8f9a20aec0749350db81a9d3ad673ee3eeb4f7add1f"
+      "bytes": 11184,
+      "sha256": "f899c50287e71b4ef5b8f3f9358ac4f896ed58b31668b6f3f62399aaf23fe6de"
     },
     {
       "path": "task/token_ids_v1.json",

@@ -28,6 +28,23 @@ enum FinishReasonV1 {
   // Generation reached the accepted maximum output duration.
   // FINISH_REASON_V1_MAX_OUTPUT_DURATION identifies the corresponding protocol value.
   FINISH_REASON_V1_MAX_OUTPUT_DURATION = 4;
+  // The user stopped the generation and the Worker closed the stream on their
+  // behalf. A stop is a successful termination, not an abandonment: the Worker
+  // signs a Fin carrying this value and then signs the receipt, so a stopped
+  // task is indistinguishable in shape from any other completed one. "No Fin"
+  // stays reserved for a Worker that failed or gave up, which produces no
+  // receipt either.
+  //
+  // Unlike every other value, this one cannot be checked: the stop signal
+  // arrives off chain, so it is accepted as a Worker assertion.
+  // FINISH_REASON_V1_USER_STOP identifies the corresponding protocol value.
+  FINISH_REASON_V1_USER_STOP = 5;
+  // Generation emitted one of the order's stop_token_ids. Distinct from
+  // STOP_SEQUENCE because an order may carry both stop strings and stop tokens,
+  // and which one ended the generation is a different fact. Checkable: the last
+  // token of T belongs to the order's stop_token_ids.
+  // FINISH_REASON_V1_STOP_TOKEN identifies the corresponding protocol value.
+  FINISH_REASON_V1_STOP_TOKEN = 6;
 }
 
 // EvidenceCommitmentV1 is one worker-authored evidence commitment carried by
