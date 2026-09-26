@@ -33,20 +33,34 @@ enum CommitStatusV1 {
 //
 // commit_hash must be a canonical 32-byte SHA-256 value produced by
 //
-//   commit_hash = H_FIELDS_V1("TRUEOPEN_RESULT_COMMITMENT_V2", chain_id, task_id,
-//     task_hash, verify_round, verifier_operator_address, result_payload_hash,
+//   commit_hash = H_FIELDS_V1("TRUEOPEN_RESULT_COMMITMENT_V3", chain_id, task_id,
+//     task_hash, verify_round, verifier_operator_address, verifier_value_root,
 //     salt)
+//
+// ADR-0023 decision two changes what is committed, not just the version. V2
+// bound result_payload_hash, which folds metric_root, the summary and the
+// bundle -- a Verifier could only commit once it had decided its whole
+// comparison, and deciding that needs the Worker's values. V3 binds
+// verifier_value_root, which is the Verifier's own per-token numbers and
+// nothing else, so it can be locked before the Worker's values are readable.
+// That ordering is the entire point of the ADR; the commitment is what makes
+// it checkable.
+//
+// The payload digest does not disappear: TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V2 is
+// recomputed by the Keeper as the reveal's integrity digest. It is simply no
+// longer what the commitment was over, so a reveal is checked by reopening
+// verifier_value_root and salt.
 //
 // Non-canonical placeholder values are rejected at the entry point; there is no
 // "looks like a hash" conditional branch and no optional commitment field.
 //
 // schema_version is 1, the same value as every other §5.14 stage wire and §4.1
 // handraise wire. The single normative statement of that value, its derivation and
-// its schema-version rule lives on InferReceiptV2 in task/v1/infer_receipt.proto;
+// its schema-version rule lives on InferReceiptV3 in task/v1/infer_receipt.proto;
 // this file does not restate them.
 // VerifyCommitV1 defines the VerifyCommitV1 wire type.
 message VerifyCommitV1 {
-  // Always 1; InferReceiptV2 alone uses schema version 2.
+  // Always 1; InferReceiptV3 alone uses schema version 3.
   uint32 schema_version = 1;
   string chain_id = 2;
   bytes task_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];

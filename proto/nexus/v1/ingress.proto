@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package nexus.v1;
 
+import "shared/v1/evidence.proto";
 import "task/v1/commit.proto";
 import "task/v1/evidence.proto";
 import "task/v1/infer_receipt.proto";
@@ -142,6 +143,15 @@ message TaskDataObjectRefV1 {
   EvidenceProducerKindV1 evidence_producer_kind = 6;
   uint32 verify_round = 7;
   optional string producer_operator = 8;
+  // Which evidence bundle this object belongs to. ADR-0023 gives a Worker two
+  // bundles per round, so producer kind and round no longer identify one:
+  // without this field, the A-level and B-level manifests of the same Worker
+  // in the same round are the same ref, and the second one stored silently
+  // replaces the first.
+  //
+  // Present for EVIDENCE_MANIFEST and EVIDENCE_ARTIFACT objects; unset for
+  // INPUT and OUTPUT, which belong to no bundle.
+  optional shared.v1.EvidenceKind evidence_kind = 9;
 }
 
 // TaskDataObjectMetadataV1 defines the TaskDataObjectMetadataV1 wire type.
@@ -326,13 +336,48 @@ message UploadTaskResultObjectResponse {
   TaskDataObjectMetadataV1 metadata = 3;
 }
 
+// OutputStreamHeaderV2 opens a Worker's output stream to one Task Builder.
 //
-// OutputStreamHeaderV1 defines the OutputStreamHeaderV1 wire type.
-message OutputStreamHeaderV1 {
+// V2 over V1 for two reasons that arrive together. It carries the ADR-0024
+// reserved key fields, and it is Worker-signed -- V1 was authenticated only by
+// request_auth, which says who is calling, not what they are opening. The
+// signature covers the stream's identity and its key material, so a Builder
+// can tell that the Worker itself chose these terms.
+//
+//   header_signing_digest =
+//     H_FIELDS_V1("TRUEOPEN_OUTPUT_STREAM_HEADER_V1", chain_id, task_hash,
+//       attempt, stream_instance, user_recipient_pubkey,
+//       output_key_commitment, key_package_hash)
+//
+// The domain stays at _V1 while the message is V2: the message gained fields
+// the digest never had, and the digest is new rather than changed. worker_
+// signature is excluded from its own preimage.
+//
+// Phase 0 signs it too, over the empty key fields. Signing only once
+// encryption activates would mean the activation changes whether a header is
+// authenticated at all, which is a second behaviour change hiding inside the
+// first.
+//
+// attempt and stream_instance are fixed at 0 and 1 and are the reopen
+// coordinates ADR-0024 needs; a Builder refuses any other value, and refuses a
+// non-empty key field while payload_mode is PLAINTEXT, rather than opening the
+// stream.
+// OutputStreamHeaderV2 defines the OutputStreamHeaderV2 wire type.
+message OutputStreamHeaderV2 {
   string session_id = 1;
   string task_id = 2;
   string task_hash = 3;
   TaskDataRequestAuthV1 request_auth = 4;
+  // Always 0 in Phase 0.
+  uint32 attempt = 5;
+  // Always 1 in Phase 0.
+  uint32 stream_instance = 6;
+  // ADR-0024 reserved; empty in Phase 0.
+  bytes user_recipient_pubkey = 7;
+  bytes output_key_commitment = 8;
+  bytes key_package_hash = 9;
+  // Worker service key signature over the digest above. Compact low-S raw64.
+  bytes worker_signature = 10;
 }
 
 //
@@ -362,7 +407,7 @@ message OutputFinV1 {
 message UploadTaskOutputStreamRequest {
   // frame selects one supported variant.
   oneof frame {
-    OutputStreamHeaderV1 header = 1;
+    OutputStreamHeaderV2 header = 1;
     OutputChunkV1 chunk = 2;
     OutputFinV1 fin = 3;
   }
@@ -405,7 +450,7 @@ message GetTaskDataMetadataRequest {
 message GetTaskDataMetadataResponse {
   TaskDataObjectMetadataV1 metadata = 1;
   EvidenceBundleSummaryV1 evidence_bundle = 2;
-  task.v1.InferReceiptV2 infer_receipt = 3;
+  task.v1.InferReceiptV3 infer_receipt = 3;
   uint64 retain_until_height = 4;
 }
 
@@ -446,7 +491,7 @@ message FinalizeTaskResultRequest {
   string task_hash = 1;
   string session_id = 2;
   string task_id = 3;
-  task.v1.InferReceiptV2 receipt = 4;
+  task.v1.InferReceiptV3 receipt = 4;
   TaskDataRequestAuthV1 request_auth = 5;
 }
 
@@ -468,7 +513,7 @@ message FinalizeVerifierEvidenceRequest {
   string task_id = 3;
   uint32 verify_round = 4;
   string verifier_operator = 5;
-  task.v1.ResultReceiptV2 receipt = 6;
+  task.v1.ResultReceiptV3 receipt = 6;
   TaskDataRequestAuthV1 request_auth = 7;
 }
 
@@ -481,7 +526,7 @@ message FinalizeVerifierEvidenceResponse {
 
 // SubmitInferReceiptRequest defines the SubmitInferReceiptRequest wire type.
 message SubmitInferReceiptRequest {
-  task.v1.InferReceiptV2 receipt = 1;
+  task.v1.InferReceiptV3 receipt = 1;
 }
 
 // SubmitInferReceiptResponse defines the SubmitInferReceiptResponse wire type.
@@ -509,7 +554,7 @@ message SubmitVerifyCommitResponse {
 
 // SubmitVerifyResultRequest defines the SubmitVerifyResultRequest wire type.
 message SubmitVerifyResultRequest {
-  task.v1.ResultReceiptV2 receipt = 1;
+  task.v1.ResultReceiptV3 receipt = 1;
 }
 
 // SubmitVerifyResultResponse defines the SubmitVerifyResultResponse wire type.

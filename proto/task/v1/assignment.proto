@@ -235,7 +235,7 @@ message TaskCoreState {
   string model_id = 8;
   uint32 profile_version = 9;
   // order_value is the immutable keeper-derived worker_max + verify_max from
-  // the accepted TaskOrderV2. It is not TaskBudgetState.original_reserved_amount,
+  // the accepted TaskOrderV3. It is not TaskBudgetState.original_reserved_amount,
   // which is max_fee.
   shared.v1.TaskType task_type = 10;
   shared.v1.Amount order_value = 11 [(gogoproto.nullable) = false];

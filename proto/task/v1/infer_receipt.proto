@@ -9,16 +9,17 @@ import "task/v1/evidence.proto";
 
 option go_package = "github.com/TrueOpen/node/x/task/types";
 
-// InferReceiptV2 is the worker-signed inference receipt carried by
+// InferReceiptV3 is the worker-signed inference receipt carried by
 // MsgSubmitInferReceipt. Field numbers, types and order are frozen by
 // the API contract; the same order is the length-framed preimage of
 //
 //   infer_receipt_hash = infer_receipt_signing_digest =
-//     H_FIELDS_V1("TRUEOPEN_INFER_RECEIPT_V2", schema_version, chain_id, task_id,
+//     H_FIELDS_V1("TRUEOPEN_INFER_RECEIPT_V3", schema_version, chain_id, task_id,
 //       task_hash, worker_operator_address, service_authorization_nonce,
 //       generation_params_digest, output_hash, output_size_bytes,
 //       evidence_commitments_hash, expiry_height, generated_token_count,
-//       output_leaf_count)
+//       output_leaf_count, output_key_commitment, worker_token_key_commitment,
+//       worker_value_key_commitment, ciphertext_output_root)
 //
 // Note that service_signature (field 12) is excluded and that
 // evidence_commitments_hash is NOT a wire field: it is derived by the Keeper from
@@ -28,15 +29,21 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 // evidence_availability_endpoint_hash are not part of this wire; the work-unit
 // landing point is the SETTLEMENT_BILL leaf in task/v1/settlement.proto.
 //
-// schema_version is exactly 2. InferReceiptV1 and its old domain have no decoder
+// schema_version is exactly 3. V1 and V2 and their old domains have no decoder
 // or alias in this fresh contract.
+//
+// required_evidence_commitments carries exactly two entries under ADR-0023,
+// sorted by the numeric value of shared.v1.EvidenceKind: WORKER_VALUE_OPENING
+// (1, the B level) first and WORKER_TOKEN_OPENING (4, the A level) second. The
+// sort key is the enum number rather than the name, so the order does not read
+// alphabetically and must not be "fixed" to.
 //
 // The locked Profile carries a typed EvidenceSchemaV1 descriptor and its
 // evidence_schema_hash. The Keeper requires this list to match the descriptor
 // exactly; callers cannot supply an empty set, subset, superset, or unknown kind.
-// InferReceiptV2 defines the InferReceiptV2 wire type.
-message InferReceiptV2 {
-  // Always 2 in the fresh Phase 0 contract.
+// InferReceiptV3 defines the InferReceiptV3 wire type.
+message InferReceiptV3 {
+  // Always 3 in the fresh Phase 0 contract.
   uint32 schema_version = 1;
   string chain_id = 2;
   bytes task_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
@@ -53,10 +60,27 @@ message InferReceiptV2 {
   // the threshold result cluster independently derives the same value.
   uint64 generated_token_count = 13;
   uint64 output_leaf_count = 14;
+  // Fields 15-18 are ADR-0024 reserved slots. They are in the wire and in the
+  // TRUEOPEN_INFER_RECEIPT_V3 preimage, and in Phase 0 they must all be empty.
+  //
+  // Reserved in the preimage rather than added later on purpose: appending a
+  // field to a signing domain after genesis changes every digest, and this
+  // chain does not wipe state. Signing over the empty values now costs four
+  // zero-length frames and buys an activation that needs no new domain.
+  //
+  // encryption_activation_height is 0 and every locked profile has
+  // require_encrypted false, so PLAINTEXT is the only mode. A receipt that
+  // sets any of these under PLAINTEXT is rejected rather than ignored --
+  // accepting a key commitment nothing will ever open is worse than refusing
+  // it, because it looks like encryption is on.
+  bytes output_key_commitment = 15 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes worker_token_key_commitment = 16 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes worker_value_key_commitment = 17 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes ciphertext_output_root = 18 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 // evidence_commitments_hash is the Keeper-derived commitment over
-// InferReceiptV2.required_evidence_commitments. The API contract registers
+// InferReceiptV3.required_evidence_commitments. The API contract registers
 // the domain (row "Infer evidence commitments", producer "selected Worker / Task
 // Keeper recompute", consumers "Open Verify, settlement, challenge") and points at
 // §5.14 as the one place the ordered preimage may live. This comment is that one
@@ -100,7 +124,7 @@ message InferReceiptV2 {
 // The preimage deliberately carries NO chain_id and NO task_id, unlike the sibling
 // list domains TRUEOPEN_RESULT_RECEIPT_REFS_V1 / TRUEOPEN_CONSENSUS_CLUSTER_V1 which
 // bind both. That is exactly what §5.14 freezes: this value is a pure content
-// commitment whose only consumer is the TRUEOPEN_INFER_RECEIPT_V2 preimage, and that
+// commitment whose only consumer is the TRUEOPEN_INFER_RECEIPT_V3 preimage, and that
 // outer digest already binds chain_id, task_id, task_hash and the worker operator.
 // An implementation must not "helpfully" prepend scope fields.
 //

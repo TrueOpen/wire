@@ -47,7 +47,7 @@ message MsgSubmitInferReceipt {
   option (cosmos.msg.v1.signer) = "submitter_address";
   option (amino.name) = "trueopen/x/task/MsgSubmitInferReceipt";
 
-  InferReceiptV2 receipt = 1 [(gogoproto.nullable) = false];
+  InferReceiptV3 receipt = 1 [(gogoproto.nullable) = false];
   string submitter_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
@@ -208,7 +208,7 @@ message MsgSubmitVerifyResult {
   option (cosmos.msg.v1.signer) = "submitter_address";
   option (amino.name) = "trueopen/x/task/MsgSubmitVerifyResult";
 
-  ResultReceiptV2 receipt = 1 [(gogoproto.nullable) = false];
+  ResultReceiptV3 receipt = 1 [(gogoproto.nullable) = false];
   string submitter_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
@@ -229,7 +229,7 @@ message MsgBatchSubmitVerifyResult {
   option (cosmos.msg.v1.signer) = "submitter_address";
   option (amino.name) = "trueopen/x/task/MsgBatchSubmitVerifyResult";
 
-  repeated ResultReceiptV2 receipts = 1 [(gogoproto.nullable) = false];
+  repeated ResultReceiptV3 receipts = 1 [(gogoproto.nullable) = false];
   string submitter_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
