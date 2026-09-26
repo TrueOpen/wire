@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package nexus.v1;
 
+import "shared/v1/evidence.proto";
+import "shared/v1/rest_encoding.proto";
 import "task/v1/commit.proto";
 import "task/v1/evidence.proto";
 import "task/v1/infer_receipt.proto";
@@ -11,7 +13,7 @@ option go_package = "github.com/TrueOpen/nexus/gen/trueopen/nexus/v1;nexusv1";
 
 //
 //
-//     FinalizeTaskResult / FinalizeVerifierEvidence；
+//     FinalizeTaskResult / FinalizeVerifierEvidence.
 //
 //
 // IngressAPI defines the IngressAPI wire type.
@@ -108,6 +110,10 @@ enum TaskDataReadinessV1 {
   TASK_DATA_READINESS_V1_RESULT_STAGING = 2;
   // TASK_DATA_READINESS_V1_READY identifies the corresponding protocol value.
   TASK_DATA_READINESS_V1_READY = 3;
+  // OUTPUT is frozen, but one or both required Worker bundles are still pending.
+  TASK_DATA_READINESS_V1_OUTPUT_FROZEN = 4;
+  // At least one required Worker evidence bundle is frozen.
+  TASK_DATA_READINESS_V1_EVIDENCE_PARTIAL = 5;
 }
 
 // EvidenceProducerKindV1 defines the EvidenceProducerKindV1 wire type.
@@ -131,7 +137,7 @@ enum TaskDataRequesterKindV1 {
 }
 
 //
-// verify_round=0、producer_operator absent。
+// Non-evidence objects use verify_round=0 and no producer_operator.
 // TaskDataObjectRefV1 defines the TaskDataObjectRefV1 wire type.
 message TaskDataObjectRefV1 {
   string task_hash = 1;
@@ -142,6 +148,8 @@ message TaskDataObjectRefV1 {
   EvidenceProducerKindV1 evidence_producer_kind = 6;
   uint32 verify_round = 7;
   optional string producer_operator = 8;
+  // Required for evidence objects; UNSPECIFIED for INPUT and OUTPUT.
+  shared.v1.EvidenceKind evidence_kind = 9;
 }
 
 // TaskDataObjectMetadataV1 defines the TaskDataObjectMetadataV1 wire type.
@@ -173,7 +181,8 @@ message TaskDataObjectMetadataV1 {
 
 // EvidenceBundleSummaryV1 defines the EvidenceBundleSummaryV1 wire type.
 message EvidenceBundleSummaryV1 {
-  string evidence_bundle_hash = 1;
+  // Digest of exact manifest bytes; not the on-chain typed commitment.
+  string evidence_manifest_hash = 1;
   string evidence_schema_hash = 2;
   uint32 artifact_count = 3;
   uint64 artifact_total_size_bytes = 4;
@@ -188,7 +197,7 @@ message ByteRangeV1 {
 
 //
 //   builder_storage_confirmation_digest =
-//     H_FIELDS_V1("TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
+//     H_FIELDS_V1("TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
 //       u32_be(schema_version), utf8(chain_id),
 //       address_codec_bytes(builder_operator_address),
 //       u64_be(service_authorization_nonce), canonical TaskDataObjectRefV1,
@@ -196,8 +205,8 @@ message ByteRangeV1 {
 //       u64_be(retention_until_height))
 //
 //
-//                            producer_kind=UNSPECIFIED、verify_round=0、
-//                            producer_operator absent、artifact_total_size_bytes=0。
+// Non-evidence objects use producer_kind=UNSPECIFIED, verify_round=0,
+// no producer_operator, and artifact_total_size_bytes=0.
 // BuilderStorageConfirmationV1 defines the BuilderStorageConfirmationV1 wire type.
 message BuilderStorageConfirmationV1 {
   uint32 schema_version = 1;
@@ -208,13 +217,13 @@ message BuilderStorageConfirmationV1 {
   uint64 size_bytes = 6;
   uint64 artifact_total_size_bytes = 7;
   uint64 retention_until_height = 8;
-  // compact low-S raw64。
+  // Compact low-S raw64 signature.
   bytes service_signature = 9;
 }
 
 //
 //
-//   USER            EIP-712 v4，domain "TrueOpen Task Data Request" version "1"，
+// USER requests use EIP-712 v4 with domain "TrueOpen Task Data Request" version "1".
 // TaskDataRequestAuthV1 defines the TaskDataRequestAuthV1 wire type.
 message TaskDataRequestAuthV1 {
   uint32 schema_version = 1;
@@ -226,16 +235,16 @@ message TaskDataRequestAuthV1 {
   string requester_address = 7;
   uint64 service_authorization_nonce = 8;
   bytes request_nonce = 9;
-  // current_height <= expiry_height <= current_height + max_service_material_expiry_blocks，
+  // current_height <= expiry_height <= current_height + max_service_material_expiry_blocks.
   uint64 expiry_height = 10;
   bytes signature = 11;
 }
 
-// SubscribeOutput / AckOutput / GetTaskEvents / PrepareChallenge。
+// SubscribeOutput, AckOutput, GetTaskEvents, and PrepareChallenge.
 //
 //   TRUEOPEN_SDK_REQUEST_V1, chain_id, method, endpoint, session_id, task_id,
 //   request_nonce, i64be(expiry_height_or_time), body_digest
-// Replay key：request_domain \x00 chain_id \x00 signer_address \x00 hex(request_nonce)
+// Replay key: request_domain \x00 chain_id \x00 signer_address \x00 hex(request_nonce).
 // SDKRequestEnvelopeV1 defines the SDKRequestEnvelopeV1 wire type.
 message SDKRequestEnvelopeV1 {
   string request_domain = 1;
@@ -301,7 +310,7 @@ message ConfirmOpenTaskResponse {
   string reason = 2;
 }
 
-// size_bytes, media_type)。
+// The upload body includes size_bytes and media_type.
 // UploadTaskResultObjectHeaderV1 defines the UploadTaskResultObjectHeaderV1 wire type.
 message UploadTaskResultObjectHeaderV1 {
   TaskDataObjectRefV1 object_ref = 1;
@@ -327,12 +336,26 @@ message UploadTaskResultObjectResponse {
 }
 
 //
-// OutputStreamHeaderV1 defines the OutputStreamHeaderV1 wire type.
-message OutputStreamHeaderV1 {
+// OutputStreamHeaderV2 binds the plaintext stream declaration to the selected
+// Worker's service key, independently of the upload request authorization.
+// worker_signature signs H_FIELDS_V1("TRUEOPEN_OUTPUT_STREAM_HEADER_V1",
+// chain_id, task_hash, attempt, stream_instance, user_recipient_pubkey,
+// output_key_commitment, key_package_hash).
+message OutputStreamHeaderV2 {
   string session_id = 1;
   string task_id = 2;
   string task_hash = 3;
   TaskDataRequestAuthV1 request_auth = 4;
+  // Phase 0 requires attempt 0 and stream_instance 1.
+  uint32 attempt = 5;
+  uint32 stream_instance = 6;
+  // Phase 0 requires this field to be empty.
+  bytes user_recipient_pubkey = 7;
+  // Phase 0 requires these commitments to be 32 zero bytes.
+  bytes output_key_commitment = 8 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes key_package_hash = 9 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // Raw64 R||S low-S signature over the header declaration.
+  bytes worker_signature = 10 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
 }
 
 //
@@ -362,7 +385,7 @@ message OutputFinV1 {
 message UploadTaskOutputStreamRequest {
   // frame selects one supported variant.
   oneof frame {
-    OutputStreamHeaderV1 header = 1;
+    OutputStreamHeaderV2 header = 1;
     OutputChunkV1 chunk = 2;
     OutputFinV1 fin = 3;
   }
@@ -405,7 +428,7 @@ message GetTaskDataMetadataRequest {
 message GetTaskDataMetadataResponse {
   TaskDataObjectMetadataV1 metadata = 1;
   EvidenceBundleSummaryV1 evidence_bundle = 2;
-  task.v1.InferReceiptV2 infer_receipt = 3;
+  task.v1.InferReceiptV3 infer_receipt = 3;
   uint64 retain_until_height = 4;
 }
 
@@ -440,14 +463,16 @@ message FetchTaskDataResponse {
   }
 }
 
-// task_id, infer_receipt_hash, SHA256(receipt.service_signature))。
+// The finalize body binds task_id, infer_receipt_hash, and SHA256(receipt.service_signature).
 // FinalizeTaskResultRequest defines the FinalizeTaskResultRequest wire type.
 message FinalizeTaskResultRequest {
   string task_hash = 1;
   string session_id = 2;
   string task_id = 3;
-  task.v1.InferReceiptV2 receipt = 4;
+  task.v1.InferReceiptV3 receipt = 4;
   TaskDataRequestAuthV1 request_auth = 5;
+  // Selects exactly one Worker A-level or B-level evidence bundle.
+  shared.v1.EvidenceKind evidence_kind = 6;
 }
 
 // FinalizeTaskResultResponse defines the FinalizeTaskResultResponse wire type.
@@ -460,7 +485,7 @@ message FinalizeTaskResultResponse {
 
 // task_hash / verify_round / verifier_evidence_bundle_hash / manifest size and manifest
 // task_id, verify_round, verifier_operator, result_receipt_signing_digest,
-// SHA256(receipt.service_signature))。
+// The verifier finalize body binds SHA256(receipt.service_signature).
 // FinalizeVerifierEvidenceRequest defines the FinalizeVerifierEvidenceRequest wire type.
 message FinalizeVerifierEvidenceRequest {
   string task_hash = 1;
@@ -468,7 +493,7 @@ message FinalizeVerifierEvidenceRequest {
   string task_id = 3;
   uint32 verify_round = 4;
   string verifier_operator = 5;
-  task.v1.ResultReceiptV2 receipt = 6;
+  task.v1.ResultReceiptV3 receipt = 6;
   TaskDataRequestAuthV1 request_auth = 7;
 }
 
@@ -481,7 +506,7 @@ message FinalizeVerifierEvidenceResponse {
 
 // SubmitInferReceiptRequest defines the SubmitInferReceiptRequest wire type.
 message SubmitInferReceiptRequest {
-  task.v1.InferReceiptV2 receipt = 1;
+  task.v1.InferReceiptV3 receipt = 1;
 }
 
 // SubmitInferReceiptResponse defines the SubmitInferReceiptResponse wire type.
@@ -509,7 +534,7 @@ message SubmitVerifyCommitResponse {
 
 // SubmitVerifyResultRequest defines the SubmitVerifyResultRequest wire type.
 message SubmitVerifyResultRequest {
-  task.v1.ResultReceiptV2 receipt = 1;
+  task.v1.ResultReceiptV3 receipt = 1;
 }
 
 // SubmitVerifyResultResponse defines the SubmitVerifyResultResponse wire type.
@@ -607,7 +632,7 @@ message SubscribeOutputResponse {
 }
 
 //
-// （04-task/02-data_plane_and_evidence_transport §9.4）。
+// Acknowledgement uses the frozen output stream identity and sequence.
 // AckOutputRequest defines the AckOutputRequest wire type.
 message AckOutputRequest {
   string session_id = 1;

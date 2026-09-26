@@ -137,9 +137,35 @@ message TimeoutBootstrapProfile {
   uint64 bootstrap_valid_until_epoch = 4;
 }
 
+// SourceRefV1 is the complete registration-time source identity and locator.
+// Provider and repo ID identify the model; the other fields are profile-local.
+message SourceRefV1 {
+  string provider = 1;
+  string source_uri = 2;
+  string revision = 3;
+  string resolver_version = 4;
+  string repo_id = 5;
+  string repo_type = 6;
+}
+
+// ProfileSourceRefV1 retains the version-local source fields on a profile.
+message ProfileSourceRefV1 {
+  string source_uri = 1;
+  string revision = 2;
+  string resolver_version = 3;
+  string repo_type = 4;
+}
+
+// ParserRefV1 selects one governance-approved parser specification.
+// The zero value is the sole representation of an absent parser.
+message ParserRefV1 {
+  string name = 1;
+  uint32 version = 2;
+}
+
 // ModelProfileProjection is the canonical signed registration payload.
 message ModelProfileProjection {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
   bytes manifest_hash = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bytes tokenizer_hash = 4 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
@@ -158,6 +184,9 @@ message ModelProfileProjection {
   bytes schema_hash = 17 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 previous_profile_version = 18;
   cosmos.base.v1beta1.Coin registration_fee = 19 [(gogoproto.nullable) = false];
+  SourceRefV1 source = 20 [(gogoproto.nullable) = false];
+  ParserRefV1 tool_call_parser = 21 [(gogoproto.nullable) = false];
+  ParserRefV1 reasoning_parser = 22 [(gogoproto.nullable) = false];
 }
 
 // ProfileExecutionSnapshot is the immutable execution subset copied into assignments.

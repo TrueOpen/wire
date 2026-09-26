@@ -51,17 +51,17 @@ func TestValidatePhase0DomainInventory(t *testing.T) {
 
 	missing := make(map[string]domain, len(valid)-1)
 	for name, item := range valid {
-		if name != "TRUEOPEN_INFER_RECEIPT_V2" {
+		if name != "TRUEOPEN_INFER_RECEIPT_V3" {
 			missing[name] = item
 		}
 	}
 	if err := validatePhase0DomainInventory(missing); err == nil {
-		t.Fatal("inventory without InferReceiptV2 accepted")
+		t.Fatal("inventory without InferReceiptV3 accepted")
 	}
 
-	valid["TRUEOPEN_INFER_RECEIPT_V1"] = domain{Domain: "TRUEOPEN_INFER_RECEIPT_V1"}
+	valid["TRUEOPEN_INFER_RECEIPT_V2"] = domain{Domain: "TRUEOPEN_INFER_RECEIPT_V2"}
 	if err := validatePhase0DomainInventory(valid); err == nil {
-		t.Fatal("inventory retaining InferReceiptV1 accepted")
+		t.Fatal("inventory retaining InferReceiptV2 accepted")
 	}
 }
 
@@ -147,20 +147,13 @@ func TestVerifyRegistryVariantRules(t *testing.T) {
 	}
 }
 
-// TestVerifyRegistryGenerationRules covers the reviewed-V2 mechanism. Canonical
-//requires a new _V2 domain whenever a preimage changes shape,
+// TestVerifyRegistryGenerationRules covers the reviewed-V2 mechanism. A
+// preimage change requires a new domain generation,
 // so the verifier has to accept one - but a row that postdates the pinned node
 // source_commit is no longer a copy of it, and every case below is a way of
 // adding such a row without leaving a reviewer anything to check.
 func TestVerifyRegistryGenerationRules(t *testing.T) {
-	const monorepoCommit = "2222222222222222222222222222222222222222"
-	reviewedOrigin := func() *domainOrigin {
-		return &domainOrigin{
-			Repository: "https://github.com/TrueOpen/monorepo",
-			Commit:     monorepoCommit,
-			Review:     "bus envelope V2",
-		}
-	}
+	const reviewURL = "https://github.com/TrueOpen/wire/pull/14"
 	// valid holds one superseded V1 and its reviewed V2 successor, sorted.
 	valid := func() registry {
 		value := testDomainRegistry()
@@ -170,7 +163,7 @@ func TestVerifyRegistryGenerationRules(t *testing.T) {
 		first.Note = "superseded by TRUEOPEN_A_V2"
 		second := value.Domains[0]
 		second.Domain = "TRUEOPEN_A_V2"
-		second.Origin = reviewedOrigin()
+		second.RegistrationReview = reviewURL
 		second.Supersedes = &supersession{Domain: "TRUEOPEN_A_V1", Registered: true}
 		value.Domains = []domain{first, second, value.Domains[0]}
 		return value
@@ -181,14 +174,11 @@ func TestVerifyRegistryGenerationRules(t *testing.T) {
 		mutate func(*registry)
 	}{
 		{"accepts a reviewed V2 linked to its registered V1", nil},
-		{"rejects a V2 with no origin", func(value *registry) {
-			value.Domains[1].Origin = nil
+		{"rejects a V2 with no public review", func(value *registry) {
+			value.Domains[1].RegistrationReview = ""
 		}},
-		{"rejects a V2 whose origin is the pinned node commit", func(value *registry) {
-			value.Domains[1].Origin.Commit = value.SourceCommit
-		}},
-		{"rejects a V2 with an incomplete origin", func(value *registry) {
-			value.Domains[1].Origin.Review = "  "
+		{"rejects a V2 with a non-wire review", func(value *registry) {
+			value.Domains[1].RegistrationReview = "https://github.com/TrueOpen/node/pull/1"
 		}},
 		{"rejects a V2 that supersedes nothing", func(value *registry) {
 			value.Domains[1].Supersedes = nil
@@ -260,11 +250,7 @@ func TestVerifyRegistryAcceptsUnregisteredPredecessor(t *testing.T) {
 
 	value := testDomainRegistry()
 	value.Domains[0].Domain = "TRUEOPEN_A_V2"
-	value.Domains[0].Origin = &domainOrigin{
-		Repository: "https://github.com/TrueOpen/monorepo",
-		Commit:     "2222222222222222222222222222222222222222",
-		Review:     "bus envelope V2",
-	}
+	value.Domains[0].RegistrationReview = "https://github.com/TrueOpen/wire/pull/14"
 	value.Domains[0].Supersedes = &supersession{
 		Domain:     "TRUEOPEN_A_V1",
 		Registered: false,

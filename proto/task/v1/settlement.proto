@@ -289,7 +289,7 @@ message SettlementFactsRetainedState {
 message TaskFailureClassState {
   bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 verify_round = 2;
-  string model_id = 3;
+  bytes model_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 4;
   optional bytes settlement_id = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   TaskFailureClass failure_class = 6;

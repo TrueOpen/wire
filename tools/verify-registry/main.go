@@ -27,18 +27,57 @@ var (
 const nodeRegistryRepository = "https://github.com/TrueOpen/node"
 
 var phase0RequiredDomains = []string{
+	"TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
 	"TRUEOPEN_BURN_BOND_V1",
 	"TRUEOPEN_GENERATED_TOKEN_IDS_V1",
-	"TRUEOPEN_INFER_RECEIPT_V2",
+	"TRUEOPEN_INFER_RECEIPT_V3",
 	"TRUEOPEN_INPUT_TOKEN_IDS_V1",
 	"TRUEOPEN_MINT_BOND_V1",
+	"TRUEOPEN_MODEL_CHAIN_PROJECTION_V3",
+	"TRUEOPEN_MODEL_ID_V1",
+	"TRUEOPEN_MODEL_MANIFEST_V4",
+	"TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3",
 	"TRUEOPEN_OUTPUT_CHUNK_EQUIVOCATION_V1",
-	"TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
+	"TRUEOPEN_OUTPUT_STREAM_HEADER_V1",
+	"TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3",
+	"TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V3",
+	"TRUEOPEN_PREFILL_VERIFIER_TOPK_V1",
+	"TRUEOPEN_PREFILL_VERIFIER_VALUE_LEAF_V1",
+	"TRUEOPEN_PREFILL_VERIFIER_VALUE_ROOT_V1",
+	"TRUEOPEN_PREFILL_WORKER_VALUE_LEAF_V1",
+	"TRUEOPEN_PREFILL_WORKER_VALUE_ROOT_V1",
+	"TRUEOPEN_RESULT_COMMITMENT_V3",
+	"TRUEOPEN_RESULT_V3",
+	"TRUEOPEN_TASK_DATA_FETCH_BODY_V2",
+	"TRUEOPEN_TASK_DATA_FINALIZE_RESULT_BODY_V2",
+	"TRUEOPEN_TASK_DATA_FINALIZE_VERIFIER_BODY_V2",
+	"TRUEOPEN_TASK_DATA_METADATA_BODY_V2",
+	"TRUEOPEN_TASK_DATA_UPLOAD_BODY_V2",
+	"TRUEOPEN_TASK_ORDER_V3",
+	"TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V2",
+	"TRUEOPEN_WORKER_TOKEN_COMMITMENT_V1",
+	"TRUEOPEN_WORKER_VALUE_COMMITMENT_V3",
 }
 
 var phase0RetiredDomains = []string{
+	"TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
 	"TRUEOPEN_INFER_RECEIPT_V1",
+	"TRUEOPEN_INFER_RECEIPT_V2",
+	"TRUEOPEN_MODEL_CHAIN_PROJECTION_V2",
+	"TRUEOPEN_MODEL_REGISTRATION_DIGEST_V2",
+	"TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2",
+	"TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V2",
+	"TRUEOPEN_RESULT_COMMITMENT_V2",
+	"TRUEOPEN_RESULT_V2",
+	"TRUEOPEN_TASK_DATA_FETCH_BODY_V1",
+	"TRUEOPEN_TASK_DATA_FINALIZE_RESULT_BODY_V1",
+	"TRUEOPEN_TASK_DATA_FINALIZE_VERIFIER_BODY_V1",
+	"TRUEOPEN_TASK_DATA_METADATA_BODY_V1",
+	"TRUEOPEN_TASK_DATA_UPLOAD_BODY_V1",
+	"TRUEOPEN_TASK_ORDER_V2",
+	"TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V1",
 	"TRUEOPEN_WORKER_VALUE_COMMITMENT_V1",
+	"TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
 }
 
 type registry struct {
@@ -63,10 +102,9 @@ type domain struct {
 	// prose - which a verifier cannot check and a client cannot use.
 	Discriminator string    `json:"discriminator,omitempty"`
 	Variants      []variant `json:"variants,omitempty"`
-	// Origin names the review that authorized a row the pinned node source_commit
-	// does not contain. A copy of that commit leaves it absent; anything newer has
-	// to say where it came from, or "bootstrap-copy" stops meaning anything.
-	Origin *domainOrigin `json:"origin,omitempty"`
+	// RegistrationReview is the public wire review that registers a domain
+	// generation newer than the pinned copied source.
+	RegistrationReview string `json:"registration_review,omitempty"`
 	// Supersedes and SupersededBy link the two generations of one domain. They are
 	// checked in both directions so a V2 cannot appear without the V1 it replaces
 	// admitting it has been replaced - unless that V1 was never registered here at
@@ -82,12 +120,6 @@ type domain struct {
 	RegisteredInContract         bool          `json:"registered_in_contract"`
 	PreimageDivergesFromContract bool          `json:"preimage_diverges_from_contract"`
 	Note                         string        `json:"note,omitempty"`
-}
-
-type domainOrigin struct {
-	Repository string `json:"repository"`
-	Commit     string `json:"commit"`
-	Review     string `json:"review"`
 }
 
 // supersession names the generation a domain replaces. Registered says whether
@@ -221,7 +253,7 @@ func verify(path, framingPath string) error {
 		if err := validateDomain(item); err != nil {
 			return err
 		}
-		if err := validateGeneration(item, value.SourceCommit); err != nil {
+		if err := validateGeneration(item); err != nil {
 			return err
 		}
 	}
@@ -278,7 +310,7 @@ func splitGeneration(name string) (string, int, error) {
 // created it, so the row has to name the review that authorized it, and it has
 // to name the generation it replaces - Canonicalupgrades a
 // domain, it does not invent an unrelated one.
-func validateGeneration(item domain, sourceCommit string) error {
+func validateGeneration(item domain) error {
 	base, version, err := splitGeneration(item.Domain)
 	if err != nil {
 		return err
@@ -290,17 +322,9 @@ func validateGeneration(item domain, sourceCommit string) error {
 		}
 		return nil
 	}
-	if item.Origin == nil {
-		return fmt.Errorf("domain %q postdates the pinned source commit %s and must name the review that registered it",
-			item.Domain, sourceCommit)
-	}
-	if !strings.HasPrefix(item.Origin.Repository, "https://") || !commitPattern.MatchString(item.Origin.Commit) ||
-		strings.TrimSpace(item.Origin.Review) == "" {
-		return fmt.Errorf("domain %q has an incomplete origin", item.Domain)
-	}
-	if item.Origin.Commit == sourceCommit {
-		return fmt.Errorf("domain %q claims the pinned node source commit as its origin; a copied row needs no origin at all",
-			item.Domain)
+	if !strings.HasPrefix(item.RegistrationReview, "https://github.com/TrueOpen/wire/pull/") ||
+		strings.TrimSpace(strings.TrimPrefix(item.RegistrationReview, "https://github.com/TrueOpen/wire/pull/")) == "" {
+		return fmt.Errorf("domain %q needs a public wire registration review", item.Domain)
 	}
 	if item.Supersedes == nil {
 		return fmt.Errorf("domain %q is generation %d and must name the generation it replaces", item.Domain, version)
@@ -324,7 +348,7 @@ func validateGeneration(item domain, sourceCommit string) error {
 
 // validateSupersessionLinks closes the loop in the other direction. Without
 // this, a V2 could quietly shadow a V1 that still advertises itself as current,
-// which is exactly the "one domain, two interpretations" state §7 forbids.
+// which is exactly the "one domain, two interpretations" state this contract forbids.
 func validateSupersessionLinks(byDomain map[string]domain) error {
 	names := make([]string, 0, len(byDomain))
 	for name := range byDomain {

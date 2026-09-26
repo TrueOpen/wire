@@ -1,6 +1,6 @@
 {
   "schema": "trueopen-domain-registry-v1",
-  "status": "bootstrap-copy",
+  "status": "authoritative",
   "source_repository": "https://github.com/TrueOpen/node",
   "source_commit": "8b1dd7919a36519e001a946c341d7d980d18aa1f",
   "domains": [
@@ -22,7 +22,7 @@
       "store": "AssignmentCandidateSetState.assignment_candidate_set_hash and TaskAssignmentState.assignment_candidate_set_hash",
       "event": "worker_assignment_finalized",
       "query": "QueryTaskAssignment and QueryAssignmentRandomness",
-      "contract_section": "§1.4, §4.3",
+      "contract_section": "Public wire domain TRUEOPEN_ASSIGNMENT_LEGAL_SET_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -40,10 +40,10 @@
       "store": "not persisted; returned in the batch response only",
       "event": "-",
       "query": "-",
-      "contract_section": "§1.4, §9.6b",
+      "contract_section": "Public wire domain TRUEOPEN_BATCH_RESULT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "CONTRACT-GAP: the domain is registered but §9.6b never enumerates the closed set of batch_kind values. Node freezes MODEL_SUPPORT / VERIFY_COMMIT / VERIFY_RESULT as the V1 string set; the document side must register the same closed set in §9.6b."
+      "note": "The V1 batch_kind string set is closed to MODEL_SUPPORT, VERIFY_COMMIT, and VERIFY_RESULT. Unknown kinds are rejected before hashing."
     },
     {
       "domain": "TRUEOPEN_BEACON_AGGREGATE_V1",
@@ -58,7 +58,7 @@
       "store": "not persisted; derived from retained BeaconState rows",
       "event": "none",
       "query": "QueryBeacon range inputs",
-      "contract_section": "§1.4 aggregate formula",
+      "contract_section": "Public wire domain TRUEOPEN_BEACON_AGGREGATE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -79,7 +79,7 @@
       "store": "BeaconCheckpointState.checkpoint_root and cursor rolling_root",
       "event": "none",
       "query": "QueryBeaconCheckpoint",
-      "contract_section": "§6.3",
+      "contract_section": "Public wire domain TRUEOPEN_BEACON_CHECKPOINT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -96,7 +96,7 @@
       "consumers": "ProcessProposal, PreBlock and the VRF verifier",
       "store": "not persisted; it is the ECVRF alpha input and is recomputable from chain_id, height, the previous verified beacon and the proposer address. Only BeaconState keeps R_h and proof_digest, and the raw 80-byte proof is discarded after verification",
       "query": "QueryBeacon reaches it only indirectly, through the previous height",
-      "contract_section": "§2, §3; §1.4",
+      "contract_section": "Public wire domain TRUEOPEN_BEACON_VRF_INPUT_V1",
       "note": "prior_randomness is 32 zero bytes when height is 1 or equals a nonzero vrf_required_from_height, and otherwise the verified BeaconState[h-1].R_h raw32. The input deliberately omits the ABCI round, the validator set hash and the VRF public key: it binds the proposer consensus address instead of the key so an epoch-boundary rotation cannot yield two recomputable inputs.",
       "event": "-",
       "registered_in_contract": true,
@@ -124,7 +124,7 @@
       "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
       "event": "123 bridge_cutover_begun; 127 bridge_signer_rotated also fires inside this action",
       "query": "QueryBridgeStatus",
-      "contract_section": "§9.6c",
+      "contract_section": "Public wire domain TRUEOPEN_BEGIN_BRIDGE_CUTOVER_V1",
       "note": "The digest is not the message field order: it inserts chain_id, expands next_signer_set into a count plus repeated 20-byte addresses that ascend uniquely, and wraps next_threshold and reason in uint32_be. next_threshold must equal (2 * count + 2) / 3 with count at least 4.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -141,7 +141,7 @@
       "store": "BridgeControlState.deployment_manifest_hash; the manifest body stays a release artifact and never enters the Store",
       "event": "124 bridge_cutover_confirmed field 6",
       "query": "QueryBridgeStatus",
-      "contract_section": "§9.6c",
+      "contract_section": "Public wire domain TRUEOPEN_BRIDGE_DEPLOYMENT_MANIFEST_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "canonical BridgeDeploymentManifestV1 fields is the required nested FRAME_V1 over fields 1..23. agents ascends uniquely by operator raw bytes and must match ValidatorBridgeSignerState item for item, relayers ascends uniquely by address raw bytes, EVM addresses are exactly 20 bytes and every code, tx and block hash is exactly 32."
@@ -161,7 +161,7 @@
       "store": "BridgeCutoverState.inflight_manifest_hash with .inflight_message_count; the manifest body is a reviewable release artifact and never enters the Store",
       "event": "124 bridge_cutover_confirmed fields 7 and 8",
       "query": "QueryBridgeStatus",
-      "contract_section": "§9.6c",
+      "contract_section": "Public wire domain TRUEOPEN_BRIDGE_INFLIGHT_MANIFEST_V1",
       "note": "Item ids ascend strictly and uniquely, every item is OUTBOUND, and at confirm time every disposition must be DELIVERED_OLD_ISM.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -180,7 +180,7 @@
       "store": "not persisted; only the signature over it is stored, as ValidatorBridgeSignerState.pop_signature, and the digest is recomputable from that row plus chain_id",
       "event": "-",
       "query": "QueryValidatorBridgeSigner recomputes it but does not return it",
-      "contract_section": "§4.1; §1.4",
+      "contract_section": "Public wire domain TRUEOPEN_BRIDGE_SIGNER_POP_V1",
       "note": "The signature is a low-S recoverable secp256k1 R||S||V of exactly 65 bytes with V in {27,28}; the recovered address must byte-equal bridge_signer_address_raw20.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -199,7 +199,7 @@
       "store": "BridgeSignerSetState.local_signer_set_hash and .confirmed_evm_signer_set_hash; BridgeCutoverState.next_signer_set_hash and .confirmed_evm_signer_set_hash",
       "event": "carried as field 3 of 123 bridge_cutover_begun and field 3 of 124 bridge_cutover_confirmed",
       "query": "QueryBridgeStatus",
-      "contract_section": "§4.2; §1.4",
+      "contract_section": "Public wire domain TRUEOPEN_BRIDGE_SIGNER_SET_V1",
       "note": "threshold is derived, not free: it is (2n + 2) / 3 by integer division with n at least 4. The guard must recompute from the upstream rows rather than trusting the cached hash.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -236,22 +236,18 @@
           ]
         }
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "Bus envelope V2 and shared wire ownership; preimage in §5.5"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V1",
         "registered": false,
-        "reason": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V1 committed the BusEnvelope V1 era evidence body. §1.4 registers only the V2 content digest, and the v0.3.0 fresh schema deletes the V1 row rather than keeping an entry no producer may write."
+        "reason": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V1 committed the BusEnvelope V1 era evidence body. The contract registers only the V2 content digest, and the v0.3.0 fresh schema deletes the V1 row rather than keeping an entry no producer may write."
       },
       "producer": "task/keeper Builder evidence handler after Task authority checks; the hub fault kernel recomputes it from the shared fact",
       "consumers": "Builder evidence ID and fault ID producers",
       "store": "BuilderFaultState.canonical_evidence_digest",
       "event": "109 builder_evidence_accepted",
       "query": "Builder fault query pending D-13",
-      "contract_section": "§5.5",
+      "contract_section": "Public wire domain TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The tags are the BuilderEvidenceV2 oneof field numbers: 2 equivocation, 3 invalid_stage_submission, 5 data_unavailable. Tag 4 is permanently reserved - the OBJECTIVE_MISSED_DUTY kind stays a Keeper-internal derivation and never becomes a public oneof branch again, so the old tag is never reused. The raw ECDSA signature is proof only and enters neither this digest nor the ordering: two valid low-S signatures over one bus_signing_digest must derive one evidence identity. For tag 2 the two raw32 signing digests are ordered by ascending lexicographic bytes, so one equivocation has one identity whichever envelope the submitter sent first."
@@ -266,22 +262,18 @@
         "scope_id",
         "canonical_evidence_digest"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "Bus envelope V2 and shared wire ownership; preimage in §5.5"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_BUILDER_EVIDENCE_ID_V1",
         "registered": false,
-        "reason": "TRUEOPEN_BUILDER_EVIDENCE_ID_V1 keyed evidence by the retired V1 content digest. §1.4 registers only the V2 pair, so the v0.3.0 fresh schema deletes the V1 row instead of linking an ID nothing can recompute."
+        "reason": "TRUEOPEN_BUILDER_EVIDENCE_ID_V1 keyed evidence by the retired V1 content digest. The contract registers only the V2 pair, so the v0.3.0 fresh schema deletes the V1 row instead of linking an ID nothing can recompute."
       },
       "producer": "task/keeper Builder evidence handler; the hub fault kernel recomputes it from local chain context and the shared fact, never trusting a caller-supplied ID",
       "consumers": "task.v1.Msg.SubmitBuilderEvidence idempotency key and event 109",
       "store": "BuilderFaultState.evidence_id",
       "event": "109 builder_evidence_accepted",
       "query": "Msg response; Builder fault query pending D-13",
-      "contract_section": "§5.5",
+      "contract_section": "Public wire domain TRUEOPEN_BUILDER_EVIDENCE_ID_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "scope_id is the existing authoritative primary key of the fact being attributed - task_id for all three active kinds - and introduces no new hash semantics. builder_operator is always the stable operator address, never a service address."
@@ -296,22 +288,18 @@
         "scope_id",
         "canonical_evidence_digest"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "Bus envelope V2 and shared wire ownership; preimage in §5.5"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_BUILDER_FAULT_V1",
         "registered": false,
-        "reason": "TRUEOPEN_BUILDER_FAULT_V1 derived the fault ID from the retired V1 evidence content. §1.4 registers only TRUEOPEN_BUILDER_FAULT_V2, so the v0.3.0 fresh schema deletes the V1 row rather than retaining a fault ID with no reachable producer."
+        "reason": "TRUEOPEN_BUILDER_FAULT_V1 derived the fault ID from the retired V1 evidence content. The contract registers only TRUEOPEN_BUILDER_FAULT_V2, so the v0.3.0 fresh schema deletes the V1 row rather than retaining a fault ID with no reachable producer."
       },
       "producer": "hub fault kernel",
       "consumers": "Builder fault, slash and jail",
       "store": "BuilderFaultState.fault_id",
       "event": "109 builder_evidence_accepted",
       "query": "Builder fault query pending D-13",
-      "contract_section": "§5.5",
+      "contract_section": "Public wire domain TRUEOPEN_BUILDER_FAULT_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The field list is deliberately identical to TRUEOPEN_BUILDER_EVIDENCE_ID_V2; only the domain literal differs. evidence_id is the submission idempotency key and fault_id is the punishable-fact primary key derived from it, so the two digests must stay distinct values and neither may substitute for the other."
@@ -328,7 +316,7 @@
       "store": "BuilderSetSnapshot.builder_set_members_hash",
       "event": "60 builder_set_updated",
       "query": "QueryBuilderSet through builder_set_hash",
-      "contract_section": "§1.4 formula block",
+      "contract_section": "Public wire domain TRUEOPEN_BUILDER_SET_MEMBERS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -351,13 +339,19 @@
       "store": "BuilderSetSnapshot.set_hash",
       "event": "60 builder_set_updated",
       "query": "QueryBuilderSet",
-      "contract_section": "§1.4 formula block",
+      "contract_section": "Public wire domain TRUEOPEN_BUILDER_SET_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
+      "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
       "framing": "H_FIELDS_V1",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
+      "supersedes": {
+        "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V1",
+        "registered": false,
+        "reason": "The object reference gains evidence_kind before release, so the signed confirmation requires a new domain."
+      },
       "fields": [
         "schema_version",
         "chain_id",
@@ -373,7 +367,7 @@
       "store": "not persisted on chain; the confirmation travels in the OpenTask, ConfirmOpenTask and Finalize responses and is kept by the receiving party",
       "event": "-",
       "query": "-",
-      "contract_section": "§6.3a; §4.2.1 for the object ref projection",
+      "contract_section": "Public wire domain TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "One confirmation type covers INPUT, OUTPUT and a complete evidence bundle; the object difference is carried by the already frozen TaskDataObjectRefV1 rather than by a second near-identical message. service_signature is excluded from its own digest. The nonce must equal the signer's current ACTIVE service binding and be non-zero; a later key rotation neither invalidates an already verified confirmation nor lets the old key sign a new one. retention_until_height is a floor, so extending the window needs no re-signing. EVIDENCE_ARTIFACT is never confirmed on its own: it is covered by its manifest hash and that bundle's confirmation."
@@ -386,17 +380,13 @@
         "uint64_be(proposal_id)",
         "target_address_raw"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
-        "review": "freezes the Phase 0 validator bond governance action domains and replay locator in §8.1"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "producer": "x/gov accepted BurnBondV1 action; recomputed by the Hub Keeper",
       "consumers": "validator-bond removal receipt, consensus ValidatorSet update, event and auditors",
       "store": "governance action receipt keyed by (proposal_id, action_kind, target_address_raw)",
       "event": "validator bond governance action result",
       "query": "x/gov proposal result and validator bond state",
-      "contract_section": "§8.1; §1.4",
+      "contract_section": "Public wire domain TRUEOPEN_BURN_BOND_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "target_address_raw is the canonical Bech32-decoded account address. An exact locator replay must compare this digest; BurnBondV1 carries no caller-selected amount."
@@ -419,11 +409,7 @@
         "payload_type",
         "payload_digest"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "Bus envelope V2 and shared wire ownership; preimage in §7.2"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_BUS_ENVELOPE_V1",
         "registered": false,
@@ -434,7 +420,7 @@
       "store": "not persisted on chain; retained as the Bus replay-store tombstone digest and as the evidence content input",
       "event": "-",
       "query": "-",
-      "contract_section": "§7.2",
+      "contract_section": "Public wire domain TRUEOPEN_BUS_ENVELOPE_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The projection is exactly bus.v1.BusEnvelopeV1 fields 1..12 plus field 14. Field 13 payload is bound only transitively through payload_digest, and field 15 service_signature cannot enter its own preimage. The V2 generation is not a schema bump of the protobuf message - that message is still named BusEnvelopeV1 - it is the signing domain, because one domain must never cover two different signed field sets."
@@ -445,22 +431,18 @@
       "fields": [
         "payload: exact transmitted bus.v1.BusEnvelopeV1.payload bytes, canonicalization is identity"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "95e747e7e481378931e1c2df2d5cc78be143ba42",
-        "review": "Bus envelope V2 and shared wire ownership; preimage in §7.1"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_BUS_PAYLOAD_V1",
         "registered": false,
-        "reason": "There was never a TRUEOPEN_BUS_PAYLOAD_V1 domain: the payload commitment it replaces was an unregistered bare SHA-256 over the payload bytes, retired together with BusEnvelope V1. §9.3 closes the bare-SHA-256 producer set at three values and forbids a fourth, so the commitment starts at V2 under a registered H_V1 domain rather than being back-registered as V1."
+        "reason": "There was never a TRUEOPEN_BUS_PAYLOAD_V1 domain: the payload commitment it replaces was an unregistered bare SHA-256 over the payload bytes, retired together with BusEnvelope V1. The contract closes the bare-SHA-256 producer set at three values and forbids a fourth, so the commitment starts at V2 under a registered H_V1 domain rather than being back-registered as V1."
       },
       "producer": "Nexus or Cortex sender, over the bytes it publishes once and reuses on every retry",
       "consumers": "Nexus and Cortex receivers, over the bytes they received before any decoding; the Node Builder evidence proof-only verifier",
       "store": "bus.v1.BusEnvelopeV1.payload_digest, field 14",
       "event": "-",
       "query": "-",
-      "contract_section": "§7.1",
+      "contract_section": "Public wire domain TRUEOPEN_BUS_PAYLOAD_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The H_V1 payload object is the opaque byte string itself, so canonicalization is the identity function: this commits to a transport publication, not to a semantic identity, and two semantically equal protobuf encodings of one payload are two different publications. No hop may re-marshal the payload to recompute the digest, and receivers compute it before decoding."
@@ -478,10 +460,10 @@
       "store": "CandidatePoolSnapshotState.active_bitmap_hash",
       "event": "-",
       "query": "QueryCandidatePoolSnapshot / QueryCurrentCandidatePool header",
-      "contract_section": "§1.4, §3.5",
+      "contract_section": "Public wire domain TRUEOPEN_CANDIDATE_ACTIVE_BITMAP_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "Covers all segment_count segments, including the all-zero ones the Store may omit; trailing bits above slot_capacity must be zero or the bitmap is rejected before hashing (§3.1)."
+      "note": "Covers all segment_count segments, including the all-zero ones the Store may omit; trailing bits above slot_capacity must be zero or the bitmap is rejected before hashing."
     },
     {
       "domain": "TRUEOPEN_CANDIDATE_MEMBERSHIP_V1",
@@ -499,10 +481,10 @@
       "store": "not persisted",
       "event": "-",
       "query": "QueryCandidatePoolMember",
-      "contract_section": "§1.4, §3.5",
+      "contract_section": "Public wire domain TRUEOPEN_CANDIDATE_MEMBERSHIP_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "§3.5 is explicit that this is an audit digest, not a Merkle inclusion proof: security comes from the on-chain lookup of the ACTIVE snapshot bitmap plus the immutable binding, so no interface may advertise it as verifiable without state."
+      "note": "The contract is explicit that this is an audit digest, not a Merkle inclusion proof: security comes from the on-chain lookup of the ACTIVE snapshot bitmap plus the immutable binding, so no interface may advertise it as verifiable without state."
     },
     {
       "domain": "TRUEOPEN_CANDIDATE_MEMBER_SET_V1",
@@ -516,10 +498,10 @@
       "store": "CandidatePoolSnapshotState.member_set_hash",
       "event": "-",
       "query": "QueryCandidatePoolMembers",
-      "contract_section": "§1.4, §3.5",
+      "contract_section": "Public wire domain TRUEOPEN_CANDIDATE_MEMBER_SET_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "Slot ascending, never operator ascending: §4.5 fixes slot order as the candidate base order, so a second ordering here would make the pool hash and the draw disagree."
+      "note": "Slot ascending, never operator ascending: this contract fixes slot order as the candidate base order, so a second ordering here would make the pool hash and the draw disagree."
     },
     {
       "domain": "TRUEOPEN_CANDIDATE_POOL_SEGMENT_V1",
@@ -536,10 +518,10 @@
       "store": "CandidatePoolActiveSegmentState.segment_hash",
       "event": "-",
       "query": "-",
-      "contract_section": "§1.4, §3.5",
+      "contract_section": "Public wire domain TRUEOPEN_CANDIDATE_POOL_SEGMENT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "segment_bitmap_bytes is exactly candidate_bitmap_segment_bytes long; a segment omitted from the Store must be framed as that many zero bytes (§3.1). A fixed bitmap_64 encoding is forbidden."
+      "note": "segment_bitmap_bytes is exactly candidate_bitmap_segment_bytes long; a segment omitted from the Store must be framed as that many zero bytes. A fixed bitmap_64 encoding is forbidden."
     },
     {
       "domain": "TRUEOPEN_CANDIDATE_SLOT_BINDING_V1",
@@ -555,7 +537,7 @@
       "store": "CandidateSlotBindingState.binding_hash, copied into CandidatePoolMemberState.binding_hash",
       "event": "-",
       "query": "QueryCandidatePoolMember (member + membership_binding)",
-      "contract_section": "§1.4, §3.5; §3.2/§3.3",
+      "contract_section": "Public wire domain TRUEOPEN_CANDIDATE_SLOT_BINDING_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "No chain_id: the binding is scoped by (slot, slot_version) inside one chain's store and is only ever consumed through candidate_pool_hash, which does bind chain_id. slot_version must stay in the preimage because the binding is immutable identity history for a reusable slot."
@@ -582,7 +564,7 @@
       "store": "TaskFailureClassState.evidence_digest",
       "event": "9 task_failure_class_updated",
       "query": "QueryTaskFailureClass",
-      "contract_section": "§1.4, §10.12",
+      "contract_section": "Public wire domain TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -596,14 +578,14 @@
         "verifier_operator_address"
       ],
       "producer": "Task Keeper; SDK recomputes. Never a caller field.",
-      "consumers": "commit/result/reveal primary key, BatchItemResultV1.object_id, §9.7 leaf ordering",
+      "consumers": "commit/result/reveal primary key, BatchItemResultV1.object_id, this contract leaf ordering",
       "store": "CommitState / ResultReceiptState / FullResultRevealState primary key",
       "event": "verify commit and result events carry it",
       "query": "QueryVerifyCommit, QueryResultReceipt, QueryFullResultReveal",
-      "contract_section": "§1.4 line 205, §10.9 lines 3283-3287",
+      "contract_section": "Public wire domain TRUEOPEN_COMMIT_KEY_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "§10.9 is explicit that chain_id must be inside: commit_key is simultaneously a Store primary key, a response field, a batch object_id and a leaf ordering key, so a missing chain binding would let cross-chain material reuse one key. verify_round is uint32_be and the verifier address is stable operator address codec bytes, not the service address and not Bech32 text."
+      "note": "The contract is explicit that chain_id must be inside: commit_key is simultaneously a Store primary key, a response field, a batch object_id and a leaf ordering key, so a missing chain binding would let cross-chain material reuse one key. verify_round is uint32_be and the verifier address is stable operator address codec bytes, not the service address and not Bech32 text."
     },
     {
       "domain": "TRUEOPEN_COMMIT_V1",
@@ -623,10 +605,10 @@
       "store": "CommitState.commit_signing_digest",
       "event": "verify commit accepted event",
       "query": "QueryVerifyCommit",
-      "contract_section": "§1.4 line 203, §5.14 lines 1353-1357",
+      "contract_section": "Public wire domain TRUEOPEN_COMMIT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "commit_hash must be the canonical TRUEOPEN_RESULT_COMMITMENT_V1 value; §5.14 forbids a \"non-empty placeholder\" and forbids a \"looks like a SHA256\" conditional branch. Same 8-field shape as the two handraise digests: chain/task scope plus service_authorization_nonce plus expiry_height."
+      "note": "commit_hash must be the canonical TRUEOPEN_RESULT_COMMITMENT_V1 value; this contract forbids a \"non-empty placeholder\" and forbids a \"looks like a SHA256\" conditional branch. Same 8-field shape as the two handraise digests: chain/task scope plus service_authorization_nonce plus expiry_height."
     },
     {
       "domain": "TRUEOPEN_CONFIRM_BRIDGE_CUTOVER_V1",
@@ -651,7 +633,7 @@
       "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
       "event": "124 bridge_cutover_confirmed",
       "query": "QueryBridgeStatus",
-      "contract_section": "§9.6c",
+      "contract_section": "Public wire domain TRUEOPEN_CONFIRM_BRIDGE_CUTOVER_V1",
       "note": "Only inflight_message_count takes a uint32_be wrapper; evm_chain_id and evm_block_number are bare uint64. Confirmation fills the optional tail of BridgeCutoverState and does not unfreeze the bridge.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -671,7 +653,7 @@
       "store": "SettlementFactsV1.consensus_cluster_hash",
       "event": "task_settled indirectly through settlement_facts_hash after K-BLOCK-16",
       "query": "settlement facts view",
-      "contract_section": "§1.4, §10.10a",
+      "contract_section": "Public wire domain TRUEOPEN_CONSENSUS_CLUSTER_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -688,10 +670,10 @@
       "store": "not persisted; only folded into the response batch_digest",
       "event": "-",
       "query": "-",
-      "contract_section": "§1.4",
+      "contract_section": "Public wire domain TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_ID_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The active monorepo table defines this ID as (chain_id, epoch_index, operator_address); it is only a BATCH_RESULT object_id and is not persisted independently."
+      "note": "This ID is derived from (chain_id, epoch_index, operator_address); it is only a BATCH_RESULT object_id and is not persisted independently."
     },
     {
       "domain": "TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_V1",
@@ -702,15 +684,15 @@
         "epoch_index",
         "service_authorization_nonce",
         "expiry_height",
-        "profile_count",
-        "repeated(NestedFieldFrameV1(model_id, profile_version)) in (model_id bytes, profile_version) ascending"
+        "model_count",
+        "repeated(raw Hash32 model_id bytes) in strict ascending order, unique"
       ],
       "producer": "Cortex current service key, one signature per confirmation",
       "consumers": "Hub daily support heartbeat and support freshness",
       "store": "not persisted; DailySupportState keeps signature_digest = SHA256(raw64) instead",
       "event": "-",
       "query": "QueryDailySupport",
-      "contract_section": "§1.4, §5.7",
+      "contract_section": "Public wire domain TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The relayer/gas payer is read from Tx context only and never enters the preimage."
@@ -733,7 +715,7 @@
       "store": "BuilderDataUnavailableAggregateState.aggregate_hash",
       "event": "builder_data_unavailable",
       "query": "QueryBuilderDataUnavailable",
-      "contract_section": "§1.4; §6.6",
+      "contract_section": "Public wire domain TRUEOPEN_DATA_UNAVAILABLE_AGGREGATE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -752,10 +734,10 @@
       "store": "none; derived event commitment",
       "event": "data_unavailable_reported.unavailable_builder_bitmap_hash",
       "query": "QueryDataUnavailableReports",
-      "contract_section": "§1.4 formula block, §10.5",
+      "contract_section": "Public wire domain TRUEOPEN_DATA_UNAVAILABLE_BITMAP_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The digest commits raw bitmap bytes; decoding bit positions remains blocked until §10.5 freezes the bit-order rule."
+      "note": "The digest commits raw bitmap bytes; decoding bit positions remains blocked until this contract freezes the bit-order rule."
     },
     {
       "domain": "TRUEOPEN_DATA_UNAVAILABLE_REPORT_V1",
@@ -773,7 +755,7 @@
       "store": "DataUnavailableReportState.report_digest",
       "event": "data_unavailable_reported",
       "query": "QueryDataUnavailableReports",
-      "contract_section": "§1.4, §10.5",
+      "contract_section": "Public wire domain TRUEOPEN_DATA_UNAVAILABLE_REPORT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -792,7 +774,7 @@
       "store": "EpochTaskSummaryCursorState.running_root",
       "event": "none",
       "query": "QueryEpochTaskSummary",
-      "contract_section": "§1.4",
+      "contract_section": "Public wire domain TRUEOPEN_EPOCH_TASK_SUMMARY_FOLD_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Active bounded epoch-summary fold registered by the keeper contract."
@@ -811,7 +793,8 @@
         "valid_task_count",
         "histogram",
         "support_candidate_seen_count",
-        "support_candidates",
+        "repeated(raw Hash32 model_id bytes in strict ascending order)",
+        "support_candidates_truncated",
         "source_root"
       ],
       "producer": "Task epoch summary runner",
@@ -819,10 +802,10 @@
       "store": "EpochTaskSummaryReceiptState.receipt_hash",
       "event": "none; the retained epoch summary is not a public protocol event",
       "query": "QueryEpochTaskSummary",
-      "contract_section": "§1.4",
+      "contract_section": "Public wire domain TRUEOPEN_EPOCH_TASK_SUMMARY_RECEIPT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "histogram and support_candidates are independent scalar REPEATED_V1 fields; retained truncation counts remain state metadata."
+      "note": "histogram and support_candidates are independent scalar REPEATED_V1 fields. Support candidates are unique model identifiers in strict canonical byte order; profile versions and composite strings are excluded. support_candidate_seen_count counts valid-task occurrences, while support_candidates_truncated commits whether either configured bound skipped a distinct model."
     },
     {
       "domain": "TRUEOPEN_EPOCH_TASK_SUMMARY_SOURCE_V1",
@@ -842,7 +825,7 @@
       "store": "EpochTaskSummaryCursorState.running_root",
       "event": "none",
       "query": "QueryEpochTaskSummary",
-      "contract_section": "§1.4",
+      "contract_section": "Public wire domain TRUEOPEN_EPOCH_TASK_SUMMARY_SOURCE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Active bounded epoch-summary source projection registered by the keeper contract."
@@ -857,7 +840,7 @@
       "consumers": "result admission, data availability and challenge",
       "store": "ResultReceiptState.verifier_evidence_bundle_hash with its manifest size for a Verifier bundle; InferReceiptState.required_evidence_commitments[] for a Worker bundle. The manifest body never enters the chain",
       "query": "QueryResultReceipt and QueryInferReceipt",
-      "contract_section": "§2, §2.1; §1.4",
+      "contract_section": "Public wire domain TRUEOPEN_EVIDENCE_BUNDLE_MANIFEST_V1",
       "note": "The payload is UTF-8 canonical JSON, not a typed frame: no BOM, no whitespace, object keys ascending by UTF-8 bytes, uint64 as a decimal string without leading zeros and Hash32 as 64 lowercase hex without 0x. A relay must hash the exact bytes it received and must never parse and re-serialise first. There is no separate Worker bundle hash field; the Worker side is committed through required_evidence_commitments[].",
       "event": "-",
       "registered_in_contract": true,
@@ -895,7 +878,7 @@
       "store": "VerificationProfile.evidence_schema_hash and EvidenceSchemaV1",
       "event": "profile registration event carries the committed profile",
       "query": "QueryProfile",
-      "contract_section": "§5.14 and §9.7",
+      "contract_section": "Public wire domain TRUEOPEN_EVIDENCE_SCHEMA_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Active evidence-schema commitment registered by the keeper contract."
@@ -914,7 +897,7 @@
       "store": "TaskFailureClassState.fault_summary_hash, copied into TaskTerminalSummaryState.fault_summary_hash",
       "event": "-",
       "query": "QueryTaskFailureClass and QueryTask terminal summary",
-      "contract_section": "§6.6",
+      "contract_section": "Public wire domain TRUEOPEN_FAULT_SUMMARY_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -934,7 +917,7 @@
       "store": "FreezeSignalBuildCursorState.rolling_failure_refs_hash / FreezeSignalState.included_failure_task_refs_hash",
       "event": "95 freeze_signal_submitted",
       "query": "QueryFreezeSignal",
-      "contract_section": "§1.4, §10.0a",
+      "contract_section": "Public wire domain TRUEOPEN_FREEZE_FAILURE_REFS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -956,7 +939,7 @@
       "store": "FreezeSignalState.freeze_signal_id",
       "event": "95 freeze_signal_submitted",
       "query": "QueryFreezeSignal",
-      "contract_section": "§1.4, §10.0a",
+      "contract_section": "Public wire domain TRUEOPEN_FREEZE_SIGNAL_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -974,7 +957,7 @@
       "store": "TaskSettlementState.gas_reimbursements_hash and SettlementPlanV1.gas_reimbursements_hash",
       "event": "-",
       "query": "QueryTaskGasReimbursements, QuerySettlement",
-      "contract_section": "§1.4, §10.10b; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_GAS_REIMBURSEMENTS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The array ascends strictly and uniquely by (tx_hash raw bytes, item_index). These two domains are the only producers of a gas receipt digest."
@@ -991,10 +974,10 @@
       "store": "not persisted as its own row; the receipt body lives in TaskGasReimbursementV1 and only the vector hash is stored",
       "event": "28 task_gas_reimbursement_recorded",
       "query": "QueryTaskGasReimbursements",
-      "contract_section": "§1.4, §5.10, §10.10b; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_GAS_REIMBURSEMENT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "canonical TaskGasReimbursementV1 is the required nested 11-field frame of §5.10, in proto field order."
+      "note": "canonical TaskGasReimbursementV1 is the required nested 11-field frame of this contract, in proto field order."
     },
     {
       "domain": "TRUEOPEN_GENERATED_TOKEN_IDS_V1",
@@ -1002,17 +985,13 @@
       "fields": [
         "token_ids_raw = uint32_be(token_count) || repeated uint32_be(token_id)"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
-        "review": "freezes token-ID commitments as one raw H_FIELDS_V1 field in 04-task/§7/§7.0"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "producer": "Cortex from the exact generated token-ID vector",
-      "consumers": "selected Verifier and TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
-      "store": "not persisted as a separate chain row; committed inside WorkerValueCommitmentV2",
+      "consumers": "selected Verifier and TRUEOPEN_WORKER_TOKEN_COMMITMENT_V1",
+      "store": "not persisted as a separate chain row; committed inside WorkerTokenCommitmentV1",
       "event": "-",
       "query": "-",
-      "contract_section": "§7 and §7.0; §1.4",
+      "contract_section": "Public wire domain TRUEOPEN_GENERATED_TOKEN_IDS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The count occurs exactly once at the start of the single raw field. Token IDs retain their original order and are neither sorted nor individually framed."
@@ -1030,10 +1009,10 @@
       "store": "CandidatePoolSnapshotState.snapshot_id, CandidatePoolTaskRefState key component",
       "event": "-",
       "query": "QueryCandidatePoolSnapshot(snapshot_id)",
-      "contract_section": "§1.4 (candidate_pool_snapshot_id), §3.5",
+      "contract_section": "Public wire domain TRUEOPEN_GLOBAL_CANDIDATE_POOL_SNAPSHOT_ID_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "Decision 28: the domain is TRUEOPEN_GLOBAL_CANDIDATE_POOL_SNAPSHOT_ID_V1. It is a separate domain from the pool hash even though the only extra binding is epoch: §1.4 rule 1 forbids reusing one domain for both the content hash and the locator."
+      "note": "The snapshot ID has a separate domain from the pool hash, even though its only extra binding is epoch. A content hash and a locator must never reuse one domain."
     },
     {
       "domain": "TRUEOPEN_GLOBAL_CANDIDATE_POOL_V1",
@@ -1053,10 +1032,10 @@
       "store": "CandidatePoolSnapshotState.pool_hash; CurrentCandidatePoolState.pool_hash",
       "event": "-",
       "query": "QueryCurrentCandidatePool, QueryCandidatePoolSnapshot",
-      "contract_section": "§1.4 (candidate_pool_hash), §3.5",
+      "contract_section": "Public wire domain TRUEOPEN_GLOBAL_CANDIDATE_POOL_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "Decision 28: the domain is TRUEOPEN_GLOBAL_CANDIDATE_POOL_V1. source_revision is an audit field and is deliberately outside this preimage (§3.2), so a rebuild that observes the same membership reproduces the same pool_hash. expires_height is exclusive."
+      "note": "source_revision is an audit field outside this preimage, so rebuilding the same membership reproduces the same pool_hash. expires_height is exclusive."
     },
     {
       "domain": "TRUEOPEN_HUB_PARAMS_V2",
@@ -1071,13 +1050,9 @@
       "store": "HubParamsMetaState.params_hash, written in the same transaction as the active params",
       "event": "110 hub_params_updated field 3",
       "query": "hub.v1.Query/Params",
-      "contract_section": "§18.0",
-      "note": "canonical HubParamsV2 recurses by ascending field number over all 15 required sub-messages; protobuf marshal, skipping unknown fields and omitting default-valued fields are all forbidden. monorepo never names a TRUEOPEN_HUB_PARAMS_V1 and the V2 suffix tracks HubParamsV2.schema_version = 2; the superseded row below is the Wire v0.2.x registry entry being removed here, not an upstream domain.",
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
-        "review": "wire v0.3 contract closure; §18.0 registers only TRUEOPEN_HUB_PARAMS_V2 and the contract carries no TRUEOPEN_HUB_PARAMS_V1 name"
-      },
+      "contract_section": "Public wire domain TRUEOPEN_HUB_PARAMS_V2",
+      "note": "Canonical HubParamsV2 recurses by ascending field number over all 16 required sub-messages; protobuf marshal, skipping unknown fields and omitting default-valued fields are all forbidden. The V2 suffix tracks HubParamsV2.schema_version = 2; no V1 alias is accepted.",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_HUB_PARAMS_V1",
         "registered": false,
@@ -1093,18 +1068,18 @@
         "uint32_be(count)",
         "repeated(FieldFrameV1(evidence_kind, evidence_hash_or_root, encoded_size_bytes)) in evidence_kind ascending"
       ],
-      "producer": "selected Worker; Task Keeper recomputes from InferReceiptV2.required_evidence_commitments",
-      "consumers": "TRUEOPEN_INFER_RECEIPT_V2 preimage field 10, Open Verify, settlement and challenge",
+      "producer": "selected Worker; Task Keeper recomputes from InferReceiptV3.required_evidence_commitments",
+      "consumers": "TRUEOPEN_INFER_RECEIPT_V3 preimage field 10, Open Verify, settlement and challenge",
       "store": "InferReceiptState.evidence_commitments_hash (with evidence_commitment_count)",
       "event": "-",
       "query": "QueryInferReceipt",
-      "contract_section": "§1.4 line 190 (\"Infer evidence commitments\"), §5.14 lines 1335-1338; byte-exact expansion in proto/task/v1/infer_receipt.proto",
+      "contract_section": "Public wire domain TRUEOPEN_INFER_EVIDENCE_COMMITMENTS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "No chain_id and no task_id: §5.14 makes this a pure content commitment whose consumer TRUEOPEN_INFER_RECEIPT_V2 already binds chain_id, task_id, task_hash and the worker. The locked Profile requires the non-empty, exact evidence-kind set; count = 0 remains a well-defined framing digest but is not admissible for an accepted Phase 0 receipt."
+      "note": "No chain_id and no task_id: this pure content commitment is consumed by TRUEOPEN_INFER_RECEIPT_V3, which binds chain_id, task_id, task_hash and the worker. The locked Profile requires exactly the two ordered Worker evidence kinds; an empty list is frameable but inadmissible."
     },
     {
-      "domain": "TRUEOPEN_INFER_RECEIPT_V2",
+      "domain": "TRUEOPEN_INFER_RECEIPT_V3",
       "framing": "H_FIELDS_V1",
       "fields": [
         "schema_version",
@@ -1119,27 +1094,27 @@
         "evidence_commitments_hash",
         "expiry_height",
         "generated_token_count",
-        "output_leaf_count"
+        "output_leaf_count",
+        "output_key_commitment",
+        "worker_token_key_commitment",
+        "worker_value_key_commitment",
+        "ciphertext_output_root"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
-        "review": "freezes InferReceiptV2 and its MMR leaf-count field in §5.14/C.3"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
-        "domain": "TRUEOPEN_INFER_RECEIPT_V1",
+        "domain": "TRUEOPEN_INFER_RECEIPT_V2",
         "registered": false,
-        "reason": "Fresh Phase 0 deletes the V1 row and decoder in the same coordinated release; output_hash now means TRUEOPEN_OUTPUT_MMR_V1 and output_leaf_count enters the signed preimage."
+        "reason": "The V2 row is replaced before release; fresh Phase 0 accepts only the two-level evidence commitment list and the V3 encryption slots."
       },
       "producer": "selected Worker current service key; Task Keeper recomputes on MsgSubmitInferReceipt",
       "consumers": "Builder relay, Task Keeper, Verifier handraise, task_evidence_root INFER_RECEIPT leaf",
       "store": "InferReceiptState.infer_receipt_hash = .infer_receipt_signing_digest",
       "event": "12 infer_receipt_accepted",
       "query": "QueryInferReceipt",
-      "contract_section": "§1.4 line 191, §5.14 lines 1345-1351",
+      "contract_section": "Public wire domain TRUEOPEN_INFER_RECEIPT_V3",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "infer_receipt_hash and infer_receipt_signing_digest are the same value. service_signature (wire field 12) is excluded and required_evidence_commitments enters only through the Keeper-derived evidence_commitments_hash. worker_operator_address is address codec bytes, schema_version is exactly 2, and output_leaf_count is uint64_be."
+      "note": "infer_receipt_hash and infer_receipt_signing_digest are the same value. service_signature (wire field 12) is excluded, the two required evidence commitments enter through their Keeper-derived list hash, and four encryption slots are zero32 in plaintext Phase 0. schema_version is exactly 3."
     },
     {
       "domain": "TRUEOPEN_INPUT_TOKEN_IDS_V1",
@@ -1147,17 +1122,13 @@
       "fields": [
         "token_ids_raw = uint32_be(token_count) || repeated uint32_be(token_id)"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
-        "review": "freezes token-ID commitments as one raw H_FIELDS_V1 field in 04-task/§7/§7.0"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "producer": "Cortex from the exact input token-ID vector",
-      "consumers": "selected Verifier and TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
-      "store": "not persisted as a separate chain row; committed inside WorkerValueCommitmentV2",
+      "consumers": "selected Verifier and TRUEOPEN_WORKER_TOKEN_COMMITMENT_V1",
+      "store": "not persisted as a separate chain row; committed inside WorkerTokenCommitmentV1",
       "event": "-",
       "query": "-",
-      "contract_section": "§7 and §7.0; §1.4",
+      "contract_section": "Public wire domain TRUEOPEN_INPUT_TOKEN_IDS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The count occurs exactly once at the start of the single raw field. Token IDs retain their original order and are neither sorted nor individually framed."
@@ -1173,10 +1144,10 @@
       "store": "ResultReceiptState.metric_summary_hash",
       "event": "-",
       "query": "QueryResultReceipt",
-      "contract_section": "§1.4 line 206, §5.14 line 1373",
+      "contract_section": "Public wire domain TRUEOPEN_METRIC_SUMMARY_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "§5.14 gives the domain and the \"canonical MetricSummaryV1\" input but no field enumeration, so the ordered preimage is the message's own schema field order per §1.2."
+      "note": "The contract gives the domain and the \"canonical MetricSummaryV1\" input but no field enumeration, so the ordered preimage is the message's own schema field order per this contract."
     },
     {
       "domain": "TRUEOPEN_MINT_BOND_V1",
@@ -1190,49 +1161,78 @@
         "bridge_signer_address_raw20",
         "bridge_signer_pop_signature"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
-        "review": "freezes the Phase 0 validator bond governance action domains and replay locator in §8.1"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "producer": "x/gov accepted MintBondV1 action; recomputed by the Hub Keeper",
       "consumers": "validator-bond creation receipt, consensus ValidatorSet update, bridge signer registration, event and auditors",
       "store": "governance action receipt keyed by (proposal_id, action_kind, target_address_raw)",
       "event": "validator bond governance action result",
       "query": "x/gov proposal result and validator bond state",
-      "contract_section": "§8.1; §1.4",
+      "contract_section": "Public wire domain TRUEOPEN_MINT_BOND_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "consensus_pubkey is raw32 Ed25519, disclosure_digest raw32, bridge signer raw20 and its low-S recoverable R||S||V proof raw65. The message is validated before framing and the generic governance digest is not an alias."
     },
     {
-      "domain": "TRUEOPEN_MODEL_CHAIN_PROJECTION_V2",
+      "domain": "TRUEOPEN_MODEL_CHAIN_PROJECTION_V3",
       "framing": "H_V1",
       "fields": [
-        "payload: canonical_json_v1(MsgRegisterModelProfile.profile)"
+        "payload: canonical_json_v1(ModelProfileProjection including raw Hash32 model_id, source, tool_call_parser, reasoning_parser)"
       ],
       "producer": "The registrant SDK; recomputed by the Keeper",
-      "consumers": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V2 and the Hub registry",
+      "consumers": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3 and the Hub registry",
       "store": "not persisted; ProfileState stores the projection field by field and only the registration digest is kept as a hash",
       "query": "-",
-      "contract_section": "§2.5, §2.6; §1.4, §10.0.2",
-      "note": "canonical_json_v1 is the protocol canonicaliser, not protobuf ProtoJSON: object keys ascend by UTF-8 bytes, integers carry no float, exponent or leading zero, and bytes32 is lowercase 0x hex. Inside this projection PricingProfile.initial_output_price and min_order_value stay denomless u64; turning them into Coin or Amount breaks the upstream fixture.",
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
-        "review": "wire v0.3 contract closure; the model_registration_chain_structure_and_manifest contract defines only the V2 projection and the contract carries no TRUEOPEN_MODEL_CHAIN_PROJECTION_V1 name"
-      },
+      "contract_section": "Public wire domain TRUEOPEN_MODEL_CHAIN_PROJECTION_V3",
+      "note": "canonical_json_v1 is not protobuf ProtoJSON: object keys ascend by UTF-8 bytes, integers have no float, exponent or leading zero, and bytes32 uses lowercase 0x hex. PricingProfile.initial_output_price and min_order_value remain denomless u64 in the published projection vector.",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
-        "domain": "TRUEOPEN_MODEL_CHAIN_PROJECTION_V1",
+        "domain": "TRUEOPEN_MODEL_CHAIN_PROJECTION_V2",
         "registered": false,
-        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+        "reason": "The unshipped V2 projection lacks the structured source and parser fields and cannot represent a raw Hash32 model identity. V3 has no V2 decoder."
       },
       "event": "-",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V2",
+      "domain": "TRUEOPEN_MODEL_ID_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "provider",
+        "repo_id",
+        "proposer_address codec bytes"
+      ],
+      "producer": "model registrant SDK; Hub Keeper recomputes from the registration signer",
+      "consumers": "ModelState primary key, TaskOrderV3 and model-scoped support declarations",
+      "store": "ModelState.model_id and ProfileState.model_id",
+      "event": "3 model_profile_registered",
+      "query": "QueryModel and QueryModels in raw digest order",
+      "contract_section": "model identity wire contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_MODEL_MANIFEST_V4",
+      "framing": "H_V1",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
+      "supersedes": {
+        "domain": "TRUEOPEN_MODEL_MANIFEST_V3",
+        "registered": false,
+        "reason": "The earlier manifest domain was not registered in this repository; V4 adds source and parser projection fields plus two-level evidence and encryption reservations."
+      },
+      "fields": ["canonical_json_v1(ModelProfileManifestV4)"],
+      "producer": "model registrant SDK",
+      "consumers": "Hub registration and model-serving clients",
+      "store": "ProfileState.manifest_hash",
+      "event": "3 model_profile_registered",
+      "query": "QueryProfile",
+      "contract_section": "Model manifest V4 wire contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3",
       "framing": "H_V1",
       "fields": [
         "payload: canonical_json_v1 over chain_id, chain_projection_hash, manifest_hash, profile_version, proposer_address"
@@ -1241,17 +1241,13 @@
       "consumers": "Hub registry as the registration idempotency key and audit receipt",
       "store": "ProfileState.registration_digest and RegistrationReceipt, which is keyed by the digest itself",
       "query": "QueryProfile",
-      "contract_section": "§2.6; §1.4, §10.0.2",
+      "contract_section": "Public wire domain TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3",
       "note": "The five JSON keys already ascend by UTF-8 bytes. chain_projection_hash and manifest_hash appear as 0x-prefixed 64 hex strings. proposer_address is simultaneously the Cosmos Msg signer, the registrant and the fee payer, so no second detached signature over this digest is accepted. RegistrationReceipt is a pure replay nullifier rebuilt from ProfileState and is not exported in Genesis.",
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
-        "review": "wire v0.3 contract closure; the model_registration_chain_structure_and_manifest contract defines only the V2 digest and the contract carries no TRUEOPEN_MODEL_REGISTRATION_DIGEST_V1 name"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
-        "domain": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V1",
+        "domain": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V2",
         "registered": false,
-        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+        "reason": "The unshipped V2 digest binds the earlier projection generation. V3 binds the structured model projection and has no V2 decoder."
       },
       "event": "-",
       "registered_in_contract": true,
@@ -1269,17 +1265,13 @@
         "nats_user_pubkey",
         "issued_at_unix_ms"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "db70714bb6a2e767c0020c70e669ae6bcb8df697",
-        "review": "Cortex joins NATS with its on-chain identity; preimage in §7.5"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "producer": "Cortex, signing with its current service key over a locally generated NATS user key",
       "consumers": "the NATS auth callout service run beside NATS by the NATS operator; Cortex re-verifies its own declaration before presenting it",
       "store": "not persisted on chain; carried in the NATS CONNECT auth_token as bus.v1.NatsUserBindingV1 and held by Cortex for reuse until the service key binding changes",
       "event": "-",
       "query": "QueryCurrentServiceKey and QueryCortexNode supply the verification inputs; the domain itself has no query",
-      "contract_section": "§7.5",
+      "contract_section": "Public wire domain TRUEOPEN_NATS_USER_BINDING_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The projection is bus.v1.NatsUserBindingV1 fields 1..7; field 8 service_signature cannot enter its own preimage. nats_user_pubkey is framed as the UTF-8 text of the nkey public key, not its decoded 32 bytes, so the preimage and the byte-for-byte comparison with the NATS CONNECT nkey field agree. The declaration has no expiry: the verifier requires an ACTIVE current service key binding at the carried service_authorization_nonce before checking the signature, so rotation or revocation invalidates every binding that key signed. Possession of the NATS user key is proven separately by the NATS-standard ed25519 nonce signature, which is NATS's own contract and not a registered domain."
@@ -1304,7 +1296,7 @@
       "store": "BuilderStageProposalState.proposal_digest",
       "event": "verifier_handraises_accepted",
       "query": "Task stage proposal receipts",
-      "contract_section": "§1.4, §4.2.2",
+      "contract_section": "Public wire domain TRUEOPEN_OPEN_VERIFY_PROPOSAL_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -1337,13 +1329,9 @@
       "consumers": "Task lifecycle and settlement audit",
       "store": "TaskCoreState.accepted_order_opening_hash",
       "query": "QueryTask",
-      "contract_section": "§6; §1.4, §10.1",
+      "contract_section": "Public wire domain TRUEOPEN_ORDER_OPENING_V2",
       "note": "The light projection of the 25-field order: it drops schema_version and the four amounts, and replaces the nested generation_params with generation_params_digest. deadline_policy stays byte-identical to the order frame. No signature bytes or signature digest enters this preimage, and Phase 0 exposes no public challenge opening Msg for it.",
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
-        "review": "wire v0.3 contract closure; §7 keeps no V1 opening verification branch"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_ORDER_OPENING_V1",
         "registered": false,
@@ -1365,17 +1353,13 @@
         "uint32_be(proof_count)",
         "REPEATED_V1(OutputMMRPeakProofV1 as NESTED_V1(peak_hash, REPEATED_V1(final_inclusion_path hashes)))"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
-        "review": "freezes the Worker output-chunk equivocation projection and vectors in 04-task/§6.3"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "producer": "Task Keeper after strict WorkerEvidenceV1 decode and MMR proof verification",
       "consumers": "Worker objective-fault kernel, compact evidence receipt, event 29 and QueryWorkerEvidence",
       "store": "WorkerEvidenceReceiptState.evidence_digest; raw signature, peaks and paths are discarded after verification",
       "event": "29 worker_evidence_accepted",
       "query": "QueryWorkerEvidence",
-      "contract_section": "§6.3; §1.4 and Appendix C.3",
+      "contract_section": "Public wire domain TRUEOPEN_OUTPUT_CHUNK_EQUIVOCATION_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The root proof_count must equal the count derived inside the outer REPEATED_V1. Every proof and every path retain their own NESTED_V1/REPEATED_V1 container; flattening either level is invalid."
@@ -1389,20 +1373,16 @@
         "seq",
         "mmr_root"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "f190ed3155f4ffda22ceb074de3b2fc8cb3b3115",
-        "review": "Streaming OUTPUT delivery; both domains and the MMR_ROOT_V1 framing are registered in 04-task/§8.1"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "producer": "selected Worker service key, once per output frame while generating",
       "consumers": "every Task Builder on receipt of the frame, SDK on SubscribeOutput, Task Keeper when it judges an output equivocation",
       "store": "off chain: Builder frame records and SDK frame verification state. OutputChunkEquivocationV1 is the only on-chain proof carrier and is registered separately",
       "event": "none; an output frame is a data-plane message and emits no chain event",
       "query": "none; frames are served by Nexus SubscribeOutput, never by a chain query",
-      "contract_section": "§8.1 for both domains and their vectors; 00-fundamentals/§9 for the tree and §11.5 for its primitive vectors",
+      "contract_section": "Public wire domain TRUEOPEN_OUTPUT_CHUNK_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "mmr_root is the prefix root of the first seq + 1 leaves, so a frame signature commits to the whole prefix rather than to one chunk's bytes; that is what makes \"streamed one thing, committed another\" provable. seq is u64_be and mmr_root is raw32, never hex text. Activates with TRUEOPEN_INFER_RECEIPT_V2 and accepts no material before that batch. Vectors: testdata/v1/task/output_mmr_v1.json."
+      "note": "mmr_root is the prefix root of the first seq + 1 leaves, so a frame signature commits to the whole prefix. seq is u64_be and mmr_root is raw32, never hex text. The accepted InferReceiptV3 binds the final MMR root. Vectors: testdata/v1/task/output_mmr_v1.json."
     },
     {
       "domain": "TRUEOPEN_OUTPUT_FIN_V1",
@@ -1414,11 +1394,7 @@
         "output_mmr_root",
         "uint32_be(finish_reason)"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "ADR-0027-signed-fin-and-finish-reason-source",
-        "review": "Signed Fin is the authoritative source of finish_reason; 04-task/§8.1 registers the framing and field order"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "producer": "selected Worker service key, once after the last accepted output chunk",
       "consumers": "every Task Builder on receipt of Fin, SDK on SubscribeOutput, and SDK on GetTaskDataMetadata(OUTPUT)",
       "store": "off chain: Builder stores the original OutputFinV1 for byte-identical subscription replay, and returns it on TaskDataObjectMetadataV1.fin so a non-streaming fetch reaches the same fact; finish_reason does not enter the OUTPUT MMR",
@@ -1435,20 +1411,37 @@
       "fields": [
         "leaves: the CANONICAL_OUTPUT_TEXT_V1 TEXT component in emission order, leaf index = chunk sequence number and leaf bytes = that chunk's UTF-8 bytes; chunk count and boundaries are part of the commitment"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "f190ed3155f4ffda22ceb074de3b2fc8cb3b3115",
-        "review": "Streaming OUTPUT delivery; both domains and the MMR_ROOT_V1 framing are registered in 04-task/§8.1"
-      },
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "producer": "selected Worker, which appends one leaf per emitted chunk",
       "consumers": "Builder recomputing the root per frame, Verifier reconstructing it from chunk_lengths, SDK verifying delivery, Task Keeper through InferReceipt.output_hash",
-      "store": "InferReceiptState.output_hash, once TRUEOPEN_INFER_RECEIPT_V2 changes that field's semantics from a whole-blob hash to this root",
-      "event": "12 infer_receipt_accepted, as output_hash, from the activation of TRUEOPEN_INFER_RECEIPT_V2",
+      "store": "InferReceiptState.output_hash as the final MMR root",
+      "event": "12 infer_receipt_accepted, as output_hash under InferReceiptV3",
       "query": "QueryInferReceipt",
-      "contract_section": "§8.1 for both domains and their vectors; 00-fundamentals/§9 for the tree and §11.5 for its primitive vectors",
+      "contract_section": "Public wire domain TRUEOPEN_OUTPUT_MMR_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "An MMR, not MERKLE_ROOT_V1: a prefix root has to be recomputable outside the final tree, and the prefix of a Merkle tree is not a subtree of it. The root alone does not fix the tree shape, so InferReceipt carries output_leaf_count beside it; that count is a receipt field and enters no digest here. An empty output is one zero-length leaf, so MmrEmptyV1 of this domain is never a legal output_hash. Activates with TRUEOPEN_INFER_RECEIPT_V2. Vectors: testdata/v1/task/output_mmr_v1.json for this domain, testdata/v1/shared/mmr_primitive_v1.json for the tree itself."
+      "note": "An MMR, not MERKLE_ROOT_V1: prefix roots must be recomputable without the final tree. InferReceiptV3 binds output_leaf_count beside this root. An empty output is one zero-length leaf, never the MmrEmptyV1 root. Vectors: testdata/v1/task/output_mmr_v1.json and testdata/v1/shared/mmr_primitive_v1.json."
+    },
+    {
+      "domain": "TRUEOPEN_OUTPUT_STREAM_HEADER_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_hash",
+        "attempt",
+        "stream_instance",
+        "user_recipient_pubkey",
+        "output_key_commitment",
+        "key_package_hash"
+      ],
+      "producer": "selected Worker service key",
+      "consumers": "Nexus stream admission and replay subscribers",
+      "store": "Nexus retained OutputStreamHeaderV2",
+      "event": "-",
+      "query": "Nexus output stream replay",
+      "contract_section": "OutputStreamHeaderV2 wire contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
     },
     {
       "domain": "TRUEOPEN_PAID_ROLES_V1",
@@ -1465,7 +1458,7 @@
       "store": "terminal settlement commitment after K-BLOCK-16",
       "event": "task_settled.paid_roles_hash after K-BLOCK-16",
       "query": "Task settlement view after K-BLOCK-16",
-      "contract_section": "§1.4, §10.10a",
+      "contract_section": "Public wire domain TRUEOPEN_PAID_ROLES_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -1486,61 +1479,118 @@
       "store": "ParameterBucketVersionState.content_hash",
       "event": "5 parameter_bucket_updated",
       "query": "QueryTimeoutBucket",
-      "contract_section": "§1.4, §5.2",
+      "contract_section": "Public wire domain TRUEOPEN_PARAMETER_BUCKET_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "QueryReferenceBucket was removed with the governed ReferenceBucket pricing path; TimeoutBucket is the only remaining parameter bucket consumer."
     },
     {
-      "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2",
+      "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3",
       "framing": "H_FIELDS_V1",
       "fields": [
         "leaf_version",
         "canonical_leaf_bytes"
       ],
       "producer": "The selected Verifier, one leaf per compared output position",
-      "consumers": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V2 and challenge opening",
+      "consumers": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V3 and challenge opening",
       "store": "not persisted; leaves exist only inside the metric root and its openings",
       "query": "-",
-      "contract_section": "§7",
+      "contract_section": "Public wire domain TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "leaf_version is 1 and canonical_leaf_bytes is a single nested FRAME_V1 over 25 fields, not 25 additional outer fields. The two optional ratios encode presence in band, and their presence is decided solely by the locked profile's compare flags. A missing or non-finite leaf pins both logprobs, the absolute difference, both ranks and rank_delta to zero and leaves both optionals absent; missing_flag and finite_flag both true is rejected.",
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
-        "review": "wire v0.3 contract closure; the verification_algorithm contract records that the V1 preimage bound neither task_hash nor verify_round and is frozen for historical verifiers only"
-      },
+      "note": "leaf_version is 1 and canonical_leaf_bytes is one nested FRAME_V1 over 26 fields, including raw Hash32 model_id and verifier_value_root. The optional ratios encode presence in band. A missing or non-finite leaf zeros both logprobs, the difference and ranks, and leaves both ratios absent.",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
-        "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V1",
+        "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2",
         "registered": false,
-        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+        "reason": "V3 adds verifier_value_root as the twenty-sixth nested leaf field and uses a raw Hash32 model ID; the unshipped V2 leaf has no active decoder."
       },
       "event": "-"
     },
     {
-      "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V2",
+      "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V3",
       "framing": "MERKLE_ROOT_V1",
       "fields": [
-        "leaves: TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V2 hashes in output_position ascending order, positions contiguous and unique"
+        "leaves: TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3 hashes in output_position ascending order, positions contiguous and unique"
       ],
       "producer": "The selected Verifier",
       "consumers": "ResultReceipt, settlement and challenge",
       "store": "ResultReceiptState.metric_root",
       "query": "QueryResultReceipt",
-      "contract_section": "§7 for leaves and ordering; §8 for the tree; §1.4",
-      "note": "Tree rules are the shared MerkleLeafV1, MerkleNodeV1 and MerkleEmptyV1 prefixes: an odd trailing node is promoted unchanged, never duplicated or zero-padded, and an empty set roots to MerkleEmptyV1(domain) rather than 32 zero bytes. The leaf ordering is defined once, in §7.",
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
-        "review": "wire v0.3 contract closure; the verification_algorithm contract lists the root as versioned up together with its leaf and requires every fixture to be regenerated"
-      },
+      "contract_section": "Public wire domain TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V3",
+      "note": "Tree rules are the shared MerkleLeafV1, MerkleNodeV1 and MerkleEmptyV1 prefixes: an odd trailing node is promoted unchanged, never duplicated or zero-padded, and an empty set roots to MerkleEmptyV1(domain) rather than 32 zero bytes. The leaf ordering is defined once, in this contract.",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
-        "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V1",
+        "domain": "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V2",
         "registered": false,
-        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+        "reason": "The metric root advances with its V3 leaf domain; V2 roots cannot be accepted as V3 roots."
       },
       "event": "-",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_PREFILL_VERIFIER_TOPK_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": ["repeated(token_id, logprob_fp_1e6) in rank ascending"],
+      "producer": "selected Verifier",
+      "consumers": "TRUEOPEN_PREFILL_VERIFIER_VALUE_LEAF_V1",
+      "store": "not persisted separately",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Verifier value leaf wire contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_PREFILL_VERIFIER_VALUE_LEAF_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": ["canonical leaf frame: chain_id, task_id, task_hash, verify_round, verifier_operator_address, output_position, emitted_token_id, verifier_logprob_fp_1e6, verifier_rank, verifier_topk_set_hash, missing_flag, finite_flag"],
+      "producer": "selected Verifier",
+      "consumers": "TRUEOPEN_PREFILL_VERIFIER_VALUE_ROOT_V1",
+      "store": "not persisted separately",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Verifier value leaf wire contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_PREFILL_VERIFIER_VALUE_ROOT_V1",
+      "framing": "MERKLE_ROOT_V1",
+      "fields": ["Verifier value leaf hashes in contiguous output_position order"],
+      "producer": "selected Verifier",
+      "consumers": "TRUEOPEN_RESULT_COMMITMENT_V3 and ResultReceiptV3",
+      "store": "ResultReceiptState.verifier_value_root",
+      "event": "17 result_accepted field 7",
+      "query": "QueryResultReceipt",
+      "contract_section": "Verifier value root wire contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_PREFILL_WORKER_VALUE_LEAF_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": ["canonical leaf frame: chain_id, task_id, task_hash, worker_operator_address, position, token_id, worker_logprob_fp_1e6, worker_rank, topk_entries, missing_flag, finite_flag"],
+      "producer": "selected Worker and Cortex",
+      "consumers": "TRUEOPEN_PREFILL_WORKER_VALUE_ROOT_V1",
+      "store": "not persisted separately",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Worker value leaf wire contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_PREFILL_WORKER_VALUE_ROOT_V1",
+      "framing": "MERKLE_ROOT_V1",
+      "fields": ["Worker value leaf hashes in contiguous output_position order"],
+      "producer": "selected Worker and Cortex",
+      "consumers": "TRUEOPEN_WORKER_VALUE_COMMITMENT_V3",
+      "store": "EvidenceCommitmentV1.evidence_hash_or_root",
+      "event": "12 infer_receipt_accepted",
+      "query": "QueryInferReceipt",
+      "contract_section": "Worker value root wire contract",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -1563,10 +1613,10 @@
       "store": "TaskAssignmentState.profile_execution_snapshot_hash",
       "event": "11 worker_assignment_finalized",
       "query": "QueryTaskAssignment",
-      "contract_section": "§1.4 and §10.1",
+      "contract_section": "Public wire domain TRUEOPEN_PROFILE_VERIFICATION_SNAPSHOT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "verification_profile, verification_thresholds, batch_verification and metrics frame recursively in proto field-number order; manifest_hash and generation_type are retained execution inputs registered by the current monorepo formula."
+      "note": "Verification profile, thresholds, batch verification and metrics frame recursively in proto field-number order; manifest_hash and generation_type are retained execution inputs."
     },
     {
       "domain": "TRUEOPEN_QUERY_RPC_V1",
@@ -1579,7 +1629,7 @@
       "store": "not persisted",
       "event": "-",
       "query": "every paginated Query that emits or consumes PageTokenV1",
-      "contract_section": "§1.4, §16.1",
+      "contract_section": "Public wire domain TRUEOPEN_QUERY_RPC_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "rpc_method is the ASCII fully-qualified /package.Service/Method literal. The closed set of eleven paginated RPCs is QueryPageSelectorSchemaV1's key set; QueryRPCDigestV1 refuses any other method."
@@ -1595,7 +1645,7 @@
       "variants": [
         {
           "key": "/hub.v1.Query/Builders",
-          "note": "§16.3 line 4004/4024: the discovery RPCs take only page, so the selector binds chain_id and the RPC digest and nothing else; padding it with a placeholder input would let a token minted for one scope verify under another"
+          "note": "Discovery RPCs take only page, so the selector binds chain_id and the RPC digest without a placeholder input."
         },
         {
           "key": "/hub.v1.Query/CandidatePoolMembers",
@@ -1619,7 +1669,7 @@
         },
         {
           "key": "/hub.v1.Query/Models",
-          "note": "§16.3 line 4004/4024: the discovery RPCs take only page, so the selector binds chain_id and the RPC digest and nothing else; padding it with a placeholder input would let a token minted for one scope verify under another"
+          "note": "Discovery RPCs take only page, so the selector binds chain_id and the RPC digest without a placeholder input."
         },
         {
           "key": "/hub.v1.Query/PendingEarnings",
@@ -1668,10 +1718,10 @@
       "store": "not persisted",
       "event": "-",
       "query": "every paginated Query that binds its page token to a selector",
-      "contract_section": "§1.4, §16.1; the RPC tables are §16.2, §16.3 and §16.4",
+      "contract_section": "Public wire domain TRUEOPEN_QUERY_SELECTOR_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The eleven variants are frozen against three other statements of the same set: the proto descriptors (a request message carrying QueryPageRequestV1), QueryPageSelectorSchemaV1, and the golden vectors. The document side was reviewed row by row against §16.2 lines 3977/3982/3988, §16.3 lines 4004/4007/4008/4014/4021/4022/4024 and §16.4 line 4049 and agrees with all three."
+      "note": "The eleven selector variants match the paginated request descriptors, QueryPageSelectorSchemaV1, and the published golden vectors. Each variant binds its RPC-specific selector fields in the listed order."
     },
     {
       "domain": "TRUEOPEN_REPLACE_BUILDER_SET_V1",
@@ -1691,13 +1741,13 @@
       "store": "BuilderSetPendingReplacementState.action_digest",
       "event": "60 builder_set_updated, whose payload does not carry the digest",
       "query": "QueryBuilderSet",
-      "contract_section": "§9.6c",
+      "contract_section": "Public wire domain TRUEOPEN_REPLACE_BUILDER_SET_V1",
       "note": "Not a Tx Msg: it is only invoked by an accepted x/gov typed action. members ascend strictly and uniquely by address codec raw bytes with builders_per_task at most count at most builder_set_cap, effective_height is at least accepted_height plus builder_set_update_lead_blocks, and at most one pending replacement exists per height. An identical action is a noop while a conflicting expected version or hash is rejected.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_RESULT_COMMITMENT_V2",
+      "domain": "TRUEOPEN_RESULT_COMMITMENT_V3",
       "framing": "H_FIELDS_V1",
       "fields": [
         "chain_id",
@@ -1705,7 +1755,7 @@
         "task_hash",
         "verify_round",
         "verifier_operator_address",
-        "result_payload_hash",
+        "verifier_value_root",
         "salt"
       ],
       "producer": "The selected Verifier; recomputed by the Task Keeper",
@@ -1713,17 +1763,13 @@
       "store": "CommitState.commit_hash",
       "event": "16 commit_accepted field 5",
       "query": "QueryVerifyCommit",
-      "contract_section": "§9; §1.4, §5.14",
-      "note": "Addresses enter as canonical bech32 decoded through the configured address codec, never as HRP or bech32 text. salt must be a non-ZERO32 Hash32. The caller does not assert result_payload_hash: the Keeper rebuilds it from authoritative state and compares byte for byte.",
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
-        "review": "wire v0.3 contract closure; the verification_algorithm contract records that V1 bound neither task_hash, payload schema nor salt"
-      },
+      "contract_section": "Public wire domain TRUEOPEN_RESULT_COMMITMENT_V3",
+      "note": "Addresses enter as configured codec bytes, never Bech32 text. The nonzero salt opens the Verifier value root; the reveal payload hash is a separate integrity digest and does not enter this commitment.",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
-        "domain": "TRUEOPEN_RESULT_COMMITMENT_V1",
+        "domain": "TRUEOPEN_RESULT_COMMITMENT_V2",
         "registered": false,
-        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+        "reason": "The unshipped V2 commitment bound the reveal payload hash. V3 binds only the Verifier value root and salt, with no V2 decoder."
       },
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -1743,12 +1789,12 @@
       "store": "SettlementFactsV1.result_receipt_refs_hash and TaskEvidenceRootState.result_receipt_refs_hash",
       "event": "task_settled indirectly through settlement_facts_hash after K-BLOCK-16",
       "query": "settlement and TaskEvidenceRoot views",
-      "contract_section": "§1.4, §10.10a",
+      "contract_section": "Public wire domain TRUEOPEN_RESULT_RECEIPT_REFS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_RESULT_V2",
+      "domain": "TRUEOPEN_RESULT_V3",
       "framing": "H_FIELDS_V1",
       "fields": [
         "schema_version",
@@ -1764,24 +1810,23 @@
         "verifier_evidence_bundle_hash",
         "verifier_evidence_manifest_size_bytes",
         "salt",
-        "expiry_height"
+        "expiry_height",
+        "verifier_value_root",
+        "metric_leaf_count",
+        "verifier_evidence_key_commitment"
       ],
       "producer": "The selected Verifier",
       "consumers": "Task Keeper result admission",
       "store": "ResultReceiptState.result_receipt_signing_digest",
       "event": "17 result_accepted field 5",
       "query": "QueryResultReceipt",
-      "contract_section": "§1.4, §5.14",
-      "note": "canonical metric_summary is the required nested MetricSummaryV1 frame, not its hash. ResultReceiptV2 field 15 service_signature stays out of the preimage. Every composite is length-framed field by field; protobuf marshal bytes must never be hashed.",
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
-        "review": "wire v0.3 contract closure; §5.14 states the old TRUEOPEN_RESULT_V1 does not enter the fresh Phase 0 producer set and Wire v0.3.0 keeps no synonymous alias"
-      },
+      "contract_section": "Public wire domain TRUEOPEN_RESULT_V3",
+      "note": "Canonical metric_summary is a required nested MetricSummaryV1 frame. ResultReceiptV3 field 15 service_signature stays out of the preimage; fields 16-18 bind the Verifier value root, metric leaf count and plaintext zero32 reservation. Protobuf marshal bytes must never be hashed.",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
-        "domain": "TRUEOPEN_RESULT_V1",
+        "domain": "TRUEOPEN_RESULT_V2",
         "registered": false,
-        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+        "reason": "V3 signs the Verifier value root, metric leaf count and encryption reservation; the unshipped V2 result is retired."
       },
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -1799,7 +1844,7 @@
       "store": "RewardCompetitionEpochState.order_value_bucket_boundaries_hash",
       "event": "none",
       "query": "QueryCompetitionEpoch",
-      "contract_section": "§6.7",
+      "contract_section": "Public wire domain TRUEOPEN_REWARD_BUCKET_BOUNDARIES_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Each boundary is NestedFieldFrameV1(boundary_index, canonical Amount.atomic_units) inside one REPEATED_V1 field."
@@ -1819,7 +1864,7 @@
       "store": "RewardEpochPruneCursorState",
       "event": "none",
       "query": "QueryRewardEpochAudit",
-      "contract_section": "§1.4",
+      "contract_section": "Public wire domain TRUEOPEN_REWARD_EPOCH_AUDIT_FOLD_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Active bounded reward-audit fold registered by the keeper contract."
@@ -1840,7 +1885,7 @@
       "store": "RewardEpochPruneCursorState",
       "event": "none",
       "query": "QueryRewardEpochAudit",
-      "contract_section": "§1.4",
+      "contract_section": "Public wire domain TRUEOPEN_REWARD_EPOCH_AUDIT_LEAF_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Active bounded reward-audit leaf registered by the keeper contract."
@@ -1864,7 +1909,7 @@
       "store": "RewardEpochAuditState",
       "event": "none",
       "query": "QueryRewardEpochAudit",
-      "contract_section": "§1.4",
+      "contract_section": "Public wire domain TRUEOPEN_REWARD_EPOCH_AUDIT_ROOT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Active immutable reward-audit root registered by the keeper contract."
@@ -1885,10 +1930,10 @@
       "store": "RoleFaultState.fault_id",
       "event": "50 fault_recorded, 51 role_jailed, 52 role_slashed",
       "query": "QueryRoleFault",
-      "contract_section": "§1.4; §6.7",
+      "contract_section": "Public wire domain TRUEOPEN_ROLE_FAULT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The evidence_digest field is copied byte-for-byte from the matching TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1 TaskFailureClassState (§10.12)."
+      "note": "The evidence_digest field is copied byte-for-byte from the matching TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1 TaskFailureClassState."
     },
     {
       "domain": "TRUEOPEN_ROTATE_BRIDGE_SIGNER_V1",
@@ -1906,7 +1951,7 @@
       "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
       "event": "127 bridge_signer_rotated",
       "query": "QueryBridgeStatus",
-      "contract_section": "§9.6c",
+      "contract_section": "Public wire domain TRUEOPEN_ROTATE_BRIDGE_SIGNER_V1",
       "note": "No integer wrappers here: expected_key_version is a bare uint64. raw20 is exactly 20 bytes and the PoP signature exactly 65. Must execute in the same proposal and transaction as BeginBridgeCutoverV1, and key_version is checked to advance by exactly one.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -1926,7 +1971,7 @@
       "store": "VerificationRoundState.round_effect_plan_root",
       "event": "-",
       "query": "QueryVerificationRound",
-      "contract_section": "§1.4, §10.14a; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_ROUND_EFFECT_PLAN_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The explicit count must equal the number of repeated entries, which ascend by contiguous effect_index. This domain freezes the planned fields only; applied_amount, unfilled_amount and status belong to the root."
@@ -1947,7 +1992,7 @@
       "store": "VerificationRoundState.round_effect_root",
       "event": "27 verification_round_closed",
       "query": "QueryVerificationRound",
-      "contract_section": "§1.4, §10.14a; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_ROUND_EFFECT_ROOT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Binds the plan root so execution results cannot be re-attributed to another plan. A terminal root must not be written before every effect is APPLIED."
@@ -1968,7 +2013,7 @@
       "store": "RoundFundingState.funding_lock_hash",
       "event": "26 challenge_round_opened",
       "query": "QueryVerificationRound",
-      "contract_section": "§1.4 supplementary table, §10.15; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_ROUND_FUNDING_LOCK_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -1991,7 +2036,7 @@
       "store": "RoundFundingState.funding_resolution_hash",
       "event": "27 verification_round_closed",
       "query": "QueryVerificationRound",
-      "contract_section": "§1.4 supplementary table, §10.15; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_ROUND_FUNDING_RESOLUTION_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2010,7 +2055,7 @@
       "store": "TaskBuilderSelectionState.selected_task_builders_hash",
       "event": "task builders selected event",
       "query": "QueryTaskBuilders (registered by the unblock round in query.proto)",
-      "contract_section": "§1.4 line 164; §6.5 lines 1136-1137",
+      "contract_section": "Public wire domain TRUEOPEN_SELECTED_TASK_BUILDERS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "selected_task_builders is a scalar Address REPEATED_V1 field in the frozen selection order; its inner count is the authoritative list length."
@@ -2033,7 +2078,7 @@
       "store": "VerifierAssignmentState.selected_verifiers_hash",
       "event": "verifier_assignment_finalized",
       "query": "Verifier assignment and task views",
-      "contract_section": "§1.4, §10.4",
+      "contract_section": "Public wire domain TRUEOPEN_SELECTED_VERIFIERS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2052,10 +2097,10 @@
       "store": "ServiceDescriptorState.descriptor_hash",
       "event": "EventServiceDescriptorUpdated",
       "query": "QueryServiceDescriptor",
-      "contract_section": "§1.4, §9.6b",
+      "contract_section": "Public wire domain TRUEOPEN_SERVICE_DESCRIPTOR_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "§9.6b deliberately omits chain_id from this preimage; the digest is scoped by (participant_type, operator_address, descriptor_version). tls_pubkey_hash is a caller-authored opaque 32-byte value (§1.4 rule 7) and is framed as an empty field when absent."
+      "note": "The contract deliberately omits chain_id from this preimage; the digest is scoped by (participant_type, operator_address, descriptor_version). tls_pubkey_hash is a caller-authored opaque 32-byte value (this contract rule 7) and is framed as an empty field when absent."
     },
     {
       "domain": "TRUEOPEN_SERVICE_KEY_RESPONSIBILITY_ID_V1",
@@ -2073,7 +2118,7 @@
       "store": "ServiceKeyResponsibilityState.responsibility_id",
       "event": "none",
       "query": "internal responsibility audit",
-      "contract_section": "§1.4",
+      "contract_section": "Public wire domain TRUEOPEN_SERVICE_KEY_RESPONSIBILITY_ID_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Active canonical responsibility primary key registered by the keeper contract."
@@ -2094,7 +2139,7 @@
       "store": "not persisted; the accepted binding lands in the participant identity row",
       "event": "EventServiceKeyRotated",
       "query": "QueryCurrentServiceKey",
-      "contract_section": "§1.4, §10.0c1",
+      "contract_section": "Public wire domain TRUEOPEN_SERVICE_KEY_ROTATION_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "next nonce is Keeper-derived checked_add(current, 1); the old service key never re-signs."
@@ -2114,7 +2159,7 @@
       "store": "not persisted; the accepted binding lands in CortexNodeState.current_service_pubkey or BuilderState.current_service_pubkey",
       "event": "6 service_stake_changed, 112 service_registered, 105 builder_registered",
       "query": "QueryCurrentServiceKey (binding, not the digest)",
-      "contract_section": "§1.4, §10.0c step 1",
+      "contract_section": "Public wire domain TRUEOPEN_SERVICE_REGISTRATION_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "initial_service_authorization_nonce is Keeper-derived and fixed to 1; caller must not submit it. participant_type separates service identities, while Cortex and Builder registration intentionally share the same identity proof producer."
@@ -2135,7 +2180,7 @@
       "store": "SessionTerminalSummaryState.sequence_root",
       "event": "none",
       "query": "QuerySessionTerminalSummary",
-      "contract_section": "§1.4; §6.2",
+      "contract_section": "Public wire domain TRUEOPEN_SESSION_SEQUENCE_ROOT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Rolling root updated in strictly increasing order_sequence order during bounded history compaction."
@@ -2152,10 +2197,10 @@
       "store": "StreamState.session_id key; SessionNonceState.next_session_nonce is its counter",
       "event": "session created event",
       "query": "QuerySession, QuerySessionsByOwner",
-      "contract_section": "§1.4, §5.13; §6.2",
+      "contract_section": "Public wire domain TRUEOPEN_SESSION_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "No chain_id: §5.13 scopes session_id inside the user namespace only, and every consumer that needs cross-chain separation goes through task_id or an explicitly chain-bound digest. SessionNonceState is retained forever so a session_id is never reused. There is no implicit first-order session creation."
+      "note": "No chain_id: this contract scopes session_id inside the user namespace only, and every consumer that needs cross-chain separation goes through task_id or an explicitly chain-bound digest. SessionNonceState is retained forever so a session_id is never reused. There is no implicit first-order session creation."
     },
     {
       "domain": "TRUEOPEN_SETTLEMENT_BILL_V1",
@@ -2172,7 +2217,7 @@
       "store": "TaskSettlementState.settlement_bill_hash_or_zero32",
       "event": "-",
       "query": "QuerySettlement",
-      "contract_section": "§1.4 supplementary table, §10.10a; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_SETTLEMENT_BILL_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The one domain in the settlement group that does not open with chain_id: the bill is scoped by infer_receipt_ref, which already binds the chain through the receipt."
@@ -2190,7 +2235,7 @@
       "store": "terminal settlement facts commitment after K-BLOCK-16",
       "event": "task_settled.settlement_facts_hash after K-BLOCK-16",
       "query": "QueryTask settlement view after K-BLOCK-16",
-      "contract_section": "§1.4, §10.10a",
+      "contract_section": "Public wire domain TRUEOPEN_SETTLEMENT_FACTS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "SettlementFactsV1 contains no amount and does not authorize a funded terminal transition while K-BLOCK-16 remains open."
@@ -2208,7 +2253,7 @@
       "store": "TaskSettlementState.settlement_plan_hash",
       "event": "task_settled",
       "query": "QuerySettlement",
-      "contract_section": "§1.4, §10.10a; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_SETTLEMENT_PLAN_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "canonical SettlementPlanV1 is the required nested 19-field frame in proto field order. It embeds the verifier payout and gas receipt arrays inline as well as their vector hash, so a mismatch between the inline array and gas_reimbursements_hash changes the digest."
@@ -2227,7 +2272,7 @@
       "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
       "event": "122 bridge_freeze_changed",
       "query": "QueryBridgeStatus",
-      "contract_section": "§9.6c",
+      "contract_section": "Public wire domain TRUEOPEN_SET_BRIDGE_FREEZE_V1",
       "note": "frozen is a bare bool; only expected_lifecycle is wrapped. A successful unfreeze deletes the BridgeCutoverState row.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -2248,24 +2293,24 @@
       "store": "not persisted; bridge rows key on proposal_id only and the action digest is recomputed and compared inside the x/gov execution transaction. Replay is expressed by the expected_* fields, not by a stored digest",
       "event": "125 bridge_limits_scheduled on the pending write and 126 bridge_limits_activated at the epoch boundary",
       "query": "QueryBridgeStatus",
-      "contract_section": "§9.6c",
+      "contract_section": "Public wire domain TRUEOPEN_SET_BRIDGE_LIMIT_V1",
       "note": "All four limits are typed Amount with no integer wrapper. The action writes exactly one BridgePendingLimitState row with effective_epoch set to the current reward epoch plus one; runtime limits never move through MsgUpdateHubParams.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_SUPPORT_PROFILES_V1",
+      "domain": "TRUEOPEN_SUPPORT_MODELS_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
-        "profile_count",
-        "repeated(NestedFieldFrameV1(model_id, profile_version)) in caller-canonical ascending order"
+        "model_count",
+        "repeated(raw Hash32 model_id bytes) in strict ascending order, unique"
       ],
       "producer": "Hub Keeper in MsgBatchConfirmModelSupport",
       "consumers": "DailySupportState replay equality check",
-      "store": "DailySupportState.supported_profiles_hash",
+      "store": "DailySupportState.supported_models_hash",
       "event": "-",
       "query": "QueryDailySupport",
-      "contract_section": "§1.4; §6.1",
+      "contract_section": "Public wire domain TRUEOPEN_SUPPORT_MODELS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2283,7 +2328,7 @@
       "store": "TaskBuilderSelectionState",
       "event": "none",
       "query": "QueryTaskBuilders",
-      "contract_section": "§5.13",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_BUILDERS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2299,14 +2344,20 @@
       "store": "not persisted; selected result commits through TRUEOPEN_SELECTED_TASK_BUILDERS_V1",
       "event": "none",
       "query": "QueryTaskBuilders after admission",
-      "contract_section": "§1.4; §6.5",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_BUILDER_RANK_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Raw rank bytes sort ascending with canonical address as tie-break; the selected result is committed separately by TRUEOPEN_SELECTED_TASK_BUILDERS_V1."
     },
     {
-      "domain": "TRUEOPEN_TASK_DATA_FETCH_BODY_V1",
+      "domain": "TRUEOPEN_TASK_DATA_FETCH_BODY_V2",
       "framing": "H_FIELDS_V1",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
+      "supersedes": {
+        "domain": "TRUEOPEN_TASK_DATA_FETCH_BODY_V1",
+        "registered": false,
+        "reason": "The nested object reference gains evidence_kind before release."
+      },
       "fields": [
         "canonical TaskDataObjectRefV1",
         "optional ByteRangeV1(offset, length)"
@@ -2314,27 +2365,34 @@
       "producer": "The original User SDK or a Cortex service holding the current duty",
       "consumers": "TaskDataRequestAuthV1.body_digest for FetchTaskData",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
-      "contract_section": "§4.2.1",
-      "note": "canonical TaskDataObjectRefV1 is the required nested eight-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. A whole-object read must sign range absent and must not rewrite it as a zero offset and length; a present range needs length above zero with offset plus length neither overflowing nor exceeding the object.",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_FETCH_BODY_V2",
+      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. A whole-object read must sign range absent and must not rewrite it as a zero offset and length; a present range needs length above zero with offset plus length neither overflowing nor exceeding the object.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_TASK_DATA_FINALIZE_RESULT_BODY_V1",
+      "domain": "TRUEOPEN_TASK_DATA_FINALIZE_RESULT_BODY_V2",
       "framing": "H_FIELDS_V1",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
+      "supersedes": {
+        "domain": "TRUEOPEN_TASK_DATA_FINALIZE_RESULT_BODY_V1",
+        "registered": false,
+        "reason": "The selected Worker evidence_kind is part of the authenticated per-bundle Finalize request."
+      },
       "fields": [
         "task_hash",
         "session_id",
         "task_id",
         "infer_receipt_hash",
-        "infer_receipt_signature_digest"
+        "infer_receipt_signature_digest",
+        "evidence_kind"
       ],
       "producer": "The selected Worker finalizing its result",
       "consumers": "TaskDataRequestAuthV1.body_digest for FinalizeTaskResult",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
-      "contract_section": "§4.2.1",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_FINALIZE_RESULT_BODY_V2",
       "note": "infer_receipt_signature_digest is SHA256 over the raw 64-byte service signature, which stops a different signature being substituted into an already authenticated body.",
       "event": "-",
       "query": "-",
@@ -2342,8 +2400,14 @@
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_TASK_DATA_FINALIZE_VERIFIER_BODY_V1",
+      "domain": "TRUEOPEN_TASK_DATA_FINALIZE_VERIFIER_BODY_V2",
       "framing": "H_FIELDS_V1",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
+      "supersedes": {
+        "domain": "TRUEOPEN_TASK_DATA_FINALIZE_VERIFIER_BODY_V1",
+        "registered": false,
+        "reason": "The data-plane body domain family advances together for the two-level evidence contract."
+      },
       "fields": [
         "task_hash",
         "session_id",
@@ -2356,7 +2420,7 @@
       "producer": "A round 1 or round 2 selected Verifier finalizing its evidence bundle",
       "consumers": "TaskDataRequestAuthV1.body_digest for FinalizeVerifierEvidence",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
-      "contract_section": "§4.2.1",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_FINALIZE_VERIFIER_BODY_V2",
       "note": "result_receipt_signature_digest is SHA256 over the raw 64-byte service signature. verify_round distinguishes the two rounds; a round 1 bundle is never readable as round 2 input.",
       "event": "-",
       "query": "-",
@@ -2364,16 +2428,22 @@
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_TASK_DATA_METADATA_BODY_V1",
+      "domain": "TRUEOPEN_TASK_DATA_METADATA_BODY_V2",
       "framing": "H_FIELDS_V1",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
+      "supersedes": {
+        "domain": "TRUEOPEN_TASK_DATA_METADATA_BODY_V1",
+        "registered": false,
+        "reason": "The nested object reference gains evidence_kind before release."
+      },
       "fields": [
         "canonical TaskDataObjectRefV1"
       ],
       "producer": "The original User SDK or a Cortex service holding the current duty",
       "consumers": "TaskDataRequestAuthV1.body_digest for GetTaskDataMetadata",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
-      "contract_section": "§4.2.1",
-      "note": "canonical TaskDataObjectRefV1 is the required nested eight-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator. Transport carries Hash32 as lowercase hex, but the preimage takes raw32.",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_METADATA_BODY_V2",
+      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as lowercase hex, but the preimage takes raw32.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,
@@ -2397,7 +2467,7 @@
       "producer": "A CORTEX_SERVICE requester signing with its current service key",
       "consumers": "Nexus Ingress request authentication for the five Task-data RPCs",
       "store": "not persisted on chain; each Builder keeps a durable StoreOnce row keyed by (chain_id, builder_operator_address, requester_kind, requester_address, service_authorization_nonce, request_nonce)",
-      "contract_section": "§4.2.1",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_REQUEST_V1",
       "note": "CORTEX_SERVICE only. The USER path signs the same ten fields as EIP-712 v4 typed data under the TrueOpen Task Data Request domain and never reaches this digest, so requester_kind alone selects the verifier: exactly 64 raw bytes here, exactly 65 there, with no length sniffing and no caller-supplied pubkey.",
       "event": "-",
       "query": "-",
@@ -2405,8 +2475,14 @@
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_TASK_DATA_UPLOAD_BODY_V1",
+      "domain": "TRUEOPEN_TASK_DATA_UPLOAD_BODY_V2",
       "framing": "H_FIELDS_V1",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
+      "supersedes": {
+        "domain": "TRUEOPEN_TASK_DATA_UPLOAD_BODY_V1",
+        "registered": false,
+        "reason": "The nested object reference gains evidence_kind before release."
+      },
       "fields": [
         "canonical TaskDataObjectRefV1",
         "size_bytes",
@@ -2415,8 +2491,8 @@
       "producer": "The uploading Cortex service, over the stream header only",
       "consumers": "TaskDataRequestAuthV1.body_digest for UploadTaskResultObject",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
-      "contract_section": "§4.2.1",
-      "note": "canonical TaskDataObjectRefV1 is the required nested eight-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. Only the header is signed; the chunks that follow must end up matching the signed content_hash and size_bytes exactly.",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_UPLOAD_BODY_V2",
+      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. Only the header is signed; the chunks that follow must end up matching the signed content_hash and size_bytes exactly.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,
@@ -2433,7 +2509,7 @@
       "store": "TaskAssignmentState.generation_params_digest",
       "event": "11 worker_assignment_finalized",
       "query": "TaskAssignmentViewV1 field 16",
-      "contract_section": "§1.4 and §5.6",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_GENERATION_PARAMS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2449,12 +2525,12 @@
       "store": "all task-scoped primary and index keys",
       "event": "task lifecycle events",
       "query": "QueryTask",
-      "contract_section": "§1.4 and §5.13",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_ID_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_TASK_ORDER_V2",
+      "domain": "TRUEOPEN_TASK_ORDER_V3",
       "framing": "H_FIELDS_V1",
       "fields": [
         "schema_version",
@@ -2481,23 +2557,22 @@
         "session_anchor_height",
         "session_anchor_block_hash",
         "builder_set_id",
-        "builder_set_hash"
+        "builder_set_hash",
+        "payload_mode",
+        "input_key_commitment",
+        "user_recipient_pubkey"
       ],
       "producer": "SDK or User",
       "consumers": "Builder, Cortex and the Task Keeper",
       "store": "TaskCoreState.accepted_task_hash, written atomically when the first valid proposal is accepted",
       "query": "QueryTask returns the authoritative accepted_task_hash",
-      "contract_section": "§4.1; §1.4, §5.13",
-      "note": "Exactly 25 top-level fields. price_bid, max_fee, assignment_priority_fee and tx_fee_reserve are AmountV1, that is FRAME_V1(ascii(canonical u64 decimal)) and never a bare u64_be. deadline_policy is a required nested FRAME_V1(u32_be(latency_class)). generation_params is the nested frame of §4.3, and both of its repeated members encode their count frame even when empty.",
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "d286744a50d3f60b6404773c9f8ec8c7b9b6c923",
-        "review": "wire v0.3 contract closure; §4 freezes V2 as the only fresh-genesis order schema and rejects V1, field aliases and compatibility decoders"
-      },
+      "contract_section": "Public wire domain TRUEOPEN_TASK_ORDER_V3",
+      "note": "Exactly 28 top-level fields. Amount values and the deadline/generation messages retain their nested canonical frames. The raw Hash32 model ID and plaintext payload mode enter the V3 task hash; encryption slots are zero or empty before activation.",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
-        "domain": "TRUEOPEN_TASK_ORDER_V1",
+        "domain": "TRUEOPEN_TASK_ORDER_V2",
         "registered": false,
-        "reason": "The V1 row existed in the Wire v0.2.x registry and is deleted in this same v0.3.0 revision, so there is no row left to link. Fresh genesis activates V2 only and keeps no alias, compatibility field or decoder branch for V1."
+        "reason": "V3 adds payload mode and encryption slots and changes model_id to raw Hash32; the unshipped V2 order is retired."
       },
       "event": "-",
       "registered_in_contract": true,
@@ -2516,10 +2591,10 @@
       "store": "TaskParamsMetaState.params_hash",
       "event": "111 task_params_updated",
       "query": "QueryParams",
-      "contract_section": "§1.4 and §18.0",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_PARAMS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "params is ONE nested position, parallel to TRUEOPEN_HUB_PARAMS_V2: NESTED_V1(TaskParamsV1) frames the message's twelve proto fields recursively in field-number order. The two messages use the same fundamentals §4.4 nested encoding; testdata/v1/shared/params_v1.json publishes both trees."
+      "note": "params is ONE nested position, parallel to TRUEOPEN_HUB_PARAMS_V2: NESTED_V1(TaskParamsV1) frames the message's twelve proto fields recursively in field-number order. The two messages use the same fundamentals this contract nested encoding; testdata/v1/shared/params_v1.json publishes both trees."
     },
     {
       "domain": "TRUEOPEN_TASK_ROUND_SUMMARY_V1",
@@ -2543,7 +2618,7 @@
       "store": "TaskRoundSummaryState; projected into TaskSettlementState.task_round_summary_hash",
       "event": "-",
       "query": "QueryVerificationRound after the round body is trimmed",
-      "contract_section": "§1.4, §10.15, §10.14b; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_ROUND_SUMMARY_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "The two challenge heights are optional and encode presence as FRAME(0x01 then FRAME(value)). A task with no round 2 carries ZERO32 in round2_facts_hash_or_zero32 and an UNSPECIFIED round_outcome."
@@ -2564,7 +2639,7 @@
       "store": "TaskEvidenceRootState.settlement_id and terminal settlement references after K-BLOCK-16",
       "event": "task_settled after K-BLOCK-16",
       "query": "QueryTask settlement view",
-      "contract_section": "§1.4, §10.10a",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_SETTLEMENT_ID_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2584,7 +2659,7 @@
       "store": "not persisted as a field; BuilderStageProposalState keeps proposal_digest and new_member_count",
       "event": "proposal accepted event payload",
       "query": "-",
-      "contract_section": "§1.4 formula block; §4.2",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_STAGE_ADDED_BITMAP_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Slots only, no operator addresses: identity is resolved through the locked snapshot's member rows, so this digest cannot drift from the pool."
@@ -2607,10 +2682,10 @@
       "store": "TaskStageHandraiseUnionState.union_bitmap_hash AND AssignmentCandidateSetState.union_bitmap_hash",
       "event": "stage finalize event payload",
       "query": "TaskStageViewV1",
-      "contract_section": "§1.4 formula block; §4.2/§4.3",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_STAGE_UNION_BITMAP_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "§1.4 (lines 337-341) requires the value stored on the union header and on AssignmentCandidateSetState to be byte-identical: the two are the same commitment landing in two rows, not two formulas. stage uses the §5.10 BuilderDutyStageV1 numbering, and a missing segment frames as candidate_bitmap_segment_bytes zero bytes."
+      "note": "The contract requires the value stored on the union header and on AssignmentCandidateSetState to be byte-identical: the two are the same commitment landing in two rows, not two formulas. stage uses this contract BuilderDutyStageV1 numbering, and a missing segment frames as candidate_bitmap_segment_bytes zero bytes."
     },
     {
       "domain": "TRUEOPEN_TASK_TERMINAL_SUMMARY_V1",
@@ -2657,10 +2732,10 @@
       "store": "TaskTerminalSummaryState.summary_hash",
       "event": "none",
       "query": "QueryTask",
-      "contract_section": "§6.6",
+      "contract_section": "Public wire domain TRUEOPEN_TASK_TERMINAL_SUMMARY_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "Active bounded terminal summary projection registered by the monorepo data-structure contract."
+      "note": "Active bounded terminal summary projection registered by this contract."
     },
     {
       "domain": "TRUEOPEN_TREASURY_SPEND_V1",
@@ -2680,7 +2755,7 @@
       "store": "TreasurySpendReceiptState.action_digest",
       "event": "81 treasury_adjusted",
       "query": "QueryTreasury and x/gov proposal result",
-      "contract_section": "§1.4, §9.6c",
+      "contract_section": "Public wire domain TRUEOPEN_TREASURY_SPEND_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2701,7 +2776,7 @@
       "store": "UnbondingState.unbonding_id, UnbondingMaturityIndex",
       "event": "7 service_unbonding_started, 107 builder_unbonding_started",
       "query": "QueryServiceUnbondings",
-      "contract_section": "§1.4, §10.0c step 4",
+      "contract_section": "Public wire domain TRUEOPEN_UNBONDING_ID_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "One domain for both participant types; participant_type separates the namespaces. No counter and no randomness: new_bond_version is the checked +1 written in the same Tx."
@@ -2724,7 +2799,7 @@
       "store": "UnbondingReceiptState.receipt_hash, pruned via UnbondingReceiptPruneIndex",
       "event": "-",
       "query": "QueryServiceUnbondings terminal rows",
-      "contract_section": "§1.4; §6.4",
+      "contract_section": "Public wire domain TRUEOPEN_UNBONDING_RECEIPT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2749,7 +2824,7 @@
       "store": "BridgeRouteState.usdc_route_id, a Genesis-frozen singleton; also copied into BridgeBootstrapState.route_id",
       "event": "carried as payload field 2 of 120 bridge_inbound_processed and 121 bridge_outbound_dispatched",
       "query": "QueryBridgeStatus",
-      "contract_section": "§2.1; §1.4",
+      "contract_section": "Public wire domain TRUEOPEN_USDC_ROUTE_V1",
       "note": "The eleven fields are permanently frozen once historical state or a minted voucher references the route id. local_mailbox_id and local_warp_token_id are pinned upstream HexAddress raw32; the three origin EVM addresses remain raw20.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -2769,7 +2844,7 @@
       "store": "FreezeSignalState.validator_set_hash",
       "event": "97 emergency_freeze_accepted",
       "query": "QueryFreezeSignal",
-      "contract_section": "§1.4 formula block, §10.0a",
+      "contract_section": "Public wire domain TRUEOPEN_VALIDATOR_SET_SNAPSHOT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2786,10 +2861,10 @@
       "store": "TaskCandidateFinalizeCursorState.running_commitment",
       "event": "-",
       "query": "-",
-      "contract_section": "§4.6",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFIER_FINALIZE_CURSOR_FOLD_V1",
       "registered_in_contract": false,
       "preimage_diverges_from_contract": false,
-      "note": "CONTRACT-GAP: internal resumable cursor fold; final consensus output remains TRUEOPEN_VERIFIER_LEGAL_SET_V1."
+      "note": "Internal resumable cursor fold; the final consensus output remains TRUEOPEN_VERIFIER_LEGAL_SET_V1."
     },
     {
       "domain": "TRUEOPEN_VERIFIER_FINALIZE_CURSOR_LEAF_V1",
@@ -2802,10 +2877,10 @@
       "store": "TaskCandidateFinalizeCursorState.running_commitment",
       "event": "-",
       "query": "-",
-      "contract_section": "§4.6",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFIER_FINALIZE_CURSOR_LEAF_V1",
       "registered_in_contract": false,
       "preimage_diverges_from_contract": false,
-      "note": "CONTRACT-GAP: internal resumable cursor leaf; it never replaces the registered flat verifier_legal_set_hash."
+      "note": "Internal resumable cursor leaf; it never replaces the registered flat verifier_legal_set_hash."
     },
     {
       "domain": "TRUEOPEN_VERIFIER_HANDRAISE_V1",
@@ -2829,7 +2904,7 @@
       "store": "not persisted; only the handraise_signing_digest enters the proposal digest and replay key",
       "event": "-",
       "query": "QueryVerifierCandidateWindow (window, not the raw handraise)",
-      "contract_section": "§1.4 line 188, §4.1 lines 543-556 and 566",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFIER_HANDRAISE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Same framing rules as TRUEOPEN_WORKER_HANDRAISE_V1; duty is always DUTY_VERIFIER. verify_round is uint32_be, never decimal text."
@@ -2853,23 +2928,29 @@
       "store": "VerifierAssignmentState.verifier_legal_set_hash",
       "event": "verifier_assignment_finalized",
       "query": "QueryVerifierCandidateWindow and task assignment views",
-      "contract_section": "§1.4, §10.4",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFIER_LEGAL_SET_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V1",
+      "domain": "TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V2",
       "framing": "H_V1",
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
+      "supersedes": {
+        "domain": "TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V1",
+        "registered": false,
+        "reason": "The V1 row is replaced before release by the V2 reveal payload that includes the verifier value root."
+      },
       "fields": [
-        "payload: FRAME_V1 over utf8(\"VERIFIER_RESULT_REVEAL_V1\"), utf8(chain_id), task_id, task_hash, u32_be(verify_round), u32_be(selected_verifier_index), address_codec_bytes(verifier_operator_address), infer_receipt_hash, profile_execution_snapshot_hash, generation_params_digest, metric_root, u32_be(metric_leaf_count), metric_summary_hash, aggregate_proof_hash, verifier_evidence_bundle_hash, u64_be(verifier_evidence_manifest_size_bytes)"
+        "payload: FRAME_V1 over utf8(\"VERIFIER_RESULT_REVEAL_V2\"), utf8(chain_id), task_id, task_hash, u32_be(verify_round), u32_be(selected_verifier_index), address_codec_bytes(verifier_operator_address), infer_receipt_hash, profile_execution_snapshot_hash, generation_params_digest, verifier_value_root, metric_root, u32_be(metric_leaf_count), metric_summary_hash, aggregate_proof_hash, verifier_evidence_bundle_hash, u64_be(verifier_evidence_manifest_size_bytes), verifier_evidence_key_commitment"
       ],
       "producer": "The selected Verifier; recomputed by the Task Keeper from authoritative state",
       "consumers": "result admission and challenge",
       "store": "ResultReceiptState.result_payload_hash",
-      "event": "17 result_accepted field 6",
+      "event": "-",
       "query": "QueryResultReceipt",
-      "contract_section": "§9; §1.4, §5.14",
-      "note": "The first framed element of the payload is the ASCII literal VERIFIER_RESULT_REVEAL_V1, which is not the domain name; the domain only appears in the outer H_V1. The payload carries no verdict and does not repeat the Worker evidence commitments. task_hash, selected_verifier_index, infer_receipt_hash, profile_execution_snapshot_hash, metric_leaf_count and metric_summary_hash are all filled in by the Keeper from authoritative state, never from the request.",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V2",
+      "note": "The first framed element is the ASCII literal VERIFIER_RESULT_REVEAL_V2, distinct from the outer H_V1 domain. The payload includes verifier_value_root and the plaintext zero32 reservation but no verdict or duplicate Worker commitment; the Keeper derives authority-owned fields.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2895,7 +2976,7 @@
       "store": "VerifierCandidateWindowMemberState.verifier_window_rank",
       "event": "verifier candidate window materialization",
       "query": "QueryVerifierCandidateWindow",
-      "contract_section": "§1.4, §4.4",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFIER_WINDOW_RANK_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2919,7 +3000,7 @@
       "store": "VerifierCandidateWindowState.verifier_window_source_hash",
       "event": "infer_receipt_accepted",
       "query": "QueryVerifierCandidateWindow",
-      "contract_section": "§1.4, §4.4",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFIER_WINDOW_SOURCE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2945,7 +3026,7 @@
       "store": "VerifierCandidateWindowState.verifier_window_hash",
       "event": "verifier candidate window materialization",
       "query": "QueryVerifierCandidateWindow",
-      "contract_section": "§1.4, §4.4",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFIER_WINDOW_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2973,7 +3054,7 @@
       "store": "VerificationRoundState.round_facts_hash",
       "event": "27 verification_round_closed",
       "query": "QueryVerificationRound",
-      "contract_section": "§1.4, §10.15; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFY_ROUND_FACTS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2990,7 +3071,7 @@
       "store": "VerificationRoundState.round_id",
       "event": "26 challenge_round_opened",
       "query": "QueryVerificationRound",
-      "contract_section": "§1.4, §10.15; 04-task/§10.1",
+      "contract_section": "Public wire domain TRUEOPEN_VERIFY_ROUND_ID_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "Round identity derives from (task_hash, verify_round) only. Phase 0 registers no challenge_id domain, so nothing else may key a round."
@@ -3008,8 +3089,8 @@
       "consumers": "the MsgRegisterVrfKey handler in the Hub Keeper",
       "store": "neither the digest nor the proof is persisted; VrfKeyState keeps the public key and the monotonic nonce, and the raw private key never reaches chain state, Genesis or query",
       "query": "QueryVrfKey reaches it only indirectly",
-      "contract_section": "§3.1; §1.4",
-      "note": "The possession proof is an ECVRF prove over this digest rather than a signature, because what must be proven is that the key can execute Prove. effective_from_epoch stays out of the preimage: the Keeper derives it as current_epoch + 1, so signing it would invalidate any delayed transaction. Both the API contract and the data-structure contract point at §3.1 for the golden vector, but that section currently carries only the formula.",
+      "contract_section": "Public wire domain TRUEOPEN_VRF_KEY_POP_V1",
+      "note": "The possession proof is an ECVRF prove over this digest rather than a signature, because what must be proven is that the key can execute Prove. effective_from_epoch stays out of the preimage: the Keeper derives it as current_epoch + 1, so signing it would invalidate any delayed transaction. Both the wire API and the wire storage model point at this contract for the golden vector, but that section currently carries only the formula.",
       "event": "-",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -3031,7 +3112,7 @@
       "store": "not persisted; the accepted counter lands in winner_draw_digest / selected_verifiers_hash",
       "event": "-",
       "query": "QueryAssignmentRandomness (inputs, not the intermediate draws)",
-      "contract_section": "§1.4, §4.5",
+      "contract_section": "Public wire domain TRUEOPEN_WEIGHTED_DRAW_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "counter is uint64 big-endian, never decimal text. purpose is WORKER_ASSIGNMENT (legal_set_hash = assignment_candidate_set_hash) or VERIFIER_SELECTION (legal_set_hash = verifier_legal_set_hash). Candidate base order is fixed slot ascending. At most max_weighted_draw_attempts_per_selection attempts; exhaustion is an invariant error that keeps the task pending, and a missing beacon keeps it pending while still consuming this block's visited budget. Falling back to modulo, address order or a local RNG is forbidden."
@@ -3055,10 +3136,10 @@
       "store": "TaskAssignmentState.winner_draw_digest",
       "event": "worker assigned event",
       "query": "TaskAssignmentViewV1 field 11, AssignmentRandomnessViewV1 field 7",
-      "contract_section": "§1.4, §10.2",
+      "contract_section": "Public wire domain TRUEOPEN_WINNER_DRAW_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "This is an audit commitment over the draw's inputs and result; it never participates in the selection itself. accepted_draw_counter is uint32 big-endian and is the counter of the accepted attempt only. It replaces the unregistered TRUEOPEN_WINNER_RANK_V1 / WinnerRankSeedHash, which derived a second seed/rank hash that §10.2 forbids."
+      "note": "This is an audit commitment over the draw's inputs and result; it never participates in the selection itself. accepted_draw_counter is uint32 big-endian and is the counter of the accepted attempt only. It replaces the unregistered TRUEOPEN_WINNER_RANK_V1 / WinnerRankSeedHash, which derived a second seed/rank hash that this contract forbids."
     },
     {
       "domain": "TRUEOPEN_WORKER_HANDRAISE_V1",
@@ -3080,10 +3161,10 @@
       "store": "not persisted; only the handraise_signing_digest enters the proposal digest and replay key",
       "event": "-",
       "query": "TaskStageViewV1 (union, not the raw handraise)",
-      "contract_section": "§1.4 line 178, §4.1 lines 531-541 and 566",
+      "contract_section": "Public wire domain TRUEOPEN_WORKER_HANDRAISE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "§4.1 pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (§1.2 enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy."
+      "note": "The contract pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (the contract's enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy."
     },
     {
       "domain": "TRUEOPEN_WORKER_PROPOSAL_V1",
@@ -3105,12 +3186,12 @@
       "store": "BuilderStageProposalState.proposal_digest",
       "event": "worker_handraises_accepted",
       "query": "Task stage proposal receipts",
-      "contract_section": "§1.4, §4.2.2",
+      "contract_section": "Public wire domain TRUEOPEN_WORKER_PROPOSAL_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
+      "domain": "TRUEOPEN_WORKER_TOKEN_COMMITMENT_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
         "schema_version",
@@ -3122,37 +3203,51 @@
         "evidence_schema_hash",
         "output_hash",
         "output_size_bytes",
-        "finish_reason",
-        "trace_root",
-        "trace_encoded_size_bytes",
-        "checkpoint_root",
-        "checkpoint_encoded_size_bytes",
-        "generated_token_count",
         "output_leaf_count",
+        "finish_reason",
+        "generated_token_count",
         "input_token_ids_hash",
         "generated_token_ids_hash",
         "input_token_ids_size_bytes",
         "generated_token_ids_size_bytes"
       ],
-      "origin": {
-        "repository": "https://github.com/TrueOpen/monorepo",
-        "commit": "05afeeaf7f68ce477051683a45795040e8ea9fb3",
-        "review": "freezes WorkerValueCommitmentV2 and its four-artifact projection in 04-task/§7.0b"
-      },
+      "producer": "selected Worker and Cortex",
+      "consumers": "Nexus, selected Verifier and InferReceiptV3 WORKER_TOKEN_OPENING",
+      "store": "EvidenceCommitmentV1.evidence_hash_or_root",
+      "event": "12 infer_receipt_accepted binds the outer receipt digest",
+      "query": "QueryInferReceipt",
+      "contract_section": "Worker token commitment wire contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_WORKER_VALUE_COMMITMENT_V3",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "accepted_task_hash",
+        "worker_operator_address",
+        "evidence_schema_hash",
+        "worker_value_root",
+        "worker_values_encoded_size_bytes"
+      ],
+      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
-        "domain": "TRUEOPEN_WORKER_VALUE_COMMITMENT_V1",
+        "domain": "TRUEOPEN_WORKER_VALUE_COMMITMENT_V2",
         "registered": false,
-        "reason": "Fresh Phase 0 deletes V1 in the same coordinated release; V2 adds output_leaf_count and the two exact token-ID commitments and sizes, with no compatibility decoder."
+        "reason": "The unshipped V2 four-artifact commitment is split into A-level token and B-level value commitments; V3 binds only the Worker value root and exact size."
       },
-      "producer": "selected Worker and Cortex; Nexus and selected Verifier recompute from four exact artifacts",
-      "consumers": "InferReceiptV2 WORKER_VALUE_OPENING and selected Verifier opening validation",
+      "producer": "selected Worker and Cortex; Nexus and selected Verifier recompute from the B-level worker_values artifact",
+      "consumers": "InferReceiptV3 WORKER_VALUE_OPENING and selected Verifier opening validation",
       "store": "EvidenceCommitmentV1.evidence_hash_or_root",
       "event": "12 infer_receipt_accepted binds the outer receipt digest",
       "query": "QueryTask retained InferReceipt",
-      "contract_section": "§7 and §7.0b; §1.4 and §5.14",
+      "contract_section": "Public wire domain TRUEOPEN_WORKER_VALUE_COMMITMENT_V3",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "schema_version is exactly 2. encoded_size_bytes on the outer EvidenceCommitmentV1 is the checked sum of trace, checkpoint, input-token and generated-token artifact sizes; Node retains the digest opaquely and does not fetch those artifacts."
+      "note": "schema_version is exactly 3. The B-level encoded size is the exact worker_values artifact size; trace and checkpoint artifacts are retired. Node retains the commitment opaquely."
     }
   ]
 }

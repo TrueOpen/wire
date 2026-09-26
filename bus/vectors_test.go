@@ -253,7 +253,7 @@ func TestVectorsFieldMutations(t *testing.T) {
 }
 
 // TestBuilderEvidenceFixtureMatchesConstants closes the gap between the
-// published fixture and this package's own vectors. The API contract
+// published fixture and this package's own vectors. The wire API
 // requires the wire fixtures to contain both linked vectors byte for byte, so
 // the fixture is authoritative for other languages; this asserts the Go tests
 // assert the same bytes, and that the implementation reproduces them.

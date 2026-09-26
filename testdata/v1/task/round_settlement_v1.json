@@ -5,15 +5,15 @@
     "optional encodes presence in-band: absent is the single byte 0x00, present is 0x01 followed by the framed value. A repeated field is one frame holding u32_be element_count followed by each element's own frame, and the domain's explicit count field must equal that element_count.",
     "Cross-vector references are real, not placeholders: round_effect_plan_v1's digest is round_effect_root_v1's round_effect_plan_root, round_effect_root_v1's digest is task_round_summary_v1's round_effect_root, and settlement_plan_v1 embeds the digests of gas_reimbursements_v1, task_round_summary_v1 and settlement_bill_v1. Regenerating one vector without its dependents will break the chain.",
     "settlement_bill_v1 is the one domain here that does not open with chain_id; the bill is scoped by infer_receipt_ref, which already binds the chain through the receipt.",
-    "Each vector carries mutations[]: one per encodable leaf plus the semantic cases §10.1 names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here.",
-    "Each vector carries mutations[]: one per encodable leaf plus the semantic cases §10.1 names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here.",
-    "Each vector carries mutations[]: one per encodable leaf plus the semantic cases §10.1 names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here."
+    "Each vector carries mutations[]: one per encodable leaf plus the semantic cases this contract names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here.",
+    "Each vector carries mutations[]: one per encodable leaf plus the semantic cases this contract names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here.",
+    "Each vector carries mutations[]: one per encodable leaf plus the semantic cases this contract names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here."
   ],
   "schema": "trueopen.task.round_settlement.v1",
-  "source": "§10.1 publishes these vectors byte for byte; §1.4 registers each domain's producer and ordered preimage. Authored in this repository because no upstream node fixture covers the round 2 economics, settlement plan or gas reimbursement domains.",
+  "source": "Public wire conformance vectors in testdata/v1/task/round_settlement_v1.json",
   "vectors": [
     {
-      "contract_section": "§1.4, §10.15",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "691f9242783f749535efd3ef37240ab64c1bf6ad3f7c3b747f0fe7ba7f3f0f67",
       "domain": "TRUEOPEN_VERIFY_ROUND_ID_V1",
       "fields": [
@@ -62,7 +62,7 @@
       "producer": "VerifyRoundID"
     },
     {
-      "contract_section": "§1.4, §10.15",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "d4f612dee64b57ecd38b0df29142a3b27e577f124b27a5e90e176dc2168edf6d",
       "domain": "TRUEOPEN_VERIFY_ROUND_FACTS_V1",
       "fields": [
@@ -245,7 +245,7 @@
       "producer": "VerifyRoundFactsHash"
     },
     {
-      "contract_section": "§1.4, §10.15, §10.14b",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "dce75d04ddc83f79c001448876d9588dd77dd3c922d1c53b3df4af5ecaa32004",
       "domain": "TRUEOPEN_TASK_ROUND_SUMMARY_V1",
       "fields": [
@@ -435,7 +435,7 @@
       "producer": "TaskRoundSummaryHash"
     },
     {
-      "contract_section": "§1.4 supplementary table, §10.15",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "432c3bd33cc774dad808b83c8cef8501b69b2df21bbf6b9808defa0ce5e207e7",
       "domain": "TRUEOPEN_ROUND_FUNDING_LOCK_V1",
       "fields": [
@@ -533,7 +533,7 @@
       "producer": "RoundFundingLockHash"
     },
     {
-      "contract_section": "§1.4 supplementary table, §10.15",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "9e126f6762ba4a07e087f1f611035593ce4a9fd8ef263fe99498d8f7597cc3c0",
       "domain": "TRUEOPEN_ROUND_FUNDING_RESOLUTION_V1",
       "fields": [
@@ -685,7 +685,7 @@
       "producer": "RoundFundingResolutionHash"
     },
     {
-      "contract_section": "§1.4, §10.14a",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "1a97b94a4d02b9ad04483085f29fb5bd96663a6401b79813fa468f0910c4dbe2",
       "domain": "TRUEOPEN_ROUND_EFFECT_PLAN_V1",
       "fields": [
@@ -864,7 +864,7 @@
       "producer": "RoundEffectPlanRoot"
     },
     {
-      "contract_section": "§1.4, §10.14a",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "4c07728341d3a5476ca27f2c89f6646b87041b21ead97ef96f0aa785c2c93dbe",
       "domain": "TRUEOPEN_ROUND_EFFECT_ROOT_V1",
       "fields": [
@@ -1025,7 +1025,7 @@
       "producer": "RoundEffectRoot"
     },
     {
-      "contract_section": "§1.4 supplementary table, §10.10a",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "dd272ba6d02cdbcabf4e1655b8c9af03396d84603370b1d405e8f76ac5a04ce0",
       "domain": "TRUEOPEN_SETTLEMENT_BILL_V1",
       "fields": [
@@ -1099,7 +1099,7 @@
       "producer": "SettlementBillHash"
     },
     {
-      "contract_section": "§1.4, §5.10, §10.10b",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "b67cef436db68adc49f4f14834e8747a58d63b49b836f40779eaed1480745f26",
       "domain": "TRUEOPEN_GAS_REIMBURSEMENT_V1",
       "fields": [
@@ -1282,7 +1282,7 @@
       "producer": "GasReimbursementHash"
     },
     {
-      "contract_section": "§1.4, §10.10b",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "2b0307c665550120236cb703ef2acc083eb30573d886fed71eba267e00f5b1e3",
       "domain": "TRUEOPEN_GAS_REIMBURSEMENTS_V1",
       "fields": [
@@ -1507,7 +1507,7 @@
       "producer": "GasReimbursementsHash"
     },
     {
-      "contract_section": "§1.4, §10.10a",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "2163fa9b158fd1c8f133866ffc3328f7519976db77701f4820678ad4f461a144",
       "domain": "TRUEOPEN_SETTLEMENT_PLAN_V1",
       "fields": [
@@ -2080,7 +2080,7 @@
       "producer": "SettlementPlanHash"
     },
     {
-      "contract_section": "§1.4, §10.10a; 04-task/§10.1",
+      "contract_section": "Public wire fixture testdata/v1/task/round_settlement_v1.json",
       "digest_hex": "b13c77a066d4642682a7ff8e6e3fc0446586648a0a8ec54adb6b164d1e614aec",
       "domain": "TRUEOPEN_SETTLEMENT_FACTS_V1",
       "fields": [
@@ -2316,7 +2316,7 @@
         }
       ],
       "name": "settlement_facts_v1",
-      "note": "settlement_facts is the required nested 13-field frame. The outer chain_id and settlement_id must not be omitted or swapped with the nested body; §10.10a is now the single statement of this preimage.",
+      "note": "settlement_facts is the required nested 13-field frame. The outer chain_id and settlement_id must not be omitted or swapped with the nested body; this contract is now the single statement of this preimage.",
       "preimage_hex": "000000000000001c545255454f50454e5f534554544c454d454e545f46414354535f56310000000000000011747275656f70656e2d676f6c64656e2d310000000000000020bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb000000000000017c00000000000000201111111111111111111111111111111111111111111111111111111111111111000000000000000400000002000000000000000800000000000005780000000000000008000000000000051400000000000000141a642f0e3c3af545e7acbd38b07251b3990914f10000000000000020555555555555555555555555555555555555555555555555555555555555555500000000000000040000000100000000000000040000000100000000000000208888888888888888888888888888888888888888888888888888888888888888000000000000003c00000000000000040000000100000000000000280000000000000004000000020000000000000014c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d30000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000204444444444444444444444444444444444444444444444444444444444444444000000000000000800000000000004b0",
       "producer": "SettlementFactsHash"
     }

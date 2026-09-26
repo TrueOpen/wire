@@ -19,9 +19,8 @@ const BindingDomain = "TRUEOPEN_NATS_USER_BINDING_V1"
 // BindingSchemaVersion is the only schema_version NatsUserBindingV1 accepts.
 const BindingSchemaVersion uint32 = 1
 
-// MaxBindingBytes bounds the encoded NatsUserBindingV1 (
-// §5.14.1). It is checked before the token is decoded and before the protobuf
-// bytes are parsed.
+// MaxBindingBytes bounds the encoded NatsUserBindingV1. It is checked before the
+// token is decoded and before the protobuf bytes are parsed.
 const MaxBindingBytes = 1024
 
 // BindingTokenPrefix distinguishes this token generation inside the NATS
@@ -93,7 +92,7 @@ func BindingSigningPreimage(fields BindingFields) ([]byte, error) {
 	), nil
 }
 
-// validateBinding rejects, rather than repairs, every input §7.5.1 lists as
+// validateBinding rejects, rather than repairs, every input this contract lists as
 // unencodable. A field the sender got wrong must fail here, not produce a
 // digest no other implementation reproduces.
 func validateBinding(fields BindingFields) error {

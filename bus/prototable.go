@@ -6,7 +6,7 @@ package bus
 // the task.v1 payload messages the bus reuses verbatim, and the generated-
 // code-free BuilderEvidenceV2 subtree.
 //
-// It is a table rather than generated code on purpose. The API contract
+// It is a table rather than generated code on purpose. The wire API
 // requires a decoder with no generated Hub/Task/Bus code dependency, because a
 // Task-owned evidence message that imported the Bus generated package - which in
 // turn references Task payload types - would close a Task -> Bus -> Task import
@@ -51,7 +51,7 @@ const (
 	msgBusEnvelopeV1                   = "bus.v1.BusEnvelopeV1"
 	msgOrderBroadcastV1                = "bus.v1.OrderBroadcastV1"
 	msgSignedOrderV2                   = "task.v1.SignedOrderV2"
-	msgTaskOrderV2                     = "task.v1.TaskOrderV2"
+	msgTaskOrderV3                     = "task.v1.TaskOrderV3"
 	msgWorkerHandraiseV1               = "task.v1.WorkerHandraiseV1"
 	msgCandidateMemberRefV1            = "task.v1.CandidateMemberRefV1"
 	msgWorkerAssignmentNotifyV1        = "bus.v1.WorkerAssignmentNotifyV1"
@@ -59,7 +59,7 @@ const (
 	msgOpenVerifyV1                    = "bus.v1.OpenVerifyV1"
 	msgVerifierHandraiseV1             = "task.v1.VerifierHandraiseV1"
 	msgVerifierAssignmentNotifyV1      = "bus.v1.VerifierAssignmentNotifyV1"
-	msgResultReceiptV2                 = "task.v1.ResultReceiptV2"
+	msgResultReceiptV3                 = "task.v1.ResultReceiptV3"
 	msgDecodingParamsV1                = "task.v1.DecodingParamsV1"
 	msgBuilderEvidenceV2               = "task.v1.BuilderEvidenceV2"
 	msgSignedEnvelopeEquivocationV2    = "task.v1.SignedEnvelopeEquivocationV2"
@@ -121,17 +121,17 @@ var protoTables = map[string]messageSpec{
 		1: {name: "signed_order", kind: kindMessage, message: "task.v1.SignedOrderV2"},
 	},
 	"task.v1.SignedOrderV2": {
-		1: {name: "order", kind: kindMessage, message: "task.v1.TaskOrderV2"},
+		1: {name: "order", kind: kindMessage, message: "task.v1.TaskOrderV3"},
 		2: {name: "signature_scheme", kind: kindString},
 		3: {name: "user_signature", kind: kindBytes},
 	},
-	"task.v1.TaskOrderV2": {
+	"task.v1.TaskOrderV3": {
 		1:  {name: "schema_version", kind: kindVarint},
 		2:  {name: "chain_id", kind: kindString},
 		3:  {name: "user_address", kind: kindString},
 		4:  {name: "session_id", kind: kindBytes},
 		5:  {name: "order_sequence", kind: kindVarint},
-		6:  {name: "model_id", kind: kindString},
+		6:  {name: "model_id", kind: kindBytes},
 		7:  {name: "profile_version", kind: kindVarint},
 		8:  {name: "task_type", kind: kindVarint},
 		9:  {name: "input_hash", kind: kindBytes},
@@ -151,6 +151,9 @@ var protoTables = map[string]messageSpec{
 		23: {name: "session_anchor_block_hash", kind: kindBytes},
 		24: {name: "builder_set_id", kind: kindString},
 		25: {name: "builder_set_hash", kind: kindBytes},
+		26: {name: "payload_mode", kind: kindVarint},
+		27: {name: "input_key_commitment", kind: kindBytes},
+		28: {name: "user_recipient_pubkey", kind: kindBytes},
 	},
 	"task.v1.GenerationParamsV1": {
 		1: {name: "generation_params_schema_version", kind: kindVarint},
@@ -181,13 +184,14 @@ var protoTables = map[string]messageSpec{
 		2:  {name: "chain_id", kind: kindString},
 		3:  {name: "task_id", kind: kindBytes},
 		4:  {name: "task_hash", kind: kindBytes},
-		5:  {name: "model_id", kind: kindString},
+		5:  {name: "model_id", kind: kindBytes},
 		6:  {name: "profile_version", kind: kindVarint},
 		7:  {name: "member", kind: kindMessage, message: "task.v1.CandidateMemberRefV1"},
 		8:  {name: "duty", kind: kindVarint},
 		9:  {name: "service_authorization_nonce", kind: kindVarint},
 		10: {name: "expiry_height", kind: kindVarint},
 		11: {name: "service_signature", kind: kindBytes},
+		12: {name: "recipient_pubkey", kind: kindBytes},
 	},
 	"task.v1.CandidateMemberRefV1": {
 		1: {name: "candidate_pool_snapshot_id", kind: kindBytes},
@@ -214,7 +218,7 @@ var protoTables = map[string]messageSpec{
 	"bus.v1.OpenVerifyV1": {
 		1: {name: "task_id", kind: kindBytes},
 		2: {name: "task_hash", kind: kindBytes},
-		3: {name: "model_id", kind: kindString},
+		3: {name: "model_id", kind: kindBytes},
 		4: {name: "profile_version", kind: kindVarint},
 		5: {name: "infer_receipt_hash", kind: kindBytes},
 		6: {name: "output_hash", kind: kindBytes},
@@ -228,13 +232,14 @@ var protoTables = map[string]messageSpec{
 		4:  {name: "verify_round", kind: kindVarint},
 		5:  {name: "infer_receipt_hash", kind: kindBytes},
 		6:  {name: "output_hash", kind: kindBytes},
-		7:  {name: "model_id", kind: kindString},
+		7:  {name: "model_id", kind: kindBytes},
 		8:  {name: "profile_version", kind: kindVarint},
 		9:  {name: "member", kind: kindMessage, message: "task.v1.CandidateMemberRefV1"},
 		10: {name: "duty", kind: kindVarint},
 		11: {name: "service_authorization_nonce", kind: kindVarint},
 		12: {name: "expiry_height", kind: kindVarint},
 		13: {name: "service_signature", kind: kindBytes},
+		14: {name: "recipient_pubkey", kind: kindBytes},
 	},
 	"bus.v1.VerifierAssignmentNotifyV1": {
 		1: {name: "task_id", kind: kindBytes},
@@ -252,7 +257,7 @@ var protoTables = map[string]messageSpec{
 		2: {name: "slot", kind: kindVarint},
 		3: {name: "slot_version", kind: kindVarint},
 	},
-	"task.v1.ResultReceiptV2": {
+	"task.v1.ResultReceiptV3": {
 		1:  {name: "schema_version", kind: kindVarint},
 		2:  {name: "chain_id", kind: kindString},
 		3:  {name: "task_id", kind: kindBytes},
@@ -268,6 +273,9 @@ var protoTables = map[string]messageSpec{
 		13: {name: "salt", kind: kindBytes},
 		14: {name: "expiry_height", kind: kindVarint},
 		15: {name: "service_signature", kind: kindBytes},
+		16: {name: "verifier_value_root", kind: kindBytes},
+		17: {name: "metric_leaf_count", kind: kindVarint},
+		18: {name: "verifier_evidence_key_commitment", kind: kindBytes},
 	},
 	"task.v1.MetricSummaryV1": {
 		1:  {name: "finite_count", kind: kindVarint},

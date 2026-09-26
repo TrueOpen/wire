@@ -96,7 +96,7 @@
     {
       "leaf_count": 7,
       "name": "left_to_right_fold",
-      "reason": "Produced by acc = leftmost peak then acc = MmrNodeV1(domain, acc, peak) over the remaining peaks left to right. §9 rule 4 fixes the direction to right to left, so this value must be rejected.",
+      "reason": "Produced by acc = leftmost peak then acc = MmrNodeV1(domain, acc, peak) over the remaining peaks left to right. The contract fixes the direction to right to left, so this value must be rejected.",
       "root_hex": "e295ae79a9d65352bb7f66ea5c55c7736c230d194206c1f334c0f8281a3ea88b"
     },
     {
@@ -107,15 +107,15 @@
     }
   ],
   "notes": [
-    "MmrLeafV1(domain, index, leaf) = SHA256(ascii(\"TRUEOPEN_MMR_LEAF_V1\") || u32_be(len(domain)) || domain || u64_be(index) || u64_be(len(leaf)) || leaf). The domain length is u32_be and the leaf length u64_be; the two widths differ on purpose (§9).",
+    "MmrLeafV1(domain, index, leaf) = SHA256(ascii(\"TRUEOPEN_MMR_LEAF_V1\") || u32_be(len(domain)) || domain || u64_be(index) || u64_be(len(leaf)) || leaf). The domain length is u32_be and the leaf length u64_be; the two widths differ on purpose.",
     "MmrNodeV1(domain, left, right) = SHA256(ascii(\"TRUEOPEN_MMR_NODE_V1\") || u32_be(len(domain)) || domain || left || right). MmrEmptyV1(domain) = SHA256(ascii(\"TRUEOPEN_MMR_EMPTY_V1\") || u32_be(len(domain)) || domain).",
     "Leaves are variable-length bytes, not Hash32, and index enters the leaf preimage, so the same bytes at a different position are a different leaf. The primitive never sorts, deduplicates or pads.",
     "The peak list is determined by leaf_count alone: one peak per set bit of its binary form, highest on the left. peaks[] below is left to right, so an implementation can compare shape before it compares the root.",
     "Folding is right to left: acc = rightmost peak, then acc = MmrNodeV1(domain, peak, acc) over the remaining peaks from right to left. leaf_count 1 roots to the leaf itself with no extra node layer.",
     "leaf_count 0 roots to MmrEmptyV1(domain), never 32 zero bytes. A business protocol may exclude the empty list from its legal values, but it must not redefine this root.",
-    "root_hex at leaf_count 2 equals the height-1 peak at leaf_count 3: the minimal case of §9 rule 6, where the peaks of a k-leaf prefix are still nodes of the final tree. root_hex at leaf_count 3 is not in the 7-leaf tree, which is why a prefix proof verifies the peaks and recomputes the prefix root instead of searching for it.",
+    "root_hex at leaf_count 2 equals the height-1 peak at leaf_count 3: the minimal case of this contract rule 6, where the peaks of a k-leaf prefix are still nodes of the final tree. root_hex at leaf_count 3 is not in the 7-leaf tree, which is why a prefix proof verifies the peaks and recomputes the prefix root instead of searching for it.",
     "negative left_to_right_fold is the only case that separates the two fold directions: leaf counts 1 through 6 agree byte for byte and 7 is the first that does not. An implementation that folds the other way passes every positive vector above, then diverges at any leaf count whose popcount is 3 or more."
   ],
   "schema": "trueopen.shared.mmr_primitive.v1",
-  "source": "§9 defines MMR_ROOT_V1 and §11.5 publishes these vectors byte for byte. Authored in this repository because the primitive has no upstream node fixture: streaming OUTPUT delivery introduced it and no chain type uses it until TRUEOPEN_INFER_RECEIPT_V2."
+  "source": "Shared MMR_ROOT_V1 framing and the InferReceiptV3 output commitment."
 }

@@ -78,6 +78,9 @@ func validatePublishedVector(where string, object map[string]any) error {
 	framing, _ := object["framing"].(string)
 	fields, hasFields := object["fields"].([]any)
 	preimageHex, hasPreimage := object["preimage_hex"].(string)
+	if err := validateSupportModelFields(domain, fields); err != nil {
+		return fmt.Errorf("%s: %w", where, err)
+	}
 
 	if err := validatePublishedTreeRoot(where, object, domain, framing); err != nil {
 		return err
@@ -108,6 +111,61 @@ func validatePublishedVector(where string, object map[string]any) error {
 			return fmt.Errorf("%s: H_V1 payload does not reproduce preimage_hex", where)
 		}
 		return validatePublishedDigest(where, object, preimage)
+	}
+	return nil
+}
+
+func validateSupportModelFields(domain string, fields []any) error {
+	var countIndex, modelsIndex int
+	switch domain {
+	case "TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_V1":
+		countIndex, modelsIndex = 5, 6
+	case "TRUEOPEN_SUPPORT_MODELS_V1":
+		countIndex, modelsIndex = 0, 1
+	default:
+		return nil
+	}
+	if len(fields) <= modelsIndex {
+		return fmt.Errorf("support-model vector has no model list")
+	}
+	countField, ok := fields[countIndex].(map[string]any)
+	if !ok {
+		return fmt.Errorf("support-model count is not typed")
+	}
+	outerCount, err := publishedUint(countField["value"])
+	if err != nil {
+		return fmt.Errorf("support-model count: %w", err)
+	}
+	modelsField, ok := fields[modelsIndex].(map[string]any)
+	if !ok {
+		return fmt.Errorf("support-model list is not typed")
+	}
+	nested, ok := modelsField["fields"].([]any)
+	if !ok || len(nested) == 0 {
+		return fmt.Errorf("support-model list has no element count")
+	}
+	innerCount, ok := nested[0].(map[string]any)
+	if !ok {
+		return fmt.Errorf("support-model element count is not typed")
+	}
+	count, err := publishedUint(innerCount["value"])
+	if err != nil || count != outerCount || count != uint64(len(nested)-1) {
+		return fmt.Errorf("support-model counts do not match the raw Hash32 list")
+	}
+	var previous []byte
+	for index, raw := range nested[1:] {
+		model, ok := raw.(map[string]any)
+		if !ok || model["type"] != "bytes" {
+			return fmt.Errorf("support model %d must be raw Hash32 bytes", index)
+		}
+		modelID, err := decodePublishedHex(model["hex"])
+		if err != nil || len(modelID) != 32 {
+			return fmt.Errorf("support model %d must be exactly 32 bytes", index)
+		}
+		if index != 0 && bytes.Compare(previous, modelID) >= 0 {
+			return fmt.Errorf("support model IDs must be strictly ascending and unique as raw bytes")
+		}
+		previous = modelID
 	}
 	return nil
 }

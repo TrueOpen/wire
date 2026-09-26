@@ -5,7 +5,7 @@ import "google/protobuf/descriptor.proto";
 
 option go_package = "github.com/TrueOpen/node/x/shared/types";
 
-// the API contract fixes this file path, this package,
+// the wire API fixes this file path, this package,
 // the enum names and numbers and the extension number 51001. They are frozen:
 // client-facing bytes semantics must be decided by the wire descriptor, never
 // by a field-name table, a runtime length sniff or a generator built-in
@@ -30,14 +30,13 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 // Conversion carries the root message descriptor and walks actual field
 // descriptors: nested, repeated and oneof branches each read their own leaf
 // option, repeated applies the same rule per element, and a field name never
-// inherits an option from an identically named field in another message
-// (§1.1a).
+// inherits an option from an identically named field in another message.
 //
 // Raw protobuf binary, native gRPC, the Store and every hash/signature preimage
 // always use raw bytes and are unaffected by this option. In particular, adding
 // metadata to the two gRPC-only event services does not change their transport.
 //
-// Error handling (§1.1a): a non-canonical or wrong-width Hash32 in
+// Error handling: a non-canonical or wrong-width Hash32 in
 // a request returns InvalidArgument. A non-canonical width appearing in a
 // response or in state means the invariant is already broken, so the server must
 // fail closed with an internal error; it must never silently fall back to
@@ -45,10 +44,9 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 //
 // V1 public service closure forbids a bytes map value; map-value option semantics
 // must be defined first. A Hash32 REST path variable may only come from a
-// HASH32_LOWER_HEX field, and Base64 bytes never enter a path
-// (§1.1a).
+// HASH32_LOWER_HEX field, and Base64 bytes never enter a path.
 //
-// presence rules (§1.1a):
+// presence rules:
 //   - only proto `optional bytes` can express absence;
 //   - an absent field is omitted from JSON output and must also be omitted from
 //     canonical JSON input, and an explicit `null` is rejected;
@@ -62,7 +60,7 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 //   - an unselected oneof produces no output just like an absent optional, and a
 //     selected bytes branch is validated by that branch's own option.
 //
-// OpenAPI projection (§1.1a), read from this same option by the
+// OpenAPI projection, read from this same option by the
 // generator and by the runtime gateway, with no field-name override:
 //   HASH32_LOWER_HEX -> {type: string, format: trueopen-hash32,
 //                        pattern: ^[0-9a-f]{64}$, minLength: 64, maxLength: 64}
@@ -98,6 +96,6 @@ enum RESTBytesEncoding {
 
 extend google.protobuf.FieldOptions {
   // rest_bytes_encoding declares the REST/JSON projection of one bytes leaf.
-  // Extension number 51001 is frozen by §1.1a.
+  // Extension number 51001 is frozen by this contract.
   RESTBytesEncoding rest_bytes_encoding = 51001;
 }

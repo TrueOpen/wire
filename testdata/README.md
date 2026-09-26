@@ -6,7 +6,7 @@ Cortex, and SDK implementations.
 Most `v1` files are exact-byte copies from the Node commit recorded in
 `v1/manifest.json`, and name in `source_path` the file they were copied from. The
 rest carry `"origin": "wire"` and were authored here because no upstream file
-exists to copy; they name in `contract_section` the monorepo section a reviewer
+exists to copy; they describe in `contract_section` the public behavior a reviewer
 checks them against. During bootstrap, Node keeps its existing copies and tests.
 Importing these files does not change a consumer dependency or make wire
 fixtures authoritative by itself.

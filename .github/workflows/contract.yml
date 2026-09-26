@@ -84,7 +84,7 @@ jobs:
 
       # protoc-gen-openapiv2 does not know shared.v1.rest_bytes_encoding and
       # renders every bytes field as Base64, including the Hash32 path variables
-      # REST carries as 64 lowercase hex. §1.1a requires the OpenAPI generator
+      # REST carries as 64 lowercase hex. The contract requires the OpenAPI generator
       # and the runtime gateway to read the same option, so the projection is a
       # required half of generation rather than an optional polish step.
       - name: Generate OpenAPI

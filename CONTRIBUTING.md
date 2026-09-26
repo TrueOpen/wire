@@ -54,7 +54,7 @@ entry would keep doing so for every release after it.
 
 An approved break is declared instead, in `release/reviewed-breaking.json`:
 
-1. Land the decision in monorepo first. The declaration has to name a review a
+1. Land the protocol decision first. The declaration has to name a public review a
    reader can follow; a break authorized by nothing is not reviewed.
 2. Run the gate and capture its findings:
 

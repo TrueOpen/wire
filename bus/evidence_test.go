@@ -13,7 +13,7 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// The linked Builder evidence vectors, byte for byte. §5.5 requires the wire
+// The linked Builder evidence vectors, byte for byte. The contract requires the wire
 // fixtures to contain them
 // verbatim, so they are transcribed here rather than paraphrased. This test checks
 // that this implementation and the document agree; a restated fixture would only
@@ -26,25 +26,25 @@ const (
 	evidenceSenderAddress = "trueopen1wltmkp6cpvulh9ya7z0hhw0cpgwsvsdccd5man"
 	evidenceWorkerAddress = "trueopen1j7r6u8nwvw93l2tc0wd75v07vu89lxyfqf8fut"
 
-	envelopeAPayloadDigest    = "f480d0ceb9f4ea4c4e71782c68f658bc52bb3a688ef9195354ce50d29f86b488"
-	envelopeABusSigningDigest = "b2af1c1eedbac2e4f485d0d6ecb30ab38fa60514fb9c418444ab56249fb42308"
-	envelopeABytes            = "08011201631a55747275656f70656e2e7665726966792e6f70656e2e3131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313120052802322f747275656f70656e31776c746d6b7036637076756c68397961377a30686877306370677773767364636364356d616e380142016d4a2000000000000000000000000000000000000000000000000000000000000000005001580260056ac0010a201111111111111111111111111111111111111111111111111111111111111111122022222222222222222222222222222222222222222222222222222222222222221a016d20012a203333333333333333333333333333333333333333333333333333333333333333322044444444444444444444444444444444444444444444444444444444444444443a2f747275656f70656e316a37723675386e77767739336c3274633077643735763037767538396c78796671663866757440017220f480d0ceb9f4ea4c4e71782c68f658bc52bb3a688ef9195354ce50d29f86b4887a402500b47afe78c9988560fd2631eed80f32250a15ceff653b454e158a3a5348981deec6c1825a4ee97cfde880c442f2872e8fb2a6aea7ec7725252f3f1bad47ae"
-	envelopeBBusSigningDigest = "c1a710f675c939831419a4c0bdb5a553cc3072c3de3bd1645c60a10a53863b5a"
-	envelopeBBytes            = "08011201631a55747275656f70656e2e7665726966792e6f70656e2e3131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313120052802322f747275656f70656e31776c746d6b7036637076756c68397961377a30686877306370677773767364636364356d616e380142016d4a2000000000000000000000000000000000000000000000000000000000000000005001580260056ac0010a201111111111111111111111111111111111111111111111111111111111111111122022222222222222222222222222222222222222222222222222222222222222221a016d20012a203333333333333333333333333333333333333333333333333333333333333333322055555555555555555555555555555555555555555555555555555555555555553a2f747275656f70656e316a37723675386e77767739336c3274633077643735763037767538396c787966716638667574400172206d8b6166cc7e2c86868bccd393f38aec56e2b94547f6f093d5c2c6cdce5461f07a40fca7cf7fcdc19030c7f624fe5a72d644dbd06c537dd4b83295bc1d307298cecc7d3c919eafb151792af66174edbce6e1c0fbb869678f02813061dae571d81234"
-	envelopeBPayloadDigest    = "6d8b6166cc7e2c86868bccd393f38aec56e2b94547f6f093d5c2c6cdce5461f0"
+	envelopeAPayloadDigest    = "b1c7d68316733a4c88e88d531e390a76c1fc1ddcca22702ee6854dbf74fb9efd"
+	envelopeABusSigningDigest = "c5d5aaf00bec3260adc43be9bbc62e47b3f041c381eb73cd67e2603385ef71db"
+	envelopeABytes            = "08011201631a55747275656f70656e2e7665726966792e6f70656e2e3131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313120052802322f747275656f70656e31776c746d6b7036637076756c68397961377a30686877306370677773767364636364356d616e380142016d4a2000000000000000000000000000000000000000000000000000000000000000005001580260056adf010a201111111111111111111111111111111111111111111111111111111111111111122022222222222222222222222222222222222222222222222222222222222222221a20555555555555555555555555555555555555555555555555555555555555555520012a203333333333333333333333333333333333333333333333333333333333333333322044444444444444444444444444444444444444444444444444444444444444443a2f747275656f70656e316a37723675386e77767739336c3274633077643735763037767538396c78796671663866757440017220b1c7d68316733a4c88e88d531e390a76c1fc1ddcca22702ee6854dbf74fb9efd7a4087b90f59327038e12342eb9d9f44bae52b0545ea7a054e384312205312a3358a29f75ecb7522c9f6b04d22072f1907734703f8b6883daf55b0d4653cb464911a"
+	envelopeBBusSigningDigest = "b5430cb4b34d1f694fcab36aaf618251e7e1307a291ff2e774bf398662c8e674"
+	envelopeBBytes            = "08011201631a55747275656f70656e2e7665726966792e6f70656e2e3131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313131313120052802322f747275656f70656e31776c746d6b7036637076756c68397961377a30686877306370677773767364636364356d616e380142016d4a2000000000000000000000000000000000000000000000000000000000000000005001580260056adf010a201111111111111111111111111111111111111111111111111111111111111111122022222222222222222222222222222222222222222222222222222222222222221a20555555555555555555555555555555555555555555555555555555555555555520012a203333333333333333333333333333333333333333333333333333333333333333322055555555555555555555555555555555555555555555555555555555555555553a2f747275656f70656e316a37723675386e77767739336c3274633077643735763037767538396c78796671663866757440017220d822e280965598a35c232e53c256de7e0890ad14a81be09b11c6974e641fe2d37a40231169ace9bdcfc40dcab77b85ba9190ebcd0ec69294defbc742ad32690b12f03fd9e5488e6bb2cb0f3d67636d440568c3c7c0b67dc639ec85fdbdc18ad3aec2"
+	envelopeBPayloadDigest    = "d822e280965598a35c232e53c256de7e0890ad14a81be09b11c6974e641fe2d3"
 
-	equivocationContentDigest = "97334840b80ec03254bfbc036f41863584b815bf92b13778e90d75275061bdf2"
-	equivocationEvidenceID    = "0ac34327349a5e2cb6bca4715f71d6b6f9e8a31b7ddc496e6d62c12105064829"
-	equivocationFaultID       = "e3221cd50bce83b35f2de8175d6fae77a7866071af537f82d39b74e677a2db43"
+	equivocationContentDigest = "edf059535c6edaf774841bc17bd6ec61eb1eeaa3cc685a913a1ed6df5125c44c"
+	equivocationEvidenceID    = "605c13a5cea2ed152b9745ecd4b871e147a90a45ba0dce85a66ed041e7d82616"
+	equivocationFaultID       = "daf997fbaee79f10b4cd70a13c2d90932bf28738af1bc2b79e3056d9622bb72f"
 
-	invalidStageContentDigest = "4ba385dbd23479fc4d3520a5022dc76eb534abfcff8728943058fd13691c68b3"
-	invalidStageEvidenceID    = "e48a1f0bc87a84e5555bd5b203a60ebd56d48a72e5f2d9e3badb632f70c6415e"
-	invalidStageFaultID       = "5ad4c58981863765a16ff9f4dcfeecc5d6c18ca9c444fc448ad612a7a64a22e3"
+	invalidStageContentDigest = "f8325e239336cb36c0bc7eb821d9b9f437d2f02d0e2da202b35f659336177814"
+	invalidStageEvidenceID    = "3f3122f6c7ab6d5776f123a3647e6fc9104b51f1dff76c1c9350bc027d2a6aee"
+	invalidStageFaultID       = "6877e1952a57aae9d4eac657cff2092ac6fb6c00812d0ab823cb927450b01d0d"
 
-	// violationWrongStage is BuilderProtocolViolation.WRONG_STAGE, §9.6b.
+	// violationWrongStage is BuilderProtocolViolation.WRONG_STAGE, this contract.
 	violationWrongStage int32 = 2
 
-	// evidenceTestPrivateKey is the §7.4 test key the linked vectors share. It is
+	// evidenceTestPrivateKey is this contract test key the linked vectors share. It is
 	// a published document fixture, not a secret.
 	evidenceTestPrivateKey = "985ad41a995234c367f70942668b8e2ee2ad95513098dec4ea963b2738de745c"
 )
@@ -65,12 +65,12 @@ func testProofKey(t *testing.T) ProofKeyLookup {
 	}
 }
 
-// TestDecodeMonorepoGoldenEnvelope is the load-bearing test of the strict
+// TestDecodeWireGoldenEnvelope is the load-bearing test of the strict
 // decoder: it consumes the exact envelope bytes the contract publishes and
 // asserts every value the scope projection is supposed to produce. If the pinned
 // field table, the payload digest domain, the signing projection or the subject
 // template were wrong, this fails.
-func TestDecodeMonorepoGoldenEnvelope(t *testing.T) {
+func TestDecodeWireGoldenEnvelope(t *testing.T) {
 	envelope, err := DecodeEnvelope(mustHex(t, envelopeABytes))
 	if err != nil {
 		t.Fatalf("decode golden envelope_a: %v", err)
@@ -124,7 +124,7 @@ func TestDecodeMonorepoGoldenEnvelope(t *testing.T) {
 	if !bytes.Equal(scope.TaskHash, evidenceTaskHash()) {
 		t.Fatalf("scope task_hash %x", scope.TaskHash)
 	}
-	if scope.ModelID == nil || *scope.ModelID != "m" {
+	if !bytes.Equal(scope.ModelID, bytes.Repeat([]byte{0x55}, 32)) {
 		t.Fatalf("scope model_id %v", scope.ModelID)
 	}
 	if scope.VerifyRound == nil || *scope.VerifyRound != 1 {
@@ -258,8 +258,7 @@ type errBinding struct{}
 
 func (errBinding) Error() string { return "no current binding at that authorization nonce" }
 
-// TestEvidenceIdentityGolden reproduces both linked vectors of §5.5 lines
-// 1012-1039 and then the two invariants require.
+// TestEvidenceIdentityGolden reproduces both published linked vectors.
 func TestEvidenceIdentityGolden(t *testing.T) {
 	digestA := mustHex(t, envelopeABusSigningDigest)
 	digestB := mustHex(t, envelopeBBusSigningDigest)
@@ -316,7 +315,7 @@ func assertIdentity(t *testing.T, label string, content [32]byte, kind int32, wa
 	}
 }
 
-// TestEvidenceIdentityIgnoresRawSignature is the invariant of §5.5
+// TestEvidenceIdentityIgnoresRawSignature is the invariant of this contract
 // that the identity must not move when a signature is replaced by another valid
 // low-S signature over the same digest. The identity is built from the signing
 // digest alone, so re-signing cannot fork one fault into two.
@@ -434,7 +433,7 @@ func TestEquivocationPreconditionsIdentifySenderByCodecBytes(t *testing.T) {
 }
 
 // TestEvidenceReservedTagIsNotAttributable pins the permanently reserved oneof
-// tag. The API contract keeps OBJECTIVE_MISSED_DUTY as a Keeper-internal
+// tag. The wire API keeps OBJECTIVE_MISSED_DUTY as a Keeper-internal
 // derivation, so the public branch must not be revivable by number.
 func TestEvidenceReservedTagIsNotAttributable(t *testing.T) {
 	for _, tag := range []uint32{EvidenceTagEquivocation, EvidenceTagInvalidStageSubmission, EvidenceTagDataUnavailable} {
@@ -494,13 +493,12 @@ func TestEvidenceIdentityRejectsUnusableInput(t *testing.T) {
 }
 
 // dataUnavailableContentDigest is an implementation pin, not a specification
-// vector: §5.5 publishes linked vectors for tags 2 and 3 only, so there is no
+// vector: this contract publishes linked vectors for tags 2 and 3 only, so there is no
 // authored value to reproduce for tag 5. Recording the digest here still buys
 // the thing a vector buys - a silent reordering or reframing of the three
 // selected fields becomes a failing test rather than a fork between two chains
-// that both believe they implement §5.5. If monorepo later publishes a tag 5
-// vector and it disagrees with this line, monorepo is right and this code is
-// wrong.
+// that both believe they implement the same public contract. If a later tag 5
+// vector and it disagrees with this line, the implementation must be corrected.
 const dataUnavailableContentDigest = "286fdbb872aea2bfeac8ce30bd7a770e105d738d4e51c929ad5f9efd57abd354"
 
 // TestDataUnavailableDigest covers the tag 5 branch, which carries stable
@@ -591,7 +589,7 @@ func TestDataUnavailableDigest(t *testing.T) {
 }
 
 // assertIdentityIsWellFormed is assertIdentity for a branch with no published
-// evidence_id/fault_id vector: the values cannot be checked against §5.5, but
+// evidence_id/fault_id vector: the values cannot be checked against this contract, but
 // they must still derive and must still be separated by domain.
 func assertIdentityIsWellFormed(t *testing.T, label string, content [32]byte, kind int32) {
 	t.Helper()

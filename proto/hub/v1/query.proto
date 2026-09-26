@@ -37,7 +37,7 @@ service Query {
   // Builders pages the whole builder registry. It is the only way to enumerate
   // builders: Query/Builder needs an address the caller already knows, so
   // without this RPC a fresh client cannot discover one. V1 takes no status
-  // selector because BuilderState has no status index (api_contract §16.3).
+  // selector because BuilderState has no status index (the wire API).
   // Builders executes the Builders operation.
   rpc Builders(QueryBuildersRequest) returns (QueryBuildersResponse) {
     option (google.api.http).get = "/TrueOpen/hub/v1/builders";
@@ -57,7 +57,7 @@ service Query {
   // Models pages the whole model registry. It is the only way to enumerate
   // models: Query/Model needs a model_id the caller already knows, so without
   // this RPC a fresh client cannot discover one. V1 takes no status selector
-  // because ModelState has no status index (api_contract §16.3).
+  // because ModelState has no status index (the wire API).
   // Models executes the Models operation.
   rpc Models(QueryModelsRequest) returns (QueryModelsResponse) {
     option (google.api.http).get = "/TrueOpen/hub/v1/models";
@@ -92,20 +92,20 @@ service Query {
   rpc ServiceLifecycle(QueryServiceLifecycleRequest) returns (QueryServiceLifecycleResponse) {
     option (google.api.http).get = "/TrueOpen/hub/v1/service_lifecycle/{operator_address}";
   }
-  // ProfileCapability returns one operator/profile capability row.
-  rpc ProfileCapability(QueryProfileCapabilityRequest) returns (QueryProfileCapabilityResponse) {
-    option (google.api.http).get = "/TrueOpen/hub/v1/profile_capability/{operator_address}/{model_id}/{profile_version}";
+  // ModelCapability returns one operator/model capability row.
+  rpc ModelCapability(QueryModelCapabilityRequest) returns (QueryModelCapabilityResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/model_capability/{operator_address}/{model_id}";
   }
-  // ModelSupport returns one P30 support row.
+  // ModelSupport returns one operator/model support row.
   rpc ModelSupport(QueryModelSupportRequest) returns (QueryModelSupportResponse) {
-    option (google.api.http).get = "/TrueOpen/hub/v1/model_support/{operator_address}/{model_id}/{profile_version}";
+    option (google.api.http).get = "/TrueOpen/hub/v1/model_support/{operator_address}/{model_id}";
   }
   // DailySupport returns one operator/epoch heartbeat row.
   rpc DailySupport(QueryDailySupportRequest) returns (QueryDailySupportResponse) {
     option (google.api.http).get = "/TrueOpen/hub/v1/daily_support/{operator_address}/{epoch}";
   }
   // CurrentCandidatePool returns the single global pool the current pointer
-  // resolves to (api_contract §16.3, empty request). Per-profile pools no longer
+  // resolves to (the wire API, empty request). Per-profile pools no longer
   // exist, so the old model_id/profile_version/duty path variables are gone.
   // CurrentCandidatePool executes the CurrentCandidatePool operation.
   rpc CurrentCandidatePool(QueryCurrentCandidatePoolRequest) returns (QueryCurrentCandidatePoolResponse) {
@@ -160,7 +160,7 @@ service Query {
     option (google.api.http).get = "/TrueOpen/hub/v1/emergency_freeze_votes/{freeze_signal_id}";
   }
   // TimeoutBucket returns an exact or effective timeout bucket. The RPC moved
-  // here from task.v1.Query with the governance writer (§2.4).
+  // here from task.v1.Query with the governance writer.
   // TimeoutBucket executes the TimeoutBucket operation.
   rpc TimeoutBucket(QueryTimeoutBucketRequest) returns (QueryTimeoutBucketResponse) {
     option (google.api.http).get = "/TrueOpen/hub/v1/timeout_bucket/{bucket_key}";
@@ -168,11 +168,11 @@ service Query {
 }
 
 // De-registered on purpose (no alias, no compatibility projection):
-//   QueryPerformanceScore   - the API contract registers no performance
+//   QueryPerformanceScore   - the wire API registers no performance
 //     Query and there is no production PerformanceScoreState collection.
 //   QueryChallengeEffectPool - K-BLOCK-03/04: V1 registers no public challenge
 //     custody Query.
 //   QueryBuilderRewardEpoch / QueryTreasuryEpoch - the per-epoch builder reward
 //     and treasury epoch ledgers are deleted; QueryCompetitionEpoch and
 //     QueryTreasury are the registered surfaces.
-//   QueryCandidatePool      - replaced by QueryCandidatePoolSnapshot (§16.3).
+//   QueryCandidatePool      - replaced by QueryCandidatePoolSnapshot.

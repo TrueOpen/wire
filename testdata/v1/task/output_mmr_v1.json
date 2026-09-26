@@ -11,7 +11,7 @@
         "chunk_utf8": ", ",
         "digest_hex": "f36f8dbbcbb6f0d1703ce01154ca4fc60ff6061434c4a56dbf7e72c14858fccf",
         "mmr_root_hex": "6dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa77",
-        "note": "§8.1 publishes this preimage in full, which pins the field order and both length prefixes.",
+        "note": "The contract publishes this preimage in full, which pins the field order and both length prefixes.",
         "preimage_hex": "0000000000000018545255454f50454e5f4f55545055545f4348554e4b5f56310000000000000013747275656f70656e2d6c6f63616c6e65742d31000000000000002011111111111111111111111111111111111111111111111111111111111111110000000000000008000000000000000100000000000000206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa77",
         "seq": 1
       },
@@ -234,8 +234,8 @@
     "TRUEOPEN_OUTPUT_FIN_V1 is H_FIELDS_V1 over exactly five fields in this order: chain_id, task_hash, final_seq, output_mmr_root, finish_reason. final_seq is u64_be, output_mmr_root is raw32 and the FinishReasonV1 enum number is uint32_be.",
     "OutputFinV1 is successful termination only. FinishReasonV1 values 1 through 4 are accepted; UNSPECIFIED, unknown values, failures and cancellations are rejected before digest verification.",
     "output_leaf_count is an InferReceipt field and enters neither digest. The root alone does not fix the tree shape, so a prefix contradiction proof takes the leaf count from chain state rather than from the submitter.",
-    "Both domains activate with TRUEOPEN_INFER_RECEIPT_V2; before that batch no party's material under them is accepted."
+    "Both domains feed the final output root in TRUEOPEN_INFER_RECEIPT_V3."
   ],
   "schema": "trueopen.task.output_mmr.v1",
-  "source": "§8.1 publishes these vectors byte for byte and registers the two domains. The tree primitive itself is shared/mmr_primitive_v1.json (00-fundamentals §9 and §11.5). Authored in this repository because streaming OUTPUT delivery introduced both domains and no chain type carries them until TRUEOPEN_INFER_RECEIPT_V2."
+  "source": "Output-stream chunk and MMR wire contract; the shared tree primitive is in shared/mmr_primitive_v1.json."
 }
