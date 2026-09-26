@@ -208,3 +208,69 @@ func TestModelProjectionV3DigestChain(t *testing.T) {
 		t.Fatal("Task Order EIP-712 vector does not use version 3 and bytes32 modelId")
 	}
 }
+
+// TestModelIDSeparatesOwnerCaseAndChain pins the identity boundary rather than
+// one digest: the same repository under another registrant, in another case,
+// or on another chain must be a different model. Each case changes exactly one
+// input of P1, so a digest that still matched P1 would mean that input had
+// dropped out of the preimage.
+func TestModelIDSeparatesOwnerCaseAndChain(t *testing.T) {
+	doc := loadIntegratedFixture(t, "hub", "model_id_v1.json")
+	named := map[string]map[string]any{}
+	for _, raw := range doc["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		named[vector["name"].(string)] = vector
+	}
+	reference := named["model_id_p1_reference"]
+	if reference == nil {
+		t.Fatal("missing model_id_p1_reference")
+	}
+	cases := map[string]string{
+		"model_id_p2_other_owner":    "proposer_address",
+		"model_id_p3_case_preserved": "repo_id",
+		"model_id_p4_other_chain":    "chain_id",
+	}
+	digests := map[string]string{reference["digest_hex"].(string): "model_id_p1_reference"}
+	for name, changed := range cases {
+		vector := named[name]
+		if vector == nil {
+			t.Fatalf("missing %s", name)
+		}
+		for _, field := range []string{"chain_id", "provider", "repo_id", "proposer_address"} {
+			same := modelIDFieldValue(t, reference, field) == modelIDFieldValue(t, vector, field)
+			if field == changed && same {
+				t.Fatalf("%s must change %s", name, field)
+			}
+			if field != changed && !same {
+				t.Fatalf("%s changes %s as well as %s", name, field, changed)
+			}
+		}
+		digest := vector["digest_hex"].(string)
+		if previous, seen := digests[digest]; seen {
+			t.Fatalf("%s derives the same model_id as %s", name, previous)
+		}
+		digests[digest] = name
+	}
+
+	negative, ok := doc["negative"].([]any)
+	if !ok || len(negative) == 0 {
+		t.Fatal("model_id_v1.json publishes no negative cases")
+	}
+	for _, raw := range negative {
+		row := raw.(map[string]any)
+		input, _ := row["input"].(map[string]any)
+		expect, _ := row["expect"].(string)
+		if row["name"] == "" || row["reason"] == "" || len(input) != 1 || !strings.HasPrefix(expect, "reject_") {
+			t.Fatalf("negative case %v must name one input, a reject_* expectation and a reason", row["name"])
+		}
+	}
+}
+
+func modelIDFieldValue(t *testing.T, vector map[string]any, name string) string {
+	t.Helper()
+	field := integratedField(t, vector, name)
+	if value, ok := field["utf8"].(string); ok {
+		return value
+	}
+	return field["hex"].(string)
+}

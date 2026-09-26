@@ -55,8 +55,8 @@
       "path": "hub/model_id_v1.json",
       "origin": "wire",
       "contract_section": "Derived raw Hash32 model identity",
-      "bytes": 1364,
-      "sha256": "aa0c5b85cfceab782a9d359dddf915a690ec4f3912cb22cc00f9f009945f95f2"
+      "bytes": 10605,
+      "sha256": "f265193611ed157da96551441715da460b2dafd0189999d451e33a627d85c554"
     },
     {
       "path": "hub/model_manifest_v4.json",
