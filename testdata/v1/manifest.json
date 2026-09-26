@@ -116,8 +116,8 @@
       "path": "task/builder_confirmation_v1.json",
       "origin": "wire",
       "contract_section": "Builder storage confirmation V2 signing projection",
-      "bytes": 26002,
-      "sha256": "bb3900d1aa381b082b798764ad982ae7caf6a7000c95e683e2537252049d54a2"
+      "bytes": 32773,
+      "sha256": "0d99f639bdea88910aae1a2847a7eb9c96381e54e21c36823279782025bc85ef"
     },
     {
       "path": "task/canonical_json_v1.json",

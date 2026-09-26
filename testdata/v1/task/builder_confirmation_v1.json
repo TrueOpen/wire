@@ -2,7 +2,8 @@
   "notes": [
     "The V2 confirmation signs the nine-field TaskDataObjectRefV1 projection.",
     "Non-evidence INPUT and OUTPUT use UNSPECIFIED evidence kind; each evidence bundle uses its typed kind.",
-    "The Builder service signature is excluded from its own H_FIELDS preimage."
+    "The Builder service signature is excluded from its own H_FIELDS preimage.",
+    "Worker evidence has two bundles per round, so the Worker A-level (WORKER_TOKEN_OPENING) and B-level (WORKER_VALUE_OPENING) manifests are confirmed as separate objects."
   ],
   "schema": "trueopen.task.builder_confirmation.v1",
   "source": "Builder storage confirmation wire contract",
@@ -497,7 +498,7 @@
     },
     {
       "contract_section": "Public wire fixture testdata/v1/task/builder_confirmation_v1.json",
-      "digest_hex": "e3fe8eaf882d72fe3eac626832c0201fba1029eecbf398ccacfc17ddec82e765",
+      "digest_hex": "605359818cc284ee905a806a45077b47e5cc6be2afad502414ecf7a80ea86437",
       "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
       "fields": [
         {
@@ -574,10 +575,10 @@
               "type": "optional"
             },
             {
-              "enum": "EVIDENCE_KIND_WORKER_VALUE_OPENING",
+              "enum": "EVIDENCE_KIND_WORKER_TOKEN_OPENING",
               "name": "evidence_kind",
               "type": "enum",
-              "value": 1
+              "value": 4
             }
           ],
           "name": "object_ref",
@@ -603,63 +604,231 @@
       "mutations": [
         {
           "change": "one encoded leaf changed",
-          "digest_hex": "68fae1307fb7347bd2cb5d87c19c882e4eb9509643d31a34640d6de0c5a0d5e2",
+          "digest_hex": "d856558e8701bb11c601424c30482759d6aeaa0bf5c4e96460820d84fc3a52fa",
           "expect": "digest_changes",
           "field_path": "schema_version",
           "name": "field.schema_version"
         },
         {
           "change": "one encoded leaf changed",
-          "digest_hex": "cf4188d0c3c3b4fc3090a0d6f2f15d3b9412dbc8de1b7589b36595a4da6535f1",
+          "digest_hex": "878f8fddc505fc1f73e209aa346f4b92a7f2b5dda54673e348151fa3b9ae27fb",
           "expect": "digest_changes",
           "field_path": "chain_id",
           "name": "field.chain_id"
         },
         {
           "change": "one encoded leaf changed",
-          "digest_hex": "aad57aca2b98897159f5404cde0bfeea82ad8a1c4ab9396f1af77c11150e092a",
+          "digest_hex": "dfee91f4e963b9cb5293d57e441b292c3210e20221dff37ed64ce6f03e50295d",
           "expect": "digest_changes",
           "field_path": "builder_operator_address",
           "name": "field.builder_operator_address"
         },
         {
           "change": "one encoded leaf changed",
-          "digest_hex": "b5618a0d8e1c2819fc49d2e96c3c1ced5d26b0772e9103539acd07a49b84c657",
+          "digest_hex": "c455a1ded9c3b25bad6838c0d3b7cef9176f0643033f4a146332645b9253bc05",
           "expect": "digest_changes",
           "field_path": "service_authorization_nonce",
           "name": "field.service_authorization_nonce"
         },
         {
           "change": "one encoded leaf changed",
-          "digest_hex": "9db3c23b3d6c68d723fe899bbafb36b39965685dc6fb36beaf1794dd98d44d33",
+          "digest_hex": "c39789e8d843c7f258a2de8b851858e4568231353560e87be37e5bd0cfb27db8",
           "expect": "digest_changes",
           "field_path": "size_bytes",
           "name": "field.size_bytes"
         },
         {
           "change": "one encoded leaf changed",
-          "digest_hex": "ac21dce79e76c6ca38acae8f2a6771f8c13df3c6e77b159c103153fcf9a3f420",
+          "digest_hex": "bebd59f7e7b21b28ed55bde79e75ed8688afbd4ee379dfa26d07bf60455b3f62",
           "expect": "digest_changes",
           "field_path": "artifact_total_size_bytes",
           "name": "field.artifact_total_size_bytes"
         },
         {
           "change": "one encoded leaf changed",
-          "digest_hex": "6c545e3369d4ab7df1f86b03bf1bfe100483300b34fe14b2ed8851073c59f52f",
+          "digest_hex": "9eba16ef43ef3e0be41428be25ce8155a33062aef5575975163cd649b9920ce0",
           "expect": "digest_changes",
           "field_path": "retention_until_height",
           "name": "field.retention_until_height"
         },
         {
           "change": "one encoded leaf changed",
-          "digest_hex": "a759c28650bb68134ede68d78f36f243389de4d7fd2daf7babaaa7d08e2305ab",
+          "digest_hex": "d53422c598a7b30164d2fffc0092fb8c6982755d0e37b0c7683982732dbdddef",
           "expect": "digest_changes",
           "field_path": "object_ref.evidence_kind",
           "name": "field.object_ref.evidence_kind"
         }
       ],
-      "name": "builder_confirmation_worker_evidence",
-      "preimage_hex": "0000000000000028545255454f50454e5f4255494c4445525f53544f524147455f434f4e4649524d4154494f4e5f56320000000000000004000000010000000000000011747275656f70656e2d676f6c64656e2d31000000000000001477d7bb07580b39fb949df09f7bb9f80a1d0641b80000000000000008000000000000000700000000000000f500000000000000202222222222222222222222222222222222222222222222222222222222222222000000000000002033333333333333333333333333333333333333333333333333333333333333330000000000000020111111111111111111111111111111111111111111111111111111111111111100000000000000040000000300000000000000207777777777777777777777777777777777777777777777777777777777777777000000000000000400000001000000000000000400000001000000000000001d0100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000400000001000000000000000800000000000002bc0000000000000008000000000000080000000000000000080000000000001388",
+      "name": "builder_confirmation_worker_token_evidence",
+      "preimage_hex": "0000000000000028545255454f50454e5f4255494c4445525f53544f524147455f434f4e4649524d4154494f4e5f56320000000000000004000000010000000000000011747275656f70656e2d676f6c64656e2d31000000000000001477d7bb07580b39fb949df09f7bb9f80a1d0641b80000000000000008000000000000000700000000000000f500000000000000202222222222222222222222222222222222222222222222222222222222222222000000000000002033333333333333333333333333333333333333333333333333333333333333330000000000000020111111111111111111111111111111111111111111111111111111111111111100000000000000040000000300000000000000207777777777777777777777777777777777777777777777777777777777777777000000000000000400000001000000000000000400000001000000000000001d0100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000400000004000000000000000800000000000002bc0000000000000008000000000000080000000000000000080000000000001388",
+      "preimage_size_bytes": 430,
+      "producer": "BuilderStorageConfirmationDigest"
+    },
+    {
+      "contract_section": "Public wire fixture testdata/v1/task/builder_confirmation_v1.json",
+      "digest_hex": "6a7b72355491bb4f52c583618b8c1faf28a554cf27a9283f5231fce4caf4a7aa",
+      "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
+      "fields": [
+        {
+          "name": "schema_version",
+          "type": "uint32",
+          "value": 1
+        },
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-golden-1"
+        },
+        {
+          "bech32": "trueopen1wltmkp6cpvulh9ya7z0hhw0cpgwsvsdccd5man",
+          "hex": "77d7bb07580b39fb949df09f7bb9f80a1d0641b8",
+          "name": "builder_operator_address",
+          "type": "address"
+        },
+        {
+          "name": "service_authorization_nonce",
+          "type": "uint64",
+          "value": 7
+        },
+        {
+          "fields": [
+            {
+              "hex": "2222222222222222222222222222222222222222222222222222222222222222",
+              "name": "task_hash",
+              "type": "bytes"
+            },
+            {
+              "hex": "3333333333333333333333333333333333333333333333333333333333333333",
+              "name": "session_id",
+              "type": "bytes"
+            },
+            {
+              "hex": "1111111111111111111111111111111111111111111111111111111111111111",
+              "name": "task_id",
+              "type": "bytes"
+            },
+            {
+              "enum": "TASK_DATA_OBJECT_KIND_EVIDENCE_MANIFEST",
+              "name": "object_kind",
+              "type": "enum",
+              "value": 3
+            },
+            {
+              "hex": "8888888888888888888888888888888888888888888888888888888888888888",
+              "name": "content_hash",
+              "type": "bytes"
+            },
+            {
+              "enum": "EVIDENCE_PRODUCER_KIND_V1_WORKER",
+              "name": "evidence_producer_kind",
+              "type": "enum",
+              "value": 1
+            },
+            {
+              "name": "verify_round",
+              "type": "uint32",
+              "value": 1
+            },
+            {
+              "fields": [
+                {
+                  "bech32": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz",
+                  "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                  "name": "value",
+                  "type": "address"
+                }
+              ],
+              "name": "producer_operator",
+              "present": true,
+              "type": "optional"
+            },
+            {
+              "enum": "EVIDENCE_KIND_WORKER_VALUE_OPENING",
+              "name": "evidence_kind",
+              "type": "enum",
+              "value": 1
+            }
+          ],
+          "name": "object_ref",
+          "type": "frame"
+        },
+        {
+          "name": "size_bytes",
+          "type": "uint64",
+          "value": 640
+        },
+        {
+          "name": "artifact_total_size_bytes",
+          "type": "uint64",
+          "value": 8192
+        },
+        {
+          "name": "retention_until_height",
+          "type": "uint64",
+          "value": 5000
+        }
+      ],
+      "framing": "H_FIELDS_V1",
+      "mutations": [
+        {
+          "change": "one encoded leaf changed",
+          "digest_hex": "a27afeae4cb3c0191b4a02bf55a65aa6915f75769bf1e8117e554dfc441bc17d",
+          "expect": "digest_changes",
+          "field_path": "schema_version",
+          "name": "field.schema_version"
+        },
+        {
+          "change": "one encoded leaf changed",
+          "digest_hex": "d4e972cf61c4e73ad8ee2dacf69c513abd8af04f00585d5cc67d214db0b5e4be",
+          "expect": "digest_changes",
+          "field_path": "chain_id",
+          "name": "field.chain_id"
+        },
+        {
+          "change": "one encoded leaf changed",
+          "digest_hex": "54149c5a23078c4365257f2b17de7c6b2e951506b71e846b27f546a55b7b6429",
+          "expect": "digest_changes",
+          "field_path": "builder_operator_address",
+          "name": "field.builder_operator_address"
+        },
+        {
+          "change": "one encoded leaf changed",
+          "digest_hex": "8de2cd62e4dc505731e46626b1870abfeebcb6cbea9626a6cdd4436808399dfb",
+          "expect": "digest_changes",
+          "field_path": "service_authorization_nonce",
+          "name": "field.service_authorization_nonce"
+        },
+        {
+          "change": "one encoded leaf changed",
+          "digest_hex": "d6f0442aa653171a1bd4cd9cd23aba462f2b33fe439accaf70108e07a67396e6",
+          "expect": "digest_changes",
+          "field_path": "size_bytes",
+          "name": "field.size_bytes"
+        },
+        {
+          "change": "one encoded leaf changed",
+          "digest_hex": "72aea934dd02777c638f9a1fe7ce4c2d39932fcfa6ad168dae6c4fc1c4faa260",
+          "expect": "digest_changes",
+          "field_path": "artifact_total_size_bytes",
+          "name": "field.artifact_total_size_bytes"
+        },
+        {
+          "change": "one encoded leaf changed",
+          "digest_hex": "037d3033a3d3802b516ac1b4e7aaba4bf9633e103f9b07aca3133658e39f17dc",
+          "expect": "digest_changes",
+          "field_path": "retention_until_height",
+          "name": "field.retention_until_height"
+        },
+        {
+          "change": "one encoded leaf changed",
+          "digest_hex": "acae45e0e174d80f7c62ff95c7da612ceb458e916d3aac95dc85b86499b4ea56",
+          "expect": "digest_changes",
+          "field_path": "object_ref.evidence_kind",
+          "name": "field.object_ref.evidence_kind"
+        }
+      ],
+      "name": "builder_confirmation_worker_value_evidence",
+      "preimage_hex": "0000000000000028545255454f50454e5f4255494c4445525f53544f524147455f434f4e4649524d4154494f4e5f56320000000000000004000000010000000000000011747275656f70656e2d676f6c64656e2d31000000000000001477d7bb07580b39fb949df09f7bb9f80a1d0641b80000000000000008000000000000000700000000000000f500000000000000202222222222222222222222222222222222222222222222222222222222222222000000000000002033333333333333333333333333333333333333333333333333333333333333330000000000000020111111111111111111111111111111111111111111111111111111111111111100000000000000040000000300000000000000208888888888888888888888888888888888888888888888888888888888888888000000000000000400000001000000000000000400000001000000000000001d0100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000400000001000000000000000800000000000002800000000000000008000000000000200000000000000000080000000000001388",
       "preimage_size_bytes": 430,
       "producer": "BuilderStorageConfirmationDigest"
     }

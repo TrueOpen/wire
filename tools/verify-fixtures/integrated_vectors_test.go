@@ -274,3 +274,60 @@ func modelIDFieldValue(t *testing.T, vector map[string]any, name string) string 
 	}
 	return field["hex"].(string)
 }
+
+// TestBuilderConfirmationCoversEveryObject pins which object each storage
+// confirmation names. A Worker writes two evidence bundles per round, so its
+// A-level and B-level manifests are two objects with two confirmations; a
+// single Worker case could only ever confirm one of them. Evidence manifests
+// carry their typed evidence_kind and INPUT/OUTPUT carry UNSPECIFIED, which is
+// what keeps an evidence confirmation from being replayed for a data object.
+func TestBuilderConfirmationCoversEveryObject(t *testing.T) {
+	doc := loadIntegratedFixture(t, "task", "builder_confirmation_v1.json")
+	want := map[string]string{
+		"builder_confirmation_output":                "EVIDENCE_KIND_UNSPECIFIED",
+		"builder_confirmation_input":                 "EVIDENCE_KIND_UNSPECIFIED",
+		"builder_confirmation_verifier_evidence":     "EVIDENCE_KIND_VERIFIER_VALUE_OPENING",
+		"builder_confirmation_worker_token_evidence": "EVIDENCE_KIND_WORKER_TOKEN_OPENING",
+		"builder_confirmation_worker_value_evidence": "EVIDENCE_KIND_WORKER_VALUE_OPENING",
+	}
+	seen := map[string]bool{}
+	contents := map[string]string{}
+	for _, raw := range doc["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		name := vector["name"].(string)
+		kind, ok := want[name]
+		if !ok {
+			t.Fatalf("unexpected confirmation case %s", name)
+		}
+		ref := integratedField(t, vector, "object_ref")
+		var objectKind, evidenceKind, content string
+		for _, rawField := range ref["fields"].([]any) {
+			field := rawField.(map[string]any)
+			switch field["name"] {
+			case "object_kind":
+				objectKind, _ = field["enum"].(string)
+			case "evidence_kind":
+				evidenceKind, _ = field["enum"].(string)
+			case "content_hash":
+				content, _ = field["hex"].(string)
+			}
+		}
+		if evidenceKind != kind {
+			t.Fatalf("%s confirms evidence_kind %s, want %s", name, evidenceKind, kind)
+		}
+		isEvidence := objectKind == "TASK_DATA_OBJECT_KIND_EVIDENCE_MANIFEST"
+		if isEvidence == (kind == "EVIDENCE_KIND_UNSPECIFIED") {
+			t.Fatalf("%s pairs object kind %s with evidence_kind %s", name, objectKind, kind)
+		}
+		if other, dup := contents[content]; dup {
+			t.Fatalf("%s and %s confirm the same object", name, other)
+		}
+		contents[content] = name
+		seen[name] = true
+	}
+	for name := range want {
+		if !seen[name] {
+			t.Fatalf("missing confirmation case %s", name)
+		}
+	}
+}
