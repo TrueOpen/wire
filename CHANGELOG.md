@@ -81,6 +81,14 @@ against `v0.2.2`.
 - `MsgSubmitVerifierValueEvidence` and `VerifierValueEvidenceKindV1` are
   registered ahead of activation, and `MsgReportDataUnavailable` gains
   `evidence_kind` and `reason`.
+- `cortex.v1` (still withheld) follows the split. `InferResponse` returns
+  `token_ids_ref` and `position_values_ref`, naming a `TokenIDsV1` and a
+  `PositionValuesV1` artifact, in place of `trace_ref` and `checkpoint_ref`;
+  `ManagedModelCapability` advertises the matching `supports_*` flags. Verify
+  takes token ids only and returns the verifier's own `verifier_values`; the
+  comparison against the Worker moves into Cortex, so `MetricSampleV1`,
+  `MetricOptionalFP` and `VerifyResponse.metric_samples` are removed. Values
+  cross this hop as doubles and are converted to `fp_1e6` in Cortex alone.
 
 ### Reserved encryption slots
 
