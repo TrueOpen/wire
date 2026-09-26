@@ -1,5 +1,79 @@
 # Changelog
 
+## v0.2.2
+
+Additive. Two enum values, one field and two vector entries arrive; no existing
+field number, message name or digest changes.
+
+- ADR-0027 makes the Worker-signed Fin the authoritative source of
+  `finish_reason`. Three things follow from that, and they ship together
+  because any one of them alone leaves the contract inconsistent.
+
+  `task.v1.FinishReasonV1` gains `USER_STOP = 5` and `STOP_TOKEN = 6`.
+
+  `USER_STOP` is what makes a user-stopped task a successful termination
+  rather than an abandonment: the Worker signs a Fin carrying it and then
+  signs the receipt, so a stopped task is indistinguishable in shape from any
+  other completed one, and "no Fin" stays reserved for a Worker that failed or
+  gave up, which produces no receipt either. Unlike every other value it
+  cannot be checked -- the stop signal arrives off chain -- so it is accepted
+  as a Worker assertion, as `MAX_OUTPUT_DURATION` already is.
+
+  `STOP_TOKEN` is separate from `STOP_SEQUENCE` because an order may carry
+  both stop strings and stop token ids, and which of the two ended the
+  generation is a different fact. It is checkable: the last token of T belongs
+  to the order's `stop_token_ids`.
+
+- `nexus.v1.TaskDataObjectMetadataV1` gains `optional OutputFinV1 fin = 7`.
+
+  `finish_reason` previously existed only on the subscription's terminal
+  frame, so a non-streaming fetch returned text with no way to tell "the model
+  finished" from "the budget cut it off". Whether a fact was obtainable
+  depended on which retrieval path the caller chose, and retrieval is meant to
+  be a transport detail. The field carries the Worker's original signed frame,
+  byte-identical to the one the Builder replays, so the caller verifies it
+  against the Worker's service key and compares `output_mmr_root` with the
+  receipt rather than trusting the Builder.
+
+  Present only for `OUTPUT` objects that have reached `STORED`. This release
+  makes the field exist; populating it on `GetTaskDataMetadata(OUTPUT)` is
+  Nexus's side of the ADR.
+
+- `registry/v1/domains.json` corrects the `TRUEOPEN_OUTPUT_FIN_V1` entry.
+
+  `origin` repoints from this repository to ADR-0027, and two statements the
+  ADR makes false are removed: that `finish_reason` does not enter
+  `TaskDataObjectMetadataV1` -- the MMR half of that claim still holds and is
+  kept -- and that cancellation produces no `OutputFinV1`. The closed set
+  becomes 1..6.
+
+- `testdata/v1/task/output_mmr_v1.json` opens to the two new values.
+
+  Without this the release would have shipped a contradiction: the vectors
+  listed `5` under `rejected_finish_reason_values` as "unknown enum values
+  fail closed" while the enum now defines 5 as `USER_STOP`, so a consumer
+  implementing against the vectors would have rejected a legal Fin. The
+  unknown-value sentinel moves to `7`, the first value above the closed set.
+
+  The two new digests are derived rather than authored. `H_FIELDS_V1` hashes
+  its preimage with a plain SHA-256, and `finish_reason` is the trailing
+  `uint32_be` of the published `eos_token_preimage_hex`; substituting that
+  field reproduces all four existing digests exactly, which is what
+  establishes the derivation before it is used for 5 and 6.
+
+  Nothing in this repository reads `accepted_finish_reasons` or
+  `rejected_finish_reason_values`, and `verify-fixtures` only recomputes
+  objects carrying `preimage_hex`, so no gate could have caught the
+  contradiction. The enum and its vectors have no automated consistency check
+  between them.
+
+Consumers extending the closed set should note that it is a closed set by
+design: `registry/v1` requires unknown values to fail closed before digest
+verification, so a consumer that validates `finish_reason` rejects 5 and 6
+until it regenerates against this release. On Node that check decides
+transaction validity, which makes widening it a coordinated upgrade rather
+than a redeploy.
+
 ## v0.2.1
 
 Additive. A new proto package arrives **withheld**, so the release makes no
