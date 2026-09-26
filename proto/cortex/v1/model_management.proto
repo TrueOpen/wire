@@ -277,15 +277,23 @@ message TokenLogprobV1 {
 // implementation of it could drift from the one the leaf encoder uses.
 message PositionValueV1 {
   uint32 position = 1;
+  // token_id and every top_logprobs token_id are vocabulary ids, never token
+  // text: a service whose engine reports top-k by text must resolve the ids
+  // itself, because a string cannot enter the leaf.
   uint32 token_id = 2;
   // missing is true when the engine returned no logprob or top-k for this
   // position. The remaining value fields are then ignored.
   bool missing = 3;
   double logprob = 4;
-  // rank is the 1-based rank of token_id in the engine's distribution, or 0
-  // when the engine did not report it.
+  // rank is the engine's 1-based rank of token_id, or 0 when the engine did not
+  // report it. It may exceed the profile's required_top_k; Cortex maps it to
+  // the leaf rank.
   uint32 rank = 5;
-  // top_logprobs is in ascending rank order, one entry per distinct token.
+  // top_logprobs is the engine's top-k list in the engine's own rank order:
+  // entry i is the token of rank i + 1, one entry per distinct token, at least
+  // required_top_k entries unless missing is set. The order is reported, not
+  // derived: neither the service nor Cortex re-sorts it by logprob, so tokens
+  // with equal logprobs keep the order the engine ranked them in.
   repeated TokenLogprobV1 top_logprobs = 6;
 }
 
