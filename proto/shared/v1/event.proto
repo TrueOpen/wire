@@ -123,6 +123,9 @@ enum ProtocolEventCodeV1 {
   // Task-domain payload; one Worker output-equivocation receipt committed.
   // PROTOCOL_EVENT_CODE_V1_WORKER_EVIDENCE_ACCEPTED identifies the corresponding protocol value.
   PROTOCOL_EVENT_CODE_V1_WORKER_EVIDENCE_ACCEPTED = 29;
+  // Reserved for the later Verifier value-evidence activation; no payload is
+  // emitted or accepted before that upgrade.
+  PROTOCOL_EVENT_CODE_V1_VERIFIER_VALUE_EVIDENCE_ACCEPTED = 30;
   // Task-domain payload; declared in task/v1/event.proto.
   // PROTOCOL_EVENT_CODE_V1_VERIFIER_HANDRAISES_ACCEPTED identifies the corresponding protocol value.
   PROTOCOL_EVENT_CODE_V1_VERIFIER_HANDRAISES_ACCEPTED = 34;

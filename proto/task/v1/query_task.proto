@@ -3,6 +3,7 @@ package task.v1;
 
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
+import "shared/v1/amount.proto";
 import "shared/v1/common.proto";
 import "shared/v1/query_page.proto";
 import "shared/v1/rest_encoding.proto";
@@ -84,6 +85,8 @@ message TaskAssignmentViewV1 {
   AssignmentStatus assignment_status = 18;
   uint32 worker_infer_timeout_slash_bps = 19;
   uint32 result_reveal_missing_slash_bps = 20;
+  // Joined from the immutable TaskAssignmentState admission snapshot.
+  shared.v1.Amount min_stake_snapshot = 21 [(gogoproto.nullable) = false];
 }
 
 // TaskBuilderSelectionViewV1 projects one TaskBuilderSelectionState and hides the
@@ -200,7 +203,7 @@ message AssignmentRandomnessViewV1 {
 message ActiveTaskRefV1 {
   bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   TaskPhase task_phase = 2;
-  string model_id = 3;
+  bytes model_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 4;
   uint64 created_height = 5;
   uint64 updated_height = 6;
@@ -385,4 +388,20 @@ message QueryWorkerEvidenceRequest {
 // QueryWorkerEvidenceResponse returns no raw signature or MMR proof material.
 message QueryWorkerEvidenceResponse {
   WorkerEvidenceReceiptState receipt = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryVerifierValueEvidenceRequest is registered but NOT_SUPPORTED before the
+// separately defined value-evidence activation.
+message QueryVerifierValueEvidenceRequest {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint32 verify_round = 2;
+  string target_operator_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint32 position = 4;
+}
+
+// QueryVerifierValueEvidenceResponse is reserved for an activated receipt.
+message QueryVerifierValueEvidenceResponse {
+  bytes evidence_digest = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes fault_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 accepted_height = 3;
 }

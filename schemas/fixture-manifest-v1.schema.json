@@ -78,7 +78,7 @@
             }
           },
           {
-            "comment": "A wire-authored fixture has no upstream copy, so it names the monorepo rule it pins instead.",
+            "comment": "A wire-authored fixture has no upstream copy, so it describes the public contract behavior it pins.",
             "if": {
               "properties": { "origin": { "const": "wire" } },
               "required": ["origin"]

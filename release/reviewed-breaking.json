@@ -2,15 +2,74 @@
   "schema": "trueopen-wire-reviewed-breaking-v1",
   "protocol_version": "v0.3.0",
   "against": "v0.2.2",
-  "review": "TrueOpen/wire#14#issuecomment-5845405279 (v0.3.0 breaking review against v0.2.2; final approval pending)",
+  "review": "TrueOpen/wire#14 (integrated schema review requested; approval pending)",
   "notes": [
     "This file is the only thing that lets a buf breaking failure pass. It authorizes exactly the findings listed below, for exactly this protocol_version, against exactly this baseline.",
     "tools/reviewed-breaking checks the set both ways: an undeclared finding fails the build, and a declared finding that no longer occurs fails it too, so the list cannot drift away from the code it describes.",
     "Findings are identified by (path, type, message) and carry no line or column, because an unrelated edit above a deleted field would otherwise invalidate the declaration and turn regenerating it into a reflex.",
-    "Do not release this declaration while any model_id signing or state surface still uses a textual identifier; supported_models now signs raw Hash32 bytes and requires the same representation throughout the release.",
     "After this release is tagged, the next one starts from a new baseline: delete this file, or replace it with a declaration naming its own version and review. Carrying it forward unchanged would grant an approval nobody asked for."
   ],
   "findings": [
+    {
+      "path": "proto/bus/v1/payload.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"3\" with name \"model_id\" on message \"OpenVerifyV1\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"GenerationContext\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"ManagedModelCapability\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"ModelIdentity\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"3\" with name \"model_id\" on message \"LoadModelResponse\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"4\" with name \"model_id\" on message \"EstimateRequest\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"4\" with name \"model_id\" on message \"GetModelDetailsRequest\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"4\" with name \"model_id\" on message \"LoadModelRequest\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"5\" with name \"model_id\" on message \"InferResponse\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"5\" with name \"model_id\" on message \"VerifyResponse\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"6\" with name \"model_id\" on message \"InferRequest\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"6\" with name \"model_id\" on message \"VerifyRequest\" changed type from \"string\" to \"bytes\"."
+    },
     {
       "path": "proto/hub/v1/builder.proto",
       "type": "FIELD_SAME_TYPE",
@@ -38,6 +97,11 @@
     },
     {
       "path": "proto/hub/v1/daily_support.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"ModelSupportState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/daily_support.proto",
       "type": "MESSAGE_NO_DELETE",
       "message": "Previously present message \"ProfileCapabilityState\" was deleted from file."
     },
@@ -45,6 +109,21 @@
       "path": "proto/hub/v1/daily_support.proto",
       "type": "MESSAGE_NO_DELETE",
       "message": "Previously present message \"SupportDeactivateCursorState\" was deleted from file."
+    },
+    {
+      "path": "proto/hub/v1/emergency_freeze.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"FreezeSignalBuildCursorState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/emergency_freeze.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"FreezeSignalByWindowIndex\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/emergency_freeze.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"FreezeSignalState\" changed type from \"string\" to \"bytes\"."
     },
     {
       "path": "proto/hub/v1/event.proto",
@@ -149,6 +228,61 @@
     {
       "path": "proto/hub/v1/event.proto",
       "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"EventModelProfileRegistered\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"EventModelProfileStateChanged\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"EventModelStateChanged\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"EventProfileReferencePriceUpdated\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"ProfileLocatorV1\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"EventEmergencyFreezeAccepted\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"EventEmergencyFreezeRejected\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"EventFreezeSignalExpired\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"EventFreezeSignalSubmitted\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"EventModelSupportActivated\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"EventModelSupportUpdated\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
       "message": "Field \"3\" with name \"activation_task_id\" on message \"EventModelSupportActivated\" changed type from \"uint32\" to \"bytes\"."
     },
     {
@@ -242,6 +376,31 @@
       "message": "Previously present field \"21\" with name \"active_supporter_count\" on message \"ProfileState\" was deleted."
     },
     {
+      "path": "proto/hub/v1/model_profile_state.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"ModelState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/model_profile_state.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"ProfileState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/model_profile_state.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"RegistrationReceipt\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_governance.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"MsgSubmitFreezeSignal\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_model_profile.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"MsgRegisterModelProfileResponse\" changed type from \"string\" to \"bytes\"."
+    },
+    {
       "path": "proto/hub/v1/msg_registry.proto",
       "type": "FIELD_NO_DELETE",
       "message": "Previously present field \"3\" with name \"profile_version\" on message \"MsgDeclareModelSupport\" was deleted."
@@ -265,6 +424,21 @@
       "path": "proto/hub/v1/msg_registry.proto",
       "type": "FIELD_SAME_NAME",
       "message": "Field \"2\" on message \"MsgBatchConfirmModelSupportResponse\" changed name from \"refreshed_profile_count\" to \"refreshed_model_count\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"MsgSetModelStatus\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"MsgSetProfileStatus\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"MsgDeclareModelSupport\" changed type from \"string\" to \"bytes\"."
     },
     {
       "path": "proto/hub/v1/msg_registry.proto",
@@ -418,6 +592,21 @@
     },
     {
       "path": "proto/hub/v1/query_registry.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"QueryModelRequest\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/query_registry.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"QueryProfileRequest\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/query_registry.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"QueryModelSupportRequest\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/query_registry.proto",
       "type": "MESSAGE_NO_DELETE",
       "message": "Previously present message \"QueryProfileCapabilityRequest\" was deleted from file."
     },
@@ -427,9 +616,134 @@
       "message": "Previously present message \"QueryProfileCapabilityResponse\" was deleted from file."
     },
     {
+      "path": "proto/hub/v1/query_rewards.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"QueryFreezeSignalsRequest\" changed type from \"string\" to \"bytes\"."
+    },
+    {
       "path": "proto/hub/v1/reward.proto",
       "type": "FIELD_SAME_TYPE",
       "message": "Field \"10\" with name \"task_ref_count\" on message \"ParameterBucketVersionState\" changed type from \"uint64\" to \"uint32\"."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"1\" with name \"evidence_manifest_hash\" on message \"EvidenceBundleSummaryV1\" changed option \"json_name\" from \"evidenceBundleHash\" to \"evidenceManifestHash\"."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"1\" on message \"EvidenceBundleSummaryV1\" changed name from \"evidence_bundle_hash\" to \"evidence_manifest_hash\"."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"header\" on message \"UploadTaskOutputStreamRequest\" changed type from \"nexus.v1.OutputStreamHeaderV1\" to \"nexus.v1.OutputStreamHeaderV2\"."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"receipt\" on message \"SubmitInferReceiptRequest\" changed type from \"task.v1.InferReceiptV2\" to \"task.v1.InferReceiptV3\"."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"receipt\" on message \"SubmitVerifyResultRequest\" changed type from \"task.v1.ResultReceiptV2\" to \"task.v1.ResultReceiptV3\"."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"3\" with name \"infer_receipt\" on message \"GetTaskDataMetadataResponse\" changed type from \"task.v1.InferReceiptV2\" to \"task.v1.InferReceiptV3\"."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"4\" with name \"receipt\" on message \"FinalizeTaskResultRequest\" changed type from \"task.v1.InferReceiptV2\" to \"task.v1.InferReceiptV3\"."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"6\" with name \"receipt\" on message \"FinalizeVerifierEvidenceRequest\" changed type from \"task.v1.ResultReceiptV2\" to \"task.v1.ResultReceiptV3\"."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"OutputStreamHeaderV1\" was deleted from file."
+    },
+    {
+      "path": "proto/shared/v1/model_profile.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"model_id\" on message \"ModelProfileProjection\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/shared/v1/payload.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"model_id\" on message \"ProfilePriceSampleV1\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/shared/v1/payload.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"5\" with name \"support_candidates\" on message \"EpochTaskSummary\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"8\" with name \"model_id\" on message \"TaskCoreState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/task/v1/cleanup.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"11\" with name \"model_id\" on message \"TaskTerminalSummaryState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/task/v1/epoch_summary.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"10\" with name \"support_candidates\" on message \"EpochTaskSummaryCursorState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/task/v1/evidence.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"WorkerValueCommitmentV2\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/infer_receipt.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"InferReceiptV2\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/msg_assignment.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"order\" on message \"SignedOrderV2\" changed type from \"task.v1.TaskOrderV2\" to \"task.v1.TaskOrderV3\"."
+    },
+    {
+      "path": "proto/task/v1/msg_assignment.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"5\" with name \"model_id\" on message \"WorkerHandraiseV1\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/task/v1/msg_assignment.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"TaskOrderV2\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/msg_verification.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"receipt\" on message \"MsgSubmitInferReceipt\" changed type from \"task.v1.InferReceiptV2\" to \"task.v1.InferReceiptV3\"."
+    },
+    {
+      "path": "proto/task/v1/msg_verification.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"receipt\" on message \"MsgSubmitVerifyResult\" changed type from \"task.v1.ResultReceiptV2\" to \"task.v1.ResultReceiptV3\"."
+    },
+    {
+      "path": "proto/task/v1/msg_verification.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"receipts\" on message \"MsgBatchSubmitVerifyResult\" changed type from \"task.v1.ResultReceiptV2\" to \"task.v1.ResultReceiptV3\"."
+    },
+    {
+      "path": "proto/task/v1/open_verify.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"7\" with name \"model_id\" on message \"VerifierHandraiseV1\" changed type from \"string\" to \"bytes\"."
     },
     {
       "path": "proto/task/v1/query_task.proto",
@@ -458,8 +772,23 @@
     },
     {
       "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"3\" with name \"model_id\" on message \"ActiveTaskRefV1\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
       "type": "ONEOF_NO_DELETE",
       "message": "Previously present oneof \"value\" on message \"QueryEpochTaskSummaryResponse\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/result.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"ResultReceiptV2\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/settlement.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"3\" with name \"model_id\" on message \"TaskFailureClassState\" changed type from \"string\" to \"bytes\"."
     }
   ]
 }

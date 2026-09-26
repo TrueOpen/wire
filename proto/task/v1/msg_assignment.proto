@@ -16,7 +16,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 
 // DeadlineLatencyClass is the only latency class set. Values are frozen by
 // the API contract because they enter the user-signed task_hash through
-// TaskOrderV2.deadline_policy (§5.13 field 20).
+// TaskOrderV3.deadline_policy (§5.13 field 20).
 // DeadlineLatencyClass defines the DeadlineLatencyClass wire type.
 enum DeadlineLatencyClass {
   // Never accepted in a signed order.
@@ -75,21 +75,21 @@ message GenerationParamsV1 {
   DecodingParamsV1 decoding_params = 4 [(gogoproto.nullable) = false];
 }
 
-// TaskOrderV2 is the user-authored order (api_contract §5.13). The user signs the
+// TaskOrderV3 is the user-authored order (api_contract §5.13). The user signs the
 // order-domain EIP-712 digest whose taskHash commits
-// H_FIELDS_V1("TRUEOPEN_TASK_ORDER_V2", canonical TaskOrderV2). Keeper
+// H_FIELDS_V1("TRUEOPEN_TASK_ORDER_V3", canonical TaskOrderV3). Keeper
 // derives task_id, task_hash, generation_params_digest, order_value,
 // task_builder_seed, reward bucket, resource tier and the Task Builders; none of
 // them may be submitted here.
-// TaskOrderV2 defines the TaskOrderV2 wire type.
-message TaskOrderV2 {
-  // Always 2; V1 orders are not accepted by the fresh v0.3.0 schema.
+// TaskOrderV3 defines the TaskOrderV3 wire type.
+message TaskOrderV3 {
+  // Always 3; earlier order domains are not accepted by fresh Genesis.
   uint32 schema_version = 1;
   string chain_id = 2;
   string user_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   bytes session_id = 4 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint64 order_sequence = 5;
-  string model_id = 6;
+  bytes model_id = 6 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 7;
   shared.v1.TaskType task_type = 8;
   bytes input_hash = 9 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
@@ -109,6 +109,10 @@ message TaskOrderV2 {
   bytes session_anchor_block_hash = 23 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   string builder_set_id = 24;
   bytes builder_set_hash = 25 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  PayloadModeV1 payload_mode = 26;
+  // Reserved encryption fields: zero/empty in plaintext Phase 0.
+  bytes input_key_commitment = 27 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes user_recipient_pubkey = 28 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
 }
 
 // SignedOrderV2 is the upstream-locked signed order envelope (§5.13).
@@ -117,7 +121,7 @@ message TaskOrderV2 {
 // and low-S.
 // SignedOrderV2 defines the SignedOrderV2 wire type.
 message SignedOrderV2 {
-  TaskOrderV2 order = 1 [(gogoproto.nullable) = false];
+  TaskOrderV3 order = 1 [(gogoproto.nullable) = false];
   string signature_scheme = 2;
   bytes user_signature = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
 }
@@ -153,7 +157,7 @@ message WorkerHandraiseScopeV1 {
 // per-message counter. Raw handraises are never persisted.
 //
 // schema_version is 1: §4.1 writes `schema_version: uint32 = 1` literally for this
-// wire. InferReceiptV2 is the only sibling receipt that uses schema version 2.
+// wire. Handraise schema versions are independent of receipt versions.
 // WorkerHandraiseV1 defines the WorkerHandraiseV1 wire type.
 message WorkerHandraiseV1 {
   // Always 1; §4.1 pins it literally.
@@ -161,13 +165,15 @@ message WorkerHandraiseV1 {
   string chain_id = 2;
   bytes task_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bytes task_hash = 4 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  string model_id = 5;
+  bytes model_id = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 6;
   CandidateMemberRefV1 member = 7 [(gogoproto.nullable) = false];
   shared.v1.Duty duty = 8;
   uint64 service_authorization_nonce = 9;
   uint64 expiry_height = 10;
   bytes service_signature = 11 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  // Reserved recipient key: empty in plaintext Phase 0.
+  bytes recipient_pubkey = 12 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
 }
 
 // MsgSubmitWorkerHandraises accepts the order plus Worker handraises and ORs the

@@ -62,7 +62,7 @@ enum ProfileStatusSource {
 
 // ModelState is one registered model primary row (data-structure contract 6.3).
 message ModelState {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   string proposer_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   ModelProfileStatus status = 3;
   uint32 active_profile_count = 4;
@@ -76,11 +76,13 @@ message ModelState {
   uint64 support_min_stake = 12;
   uint64 pending_support_min_stake = 13;
   uint64 pending_effective_height = 14;
+  string provider = 15;
+  string repo_id = 16;
 }
 
 // ProfileState is one registered model profile primary row.
 message ProfileState {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
   bytes manifest_hash = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bytes tokenizer_hash = 4 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
@@ -107,12 +109,15 @@ message ProfileState {
   uint64 updated_height = 28;
   optional uint64 last_freeze_risk_window_evaluated = 29;
   uint64 ref_price = 30;
+  shared.v1.ProfileSourceRefV1 source = 31 [(gogoproto.nullable) = false];
+  shared.v1.ParserRefV1 tool_call_parser = 32 [(gogoproto.nullable) = false];
+  shared.v1.ParserRefV1 reasoning_parser = 33 [(gogoproto.nullable) = false];
 }
 
 // RegistrationReceipt is the minimal replay locator stored under the
 // registration digest key. The remaining receipt facts live in ProfileState.
 // RegistrationReceipt defines the RegistrationReceipt wire type.
 message RegistrationReceipt {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
 }

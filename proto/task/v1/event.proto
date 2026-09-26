@@ -114,7 +114,7 @@ message EventRevealPhaseStarted {
 // those numbers, so the enum is confirmed as-is rather than renumbered; changing it
 // now would be a second breaking change for consumers that already pulled it. The
 // seven §6.6 names become descriptive prose, and the mapping table is backfilled
-// into the monorepo documentation. Because classification_source enters the
+// into the protocol contract. Because classification_source enters the
 // TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1 preimage as uint32_be (§10.12), the four
 // numbers are now consensus-frozen: a cross-language implementation must encode
 // exactly the §9.6b value and must never widen the enum to carry a finer reason. The

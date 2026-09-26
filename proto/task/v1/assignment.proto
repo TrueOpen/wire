@@ -200,7 +200,17 @@ enum TaskCandidateStageStatusV1 {
   TASK_CANDIDATE_STAGE_STATUS_V1_FINALIZED = 3;
 }
 
-// FinalizeCursorStatusV1 is the bounded finalize cursor status, frozen by §9.6b.
+// PayloadModeV1 reserves encrypted payload selection for a later activation.
+enum PayloadModeV1 {
+  // An unset mode is invalid in an accepted order.
+  PAYLOAD_MODE_V1_UNSPECIFIED = 0;
+  // Phase 0 accepts only plaintext payloads.
+  PAYLOAD_MODE_V1_PLAINTEXT = 1;
+  // Encryption is reserved for a separately activated contract.
+  PAYLOAD_MODE_V1_ENCRYPTED = 2;
+}
+
+// FinalizeCursorStatusV1 is the bounded finalize cursor status.
 enum FinalizeCursorStatusV1 {
   // Never written; rejects zero-value rows.
   // FINALIZE_CURSOR_STATUS_V1_UNSPECIFIED identifies the corresponding protocol value.
@@ -232,10 +242,10 @@ message TaskCoreState {
   bytes accepted_task_hash = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bytes accepted_input_hash = 6 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bytes accepted_order_opening_hash = 7 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  string model_id = 8;
+  bytes model_id = 8 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 9;
   // order_value is the immutable keeper-derived worker_max + verify_max from
-  // the accepted TaskOrderV2. It is not TaskBudgetState.original_reserved_amount,
+  // the accepted TaskOrderV3. It is not TaskBudgetState.original_reserved_amount,
   // which is max_fee.
   shared.v1.TaskType task_type = 10;
   shared.v1.Amount order_value = 11 [(gogoproto.nullable) = false];
@@ -255,6 +265,7 @@ message TaskCoreState {
   // Frozen from Hub ServiceParamsV1.objective_forgery_slash_bps in the same
   // transaction and used by objective Worker evidence.
   uint32 objective_forgery_slash_bps_snapshot = 23;
+  PayloadModeV1 accepted_payload_mode = 24;
 }
 
 // TaskAssignmentState holds Worker assignment facts only (§6.6, key = task_id).
@@ -290,6 +301,8 @@ message TaskAssignmentState {
   // update cannot reinterpret an in-flight duty.
   uint32 worker_infer_timeout_slash_bps = 21;
   uint32 result_reveal_missing_slash_bps = 22;
+  // Profile minimum stake frozen at admission for later Verifier eligibility.
+  shared.v1.Amount min_stake_snapshot = 23 [(gogoproto.nullable) = false];
 }
 
 // AssignmentCandidateSetState is the task-local dual commitment header

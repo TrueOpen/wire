@@ -1,0 +1,40 @@
+{
+  "notes": [
+    "The identity is an opaque raw Hash32, derived from the immutable repository coordinates and the decoded proposer address."
+  ],
+  "schema": "trueopen.hub.model_id.v1",
+  "source": "Model identity wire contract",
+  "vectors": [
+    {
+      "digest_hex": "c65241d19b257f935ddea99ea59a19175b4b29751e259853d403fe59f04f4e4f",
+      "domain": "TRUEOPEN_MODEL_ID_V1",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-golden-1"
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "utf8": "HUGGINGFACE"
+        },
+        {
+          "name": "repo_id",
+          "type": "string",
+          "utf8": "trueopen/golden-model"
+        },
+        {
+          "bech32": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz",
+          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+          "name": "proposer_address",
+          "type": "address"
+        }
+      ],
+      "framing": "H_FIELDS_V1",
+      "name": "model_id_v1",
+      "preimage_hex": "0000000000000014545255454f50454e5f4d4f44454c5f49445f56310000000000000011747275656f70656e2d676f6c64656e2d31000000000000000b48554747494e47464143450000000000000015747275656f70656e2f676f6c64656e2d6d6f64656c00000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1",
+      "preimage_size_bytes": 129
+    }
+  ]
+}

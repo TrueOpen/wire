@@ -1,0 +1,210 @@
+package main
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/binary"
+	"encoding/hex"
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+)
+
+func loadIntegratedFixture(t *testing.T, category, name string) map[string]any {
+	t.Helper()
+	path := filepath.Join("..", "..", "testdata", "v1", category, name)
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := validatePublishedVectors(path, category+"/"+name); err != nil {
+		t.Fatal(err)
+	}
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.UseNumber()
+	var doc map[string]any
+	if err := decoder.Decode(&doc); err != nil {
+		t.Fatal(err)
+	}
+	return doc
+}
+
+func integratedVector(t *testing.T, doc map[string]any, domain string) map[string]any {
+	t.Helper()
+	for _, raw := range doc["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["domain"] == domain {
+			return vector
+		}
+	}
+	t.Fatalf("missing vector for %s", domain)
+	return nil
+}
+
+func integratedField(t *testing.T, vector map[string]any, name string) map[string]any {
+	t.Helper()
+	for _, raw := range vector["fields"].([]any) {
+		field := raw.(map[string]any)
+		if field["name"] == name {
+			return field
+		}
+	}
+	t.Fatalf("missing field %s in %s", name, vector["domain"])
+	return nil
+}
+
+func TestIntegratedContractVectors(t *testing.T) {
+	taskFiles := []string{
+		"worker_token_commitment_v1.json",
+		"worker_value_commitment_v3.json",
+		"worker_value_leaf_v1.json",
+		"verifier_value_leaf_v1.json",
+		"infer_receipt_v3.json",
+		"metric_leaf_v3.json",
+		"result_metric_v3.json",
+		"result_receipt_v3.json",
+		"task_order_v3.json",
+		"output_stream_header_v1.json",
+		"task_data_auth_v1.json",
+		"builder_confirmation_v1.json",
+	}
+	docs := map[string]map[string]any{}
+	for _, name := range taskFiles {
+		docs[name] = loadIntegratedFixture(t, "task", name)
+	}
+	for _, name := range []string{"model_id_v1.json", "model_manifest_v4.json", "hub_domains_v1.json"} {
+		loadIntegratedFixture(t, "hub", name)
+	}
+
+	token := integratedVector(t, docs["worker_token_commitment_v1.json"], "TRUEOPEN_WORKER_TOKEN_COMMITMENT_V1")
+	value := integratedVector(t, docs["worker_value_commitment_v3.json"], "TRUEOPEN_WORKER_VALUE_COMMITMENT_V3")
+	workerVectors := docs["worker_value_leaf_v1.json"]["vectors"].([]any)
+	workerRoot := workerVectors[len(workerVectors)-1].(map[string]any)
+	if integratedField(t, value, "worker_value_root")["hex"] != workerRoot["root_hex"] ||
+		integratedField(t, value, "worker_values_encoded_size_bytes")["value"] != workerRoot["worker_values_encoded_size_bytes"] {
+		t.Fatal("B-level commitment does not bind its published Worker value artifact")
+	}
+	receiptDoc := docs["infer_receipt_v3.json"]
+	items := receiptDoc["commitment_list"].(map[string]any)["items"].([]any)
+	if len(items) != 2 {
+		t.Fatalf("infer receipt has %d evidence kinds, want 2", len(items))
+	}
+	if items[0].(map[string]any)["evidence_hash_or_root_hex"] != value["digest_hex"] ||
+		items[1].(map[string]any)["evidence_hash_or_root_hex"] != token["digest_hex"] {
+		t.Fatal("InferReceiptV3 commitment list does not bind the B and A vectors")
+	}
+	receipt := integratedVector(t, receiptDoc, "TRUEOPEN_INFER_RECEIPT_V3")
+	evidenceHash := receiptDoc["commitment_list"].(map[string]any)["digest_hex"]
+	if integratedField(t, receipt, "evidence_commitments_hash")["hex"] != evidenceHash {
+		t.Fatal("InferReceiptV3 does not bind its ordered evidence list")
+	}
+	verifierDoc := docs["verifier_value_leaf_v1.json"]
+	verifierVectors := verifierDoc["vectors"].([]any)
+	verifierRoot := verifierVectors[len(verifierVectors)-1].(map[string]any)["root_hex"]
+	resultMetric := docs["result_metric_v3.json"]["vectors"].([]any)
+	metricRoot := resultMetric[len(resultMetric)-1].(map[string]any)["root_hex"]
+	result := integratedVector(t, docs["result_receipt_v3.json"], "TRUEOPEN_RESULT_V3")
+	if integratedField(t, result, "verifier_value_root")["hex"] != verifierRoot ||
+		integratedField(t, result, "metric_root")["hex"] != metricRoot {
+		t.Fatal("ResultReceiptV3 does not bind the published value and metric roots")
+	}
+	commitment := integratedVector(t, docs["result_receipt_v3.json"], "TRUEOPEN_RESULT_COMMITMENT_V3")
+	if integratedField(t, commitment, "verifier_value_root")["hex"] != verifierRoot {
+		t.Fatal("result commitment does not bind the Verifier value root")
+	}
+	payload := integratedVector(t, docs["result_receipt_v3.json"], "TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V2")
+	payloadBytes, err := hex.DecodeString(payload["payload_hex"].(string))
+	if err != nil {
+		t.Fatal(err)
+	}
+	parts := splitCanonicalFrame(t, payloadBytes)
+	if len(parts) != 18 {
+		t.Fatalf("V2 reveal payload has %d parts, want 18", len(parts))
+	}
+	if len(parts[12]) != 4 || string(parts[0]) != "VERIFIER_RESULT_REVEAL_V2" ||
+		hex.EncodeToString(parts[7]) != receipt["digest_hex"] ||
+		hex.EncodeToString(parts[10]) != verifierRoot ||
+		hex.EncodeToString(parts[11]) != metricRoot ||
+		binary.BigEndian.Uint32(parts[12]) != 3 ||
+		!bytes.Equal(parts[17], make([]byte, 32)) {
+		t.Fatal("V2 reveal payload is not linked to the V3 receipt and evidence roots")
+	}
+	for _, raw := range docs["task_order_v3.json"]["vectors"].([]any) {
+		order := raw.(map[string]any)
+		if order["domain"] != "TRUEOPEN_TASK_ORDER_V3" {
+			continue
+		}
+		fields := order["fields"].([]any)
+		if len(fields) != 28 {
+			t.Fatalf("TaskOrderV3 has %d fields", len(fields))
+		}
+		if integratedField(t, order, "model_id")["type"] != "bytes" {
+			t.Fatal("TaskOrderV3 model_id is not raw Hash32")
+		}
+	}
+}
+
+func splitCanonicalFrame(t *testing.T, raw []byte) [][]byte {
+	t.Helper()
+	var parts [][]byte
+	for len(raw) > 0 {
+		if len(raw) < 8 {
+			t.Fatal("short canonical frame length")
+		}
+		size := binary.BigEndian.Uint64(raw[:8])
+		raw = raw[8:]
+		if size > uint64(len(raw)) {
+			t.Fatal("canonical frame length exceeds remaining bytes")
+		}
+		parts = append(parts, raw[:size])
+		raw = raw[size:]
+	}
+	return parts
+}
+
+func TestModelProjectionV3DigestChain(t *testing.T) {
+	identity := loadIntegratedFixture(t, "hub", "model_id_v1.json")
+	modelID := integratedVector(t, identity, "TRUEOPEN_MODEL_ID_V1")["digest_hex"].(string)
+	profile := loadIntegratedFixture(t, "hub", "model_profile_canonical_v3.json")
+	projection := profile["canonical_projection"].(map[string]any)
+	if projection["model_id"] != "0x"+modelID {
+		t.Fatal("model projection does not use the derived model ID")
+	}
+	encoded, err := json.Marshal(projection)
+	if err != nil {
+		t.Fatal(err)
+	}
+	declaredSize, err := profile["canonical_projection_bytes"].(json.Number).Int64()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if int64(len(encoded)) != declaredSize {
+		t.Fatal("canonical model projection length mismatch")
+	}
+	projectionDigest := sha256.Sum256(encodeHV1("TRUEOPEN_MODEL_CHAIN_PROJECTION_V3", encoded))
+	if hex.EncodeToString(projectionDigest[:]) != profile["chain_projection_hash"] {
+		t.Fatal("model chain projection digest mismatch")
+	}
+	registration := []byte(profile["registration_payload_bytes"].(string))
+	registrationDigest := sha256.Sum256(encodeHV1("TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3", registration))
+	if hex.EncodeToString(registrationDigest[:]) != profile["registration_digest"] {
+		t.Fatal("model registration digest mismatch")
+	}
+	manifest := loadIntegratedFixture(t, "hub", "model_manifest_v4.json")
+	manifestBytes, err := json.Marshal(manifest["manifest"])
+	if err != nil {
+		t.Fatal(err)
+	}
+	vector := integratedVector(t, manifest, "TRUEOPEN_MODEL_MANIFEST_V4")
+	if string(manifestBytes) != vector["payload_utf8"] {
+		t.Fatal("manifest vector is not canonical JSON of the published V4 object")
+	}
+	account := loadIntegratedFixture(t, "shared", "account_signing_v1.json")
+	order := account["task_order"].(map[string]any)
+	if order["domain"].(map[string]any)["version"] != "3" ||
+		!strings.Contains(order["encode_type"].(string), "bytes32 modelId") {
+		t.Fatal("Task Order EIP-712 vector does not use version 3 and bytes32 modelId")
+	}
+}

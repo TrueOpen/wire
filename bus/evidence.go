@@ -436,7 +436,7 @@ func EquivocationPreconditions(a, b VerifiedEvidenceEnvelope) error {
 		// therefore a subject, but they are two rounds, not one equivocation - and
 		// attributing them as one would write a BuilderFault for honest behaviour.
 		{"action scope task_hash", bytes.Equal(a.Scope.TaskHash, b.Scope.TaskHash)},
-		{"action scope model_id", equalOptionalString(a.Scope.ModelID, b.Scope.ModelID)},
+		{"action scope model_id", bytes.Equal(a.Scope.ModelID, b.Scope.ModelID)},
 		{"action scope verify_round", equalOptionalUint32(a.Scope.VerifyRound, b.Scope.VerifyRound)},
 		{"action scope payload_actor", equalOptionalString(a.Scope.PayloadActor, b.Scope.PayloadActor)},
 		// ORDER_BROADCAST carries its order out of band, and its task_hash is

@@ -267,6 +267,10 @@ enum FaultKind {
   // Builder objective evidence was accepted against the operator.
   // FAULT_KIND_BUILDER_OBJECTIVE_FAULT identifies the corresponding protocol value.
   FAULT_KIND_BUILDER_OBJECTIVE_FAULT = 5;
+  // Reserved for the later verifier value-evidence admission upgrade.
+  FAULT_KIND_VERIFIER_VALUE_MISMATCH = 6;
+  // Reserved for objectively invalid Worker value evidence after activation.
+  FAULT_KIND_WORKER_VALUES_INVALID = 7;
 }
 
 // ParamsModuleV1 selects the owner of a parameter-update event.

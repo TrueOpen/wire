@@ -48,8 +48,8 @@ type BusActionScopeV2 struct {
 	// VERIFIER_HANDRAISE and VERIFY_RESULT, which §5.5 loads from Task authority,
 	// and for ORDER_BROADCAST - see OrderBytes on DecodedEnvelope.
 	TaskHash []byte
-	// ModelID is absent unless the payload carries it.
-	ModelID *string
+	// ModelID is raw Hash32 and absent unless the payload carries it.
+	ModelID []byte
 	// VerifyRound is absent unless the payload carries it.
 	VerifyRound *uint32
 	// PayloadActor is the canonical address the payload attributes the action to.
@@ -72,18 +72,18 @@ type DecodedEnvelope struct {
 	// RawSize is the encoded envelope length the size bound was checked against.
 	RawSize int
 	Scope   BusActionScopeV2
-	// OrderBytes is the exact serialized task.v1.TaskOrderV2 of an
+	// OrderBytes is the exact serialized task.v1.TaskOrderV3 of an
 	// ORDER_BROADCAST payload, and nil for every other kind.
 	//
-	// §5.5 derives that kind's task_hash by recomputing TRUEOPEN_TASK_ORDER_V2 over
-	// the canonical TaskOrderV2 projection. That projection is a 25-field
+	// The action's task_hash is recomputed with TRUEOPEN_TASK_ORDER_V3 over
+	// the canonical TaskOrderV3 projection. That projection is a 28-field
 	// registered domain of its own, covering Amount, GenerationParamsV1 and
 	// DeadlinePolicyV1 canonical forms that this package does not implement, and a
 	// guessed projection would produce a confidently wrong task_hash - worse than
 	// an absent one, because it would compare unequal against the authority and
 	// look like tampering. So the decoder hands over the exact bytes and leaves
 	// Scope.TaskHash absent; the caller recomputes with its own registered
-	// TRUEOPEN_TASK_ORDER_V2 implementation over these bytes, not over a re-encoding.
+	// TRUEOPEN_TASK_ORDER_V3 implementation over these bytes, not over a re-encoding.
 	OrderBytes []byte
 }
 
@@ -260,7 +260,7 @@ func projectScope(kind, payloadType int32, payload []byte) (BusActionScopeV2, []
 		})
 	case KindVerifyResult:
 		// task_hash and model_id come from Task authority for this kind.
-		return projectFromTable(scope, payload, msgResultReceiptV2, subjectVerifyResultPrefix, scopePaths{
+		return projectFromTable(scope, payload, msgResultReceiptV3, subjectVerifyResultPrefix, scopePaths{
 			taskID: 3, verifyRound: 4, actor: 5,
 		})
 	default:
@@ -303,12 +303,11 @@ func projectFromTable(scope BusActionScopeV2, payload []byte, message, subjectPr
 		scope.TaskHash = taskHash
 	}
 	if paths.modelID != 0 {
-		modelID := decodedPayload.stringAt(paths.modelID)
-		if modelID == "" {
-			return BusActionScopeV2{}, nil, fmt.Errorf("%w: %s field %d model_id is empty",
-				ErrDecode, message, paths.modelID)
+		modelID, err := decodedPayload.hash32At(message, paths.modelID)
+		if err != nil {
+			return BusActionScopeV2{}, nil, err
 		}
-		scope.ModelID = &modelID
+		scope.ModelID = modelID
 	}
 	if paths.verifyRound != 0 {
 		round, err := decodedPayload.uint32At(message, paths.verifyRound)
@@ -382,20 +381,23 @@ func projectOrderBroadcast(scope BusActionScopeV2, payload []byte) (BusActionSco
 		return BusActionScopeV2{}, nil, err
 	}
 	orderBytes := signedOrder.bytesAt(1)
-	order, err := strictDecode(msgTaskOrderV2, orderBytes)
+	order, err := strictDecode(msgTaskOrderV3, orderBytes)
 	if err != nil {
 		return BusActionScopeV2{}, nil, err
 	}
 
-	sessionID, err := order.hash32At(msgTaskOrderV2, 4)
+	sessionID, err := order.hash32At(msgTaskOrderV3, 4)
 	if err != nil {
 		return BusActionScopeV2{}, nil, err
 	}
 	orderSequence := order.uint64At(5)
-	modelID := order.stringAt(6)
+	modelID, err := order.hash32At(msgTaskOrderV3, 6)
+	if err != nil {
+		return BusActionScopeV2{}, nil, err
+	}
 	userAddress := order.stringAt(3)
-	if modelID == "" || userAddress == "" {
-		return BusActionScopeV2{}, nil, fmt.Errorf("%w: %s requires model_id and user_address", ErrDecode, msgTaskOrderV2)
+	if userAddress == "" {
+		return BusActionScopeV2{}, nil, fmt.Errorf("%w: %s requires user_address", ErrDecode, msgTaskOrderV3)
 	}
 
 	// task_id = H_FIELDS_V1("TRUEOPEN_TASK_ID_V1", session_id, u64be(order_sequence)),
@@ -403,8 +405,8 @@ func projectOrderBroadcast(scope BusActionScopeV2, payload []byte) (BusActionSco
 	// DecodedEnvelope.OrderBytes.
 	taskID := sha256.Sum256(frame(append([][]byte{[]byte(domainTaskIDV1)}, sessionID, u64be(orderSequence))...))
 	scope.TaskID = taskID[:]
-	scope.ExpectedSubject = subjectTaskOpenPrefix + modelID
-	scope.ModelID = &modelID
+	scope.ExpectedSubject = subjectTaskOpenPrefix + hex.EncodeToString(modelID)
+	scope.ModelID = modelID
 	scope.PayloadActor = &userAddress
 	return scope, orderBytes, nil
 }

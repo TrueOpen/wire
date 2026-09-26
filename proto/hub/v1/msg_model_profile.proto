@@ -22,7 +22,7 @@ message MsgRegisterModelProfile {
 
 // MsgRegisterModelProfileResponse returns the committed registration receipt.
 message MsgRegisterModelProfileResponse {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
   bytes registration_digest = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bool idempotent_replay = 4;

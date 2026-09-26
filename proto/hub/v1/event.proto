@@ -131,7 +131,7 @@ message TaskRoundLocatorV1 {
 
 // ProfileLocatorV1 anchors a model/profile-scoped event.
 message ProfileLocatorV1 {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
 }
 
@@ -193,7 +193,7 @@ message ParamsLocatorV1 {
 
 // EventModelProfileRegistered is event code 3.
 message EventModelProfileRegistered {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
   bytes manifest_hash = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   string proposer = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -202,7 +202,7 @@ message EventModelProfileRegistered {
 
 // EventModelProfileStateChanged is event code 4.
 message EventModelProfileStateChanged {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
   ModelProfileStatus old_status = 3;
   ModelProfileStatus new_status = 4;
@@ -330,7 +330,7 @@ message EventCandidatePoolPruned {
 // EventModelSupportUpdated is event code 93.
 message EventModelSupportUpdated {
   string operator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint64 support_version = 3;
   ModelSupportStatus old_status = 4;
   ModelSupportStatus new_status = 5;
@@ -341,7 +341,7 @@ message EventModelSupportUpdated {
 // EventModelSupportActivated is event code 94.
 message EventModelSupportActivated {
   string operator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bytes activation_task_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   shared.v1.Duty activation_duty = 4;
   uint64 support_version = 5;
@@ -351,7 +351,7 @@ message EventModelSupportActivated {
 
 // EventModelStateChanged is event code 100.
 message EventModelStateChanged {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   ModelProfileStatus old_status = 2;
   ModelProfileStatus new_status = 3;
   ModelStatusSource source = 4;
@@ -444,7 +444,7 @@ message EventServiceRegistered {
 // EndBlock commits an actual reference-price change for one Profile.
 // EventProfileReferencePriceUpdated defines the EventProfileReferencePriceUpdated wire type.
 message EventProfileReferencePriceUpdated {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
   uint64 old_ref_price = 3;
   uint64 new_ref_price = 4;
@@ -522,7 +522,7 @@ message EventTreasuryAdjusted {
 // EventFreezeSignalSubmitted defines the EventFreezeSignalSubmitted wire type.
 message EventFreezeSignalSubmitted {
   bytes freeze_signal_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 3;
   uint64 risk_window_id = 4;
   uint64 risk_window_start_height = 5;
@@ -550,7 +550,7 @@ message EventEmergencyFreezeVoteRecorded {
 // EventEmergencyFreezeAccepted defines the EventEmergencyFreezeAccepted wire type.
 message EventEmergencyFreezeAccepted {
   bytes freeze_signal_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 3;
   uint64 accepted_voting_power = 4;
   uint64 total_voting_power_snapshot = 5;
@@ -562,7 +562,7 @@ message EventEmergencyFreezeAccepted {
 // EventEmergencyFreezeRejected defines the EventEmergencyFreezeRejected wire type.
 message EventEmergencyFreezeRejected {
   bytes freeze_signal_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 3;
   uint64 rejected_voting_power = 4;
   uint64 total_voting_power_snapshot = 5;
@@ -573,7 +573,7 @@ message EventEmergencyFreezeRejected {
 // EventFreezeSignalExpired defines the EventFreezeSignalExpired wire type.
 message EventFreezeSignalExpired {
   bytes freeze_signal_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 3;
   uint64 vote_deadline_height = 4;
 }

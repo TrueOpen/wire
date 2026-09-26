@@ -3,7 +3,7 @@
     "Every vector is H_FIELDS_V1: preimage = u64_be(len(domain)) || domain || for each field u64_be(len(field)) || field; digest = SHA256(preimage).",
     "Field encoding (§1.2): string = strict UTF-8 bytes; bytes = raw bytes; uint32/uint64 = 4/8-byte big-endian; bool = 0x00/0x01; enum = uint32 big-endian; frame = domainless NestedFieldFrameV1.",
     "operator_address is encoded as stable address-codec bytes whenever a vector carries it, per §1.2. Decision 17 aligned the daily support confirmation domain and Decision 24 aligned the remaining five identity/bond domains; no Hub domain frames Bech32 text. A non-Go implementation must decode Bech32 to 20-byte account bytes before framing.",
-    "TRUEOPEN_SERVICE_REGISTRATION_V1 binds participant_type immediately after chain_id, matching the current monorepo registry. This separates Cortex and Builder identity proofs and makes cross_participant_type replay testable.",
+    "TRUEOPEN_SERVICE_REGISTRATION_V1 binds participant_type immediately after chain_id. This separates Cortex and Builder identity proofs and makes cross_participant_type replay testable.",
     "tamper: XOR one bit of one framed field. \"byte\" indexes the framed field bytes and may be negative to count from the end; \"bit\" is the bit position inside that byte (0 = least significant). An absent optional value frames as an empty field and has no bit to flip, so it is covered by a replay case instead.",
     "replay: apply the listed field overrides (keeping the frozen field type) and expect a different digest. Covers cross-chain, cross-operator, cross-participant-type, stale-nonce/version/epoch and list-reorder replay.",
     "beacon_checkpoint_v1 carries a \"producer\" key and no tamper/replay section. The key names the function TestHubDomainFixtureMatchesProductionHelpers feeds this vector's own inputs to: the digest below is what BeaconCheckpointStep really returns, not only what re-framing fields[] produces. Its per-field sensitivity is derived by TestHubDomainFixtureRejectsEveryFieldBitFlip instead of being published.",
@@ -47,6 +47,7 @@
       "framing": "H_FIELDS_V1",
       "name": "service_registration_v1",
       "preimage_hex": "0000000000000020545255454f50454e5f534552564943455f524547495354524154494f4e5f56310000000000000012747275656f70656e2d666978747572652d310000000000000004000000010000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4000000000000002102c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee500000000000000080000000000000001",
+      "producer": "serviceRegistrationDigest",
       "replay": [
         {
           "digest_hex": "90a7dd70cb374186fcf20cf375f215a15501fb6aec0b62614ef6b3065ee01504",
@@ -196,8 +197,7 @@
           "field": 4,
           "name": "nonce_least_significant_byte"
         }
-      ],
-      "producer": "serviceRegistrationDigest"
+      ]
     },
     {
       "contract_section": "§10.0c1",
@@ -239,6 +239,7 @@
       "framing": "H_FIELDS_V1",
       "name": "service_key_rotation_v1",
       "preimage_hex": "0000000000000020545255454f50454e5f534552564943455f4b45595f524f544154494f4e5f56310000000000000012747275656f70656e2d666978747572652d310000000000000004000000010000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4000000000000002103f028892bad7ed57d2fb57bf33081d5cfcf6f9ed3d3d7f159c2e2fff579dc341a0000000000000008000000000000000700000000000000080000000000000008",
+      "producer": "serviceKeyRotationDigest",
       "replay": [
         {
           "digest_hex": "36a6b8c42b2e3c178fb7608884e6ea16888ef61323c5106950e7dbae828a31b1",
@@ -396,8 +397,7 @@
           "field": 5,
           "name": "next_nonce_most_significant_byte"
         }
-      ],
-      "producer": "serviceKeyRotationDigest"
+      ]
     },
     {
       "contract_section": "§9.6b (no chain_id in this preimage)",
@@ -491,6 +491,7 @@
       "framing": "H_FIELDS_V1",
       "name": "service_descriptor_v1",
       "preimage_hex": "000000000000001e545255454f50454e5f534552564943455f44455343524950544f525f56310000000000000004000000010000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b40000000000000008000000000000000300000000000000040000000200000000000000c80000000000000004000000020000000000000065000000000000000400000001000000000000001d68747470733a2f2f6e657875732e666978747572652e696e76616c6964000000000000000476312e3000000000000000200f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f00000000000000047000000000000000400000002000000000000001f68747470733a2f2f676174657761792e666978747572652e696e76616c6964000000000000000476312e300000000000000000",
+      "producer": "CanonicalServiceDescriptorHash",
       "replay": [
         {
           "digest_hex": "f4f46d4525358bec53968d68f1e9601c07bb1fb65ca1d05b6e7a2836bfee098c",
@@ -544,8 +545,7 @@
           "field": 4,
           "name": "endpoints_first_bit"
         }
-      ],
-      "producer": "CanonicalServiceDescriptorHash"
+      ]
     },
     {
       "contract_section": "§10.0c step 4",
@@ -592,6 +592,7 @@
       "framing": "H_FIELDS_V1",
       "name": "unbonding_id_v1",
       "preimage_hex": "0000000000000018545255454f50454e5f554e424f4e44494e475f49445f56310000000000000012747275656f70656e2d666978747572652d310000000000000004000000010000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4000000000000000800000000000000050000000000000008000000000003d090000000000000000800000000000003e800000000000000080000000000005848",
+      "producer": "serviceUnbondingID",
       "replay": [
         {
           "digest_hex": "96e05bc668219888c0738a99cc624c4a1da2b871624b3546a64dd1c999b9f480",
@@ -734,8 +735,7 @@
           "field": 6,
           "name": "mature_height_least_significant_byte"
         }
-      ],
-      "producer": "serviceUnbondingID"
+      ]
     },
     {
       "contract_section": "§6.4",
@@ -787,6 +787,7 @@
       "framing": "H_FIELDS_V1",
       "name": "unbonding_receipt_v1",
       "preimage_hex": "000000000000001d545255454f50454e5f554e424f4e44494e475f524543454950545f56310000000000000012747275656f70656e2d666978747572652d3100000000000000203a3b3c3d3e3f40414243444546474849505152535455565758595a5b5c5d5e5f0000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b40000000000000008000000000003d09000000000000000080000000000030d400000000000000008000000000000c350000000000000000400000003000000000000000800000000000059d8",
+      "producer": "unbondingReceiptHash",
       "replay": [
         {
           "digest_hex": "f68c276898597c049a9b9ef1ef2dd25fb963b17d21e5f16fdf4dbdd5b083dee7",
@@ -937,8 +938,7 @@
           "field": 7,
           "name": "terminal_height_least_significant_byte"
         }
-      ],
-      "producer": "unbondingReceiptHash"
+      ]
     },
     {
       "contract_section": "§5.7",
@@ -984,14 +984,14 @@
               "value": 2
             },
             {
+              "hex": "0101010101010101010101010101010101010101010101010101010101010101",
               "name": "model_0",
-              "type": "bytes",
-              "hex": "0101010101010101010101010101010101010101010101010101010101010101"
+              "type": "bytes"
             },
             {
+              "hex": "0202020202020202020202020202020202020202020202020202020202020202",
               "name": "model_1",
-              "type": "bytes",
-              "hex": "0202020202020202020202020202020202020202020202020202020202020202"
+              "type": "bytes"
             }
           ],
           "name": "models",
@@ -1001,6 +1001,7 @@
       "framing": "H_FIELDS_V1",
       "name": "daily_support_confirmation_v1",
       "preimage_hex": "0000000000000026545255454f50454e5f4441494c595f535550504f52545f434f4e4649524d4154494f4e5f56310000000000000012747275656f70656e2d666978747572652d310000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b40000000000000008000000000000002a00000000000000080000000000000007000000000000000800000000000007d0000000000000000400000002000000000000005c0000000000000004000000020000000000000020010101010101010101010101010101010101010101010101010101010101010100000000000000200202020202020202020202020202020202020202020202020202020202020202",
+      "producer": "CanonicalDailySupportConfirmationSigningBytesV1",
       "replay": [
         {
           "digest_hex": "3cc3626a683dc963b29c05e9996d3361fba1d6fb20eaa5a1f924c3e095c54419",
@@ -1068,8 +1069,7 @@
           "field": 6,
           "name": "models_first_bit"
         }
-      ],
-      "producer": "CanonicalDailySupportConfirmationSigningBytesV1"
+      ]
     },
     {
       "contract_section": "§1.4; §6.1",
@@ -1089,14 +1089,14 @@
               "value": 2
             },
             {
+              "hex": "0101010101010101010101010101010101010101010101010101010101010101",
               "name": "model_0",
-              "type": "bytes",
-              "hex": "0101010101010101010101010101010101010101010101010101010101010101"
+              "type": "bytes"
             },
             {
+              "hex": "0202020202020202020202020202020202020202020202020202020202020202",
               "name": "model_1",
-              "type": "bytes",
-              "hex": "0202020202020202020202020202020202020202020202020202020202020202"
+              "type": "bytes"
             }
           ],
           "name": "models",
@@ -1106,6 +1106,7 @@
       "framing": "H_FIELDS_V1",
       "name": "support_models_v1",
       "preimage_hex": "000000000000001a545255454f50454e5f535550504f52545f4d4f44454c535f5631000000000000000400000002000000000000005c0000000000000004000000020000000000000020010101010101010101010101010101010101010101010101010101010101010100000000000000200202020202020202020202020202020202020202020202020202020202020202",
+      "producer": "CanonicalSupportedModelsHashV1",
       "replay": [
         {
           "digest_hex": "f46bfe0438770025979565038fabbd1b36c45cf3eb3fe952dea00e5337d73b3d",
@@ -1138,8 +1139,7 @@
           "field": 1,
           "name": "models_first_bit"
         }
-      ],
-      "producer": "CanonicalSupportedModelsHashV1"
+      ]
     },
     {
       "contract_section": "§4.4 and §5.2",
@@ -1236,6 +1236,7 @@
       "name": "parameter_bucket_v1_timeout",
       "note": "bucket_kind 1 is TIMEOUT. This vector predates, which removed the governed ReferenceBucket path; its inputs are unchanged and the digest still holds, but the old name and the pricing-main bucket_key describe a bucket kind that no longer exists. Renamed rather than regenerated because upstream publishes no replacement value.",
       "preimage_hex": "000000000000001c545255454f50454e5f504152414d455445525f4255434b45545f56310000000000000016706172616d657465722d6275636b65742d636861696e000000000000000400000001000000000000000c70726963696e672d6d61696e0000000000000008000000000000000400000000000000080000000000000019000000000000000400000002000000000000005e000000000000000400000002000000000000002100000000000000080000000000000064000000000000000900000000000000013300000000000000210000000000000008ffffffffffffffff0000000000000009000000000000000137",
+      "producer": "ParameterBucketContentHash",
       "replay": [
         {
           "digest_hex": "66d6dbe41bfb5db305b7c153473217d7f90050e6d2226ea42a1005c6394d86d6",
@@ -1303,8 +1304,7 @@
           "field": 6,
           "name": "entries"
         }
-      ],
-      "producer": "ParameterBucketContentHash"
+      ]
     },
     {
       "contract_section": "§6.3",
@@ -1702,7 +1702,7 @@
     },
     {
       "contract_section": "§5.14 and §9.7",
-      "digest_hex": "33467931aeebd4db18fd664d48f9a67820bb98f8675f6dcda6b7075af284ee93",
+      "digest_hex": "32bde2e9a69fef898b82cc23f0be211c17f06cb01cec111494d4ed5fcf35ffe0",
       "domain": "TRUEOPEN_EVIDENCE_SCHEMA_V1",
       "fields": [
         {
@@ -1711,9 +1711,9 @@
           "value": 1
         },
         {
+          "hex": "c65241d19b257f935ddea99ea59a19175b4b29751e259853d403fe59f04f4e4f",
           "name": "model_id",
-          "type": "string",
-          "utf8": "hf-qwen3-8b-test"
+          "type": "bytes"
         },
         {
           "name": "profile_version",
@@ -1865,14 +1865,14 @@
         {
           "name": "requirement_count",
           "type": "uint32",
-          "value": 1
+          "value": 2
         },
         {
           "fields": [
             {
               "name": "element_count",
               "type": "uint32",
-              "value": 1
+              "value": 2
             },
             {
               "fields": [
@@ -1884,7 +1884,7 @@
                 {
                   "name": "commitment_schema_version",
                   "type": "uint32",
-                  "value": 1
+                  "value": 3
                 },
                 {
                   "name": "max_encoded_size_bytes",
@@ -1894,6 +1894,27 @@
               ],
               "name": "requirement_0",
               "type": "frame"
+            },
+            {
+              "fields": [
+                {
+                  "name": "evidence_kind",
+                  "type": "enum",
+                  "value": 4
+                },
+                {
+                  "name": "commitment_schema_version",
+                  "type": "uint32",
+                  "value": 1
+                },
+                {
+                  "name": "max_encoded_size_bytes",
+                  "type": "uint64",
+                  "value": 67108864
+                }
+              ],
+              "name": "requirement_1",
+              "type": "frame"
             }
           ],
           "name": "requirements",
@@ -1902,7 +1923,8 @@
       ],
       "framing": "H_FIELDS_V1",
       "name": "evidence_schema_v1",
-      "preimage_hex": "000000000000001b545255454f50454e5f45564944454e43455f534348454d415f5631000000000000000400000001000000000000001068662d7177656e332d38622d7465737400000000000000040000000100000000000000209999999999999999999999999999999999999999999999999999999999999999000000000000002044444444444444444444444444444444444444444444444444444444444444440000000000000004000000020000000000000004000000140000000000000039000000000000000100000000000000000400000000000000000000000400000000000000000000000400000000000000000000000400000000000000000000000400000001000000000000002250524546494c4c5f47454e4552415445445f544f4b454e5f4d4554524943535f5631000000000000001843414e4f4e4943414c5f4f55545055545f544558545f5631000000000000002150524546494c4c5f4d45545249435f4147475245474154455f50524f4f465f5631000000000000000400000001000000000000000400000001000000000000000101000000000000000100000000000000000100000000000000000101000000000000000101000000000000003c000000000000000101000000000000000101000000000000000101000000000000000101000000000000000400000014000000000000000400000001000000000000000400000001000000000000003c000000000000000400000001000000000000002800000000000000040000000100000000000000040000000100000000000000080000000040000000",
+      "preimage_hex": "000000000000001b545255454f50454e5f45564944454e43455f534348454d415f56310000000000000004000000010000000000000020c65241d19b257f935ddea99ea59a19175b4b29751e259853d403fe59f04f4e4f00000000000000040000000100000000000000209999999999999999999999999999999999999999999999999999999999999999000000000000002044444444444444444444444444444444444444444444444444444444444444440000000000000004000000020000000000000004000000140000000000000039000000000000000100000000000000000400000000000000000000000400000000000000000000000400000000000000000000000400000000000000000000000400000001000000000000002250524546494c4c5f47454e4552415445445f544f4b454e5f4d4554524943535f5631000000000000001843414e4f4e4943414c5f4f55545055545f544558545f5631000000000000002150524546494c4c5f4d45545249435f4147475245474154455f50524f4f465f5631000000000000000400000001000000000000000400000001000000000000000101000000000000000100000000000000000100000000000000000101000000000000000101000000000000003c000000000000000101000000000000000101000000000000000101000000000000000101000000000000000400000014000000000000000400000001000000000000000400000002000000000000006c000000000000000400000002000000000000002800000000000000040000000100000000000000040000000300000000000000080000000040000000000000000000002800000000000000040000000400000000000000040000000100000000000000080000000004000000",
+      "preimage_size_bytes": 660,
       "producer": "EvidenceSchemaHash"
     },
     {

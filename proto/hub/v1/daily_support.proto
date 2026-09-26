@@ -24,7 +24,7 @@ message DailySupportState {
 // ModelCapabilityState is one operator/model declared capability row.
 message ModelCapabilityState {
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bool inference_capability = 4;
   bool verification_capability = 5;
   uint64 capability_version = 6;
@@ -33,7 +33,7 @@ message ModelCapabilityState {
 // ModelSupportRecheckCursorState resumes a bounded model support threshold
 // recheck after the threshold changes.
 message ModelSupportRecheckCursorState {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint64 effective_height = 2;
   string last_operator_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   uint64 visited_count = 4;
@@ -45,7 +45,7 @@ message ModelSupportRecheckCursorState {
 // ModelSupportState is the single operator/model support row.
 message ModelSupportState {
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bool declared_support = 4;
   bool support_active = 5;
   ModelSupportActivationKind activation_kind = 6;

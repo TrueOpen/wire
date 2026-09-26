@@ -18,7 +18,7 @@ message MsgSetModelStatus {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name) = "trueopen/x/hub/MsgSetModelStatus";
 
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   ModelProfileStatus new_status = 2;
   GovernanceReason reason_code = 3;
   string authority = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -37,7 +37,7 @@ message MsgSetProfileStatus {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name) = "trueopen/x/hub/MsgSetProfileStatus";
 
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
   ModelProfileStatus new_status = 3;
   GovernanceReason reason_code = 4;
@@ -141,7 +141,7 @@ message MsgDeclareModelSupport {
   option (cosmos.msg.v1.signer) = "operator_address";
   option (amino.name) = "trueopen/x/hub/MsgDeclareModelSupport";
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bool inference_capability = 4;
   bool verification_capability = 5;
 }
@@ -160,8 +160,8 @@ message MsgDeclareModelSupportResponse {
 message ModelSupportConfirmationV1 {
   string operator_address = 1;
   // Raw Hash32 model IDs, exactly 32 bytes each, strictly ascending and unique.
-  // Release only with the remaining Hash32 model_id surfaces; text encodings
-  // produce different signing bytes and are not an interim wire contract.
+  // All signed and persisted model IDs use the same raw Hash32 representation;
+  // a text encoding would produce different signing bytes.
   repeated bytes supported_models = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint64 service_authorization_nonce = 3;
   uint64 expiry_height = 4;

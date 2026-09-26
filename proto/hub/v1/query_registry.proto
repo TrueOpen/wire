@@ -128,7 +128,7 @@ message QueryEarningsResponse {
 }
 // QueryModelRequest is request type for Query/Model.
 message QueryModelRequest {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 // QueryModelResponse is response type for Query/Model.
@@ -154,7 +154,7 @@ message QueryModelsResponse {
 
 // QueryProfileRequest is request type for Query/Profile.
 message QueryProfileRequest {
-  string model_id = 1;
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 profile_version = 2;
 }
 
@@ -220,7 +220,7 @@ message QueryServiceDescriptorResponse {
 // QueryModelCapabilityRequest selects one operator/model capability.
 message QueryModelCapabilityRequest {
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 // QueryModelCapabilityResponse returns the capability row.
@@ -231,7 +231,7 @@ message QueryModelCapabilityResponse {
 // QueryModelSupportRequest identifies one operator/model support row.
 message QueryModelSupportRequest {
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string model_id = 2;
+  bytes model_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 // QueryModelSupportResponse returns one node-level P30 support row.

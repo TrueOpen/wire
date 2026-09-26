@@ -4,6 +4,7 @@ package hub.v1;
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "shared/v1/amount.proto";
+import "shared/v1/model_profile.proto";
 import "shared/v1/rest_encoding.proto";
 
 option go_package = "github.com/TrueOpen/node/x/hub/types";
@@ -28,6 +29,7 @@ message HubParamsV2 {
   BeaconParamsV1 beacon = 13 [(gogoproto.nullable) = false];
   Phase0ParamsV1 phase0 = 14 [(gogoproto.nullable) = false];
   BridgeParamsV1 bridge = 15 [(gogoproto.nullable) = false];
+  ModelParamsV1 model = 16 [(gogoproto.nullable) = false];
 }
 
 // HubParamsMetaState is the authoritative Hub params version pointer. It is a
@@ -77,6 +79,24 @@ message SupportParamsV1 {
   uint32 max_model_support_prune_items_per_block = 11;
   uint32 max_support_expiry_items_per_block = 12;
   uint32 max_model_support_recheck_items_per_block = 13;
+}
+
+// ModelParamsV1 governs parser allowlists and registration string bounds.
+// Updating a parser list only affects future registrations, not stored profiles.
+message ModelParamsV1 {
+  option (gogoproto.equal) = true;
+
+  repeated shared.v1.ParserRefV1 supported_tool_call_parsers = 1 [(gogoproto.nullable) = false];
+  repeated shared.v1.ParserRefV1 supported_reasoning_parsers = 2 [(gogoproto.nullable) = false];
+  uint32 max_supported_tool_call_parsers = 3;
+  uint32 max_supported_reasoning_parsers = 4;
+  uint32 max_parser_name_bytes = 5;
+  uint32 max_provider_bytes = 6;
+  uint32 max_source_uri_bytes = 7;
+  uint32 max_revision_bytes = 8;
+  uint32 max_resolver_version_bytes = 9;
+  uint32 max_repo_id_bytes = 10;
+  uint32 max_repo_type_bytes = 11;
 }
 
 // CandidatePoolParamsV1 groups global candidate pool parameters (§18.0).

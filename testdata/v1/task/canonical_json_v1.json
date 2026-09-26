@@ -41,33 +41,35 @@
     },
     {
       "contract_section": "§5",
-      "digest_hex": "591b8bdbfda05974211176ff9f6d023bb64b703c8126d7c302ad4ac17725560e",
+      "digest_hex": "eec33863003ba266126e111f3dc094212619cbe1b397414c7ba4fad7b75d694e",
       "domain": "TRUEOPEN_TASK_GENERATION_PARAMS_V1",
       "framing": "H_V1",
       "mutations": [
         {
           "change": "flip the low bit of the payload's last byte",
-          "digest_hex": "b2f2631f7d41afbb1f15c0063b7a79ae6d9cdb6cbb6268cdbb94d7d22f1127d8",
+          "digest_hex": "c95617da52de8645dd5eae9ff11c328c4f239cb03da5aaed441fd2bc34be8a7e",
           "expect": "digest_changes",
           "name": "payload.last_byte_flipped"
         },
         {
           "change": "drop the payload's last byte, which also changes the framed length",
-          "digest_hex": "bdde367b53bfef59b2ab90366276801d38711200e599060bb18a59ec9b5c95c9",
+          "digest_hex": "75932dae4f01964c9faa4542e26ff72e7cc1491af37362a9f5dda383c3daeb33",
           "expect": "digest_changes",
           "name": "payload.truncated_by_one"
         },
         {
           "change": "flip the low bit of the payload's first byte",
-          "digest_hex": "87910bbbac8b5428e129d7cfce3f2f01ad9be7b88de1c4c43e9b945fe9d5f2ac",
+          "digest_hex": "e023d0bef50ac5f4f43825894f50aaf13da0f4c69c56a57059c278727f1b4df3",
           "expect": "digest_changes",
           "name": "payload.first_byte_flipped"
         }
       ],
       "name": "task_generation_params_v1",
-      "note": "canonical_json_v1 of the effective GenerationParamsV1: object keys ascend by UTF-8 bytes, uint64 is a decimal string, and signed millis keep their sign. The digest is what TaskOrderV2 field 13 and the receipt both bind to.",
-      "payload_bytes": 446,
-      "payload_utf8": "{\"decoding_params\":{\"frequency_penalty_milli\":125,\"presence_penalty_milli\":-250,\"repetition_penalty_ppm\":1050000,\"sampling_enabled\":true,\"seed\":8675309,\"stop_sequences\":[\"\u003c/s\u003e\",\"STOP\"],\"stop_token_ids\":[11,220],\"temperature_milli\":700,\"top_k\":40,\"top_p_ppm\":950000},\"generation_params_schema_version\":1,\"max_output_duration\":30000,\"max_output_tokens\":256,\"model_id\":\"qwen3-8b-test\",\"output_budget_bucket\":4,\"profile_version\":1,\"task_type\":\"CHAT\"}",
+      "note": "Canonical JSON of effective generation parameters binds a raw Hash32 model ID in lowercase boundary hex.",
+      "payload_bytes": 509,
+      "payload_utf8": "{\"decoding_params\":{\"frequency_penalty_milli\":125,\"presence_penalty_milli\":-250,\"repetition_penalty_ppm\":1050000,\"sampling_enabled\":true,\"seed\":8675309,\"stop_sequences\":[\"\\u003c/s\\u003e\",\"STOP\"],\"stop_token_ids\":[11,220],\"temperature_milli\":700,\"top_k\":40,\"top_p_ppm\":950000},\"generation_params_schema_version\":1,\"max_output_duration\":30000,\"max_output_tokens\":256,\"model_id\":\"0x5555555555555555555555555555555555555555555555555555555555555555\",\"output_budget_bucket\":4,\"profile_version\":1,\"task_type\":\"CHAT\"}",
+      "preimage_hex": "545255454f50454e5f4652414d455f563100000022545255454f50454e5f5441534b5f47454e45524154494f4e5f504152414d535f563100000000000001fd7b226465636f64696e675f706172616d73223a7b226672657175656e63795f70656e616c74795f6d696c6c69223a3132352c2270726573656e63655f70656e616c74795f6d696c6c69223a2d3235302c2272657065746974696f6e5f70656e616c74795f70706d223a313035303030302c2273616d706c696e675f656e61626c6564223a747275652c2273656564223a383637353330392c2273746f705f73657175656e636573223a5b225c75303033632f735c7530303365222c2253544f50225d2c2273746f705f746f6b656e5f696473223a5b31312c3232305d2c2274656d70657261747572655f6d696c6c69223a3730302c22746f705f6b223a34302c22746f705f705f70706d223a3935303030307d2c2267656e65726174696f6e5f706172616d735f736368656d615f76657273696f6e223a312c226d61785f6f75747075745f6475726174696f6e223a33303030302c226d61785f6f75747075745f746f6b656e73223a3235362c226d6f64656c5f6964223a22307835353535353535353535353535353535353535353535353535353535353535353535353535353535353535353535353535353535353535353535353535353535222c226f75747075745f6275646765745f6275636b6574223a342c2270726f66696c655f76657273696f6e223a312c227461736b5f74797065223a2243484154227d",
+      "preimage_size_bytes": 572,
       "producer": "GenerationParamsDigest"
     }
   ]

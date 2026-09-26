@@ -49,7 +49,7 @@
   ],
   "schema": "trueopen-account-signing-v1",
   "task_data_request": {
-    "body_digest_source": "task/task_data_auth_v1.json vector task_data_fetch_body_v1, domain TRUEOPEN_TASK_DATA_FETCH_BODY_V1",
+    "body_digest_source": "task/task_data_auth_v1.json vector task_data_fetch_body_v2, domain TRUEOPEN_TASK_DATA_FETCH_BODY_V2",
     "contract": "§4.2.1",
     "domain": {
       "chain_id": "424242",
@@ -60,9 +60,9 @@
       "version": "1"
     },
     "encode_type": "TaskDataRequest(uint32 schemaVersion,string chainId,string builderOperatorAddress,string rpcMethod,bytes32 bodyDigest,uint32 requesterKind,string requesterAddress,uint64 serviceAuthorizationNonce,bytes32 requestNonce,uint64 expiryHeight)",
-    "hash_struct": "9701c62f684c238216b1f8f6da7edecd161a0c1dfb3b13821b6ef6f5353285a3",
+    "hash_struct": "445fb9e9e1500a100a249cf7ab45c09dc5297012e8cf51b400a2162c6f090ace",
     "message": {
-      "bodyDigest": "f079d3b5e89705f4b65ca30e3d982aa2a62a1fee2aed291b28f088ca386fc964",
+      "bodyDigest": "970b34d606804ecad3696838a6f78cde4a8b558307b7bdafdb3764657ada797e",
       "builderOperatorAddress": "trueopen1wltmkp6cpvulh9ya7z0hhw0cpgwsvsdccd5man",
       "chainId": "trueopen-golden-1",
       "expiryHeight": "2000",
@@ -75,27 +75,27 @@
     },
     "note": "The USER branch of TaskDataRequestAuthV1. requester_kind alone selects the verifier: USER signs this EIP-712 v4 typed data and supplies exactly 65 bytes, CORTEX_SERVICE signs the TRUEOPEN_TASK_DATA_REQUEST_V1 H_FIELDS_V1 digest and supplies exactly 64. Neither length is sniffed and no caller pubkey is trusted. personal_sign, eth_sign and raw64 are rejected on the USER path, and a USER request must carry serviceAuthorizationNonce 0.",
     "recovered_address": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
-    "signature_65": "b07b5449de0058012712d5ea8fe5e12ed807ef2aea0ddd194468bc0730006b305e93462045acab80fff3aeabaae44ec31cd86f0240e8710fd36739c6d20873531c",
-    "signing_digest": "a4697bc65277f4214c034f720c0872579b6e2d4a718ca0117c4c8bf2041bf512",
+    "signature_65": "943dca70514347d66504059b4f0e2c24c69e54c747ca4886a8ce072a2922d30f1a0f1e6cc46dc2848bbd23870c287fb0017c8507113527da36a4e4248daa38b51c",
+    "signing_digest": "ad060d652820c86e43f63b35964c4872bdb93060df92556dc1476db12c2bffa5",
     "type_hash": "b46d57a151e675bb90df1ffa518e88e93ae97b3e0400ab9064c2d3f84cb3735a"
   },
   "task_order": {
     "domain": {
       "chain_id": "424242",
-      "domain_separator": "54e6898d361f89f6e2a5a865d7d329459be265231a65729798452d2dcab0bb6d",
+      "domain_separator": "b7a73368af2c3101ea0a2e6f4c7d3668621d2dc7815c75aaf9d7b8943e6e378e",
       "encode_type": "EIP712Domain(string name,string version,uint256 chainId)",
       "name": "TrueOpen Task Order",
       "type_hash": "c2f8787176b8ac6bf7215b4adcc1e069bf4ab82d9ab1df05a57a91d425935b6e",
-      "version": "2"
+      "version": "3"
     },
-    "encode_type": "TaskOrder(string chainId,string user,bytes32 sessionId,uint64 orderSequence,string modelId,uint32 profileVersion,string maxFee,string feeDenom,uint64 earliestSubmitHeight,uint64 orderExpireHeight,bytes32 taskHash)",
-    "hash_struct": "fb12173fe8ccf6d610ae2164bb83470beaec83922d51105a60fadfed935b35f3",
+    "encode_type": "TaskOrder(string chainId,string user,bytes32 sessionId,uint64 orderSequence,bytes32 modelId,uint32 profileVersion,string maxFee,string feeDenom,uint64 earliestSubmitHeight,uint64 orderExpireHeight,bytes32 taskHash)",
+    "hash_struct": "30575d2f720d371976f50864ec4c7b1e20bbe7dbe9fde908ace815166ad65871",
     "message": {
       "chainId": "trueopen-golden-1",
       "earliestSubmitHeight": "1000",
       "feeDenom": "uusdc",
       "maxFee": "1000000",
-      "modelId": "trueopen/golden-model",
+      "modelId": "5555555555555555555555555555555555555555555555555555555555555555",
       "orderExpireHeight": "2000",
       "orderSequence": "7",
       "profileVersion": "1",
@@ -103,10 +103,10 @@
       "taskHash": "58c2b8fdfa6e5dac474ff4d4fd2089bac2cea26756daf0b40973bff15bb221b7",
       "user": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz"
     },
-    "note": "Order domain version is 2. Version 1 is not in the fresh-genesis allowlist and must be rejected, so it never appears as a positive vector.",
-    "signature_65": "a992fe7b0fd6447bde4f21467064cfbd11f9012bd694d6106ac20e10c0f272d4216dceaabcd04f3c6da1fe3fc740c77dcf8ec9c7baf540926ae5f848cd04a85f1b",
-    "signing_digest": "00ea0894077c1a005422d5f00332fe520aa1714443aa6a46249fec5a7d05f09d",
-    "type_hash": "cdf84ba4a2437b54858e5f7ba60889bfeda1e9299608289a7e0d3dd139891ab2"
+    "note": "Order domain version 3 binds a raw bytes32 model ID; earlier order domains have no fresh-genesis decoder.",
+    "signature_65": "0d33bde9a788bc10284508fcf7a332050b141e2e4743b090f137b9fd21abb5ab44286a59df3b9b2f01c109087f65637305be3ba24a7863af78dd69d41649f3851b",
+    "signing_digest": "3b35b22ee8da1c67009f834ea5270dbd356fd8d2a5598b4ea6b5ed0274d87367",
+    "type_hash": "0ff134fd58c0e290fba30db564e6b74fced8f9cacbb8c246722d2ee072e3c114"
   },
   "transaction_domain": {
     "chain_id": "424242",

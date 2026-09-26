@@ -21,10 +21,10 @@ message EpochTaskSummaryCursorState {
   uint64 valid_task_count = 8;
   repeated uint64 histogram = 9;
   // The runner retains the first bounded set of distinct models encountered in
-  // canonical source order. The retained identifiers are sorted into strict
-  // ascending UTF-8 byte order before receipt construction. Composite
+  // canonical source order. The retained raw Hash32 identifiers are sorted
+  // into strict ascending byte order before receipt construction. Composite
   // model/profile strings are invalid.
-  repeated string support_candidates = 10;
+  repeated bytes support_candidates = 10 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   // Number of valid-task candidate occurrences, including duplicates.
   uint64 support_candidate_seen_count = 11;
   bytes running_root = 12 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];

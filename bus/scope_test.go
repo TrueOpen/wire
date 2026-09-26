@@ -74,11 +74,11 @@ func TestScopeProjectionCoversEveryKind(t *testing.T) {
 			payload: join(
 				varintField(1, 1), stringField(2, "c"),
 				encodeBytesField(3, taskID), encodeBytesField(4, taskHash),
-				stringField(5, "model-a"), varintField(6, 2),
+				encodeBytesField(5, hash(0xa3)), varintField(6, 2),
 				encodeBytesField(7, candidateMemberRef(scopeActor)),
 			),
 			subject:  subjectWorkerHandraisePrefix + taskIDHex(),
-			wantHash: true, wantModel: "model-a", wantRound: -1, wantActor: scopeActor,
+			wantHash: true, wantModel: hex.EncodeToString(hash(0xa3)), wantRound: -1, wantActor: scopeActor,
 		},
 		{
 			name: "WORKER_ASSIGNMENT_NOTIFY", kind: KindWorkerAssignmentNotify, payloadType: PayloadTypeWorkerAssignmentNotifyV1,
@@ -102,12 +102,12 @@ func TestScopeProjectionCoversEveryKind(t *testing.T) {
 			name: "OPEN_VERIFY", kind: KindOpenVerify, payloadType: PayloadTypeOpenVerifyV1,
 			payload: join(
 				encodeBytesField(1, taskID), encodeBytesField(2, taskHash),
-				stringField(3, "model-b"), varintField(4, 1),
+				encodeBytesField(3, hash(0xa4)), varintField(4, 1),
 				encodeBytesField(5, hash(0xc2)), encodeBytesField(6, hash(0xc3)),
 				stringField(7, scopeActor), varintField(8, 4),
 			),
 			subject:  subjectOpenVerifyPrefix + taskIDHex(),
-			wantHash: true, wantModel: "model-b", wantRound: 4, wantActor: scopeActor,
+			wantHash: true, wantModel: hex.EncodeToString(hash(0xa4)), wantRound: 4, wantActor: scopeActor,
 		},
 		{
 			// task_hash is loaded from Task authority for this kind, so the
@@ -117,11 +117,11 @@ func TestScopeProjectionCoversEveryKind(t *testing.T) {
 				varintField(1, 1), stringField(2, "c"),
 				encodeBytesField(3, taskID), varintField(4, 5),
 				encodeBytesField(5, hash(0xc4)), encodeBytesField(6, hash(0xc5)),
-				stringField(7, "model-c"), varintField(8, 2),
+				encodeBytesField(7, hash(0xa5)), varintField(8, 2),
 				encodeBytesField(9, candidateMemberRef(scopeActor)),
 			),
 			subject:  subjectVerifierHandraisePrefix + taskIDHex(),
-			wantHash: false, wantModel: "model-c", wantRound: 5, wantActor: scopeActor,
+			wantHash: false, wantModel: hex.EncodeToString(hash(0xa5)), wantRound: 5, wantActor: scopeActor,
 		},
 		{
 			// The payload names a selected set, so there is no single actor.
@@ -168,10 +168,10 @@ func TestScopeProjectionCoversEveryKind(t *testing.T) {
 			}
 			if testCase.wantModel == "" {
 				if scope.ModelID != nil {
-					t.Fatalf("model_id must be absent, got %q", *scope.ModelID)
+					t.Fatalf("model_id must be absent, got %x", scope.ModelID)
 				}
-			} else if scope.ModelID == nil || *scope.ModelID != testCase.wantModel {
-				t.Fatalf("model_id %v, want %q", scope.ModelID, testCase.wantModel)
+			} else if hex.EncodeToString(scope.ModelID) != testCase.wantModel {
+				t.Fatalf("model_id %x, want %s", scope.ModelID, testCase.wantModel)
 			}
 			if testCase.wantRound < 0 {
 				if scope.VerifyRound != nil {
@@ -203,7 +203,7 @@ func TestScopeProjectionRejectsZeroVerifyRound(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			payload := join(
 				encodeBytesField(1, taskID), encodeBytesField(2, taskHash),
-				stringField(3, "model-b"), varintField(4, 1),
+				encodeBytesField(3, hash(0xa4)), varintField(4, 1),
 				encodeBytesField(5, hash(0xc2)), encodeBytesField(6, hash(0xc3)),
 				stringField(7, scopeActor), testCase.roundField,
 			)
@@ -222,9 +222,9 @@ func TestOrderBroadcastScope(t *testing.T) {
 	sessionID := hash(0xd1)
 	const orderSequence = 42
 	order := join(
-		varintField(1, 2), stringField(2, "c"), stringField(3, scopeUser),
+		varintField(1, 3), stringField(2, "c"), stringField(3, scopeUser),
 		encodeBytesField(4, sessionID), varintField(5, orderSequence),
-		stringField(6, "model-x"), varintField(7, 3),
+		encodeBytesField(6, hash(0xa6)), varintField(7, 3),
 	)
 	payload := encodeBytesField(1, encodeBytesField(1, order))
 
@@ -239,22 +239,22 @@ func TestOrderBroadcastScope(t *testing.T) {
 	if !bytes.Equal(scope.TaskID, want[:]) {
 		t.Fatalf("derived task_id %x, want %x", scope.TaskID, want)
 	}
-	if scope.ExpectedSubject != subjectTaskOpenPrefix+"model-x" {
+	if scope.ExpectedSubject != subjectTaskOpenPrefix+hex.EncodeToString(hash(0xa6)) {
 		t.Fatalf("subject %q", scope.ExpectedSubject)
 	}
-	if scope.ModelID == nil || *scope.ModelID != "model-x" {
+	if !bytes.Equal(scope.ModelID, hash(0xa6)) {
 		t.Fatalf("model_id %v", scope.ModelID)
 	}
 	if scope.PayloadActor == nil || *scope.PayloadActor != scopeUser {
 		t.Fatalf("payload_actor %v", scope.PayloadActor)
 	}
 	// task_hash is deliberately absent: the caller recomputes it from OrderBytes
-	// with its own registered TRUEOPEN_TASK_ORDER_V2 implementation.
+	// with its own registered TRUEOPEN_TASK_ORDER_V3 implementation.
 	if scope.TaskHash != nil {
 		t.Fatalf("task_hash must be absent for ORDER_BROADCAST, got %x", scope.TaskHash)
 	}
 	if !bytes.Equal(orderBytes, order) {
-		t.Fatal("OrderBytes is not the exact serialized TaskOrderV2")
+		t.Fatal("OrderBytes is not the exact serialized TaskOrderV3")
 	}
 }
 

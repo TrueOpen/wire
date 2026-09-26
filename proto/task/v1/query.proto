@@ -55,6 +55,10 @@ service Query {
   rpc WorkerEvidence(QueryWorkerEvidenceRequest) returns (QueryWorkerEvidenceResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/worker_evidence/{worker_operator_address}/{seq}";
   }
+  // VerifierValueEvidence is registered but returns ERR_NOT_ACTIVATED.
+  rpc VerifierValueEvidence(QueryVerifierValueEvidenceRequest) returns (QueryVerifierValueEvidenceResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/verifier_value_evidence/{verify_round}/{target_operator_address}/{position}";
+  }
   // VerifierCandidateWindow returns one round's frozen verifier window.
   rpc VerifierCandidateWindow(QueryVerifierCandidateWindowRequest) returns (QueryVerifierCandidateWindowResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/verifier_window/{verify_round}";

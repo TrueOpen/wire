@@ -38,6 +38,8 @@ service Msg {
   rpc SubmitInferReceipt(MsgSubmitInferReceipt) returns (MsgSubmitInferReceiptResponse);
   // SubmitWorkerEvidence accepts one strict-encoded objective Worker proof.
   rpc SubmitWorkerEvidence(MsgSubmitWorkerEvidence) returns (MsgSubmitWorkerEvidenceResponse);
+  // SubmitVerifierValueEvidence is registered but returns ERR_NOT_ACTIVATED.
+  rpc SubmitVerifierValueEvidence(MsgSubmitVerifierValueEvidence) returns (MsgSubmitVerifierValueEvidenceResponse);
   // SubmitVerifierHandraises is the single Open Verify entry; it replaces the
   // deleted MsgOpenVerify.
   // SubmitVerifierHandraises executes the SubmitVerifierHandraises operation.

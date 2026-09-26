@@ -45,7 +45,7 @@ type fixtureFile struct {
 	// Origin is "node" (the default) for a byte copy pinned at SourceCommit, or
 	// "wire" for a fixture this repository authors itself. The two carry
 	// different provenance: a copy names the upstream path it was taken from, a
-	// wire-authored vector names the monorepo rule it pins, because there is no
+	// wire-authored vector names the public contract behavior it pins, because there is no
 	// upstream file whose bytes could be compared against it.
 	Origin          string `json:"origin,omitempty"`
 	SourcePath      string `json:"source_path,omitempty"`
@@ -316,7 +316,7 @@ func checkBech32Against(where, encoded, rawHex string) error {
 // point of source_path is that a reviewer can diff the fixture against the node
 // tree at source_commit; a wire-authored vector has nothing to diff against, so
 // letting it carry a source_path would make an unverifiable claim. It names the
-// monorepo section it implements instead, which is what a reviewer can check.
+// public contract behavior it implements instead, which is what a reviewer can check.
 func validateProvenance(entry fixtureFile) error {
 	switch entry.origin() {
 	case originNode:
@@ -332,7 +332,7 @@ func validateProvenance(entry fixtureFile) error {
 			return fmt.Errorf("path %q is wire-authored, so there is no upstream source_path to name", entry.Path)
 		}
 		if strings.TrimSpace(entry.ContractSection) == "" {
-			return fmt.Errorf("path %q is wire-authored and must name the monorepo section it pins", entry.Path)
+			return fmt.Errorf("path %q is wire-authored and must describe its public contract behavior", entry.Path)
 		}
 	default:
 		return fmt.Errorf("path %q has unknown origin %q", entry.Path, entry.Origin)
