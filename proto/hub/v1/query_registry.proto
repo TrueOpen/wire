@@ -217,23 +217,21 @@ message QueryServiceDescriptorRequest {
 message QueryServiceDescriptorResponse {
   ServiceDescriptorState descriptor = 1 [(gogoproto.nullable) = false];
 }
-// QueryProfileCapabilityRequest selects one operator/profile capability.
-message QueryProfileCapabilityRequest {
+// QueryModelCapabilityRequest selects one operator/model capability.
+message QueryModelCapabilityRequest {
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string model_id = 2;
-  uint32 profile_version = 3;
 }
 
-// QueryProfileCapabilityResponse returns the capability row.
-message QueryProfileCapabilityResponse {
-  ProfileCapabilityState capability = 1 [(gogoproto.nullable) = false];
+// QueryModelCapabilityResponse returns the capability row.
+message QueryModelCapabilityResponse {
+  ModelCapabilityState capability = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryModelSupportRequest identifies one node-level P30 support row.
+// QueryModelSupportRequest identifies one operator/model support row.
 message QueryModelSupportRequest {
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string model_id = 2;
-  uint32 profile_version = 3;
 }
 
 // QueryModelSupportResponse returns one node-level P30 support row.

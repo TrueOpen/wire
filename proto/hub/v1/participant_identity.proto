@@ -93,8 +93,8 @@ message ServiceKeyResponsibilityState {
   string operator_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   bytes responsibility_id = 3;
   ServiceKeyResponsibilityKind responsibility_kind = 4;
-  string session_id = 5;
-  string task_id = 6;
+  bytes session_id = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes task_id = 6 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint64 created_height = 7;
   // Service-key generation that acquired this responsibility. It distinguishes
   // an exact acquire replay from the same responsibility ID presented under a

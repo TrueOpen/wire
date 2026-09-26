@@ -65,11 +65,11 @@ message GenesisState {
   repeated CortexNodeState cortex_nodes = 12 [(gogoproto.nullable) = false];
   repeated ServiceBondState service_bonds = 13 [(gogoproto.nullable) = false];
   repeated UnbondingState service_unbondings = 14 [(gogoproto.nullable) = false];
-  repeated ProfileCapabilityState profile_capabilities = 15 [(gogoproto.nullable) = false];
+  repeated ModelCapabilityState model_capabilities = 15 [(gogoproto.nullable) = false];
   repeated ModelSupportState model_supports = 16 [(gogoproto.nullable) = false];
   repeated DailySupportState daily_supports = 17 [(gogoproto.nullable) = false];
   repeated UnbondingReceiptState service_unbonding_receipts = 18 [(gogoproto.nullable) = false];
-  repeated SupportDeactivateCursorState support_deactivate_cursors = 19 [(gogoproto.nullable) = false];
+  repeated ModelSupportRecheckCursorState model_support_recheck_cursors = 19 [(gogoproto.nullable) = false];
 
   repeated BuilderState builders = 20 [(gogoproto.nullable) = false];
   repeated BuilderSetState builder_sets = 21 [(gogoproto.nullable) = false];

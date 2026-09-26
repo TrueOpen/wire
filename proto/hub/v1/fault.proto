@@ -74,7 +74,7 @@ message SlashSummaryState {
   // Raw Hash32 in both namespaces: the fault_id for ROLE_FAULT, the
   // challenge_id for CHALLENGE_EFFECT. Never a hex projection.
   bytes source_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  uint64 effect_index = 4;
+  uint32 effect_index = 4;
   string operator_address = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   shared.v1.Duty duty = 6;
   optional bytes task_id = 7 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];

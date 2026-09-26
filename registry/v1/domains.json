@@ -702,8 +702,8 @@
         "epoch_index",
         "service_authorization_nonce",
         "expiry_height",
-        "profile_count",
-        "repeated(NestedFieldFrameV1(model_id, profile_version)) in (model_id bytes, profile_version) ascending"
+        "model_count",
+        "repeated(model_id) in canonical model_id bytes ascending"
       ],
       "producer": "Cortex current service key, one signature per confirmation",
       "consumers": "Hub daily support heartbeat and support freshness",
@@ -2254,15 +2254,15 @@
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_SUPPORT_PROFILES_V1",
+      "domain": "TRUEOPEN_SUPPORT_MODELS_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
-        "profile_count",
-        "repeated(NestedFieldFrameV1(model_id, profile_version)) in caller-canonical ascending order"
+        "model_count",
+        "repeated(model_id) in caller-canonical ascending order"
       ],
       "producer": "Hub Keeper in MsgBatchConfirmModelSupport",
       "consumers": "DailySupportState replay equality check",
-      "store": "DailySupportState.supported_profiles_hash",
+      "store": "DailySupportState.supported_models_hash",
       "event": "-",
       "query": "QueryDailySupport",
       "contract_section": "§1.4; §6.1",

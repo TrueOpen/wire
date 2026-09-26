@@ -942,7 +942,7 @@
     },
     {
       "contract_section": "§5.7",
-      "digest_hex": "833825eb13321610d0d4b4425f96364905931e525e3fc278d8131dfa67f786e3",
+      "digest_hex": "cbce89c1c3bb750cd6bb302f38f2a43b6cbd4f8d2f93ad391c2087e4e7192028",
       "domain": "TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_V1",
       "fields": [
         {
@@ -972,7 +972,7 @@
           "value": 2000
         },
         {
-          "name": "profile_count",
+          "name": "model_count",
           "type": "uint32",
           "value": 2
         },
@@ -984,54 +984,32 @@
               "value": 2
             },
             {
-              "fields": [
-                {
-                  "name": "model_id",
-                  "type": "string",
-                  "utf8": "model-fixture-a"
-                },
-                {
-                  "name": "profile_version",
-                  "type": "uint32",
-                  "value": 1
-                }
-              ],
-              "name": "profile_0",
-              "type": "frame"
+              "name": "model_0",
+              "type": "string",
+              "utf8": "model-fixture-a"
             },
             {
-              "fields": [
-                {
-                  "name": "model_id",
-                  "type": "string",
-                  "utf8": "model-fixture-b"
-                },
-                {
-                  "name": "profile_version",
-                  "type": "uint32",
-                  "value": 2
-                }
-              ],
-              "name": "profile_1",
-              "type": "frame"
+              "name": "model_1",
+              "type": "string",
+              "utf8": "model-fixture-b"
             }
           ],
-          "name": "profiles",
+          "name": "models",
           "type": "frame"
         }
       ],
       "framing": "H_FIELDS_V1",
       "name": "daily_support_confirmation_v1",
-      "preimage_hex": "0000000000000026545255454f50454e5f4441494c595f535550504f52545f434f4e4649524d4154494f4e5f56310000000000000012747275656f70656e2d666978747572652d310000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b40000000000000008000000000000002a00000000000000080000000000000007000000000000000800000000000007d000000000000000040000000200000000000000620000000000000004000000020000000000000023000000000000000f6d6f64656c2d666978747572652d610000000000000004000000010000000000000023000000000000000f6d6f64656c2d666978747572652d62000000000000000400000002",
+      "preimage_hex": "0000000000000026545255454f50454e5f4441494c595f535550504f52545f434f4e4649524d4154494f4e5f56310000000000000012747275656f70656e2d666978747572652d310000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b40000000000000008000000000000002a00000000000000080000000000000007000000000000000800000000000007d0000000000000000400000002000000000000003a000000000000000400000002000000000000000f6d6f64656c2d666978747572652d61000000000000000f6d6f64656c2d666978747572652d62",
       "replay": [
         {
-          "digest_hex": "881a018b61e838c7749fd467135fb7185ca0acee512f66aa59dcb251d54f5e7d",
+          "digest_hex": "1dfdab1cecd90fc8e89b164c4a2ee3644d7f6e32c93f428cdd5ba10ed8475d13",
           "name": "outer_count_mismatch",
           "overrides": [
             {
               "field": 5,
               "value": {
-                "name": "profile_count",
+                "name": "model_count",
                 "type": "uint32",
                 "value": 3
               }
@@ -1044,62 +1022,62 @@
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "967ba99b46051c7556b8463417403e14054d810380d8833e3957305b4a6f9ebe",
+          "digest_hex": "1782a96b1297da78a08f7cac788f6272e62f6f1f64d033e833bbf6eb6474364c",
           "field": 0,
           "name": "chain_id_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "a917d66efee1d8b302508a6551f902c67e22053250a8fbbd266ed10ff0c9e84b",
+          "digest_hex": "70cf8581c92bf629de694695ee6fb9300a0060309f4d90517baf9b1145ce74fd",
           "field": 1,
           "name": "operator_address_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "c81a4795b28e2be1a593549595df98e808708453c41d3f6210efb1972a525699",
+          "digest_hex": "a0ce9cd28b6df3b53359b43c9a02777b8329cf95f18876a23486cef25feae6dd",
           "field": 2,
           "name": "epoch_index_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "0cae38093ed475a4ecc9995b87a376946fcddf7073e277493877c882f24bba87",
+          "digest_hex": "3826d6ebb01081836278bb8fa9bae6b66617cb66c171c75e6fc33962dd9f7300",
           "field": 3,
           "name": "service_authorization_nonce_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "08444cd764f034809f896f2e864e48e7b0cf4c588fdf0a1f05731f58fabfbb19",
+          "digest_hex": "e8d4d68aaad4747112f54619d620045de99ed75a3064167694b4ef910f63dafc",
           "field": 4,
           "name": "expiry_height_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "23a10589f3294fa46f727f5be86f2e536f786ebd6317b8094ad9f1e66fb4d04e",
+          "digest_hex": "62995924d54496af2bde66058058a97c3b1616dc61ef6be98d58a26f7b6abefe",
           "field": 5,
-          "name": "profile_count_first_bit"
+          "name": "model_count_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "195385ad7eda78ce86581dcb18c41658cb3e5d06ec06ded008134b012a60b3d7",
+          "digest_hex": "bba4650387cc348f73d5e17d10f21a5a6f0ff3ba51ee9cb9d4468f54c86ac467",
           "field": 6,
-          "name": "profiles_first_bit"
+          "name": "models_first_bit"
         }
       ],
       "producer": "CanonicalDailySupportConfirmationSigningBytesV1"
     },
     {
       "contract_section": "§1.4; §6.1",
-      "digest_hex": "d18bfd28146508b921e71b34b1dd97509eb0cb8eeb0f943afe6c85d42693a9e7",
-      "domain": "TRUEOPEN_SUPPORT_PROFILES_V1",
+      "digest_hex": "cf1166555e61f89e936b2e29a881433231799415525951b316a358047376ed84",
+      "domain": "TRUEOPEN_SUPPORT_MODELS_V1",
       "fields": [
         {
-          "name": "profile_count",
+          "name": "model_count",
           "type": "uint32",
           "value": 2
         },
@@ -1111,54 +1089,32 @@
               "value": 2
             },
             {
-              "fields": [
-                {
-                  "name": "model_id",
-                  "type": "string",
-                  "utf8": "model-fixture-a"
-                },
-                {
-                  "name": "profile_version",
-                  "type": "uint32",
-                  "value": 1
-                }
-              ],
-              "name": "profile_0",
-              "type": "frame"
+              "name": "model_0",
+              "type": "string",
+              "utf8": "model-fixture-a"
             },
             {
-              "fields": [
-                {
-                  "name": "model_id",
-                  "type": "string",
-                  "utf8": "model-fixture-b"
-                },
-                {
-                  "name": "profile_version",
-                  "type": "uint32",
-                  "value": 2
-                }
-              ],
-              "name": "profile_1",
-              "type": "frame"
+              "name": "model_1",
+              "type": "string",
+              "utf8": "model-fixture-b"
             }
           ],
-          "name": "profiles",
+          "name": "models",
           "type": "frame"
         }
       ],
       "framing": "H_FIELDS_V1",
-      "name": "support_profiles_v1",
-      "preimage_hex": "000000000000001c545255454f50454e5f535550504f52545f50524f46494c45535f563100000000000000040000000200000000000000620000000000000004000000020000000000000023000000000000000f6d6f64656c2d666978747572652d610000000000000004000000010000000000000023000000000000000f6d6f64656c2d666978747572652d62000000000000000400000002",
+      "name": "support_models_v1",
+      "preimage_hex": "000000000000001a545255454f50454e5f535550504f52545f4d4f44454c535f5631000000000000000400000002000000000000003a000000000000000400000002000000000000000f6d6f64656c2d666978747572652d61000000000000000f6d6f64656c2d666978747572652d62",
       "replay": [
         {
-          "digest_hex": "2f7828b0e84314b22380d1c3a9aafa1c3b5bbbea085e3324f5ad44d827ce08ca",
+          "digest_hex": "89b4caaeca011b311d57472fb93d73fd723a017a620de0634098bdf5463506d4",
           "name": "outer_count_mismatch",
           "overrides": [
             {
               "field": 0,
               "value": {
-                "name": "profile_count",
+                "name": "model_count",
                 "type": "uint32",
                 "value": 3
               }
@@ -1171,19 +1127,19 @@
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "1e79c33da18ebd2dbd3d712ff03f369cee0894b2b381334529c815fbbbbbf2db",
+          "digest_hex": "17634d7865d38f79ba8b3d9fff6de4cc626656d1539d40360f397dfa2e5439ae",
           "field": 0,
-          "name": "profile_count_first_bit"
+          "name": "model_count_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "577688366ef1b8b16b9244c291b802fdb278848fc1fa4147ffc4f93f44a713db",
+          "digest_hex": "e0fe3a2b33ab28485753a42cf4401481a5923eee51ebe3da66497fd126176f36",
           "field": 1,
-          "name": "profiles_first_bit"
+          "name": "models_first_bit"
         }
       ],
-      "producer": "CanonicalSupportedProfilesHashV1"
+      "producer": "CanonicalSupportedModelsHashV1"
     },
     {
       "contract_section": "§4.4 and §5.2",

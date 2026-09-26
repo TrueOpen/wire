@@ -66,17 +66,17 @@ message SupportParamsV1 {
 
   uint32 support_window_epochs = 1;
   uint32 active_supporter_min_count = 2;
-  uint32 active_support_stake_ratio_numerator = 3;
-  uint32 active_support_stake_ratio_denominator = 4;
-  uint32 active_support_stake_cap_multiplier = 5;
-  uint32 max_supported_profiles_per_operator = 6;
-  uint32 max_daily_support_confirmations_per_batch = 7;
-  uint32 max_daily_support_items_per_batch = 8;
-  uint64 max_daily_support_batch_bytes = 9;
-  uint32 daily_support_retention_epochs = 10;
-  uint32 model_support_row_retention_epochs = 11;
-  uint32 max_model_support_prune_items_per_block = 12;
-  uint32 max_support_expiry_items_per_block = 13;
+  uint32 active_support_stake_multiple = 3;
+  uint32 active_support_stake_cap_multiplier = 4;
+  uint32 max_supported_models_per_operator = 5;
+  uint32 max_daily_support_confirmations_per_batch = 6;
+  uint32 max_daily_support_items_per_batch = 7;
+  uint64 max_daily_support_batch_bytes = 8;
+  uint32 daily_support_retention_epochs = 9;
+  uint32 model_support_row_retention_epochs = 10;
+  uint32 max_model_support_prune_items_per_block = 11;
+  uint32 max_support_expiry_items_per_block = 12;
+  uint32 max_model_support_recheck_items_per_block = 13;
 }
 
 // CandidatePoolParamsV1 groups global candidate pool parameters (§18.0).
@@ -139,6 +139,7 @@ message BuilderParamsV1 {
   uint32 max_builder_set_prune_items_per_block = 9;
   uint64 builder_fault_retention_blocks = 10;
   uint32 max_builder_fault_prune_items_per_block = 11;
+  uint32 max_builder_set_id_bytes = 12;
 }
 
 // RewardParamsV1 groups reward competition and accrual parameters (§18.0).

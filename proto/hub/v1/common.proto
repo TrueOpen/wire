@@ -219,6 +219,21 @@ enum ModelSupportStatus {
   MODEL_SUPPORT_STATUS_INACTIVE = 4;
 }
 
+// ModelSupportSuspendReason distinguishes a suspended declaration from one
+// that has not yet been activated by a task.
+enum ModelSupportSuspendReason {
+  // Never written.
+  MODEL_SUPPORT_SUSPEND_REASON_UNSPECIFIED = 0;
+  // The declaration is not suspended.
+  MODEL_SUPPORT_SUSPEND_REASON_NONE = 1;
+  // The operator is jailed.
+  MODEL_SUPPORT_SUSPEND_REASON_JAIL = 2;
+  // The effective bond is below the active model threshold.
+  MODEL_SUPPORT_SUSPEND_REASON_BOND_BELOW_MIN = 3;
+  // A raised model threshold became effective before the bond caught up.
+  MODEL_SUPPORT_SUSPEND_REASON_MIN_STAKE_RAISED = 4;
+}
+
 // RoleFaultStatus is the lifecycle of one recorded role fault receipt (6.4).
 enum RoleFaultStatus {
   // Never written; rejects zero-value rows.

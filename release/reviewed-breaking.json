@@ -1,0 +1,424 @@
+{
+  "schema": "trueopen-wire-reviewed-breaking-v1",
+  "protocol_version": "v0.3.0",
+  "against": "v0.2.2",
+  "review": "Model-level support and typed stored identifiers replace the pre-v1 contract shapes.",
+  "notes": [
+    "This file is the only thing that lets a buf breaking failure pass. It authorizes exactly the findings listed below, for exactly this protocol_version, against exactly this baseline.",
+    "tools/reviewed-breaking checks the set both ways: an undeclared finding fails the build, and a declared finding that no longer occurs fails it too, so the list cannot drift away from the code it describes.",
+    "Findings are identified by (path, type, message) and carry no line or column, because an unrelated edit above a deleted field would otherwise invalidate the declaration and turn regenerating it into a reflex.",
+    "After this release is tagged, the next one starts from a new baseline: delete this file, or replace it with a declaration naming its own version and review. Carrying it forward unchanged would grant an approval nobody asked for."
+  ],
+  "findings": [
+    {
+      "path": "proto/hub/v1/daily_support.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"15\" with name \"eligible_support_stake_snapshot\" on message \"ModelSupportState\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/daily_support.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"profile_version\" on message \"ModelSupportState\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/daily_support.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"3\" with name \"supported_models_hash\" on message \"DailySupportState\" changed option \"json_name\" from \"supportedProfilesHash\" to \"supportedModelsHash\"."
+    },
+    {
+      "path": "proto/hub/v1/daily_support.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"3\" on message \"DailySupportState\" changed name from \"supported_profiles_hash\" to \"supported_models_hash\"."
+    },
+    {
+      "path": "proto/hub/v1/daily_support.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"ProfileCapabilityState\" was deleted from file."
+    },
+    {
+      "path": "proto/hub/v1/daily_support.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"SupportDeactivateCursorState\" was deleted from file."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"3\" with name \"activation_task_id\" on message \"EventModelSupportActivated\" changed option \"json_name\" from \"profileVersion\" to \"activationTaskId\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"3\" with name \"support_version\" on message \"EventModelSupportUpdated\" changed option \"json_name\" from \"profileVersion\" to \"supportVersion\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"4\" with name \"activation_duty\" on message \"EventModelSupportActivated\" changed option \"json_name\" from \"activationTaskId\" to \"activationDuty\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"4\" with name \"old_status\" on message \"EventModelSupportUpdated\" changed option \"json_name\" from \"supportVersion\" to \"oldStatus\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"5\" with name \"new_status\" on message \"EventModelSupportUpdated\" changed option \"json_name\" from \"oldStatus\" to \"newStatus\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"5\" with name \"support_version\" on message \"EventModelSupportActivated\" changed option \"json_name\" from \"activationDuty\" to \"supportVersion\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"6\" with name \"expiry_epoch\" on message \"EventModelSupportActivated\" changed option \"json_name\" from \"supportVersion\" to \"expiryEpoch\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"6\" with name \"expiry_epoch\" on message \"EventModelSupportUpdated\" changed option \"json_name\" from \"newStatus\" to \"expiryEpoch\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"7\" with name \"first_support_profile_version\" on message \"EventModelSupportActivated\" changed option \"json_name\" from \"expiryEpoch\" to \"firstSupportProfileVersion\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"7\" with name \"suspend_reason\" on message \"EventModelSupportUpdated\" changed option \"json_name\" from \"expiryEpoch\" to \"suspendReason\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"3\" on message \"EventModelSupportActivated\" changed name from \"profile_version\" to \"activation_task_id\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"3\" on message \"EventModelSupportUpdated\" changed name from \"profile_version\" to \"support_version\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"4\" on message \"EventModelSupportActivated\" changed name from \"activation_task_id\" to \"activation_duty\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"4\" on message \"EventModelSupportUpdated\" changed name from \"support_version\" to \"old_status\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"5\" on message \"EventModelSupportActivated\" changed name from \"activation_duty\" to \"support_version\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"5\" on message \"EventModelSupportUpdated\" changed name from \"old_status\" to \"new_status\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"6\" on message \"EventModelSupportActivated\" changed name from \"support_version\" to \"expiry_epoch\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"6\" on message \"EventModelSupportUpdated\" changed name from \"new_status\" to \"expiry_epoch\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"7\" on message \"EventModelSupportActivated\" changed name from \"expiry_epoch\" to \"first_support_profile_version\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"7\" on message \"EventModelSupportUpdated\" changed name from \"expiry_epoch\" to \"suspend_reason\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"3\" with name \"activation_task_id\" on message \"EventModelSupportActivated\" changed type from \"uint32\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"3\" with name \"support_version\" on message \"EventModelSupportUpdated\" changed type from \"uint32\" to \"uint64\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"4\" with name \"activation_duty\" on message \"EventModelSupportActivated\" changed type from \"bytes\" to \"enum\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"4\" with name \"old_status\" on message \"EventModelSupportUpdated\" changed type from \"uint64\" to \"enum\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"5\" with name \"support_version\" on message \"EventModelSupportActivated\" changed type from \"enum\" to \"uint64\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"6\" with name \"expiry_epoch\" on message \"EventModelSupportUpdated\" changed type from \"enum\" to \"uint64\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"7\" with name \"first_support_profile_version\" on message \"EventModelSupportActivated\" changed type from \"uint64\" to \"uint32\"."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"7\" with name \"suspend_reason\" on message \"EventModelSupportUpdated\" changed type from \"uint64\" to \"enum\"."
+    },
+    {
+      "path": "proto/hub/v1/fault.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"4\" with name \"effect_index\" on message \"SlashSummaryState\" changed type from \"uint64\" to \"uint32\"."
+    },
+    {
+      "path": "proto/hub/v1/genesis.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"15\" with name \"model_capabilities\" on message \"GenesisState\" changed option \"json_name\" from \"profileCapabilities\" to \"modelCapabilities\"."
+    },
+    {
+      "path": "proto/hub/v1/genesis.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"19\" with name \"model_support_recheck_cursors\" on message \"GenesisState\" changed option \"json_name\" from \"supportDeactivateCursors\" to \"modelSupportRecheckCursors\"."
+    },
+    {
+      "path": "proto/hub/v1/genesis.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"15\" on message \"GenesisState\" changed name from \"profile_capabilities\" to \"model_capabilities\"."
+    },
+    {
+      "path": "proto/hub/v1/genesis.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"19\" on message \"GenesisState\" changed name from \"support_deactivate_cursors\" to \"model_support_recheck_cursors\"."
+    },
+    {
+      "path": "proto/hub/v1/genesis.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"15\" with name \"model_capabilities\" on message \"GenesisState\" changed type from \"hub.v1.ProfileCapabilityState\" to \"hub.v1.ModelCapabilityState\"."
+    },
+    {
+      "path": "proto/hub/v1/genesis.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"19\" with name \"model_support_recheck_cursors\" on message \"GenesisState\" changed type from \"hub.v1.SupportDeactivateCursorState\" to \"hub.v1.ModelSupportRecheckCursorState\"."
+    },
+    {
+      "path": "proto/hub/v1/model_profile_state.proto",
+      "type": "ENUM_VALUE_SAME_NAME",
+      "message": "Enum value \"1\" on enum \"ModelStatusSource\" changed name from \"MODEL_STATUS_SOURCE_AUTO_PROFILE\" to \"MODEL_STATUS_SOURCE_AUTO_SUPPORT\"."
+    },
+    {
+      "path": "proto/hub/v1/model_profile_state.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"19\" with name \"active_support_stake\" on message \"ProfileState\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/model_profile_state.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"20\" with name \"eligible_support_stake\" on message \"ProfileState\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/model_profile_state.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"21\" with name \"active_supporter_count\" on message \"ProfileState\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"profile_version\" on message \"MsgDeclareModelSupport\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"2\" with name \"refreshed_model_count\" on message \"MsgBatchConfirmModelSupportResponse\" changed option \"json_name\" from \"refreshedProfileCount\" to \"refreshedModelCount\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"2\" with name \"supported_models\" on message \"ModelSupportConfirmationV1\" changed option \"json_name\" from \"supportedProfiles\" to \"supportedModels\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"2\" on message \"ModelSupportConfirmationV1\" changed name from \"supported_profiles\" to \"supported_models\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"2\" on message \"MsgBatchConfirmModelSupportResponse\" changed name from \"refreshed_profile_count\" to \"refreshed_model_count\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"supported_models\" on message \"ModelSupportConfirmationV1\" changed type from \"message\" to \"string\"."
+    },
+    {
+      "path": "proto/hub/v1/msg_registry.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"ProfileKeyV1\" was deleted from file."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"10\" with name \"model_support_row_retention_epochs\" on message \"SupportParamsV1\" changed option \"json_name\" from \"dailySupportRetentionEpochs\" to \"modelSupportRowRetentionEpochs\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"11\" with name \"max_model_support_prune_items_per_block\" on message \"SupportParamsV1\" changed option \"json_name\" from \"modelSupportRowRetentionEpochs\" to \"maxModelSupportPruneItemsPerBlock\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"12\" with name \"max_support_expiry_items_per_block\" on message \"SupportParamsV1\" changed option \"json_name\" from \"maxModelSupportPruneItemsPerBlock\" to \"maxSupportExpiryItemsPerBlock\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"13\" with name \"max_model_support_recheck_items_per_block\" on message \"SupportParamsV1\" changed option \"json_name\" from \"maxSupportExpiryItemsPerBlock\" to \"maxModelSupportRecheckItemsPerBlock\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"3\" with name \"active_support_stake_multiple\" on message \"SupportParamsV1\" changed option \"json_name\" from \"activeSupportStakeRatioNumerator\" to \"activeSupportStakeMultiple\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"4\" with name \"active_support_stake_cap_multiplier\" on message \"SupportParamsV1\" changed option \"json_name\" from \"activeSupportStakeRatioDenominator\" to \"activeSupportStakeCapMultiplier\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"5\" with name \"max_supported_models_per_operator\" on message \"SupportParamsV1\" changed option \"json_name\" from \"activeSupportStakeCapMultiplier\" to \"maxSupportedModelsPerOperator\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"6\" with name \"max_daily_support_confirmations_per_batch\" on message \"SupportParamsV1\" changed option \"json_name\" from \"maxSupportedProfilesPerOperator\" to \"maxDailySupportConfirmationsPerBatch\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"7\" with name \"max_daily_support_items_per_batch\" on message \"SupportParamsV1\" changed option \"json_name\" from \"maxDailySupportConfirmationsPerBatch\" to \"maxDailySupportItemsPerBatch\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"8\" with name \"max_daily_support_batch_bytes\" on message \"SupportParamsV1\" changed option \"json_name\" from \"maxDailySupportItemsPerBatch\" to \"maxDailySupportBatchBytes\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"9\" with name \"daily_support_retention_epochs\" on message \"SupportParamsV1\" changed option \"json_name\" from \"maxDailySupportBatchBytes\" to \"dailySupportRetentionEpochs\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"10\" on message \"SupportParamsV1\" changed name from \"daily_support_retention_epochs\" to \"model_support_row_retention_epochs\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"11\" on message \"SupportParamsV1\" changed name from \"model_support_row_retention_epochs\" to \"max_model_support_prune_items_per_block\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"12\" on message \"SupportParamsV1\" changed name from \"max_model_support_prune_items_per_block\" to \"max_support_expiry_items_per_block\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"13\" on message \"SupportParamsV1\" changed name from \"max_support_expiry_items_per_block\" to \"max_model_support_recheck_items_per_block\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"3\" on message \"SupportParamsV1\" changed name from \"active_support_stake_ratio_numerator\" to \"active_support_stake_multiple\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"4\" on message \"SupportParamsV1\" changed name from \"active_support_stake_ratio_denominator\" to \"active_support_stake_cap_multiplier\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"5\" on message \"SupportParamsV1\" changed name from \"active_support_stake_cap_multiplier\" to \"max_supported_models_per_operator\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"6\" on message \"SupportParamsV1\" changed name from \"max_supported_profiles_per_operator\" to \"max_daily_support_confirmations_per_batch\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"7\" on message \"SupportParamsV1\" changed name from \"max_daily_support_confirmations_per_batch\" to \"max_daily_support_items_per_batch\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"8\" on message \"SupportParamsV1\" changed name from \"max_daily_support_items_per_batch\" to \"max_daily_support_batch_bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"9\" on message \"SupportParamsV1\" changed name from \"max_daily_support_batch_bytes\" to \"daily_support_retention_epochs\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"8\" with name \"max_daily_support_batch_bytes\" on message \"SupportParamsV1\" changed type from \"uint32\" to \"uint64\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"9\" with name \"daily_support_retention_epochs\" on message \"SupportParamsV1\" changed type from \"uint64\" to \"uint32\"."
+    },
+    {
+      "path": "proto/hub/v1/participant_identity.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"5\" with name \"session_id\" on message \"ServiceKeyResponsibilityState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/participant_identity.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"6\" with name \"task_id\" on message \"ServiceKeyResponsibilityState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/hub/v1/query.proto",
+      "type": "RPC_NO_DELETE",
+      "message": "Previously present RPC \"ProfileCapability\" on service \"Query\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/query_registry.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"profile_version\" on message \"QueryModelSupportRequest\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/query_registry.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"QueryProfileCapabilityRequest\" was deleted from file."
+    },
+    {
+      "path": "proto/hub/v1/query_registry.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"QueryProfileCapabilityResponse\" was deleted from file."
+    }
+  ]
+}

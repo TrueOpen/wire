@@ -92,13 +92,13 @@ service Query {
   rpc ServiceLifecycle(QueryServiceLifecycleRequest) returns (QueryServiceLifecycleResponse) {
     option (google.api.http).get = "/TrueOpen/hub/v1/service_lifecycle/{operator_address}";
   }
-  // ProfileCapability returns one operator/profile capability row.
-  rpc ProfileCapability(QueryProfileCapabilityRequest) returns (QueryProfileCapabilityResponse) {
-    option (google.api.http).get = "/TrueOpen/hub/v1/profile_capability/{operator_address}/{model_id}/{profile_version}";
+  // ModelCapability returns one operator/model capability row.
+  rpc ModelCapability(QueryModelCapabilityRequest) returns (QueryModelCapabilityResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/model_capability/{operator_address}/{model_id}";
   }
-  // ModelSupport returns one P30 support row.
+  // ModelSupport returns one operator/model support row.
   rpc ModelSupport(QueryModelSupportRequest) returns (QueryModelSupportResponse) {
-    option (google.api.http).get = "/TrueOpen/hub/v1/model_support/{operator_address}/{model_id}/{profile_version}";
+    option (google.api.http).get = "/TrueOpen/hub/v1/model_support/{operator_address}/{model_id}";
   }
   // DailySupport returns one operator/epoch heartbeat row.
   rpc DailySupport(QueryDailySupportRequest) returns (QueryDailySupportResponse) {

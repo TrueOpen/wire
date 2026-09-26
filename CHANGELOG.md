@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.3.0
+
+Breaking. Support declarations, capability rows, freshness confirmations, and
+activation aggregates now operate at model scope instead of profile-version
+scope.
+
+- `ModelCapabilityState` and `ModelSupportState` are keyed by operator and
+  model. Declaring support once covers the model's current and future profile
+  versions, while task admission continues to bind the selected profile.
+- Model state owns the active supporter count, active support stake, effective
+  minimum stake, and pending minimum-stake transition. Profile state no longer
+  carries support-derived aggregates.
+- Daily confirmations commit to a canonical model list under
+  `TRUEOPEN_SUPPORT_MODELS_V1`; the former profile-list domain is retired.
+- A bounded recheck cursor and explicit suspension reasons make minimum-stake,
+  jail, and bond transitions deterministic without scanning all support rows.
+- Query, event, genesis, parameter, registry, and cross-language fixture
+  surfaces move together so consumers cannot mix profile-scoped and
+  model-scoped support semantics.
+- Stored service-key responsibilities now carry raw Hash32 session and task
+  identifiers, slash receipts use the protocol's uint32 effect index, and
+  Builder parameters publish a 128-byte Builder-set ID bound.
+
+Consumers must regenerate from this release and start from fresh genesis state.
+The reviewed-breaking declaration is scoped to `v0.3.0` against `v0.2.2`.
+
 ## v0.2.2
 
 Additive. Two enum values, one field and two vector entries arrive; no existing
