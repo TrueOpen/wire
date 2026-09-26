@@ -137,15 +137,15 @@
       "path": "task/infer_receipt_v3.json",
       "origin": "wire",
       "contract_section": "Two-kind InferReceiptV3 signing digest",
-      "bytes": 5829,
-      "sha256": "f8ced985ac5d47ad53ec703bc27caf2bfb10a2fea9f90a221c7167dfe1581ecf"
+      "bytes": 10231,
+      "sha256": "ad1b363acb23ac3fc458962f9db3779f6e14cb24e60d9d8e2f94827130f68b32"
     },
     {
       "path": "task/metric_leaf_v3.json",
       "origin": "wire",
       "contract_section": "Metric leaf and root V3 conformance",
-      "bytes": 13036,
-      "sha256": "6cf7d629470689315c0432db9ea81acb60daa950f1a973e45121cde1579e89a9"
+      "bytes": 19572,
+      "sha256": "34074f7f3ee3ef6a0509b0b24dbbc1d13de3877bf7a5a91e328bf87cd69a2345"
     },
     {
       "path": "task/output_chunk_equivocation_v1.json",
@@ -165,8 +165,8 @@
         "path": "task/output_stream_header_v1.json",
         "origin": "wire",
         "contract_section": "Signed OutputStreamHeaderV2 plaintext declaration",
-        "bytes": 2407,
-        "sha256": "c25f5d639ee939614293e277f04ae9fd098f45ed20ec313d12a66cec0b1d1787"
+        "bytes": 2660,
+        "sha256": "52cc794dab3d470737e27aba2578fc2983217fef1dcb1fb451215d9714e75553"
       },
       {
         "path": "task/result_metric_v3.json",
@@ -180,7 +180,7 @@
         "origin": "wire",
         "contract_section": "Result commitment V3, receipt V3 and reveal payload V2",
         "bytes": 12897,
-        "sha256": "4cd35be17b4d80cfbee22f5ea004d19865b6b04e59d75452125396e364bb80a1"
+        "sha256": "c15d2847f5b92cc30c21209befb28ba8c07682ba3fbca502279bbeb630956c60"
     },
     {
       "path": "task/round_settlement_v1.json",
