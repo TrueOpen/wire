@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -70,6 +71,7 @@ func TestIntegratedContractVectors(t *testing.T) {
 		"output_stream_header_v1.json",
 		"task_data_auth_v1.json",
 		"builder_confirmation_v1.json",
+		"canonical_json_v1.json",
 	}
 	docs := map[string]map[string]any{}
 	for _, name := range taskFiles {
@@ -131,6 +133,28 @@ func TestIntegratedContractVectors(t *testing.T) {
 		binary.BigEndian.Uint32(parts[12]) != 3 ||
 		!bytes.Equal(parts[17], make([]byte, 32)) {
 		t.Fatal("V2 reveal payload is not linked to the V3 receipt and evidence roots")
+	}
+	// The receipt and the reveal both name the Verifier's evidence manifest by
+	// bundle hash and size. They must name the manifest this release publishes,
+	// so a manifest change cannot leave them pointing at a retired one.
+	var manifest map[string]any
+	for _, raw := range docs["canonical_json_v1.json"]["vectors"].([]any) {
+		if vector := raw.(map[string]any); vector["name"] == "evidence_bundle_manifest_v1" {
+			manifest = vector
+		}
+	}
+	if manifest == nil {
+		t.Fatal("canonical_json_v1.json publishes no Verifier evidence manifest")
+	}
+	manifestSize, err := strconv.ParseUint(fmt.Sprint(manifest["payload_bytes"]), 10, 64)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if integratedField(t, result, "verifier_evidence_bundle_hash")["hex"] != manifest["digest_hex"] ||
+		fmt.Sprint(integratedField(t, result, "verifier_evidence_manifest_size_bytes")["value"]) != fmt.Sprint(manifestSize) ||
+		hex.EncodeToString(parts[15]) != manifest["digest_hex"] ||
+		len(parts[16]) != 8 || binary.BigEndian.Uint64(parts[16]) != manifestSize {
+		t.Fatal("ResultReceiptV3 and the V2 reveal do not name the published Verifier evidence manifest")
 	}
 	for _, raw := range docs["task_order_v3.json"]["vectors"].([]any) {
 		order := raw.(map[string]any)
@@ -442,5 +466,88 @@ func TestEvidenceManifestsBindTheirArtifacts(t *testing.T) {
 	hash, size := artifact(manifests["evidence_bundle_manifest_worker_value_v1"], "worker_values")
 	if hash != sum(values) || size != uint64(len(values)) || size != commitments["EVIDENCE_KIND_WORKER_VALUE_OPENING"] {
 		t.Fatalf("B-level manifest does not describe the worker_values the B-level commitment sizes")
+	}
+}
+
+// fieldInt reads an integer field value, which the fixtures decode as
+// json.Number through loadIntegratedFixture.
+func fieldInt(t *testing.T, field map[string]any) int64 {
+	t.Helper()
+	value, err := strconv.ParseInt(fmt.Sprint(field["value"]), 10, 64)
+	if err != nil {
+		t.Fatalf("field %s: %v", field["name"], err)
+	}
+	return value
+}
+
+// Two same-typed receipt fields that carry equal values cannot pin their
+// order: swapping them leaves the digest unchanged. The distinct-count vector
+// must differ from the base only in generated_token_count, and must give it a
+// value output_leaf_count does not have.
+func TestInferReceiptCountsHaveDistinctValues(t *testing.T) {
+	doc := loadIntegratedFixture(t, "task", "infer_receipt_v3.json")
+	vectors := map[string]map[string]any{}
+	for _, raw := range doc["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		vectors[fmt.Sprint(vector["name"])] = vector
+	}
+	base, distinct := vectors["infer_receipt_v3"], vectors["infer_receipt_v3_distinct_counts"]
+	if base == nil || distinct == nil {
+		t.Fatal("infer_receipt_v3.json must publish the base and the distinct-count vectors")
+	}
+	if fieldInt(t, integratedField(t, distinct, "generated_token_count")) ==
+		fieldInt(t, integratedField(t, distinct, "output_leaf_count")) {
+		t.Fatal("the distinct-count vector gives both counts the same value")
+	}
+	baseFields, distinctFields := base["fields"].([]any), distinct["fields"].([]any)
+	if len(baseFields) != len(distinctFields) {
+		t.Fatal("the two receipt vectors have different field lists")
+	}
+	for i := range baseFields {
+		a, b := baseFields[i].(map[string]any), distinctFields[i].(map[string]any)
+		if a["name"] != b["name"] {
+			t.Fatalf("field %d is %v in one vector and %v in the other", i, a["name"], b["name"])
+		}
+		if fmt.Sprint(a) != fmt.Sprint(b) && a["name"] != "generated_token_count" {
+			t.Fatalf("the vectors also differ in %v", a["name"])
+		}
+	}
+	if base["digest_hex"] == distinct["digest_hex"] {
+		t.Fatal("changing generated_token_count did not change the receipt digest")
+	}
+}
+
+// Every finite metric leaf must satisfy rank_delta = effective_rank(verifier)
+// - effective_rank(worker), with effective_rank(0) = required_top_k + 1, and at
+// least one leaf must exercise a zero rank so the rule is pinned at all.
+func TestMetricLeafRankDeltaUsesEffectiveRank(t *testing.T) {
+	var zeroRankSeen bool
+	for _, name := range []string{"metric_leaf_v3.json", "result_metric_v3.json"} {
+		for _, raw := range loadIntegratedFixture(t, "task", name)["vectors"].([]any) {
+			vector := raw.(map[string]any)
+			if vector["domain"] != "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3" {
+				continue
+			}
+			leaf := map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]}
+			if integratedField(t, leaf, "finite_flag")["value"] != true {
+				continue
+			}
+			k := fieldInt(t, integratedField(t, leaf, "required_top_k"))
+			effective := func(rank int64) int64 {
+				if rank == 0 {
+					zeroRankSeen = true
+					return k + 1
+				}
+				return rank
+			}
+			worker := fieldInt(t, integratedField(t, leaf, "worker_rank"))
+			verifier := fieldInt(t, integratedField(t, leaf, "verifier_rank"))
+			if got, want := fieldInt(t, integratedField(t, leaf, "rank_delta")), effective(verifier)-effective(worker); got != want {
+				t.Fatalf("%s %v: rank_delta = %d, want %d", name, vector["name"], got, want)
+			}
+		}
+	}
+	if !zeroRankSeen {
+		t.Fatal("no finite metric leaf has a zero rank, so effective_rank(0) is unpinned")
 	}
 }

@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased
+
+Fixture-only corrections to the v0.3.0 vectors. No proto, registry or
+encoding rule changes, so the descriptor is unchanged.
+
+- `result_receipt_v3.json`: `result_v3_signing_digest` and
+  `verifier_result_payload_v2` now name the Verifier evidence manifest this
+  release publishes (`canonical_json_v1.json`, 603 bytes, `5b56779a…`)
+  instead of the retired 556-byte one. `verify-fixtures` now checks that
+  link, so the two cannot drift apart again.
+- `infer_receipt_v3.json`: adds `infer_receipt_v3_distinct_counts`, in which
+  `generated_token_count` and `output_leaf_count` differ. With both at 3,
+  an implementation that swapped the two fields reproduced every vector.
+- `metric_leaf_v3.json`: adds `metric_leaf_v3_worker_rank_outside_top_k`, a
+  finite leaf with `worker_rank` 0, so `effective_rank(0) = required_top_k
+  + 1` is pinned; `verify-fixtures` checks `rank_delta` on every finite leaf.
+- `output_stream_header_v1.json`: names the service key the header
+  signature verifies under.
+
 ## v0.3.0-rc.1
 
 Pre-release of v0.3.0. Node, Nexus and Cortex implement against this

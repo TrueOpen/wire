@@ -23,7 +23,8 @@
   "notes": [
     "The two evidence commitments are sorted by EvidenceKind numeric value: Worker value before Worker token.",
     "All four encryption commitments are zero Hash32 values in plaintext Phase 0.",
-    "The service signature is excluded from the receipt signing preimage."
+    "The service signature is excluded from the receipt signing preimage.",
+    "infer_receipt_v3_distinct_counts differs from infer_receipt_v3 only in generated_token_count (5), so generated_token_count and output_leaf_count carry different values and an implementation that swaps them cannot reproduce it. It pins encoding only: its evidence_commitments_hash is the base vector's and does not describe a five-token artifact."
   ],
   "rejected_encodings": [
     "V2 receipt domain",
@@ -129,6 +130,104 @@
       "framing": "H_FIELDS_V1",
       "name": "infer_receipt_v3",
       "preimage_hex": "0000000000000019545255454f50454e5f494e4645525f524543454950545f56330000000000000004000000030000000000000011747275656f70656e2d676f6c64656e2d31000000000000002011111111111111111111111111111111111111111111111111111111111111110000000000000020222222222222222222222222222222222222222222222222222222222222222200000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000000070000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000201d07690eb524833c073fe74787e52a25e426ed09013500d3dd43f7f363f65ec0000000000000000800000000000000060000000000000020754b0e50ef71974fc5f5a1540cd31e5f63d26eaea763c2b2df679562c846e5e1000000000000000800000000000007d0000000000000000800000000000000030000000000000008000000000000000300000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000",
+      "preimage_size_bytes": 538,
+      "producer": "selected Worker"
+    },
+    {
+      "contract_section": "Infer receipt wire contract",
+      "digest_hex": "3c1ac9e1ae9070a32e60f7d3bfa00017c3f225068e236d2a2cad0b6f81a0944b",
+      "domain": "TRUEOPEN_INFER_RECEIPT_V3",
+      "fields": [
+        {
+          "name": "schema_version",
+          "type": "uint32",
+          "value": 3
+        },
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-golden-1"
+        },
+        {
+          "hex": "1111111111111111111111111111111111111111111111111111111111111111",
+          "name": "task_id",
+          "type": "bytes"
+        },
+        {
+          "hex": "2222222222222222222222222222222222222222222222222222222222222222",
+          "name": "task_hash",
+          "type": "bytes"
+        },
+        {
+          "bech32": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz",
+          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+          "name": "worker_operator_address",
+          "type": "address"
+        },
+        {
+          "name": "service_authorization_nonce",
+          "type": "uint64",
+          "value": 7
+        },
+        {
+          "hex": "3333333333333333333333333333333333333333333333333333333333333333",
+          "name": "generation_params_digest",
+          "type": "bytes"
+        },
+        {
+          "hex": "1d07690eb524833c073fe74787e52a25e426ed09013500d3dd43f7f363f65ec0",
+          "name": "output_hash",
+          "type": "bytes"
+        },
+        {
+          "name": "output_size_bytes",
+          "type": "uint64",
+          "value": 6
+        },
+        {
+          "hex": "754b0e50ef71974fc5f5a1540cd31e5f63d26eaea763c2b2df679562c846e5e1",
+          "name": "evidence_commitments_hash",
+          "type": "bytes"
+        },
+        {
+          "name": "expiry_height",
+          "type": "uint64",
+          "value": 2000
+        },
+        {
+          "name": "generated_token_count",
+          "type": "uint64",
+          "value": 5
+        },
+        {
+          "name": "output_leaf_count",
+          "type": "uint64",
+          "value": 3
+        },
+        {
+          "hex": "0000000000000000000000000000000000000000000000000000000000000000",
+          "name": "output_key_commitment",
+          "type": "bytes"
+        },
+        {
+          "hex": "0000000000000000000000000000000000000000000000000000000000000000",
+          "name": "worker_token_key_commitment",
+          "type": "bytes"
+        },
+        {
+          "hex": "0000000000000000000000000000000000000000000000000000000000000000",
+          "name": "worker_value_key_commitment",
+          "type": "bytes"
+        },
+        {
+          "hex": "0000000000000000000000000000000000000000000000000000000000000000",
+          "name": "ciphertext_output_root",
+          "type": "bytes"
+        }
+      ],
+      "framing": "H_FIELDS_V1",
+      "name": "infer_receipt_v3_distinct_counts",
+      "preimage_hex": "0000000000000019545255454f50454e5f494e4645525f524543454950545f56330000000000000004000000030000000000000011747275656f70656e2d676f6c64656e2d31000000000000002011111111111111111111111111111111111111111111111111111111111111110000000000000020222222222222222222222222222222222222222222222222222222222222222200000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000000070000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000201d07690eb524833c073fe74787e52a25e426ed09013500d3dd43f7f363f65ec0000000000000000800000000000000060000000000000020754b0e50ef71974fc5f5a1540cd31e5f63d26eaea763c2b2df679562c846e5e1000000000000000800000000000007d0000000000000000800000000000000050000000000000008000000000000000300000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000",
       "preimage_size_bytes": 538,
       "producer": "selected Worker"
     }
