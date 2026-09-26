@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -329,5 +330,117 @@ func TestBuilderConfirmationCoversEveryObject(t *testing.T) {
 		if !seen[name] {
 			t.Fatalf("missing confirmation case %s", name)
 		}
+	}
+}
+
+// TestEvidenceManifestsBindTheirArtifacts ties each published evidence bundle
+// manifest to the artifacts and commitments it describes. Every manifest names
+// its evidence_kind. The Worker A-level manifest lists the token-id artifacts
+// whose raw bytes token_ids_v1.json publishes, and their sizes add up to the
+// A-level commitment. The Worker B-level manifest lists worker_values, whose
+// raw bytes are rebuilt here from the leaf preimages and must match the B-level
+// commitment's size. payload_bytes is checked against the payload itself,
+// because a stale declared length is how a renamed field goes unnoticed.
+func TestEvidenceManifestsBindTheirArtifacts(t *testing.T) {
+	manifests := map[string]map[string]any{}
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		name := vector["name"].(string)
+		if !strings.HasPrefix(name, "evidence_bundle_manifest") {
+			continue
+		}
+		payload := vector["payload_utf8"].(string)
+		declared, err := vector["payload_bytes"].(json.Number).Int64()
+		if err != nil || declared != int64(len(payload)) {
+			t.Fatalf("%s declares %v payload bytes, carries %d", name, vector["payload_bytes"], len(payload))
+		}
+		var manifest map[string]any
+		if err := json.Unmarshal([]byte(payload), &manifest); err != nil {
+			t.Fatal(err)
+		}
+		manifests[name] = manifest
+	}
+	kinds := map[string]string{
+		"evidence_bundle_manifest_v1":              "VERIFIER_VALUE_OPENING",
+		"evidence_bundle_manifest_worker_token_v1": "WORKER_TOKEN_OPENING",
+		"evidence_bundle_manifest_worker_value_v1": "WORKER_VALUE_OPENING",
+	}
+	for name, kind := range kinds {
+		if manifests[name] == nil || manifests[name]["evidence_kind"] != kind {
+			t.Fatalf("%s must carry evidence_kind %s", name, kind)
+		}
+	}
+
+	artifact := func(manifest map[string]any, id string) (string, uint64) {
+		for _, raw := range manifest["artifacts"].([]any) {
+			item := raw.(map[string]any)
+			if item["artifact_id"] == id {
+				var size uint64
+				if _, err := fmt.Sscan(item["size_bytes"].(string), &size); err != nil {
+					t.Fatal(err)
+				}
+				return item["content_hash"].(string), size
+			}
+		}
+		t.Fatalf("manifest has no %s artifact", id)
+		return "", 0
+	}
+	sum := func(raw []byte) string {
+		digest := sha256.Sum256(raw)
+		return hex.EncodeToString(digest[:])
+	}
+
+	commitments := map[string]uint64{}
+	for _, raw := range loadIntegratedFixture(t, "task", "infer_receipt_v3.json")["commitment_list"].(map[string]any)["items"].([]any) {
+		item := raw.(map[string]any)
+		size, err := item["encoded_size_bytes"].(json.Number).Int64()
+		if err != nil {
+			t.Fatal(err)
+		}
+		commitments[item["evidence_kind_name"].(string)] = uint64(size)
+	}
+
+	tokenA := manifests["evidence_bundle_manifest_worker_token_v1"]
+	var tokenBytes uint64
+	for _, raw := range loadIntegratedFixture(t, "task", "token_ids_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		id := strings.TrimSuffix(vector["name"].(string), "_v1")
+		want, err := hex.DecodeString(vector["token_ids_raw_hex"].(string))
+		if err != nil {
+			t.Fatal(err)
+		}
+		hash, size := artifact(tokenA, id)
+		if hash != sum(want) || size != uint64(len(want)) {
+			t.Fatalf("A-level manifest %s does not match the published token ids", id)
+		}
+		tokenBytes += size
+	}
+	if tokenBytes != commitments["EVIDENCE_KIND_WORKER_TOKEN_OPENING"] {
+		t.Fatalf("A-level artifacts total %d bytes, commitment says %d", tokenBytes, commitments["EVIDENCE_KIND_WORKER_TOKEN_OPENING"])
+	}
+
+	var leaves [][]byte
+	for _, raw := range loadIntegratedFixture(t, "task", "worker_value_leaf_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["name"] != "worker_value_leaf" {
+			continue
+		}
+		preimage, err := hex.DecodeString(vector["preimage_hex"].(string))
+		if err != nil {
+			t.Fatal(err)
+		}
+		parts := splitCanonicalFrame(t, preimage)
+		if len(parts) != 3 {
+			t.Fatalf("worker value leaf preimage has %d frames, want domain, version and leaf bytes", len(parts))
+		}
+		leaves = append(leaves, parts[2])
+	}
+	values := binary.BigEndian.AppendUint32(nil, uint32(len(leaves)))
+	for _, leaf := range leaves {
+		values = append(values, leaf...)
+	}
+	hash, size := artifact(manifests["evidence_bundle_manifest_worker_value_v1"], "worker_values")
+	if hash != sum(values) || size != uint64(len(values)) || size != commitments["EVIDENCE_KIND_WORKER_VALUE_OPENING"] {
+		t.Fatalf("B-level manifest does not describe the worker_values the B-level commitment sizes")
 	}
 }

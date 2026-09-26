@@ -123,8 +123,8 @@
       "path": "task/canonical_json_v1.json",
       "origin": "wire",
       "contract_section": "Canonical JSON evidence and generation-parameter digests",
-      "bytes": 6329,
-      "sha256": "c0f23b86a78dae8f89c67dce6f13f6b34471f693e99376d9f2a6cef9e15fd821"
+      "bytes": 10896,
+      "sha256": "3e315bcef10413f8c2f60a3c2de3e1b82900b1dfb2365e9feb78dd3a5c79dab9"
     },
     {
       "path": "task/generation_params_v1.json",
