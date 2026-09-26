@@ -27,9 +27,9 @@ enum TreasuryPurposeCode {
 }
 
 // TreasurySourceKind identifies where a non-zero treasury inflow came from.
-// Values are frozen event code 80 binds each
+// Values are frozen, and event code 80 binds each
 // value to the authoritative source ID it must carry (settlement_id, fault_id
-// or this contract treasury action_digest).
+// or the treasury action_digest).
 // TreasurySourceKind defines the TreasurySourceKind wire type.
 enum TreasurySourceKind {
   // Never written; rejects an unset inflow source.

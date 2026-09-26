@@ -76,8 +76,8 @@
       "path": "shared/account_signing_v1.json",
       "origin": "wire",
       "contract_section": "Account, TaskOrderV3 and TaskDataRequest EIP-712 signatures",
-      "bytes": 7776,
-      "sha256": "a4aa5d1cf7ffd36a529ebb88acf57c01c7ecd7b6e2efb7529a89d3d34b0dd0f1"
+      "bytes": 7799,
+      "sha256": "90ed55a830a1b6ef56dd89f2e5b417ec967ac8e8db0a18aa20d8a42eaf902a74"
     },
     {
       "path": "shared/framing_v1.json",
@@ -89,8 +89,8 @@
       "path": "shared/mmr_primitive_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for shared/mmr_primitive_v1.json",
-      "bytes": 6015,
-      "sha256": "bdd0f8c0b3a20b5f964eea7b3e08aa5ff9a88cd49e82f88c653ee303f63dbd77"
+      "bytes": 6007,
+      "sha256": "d9b3fcc63bb62a0c438e11c56c1b13a1d54311c3869abcc3405f368978c10ad4"
     },
     {
       "path": "shared/params_v1.json",
@@ -103,8 +103,8 @@
         "path": "shared/query_page_v1.json",
         "origin": "wire",
         "contract_section": "Raw Hash32 query selector and pagination commitments",
-        "bytes": 38811,
-        "sha256": "1ff244bbf7bc5feb181704778082978c9be4893d28be5c7fb87f519ff03ec6f8"
+        "bytes": 38796,
+        "sha256": "002674c12de4efcd5ee6e5568166398988c0c9c2f6a5a73c9a4a38d7d998e47e"
     },
     {
       "path": "shared/shared_domains_v1.json",
@@ -158,8 +158,8 @@
       "path": "task/output_mmr_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for task/output_mmr_v1.json",
-      "bytes": 10934,
-      "sha256": "9a91461e8c9100eee7861b12909b1f50f20506fa23d642916fb35517b81740f2"
+      "bytes": 10933,
+      "sha256": "7079830ae0e0f72a7167f4b509da5e4718d4e71bfc04ca59752ddadc0142a870"
     },
       {
         "path": "task/output_stream_header_v1.json",
@@ -212,8 +212,8 @@
       "path": "task/task_domains_v1.json",
       "origin": "wire",
       "contract_section": "Worker and Verifier handraise signing projections",
-      "bytes": 79187,
-      "sha256": "992de2bf0be6c0383dbfb41c34b87ac9af70c355b20b8aa2c650d9bac6007b45"
+      "bytes": 79172,
+      "sha256": "8d5ad9537adfdafd31a50ce4cc49c1586a43a20d3b16bbe1ebfaabee192b8c2d"
     },
     {
       "path": "task/task_keeper_domains_v1.json",

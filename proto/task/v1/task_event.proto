@@ -16,9 +16,9 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 //
 // The two local TaskEventCode / ProtocolEventCode enums are deleted: they were a
 // second numeric authority for the same event facts, which the wire API
-// this contract (one numeric definition per closed enum) and this contract (this contract is the only event
-// code registry) both forbid. Filters and envelopes now use
-// shared.v1.ProtocolEventCodeV1 and the two this contract typed payload oneofs. Every
+// forbids twice over: one numeric definition per closed enum, and a single
+// event code registry. Filters and envelopes now use
+// shared.v1.ProtocolEventCodeV1 and the two typed payload oneofs. Every
 // untyped string status, string hash and attribute map is gone with them, and no
 // reserved field number is kept.
 //
@@ -98,7 +98,7 @@ message SubscribeRoleEventsResponse {
   }
 }
 
-// TaskEvent is a stable stream envelope around one committed Task-owned this contract
+// TaskEvent is a stable stream envelope around one committed Task-owned
 // event. Field numbers 10 to 14 are deliberately unallocated.
 //
 // cursor is an opaque global chain-position token produced by one Node. The total

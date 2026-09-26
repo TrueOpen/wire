@@ -217,7 +217,7 @@ func TestScopeProjectionRejectsZeroVerifyRound(t *testing.T) {
 }
 
 // TestOrderBroadcastScope covers the one kind whose task_id is derived rather
-// than carried: this contract recomputes it from signed_order.order per TaskOrder this contract.
+// than carried: it is recomputed from signed_order.order, exactly as the TaskOrder hash defines it.
 func TestOrderBroadcastScope(t *testing.T) {
 	sessionID := hash(0xd1)
 	const orderSequence = 42

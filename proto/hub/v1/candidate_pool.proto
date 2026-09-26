@@ -151,7 +151,7 @@ message CandidateSlotCurrentState {
 // CandidateSlotBindingState is the immutable (slot, slot_version) identity
 // history (key = (slot, slot_version)). snapshot_ref_count counts each
 // READY/ACTIVE/EXPIRED snapshot body that still references this binding; the
-// safe-reuse release rule is this contract.
+// contract defines the safe-reuse release rule.
 // CandidateSlotBindingState defines the CandidateSlotBindingState wire type.
 message CandidateSlotBindingState {
   uint32 slot = 1;

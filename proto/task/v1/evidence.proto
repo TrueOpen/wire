@@ -57,7 +57,7 @@ enum FinishReasonV1 {
 // this repository, defined in task/v1/infer_receipt.proto next to the
 // TRUEOPEN_INFER_RECEIPT_V3 formula that consumes it. It covers the per-element frame
 // layout of the three fields below, the leading uint32_be(count) and the empty-list
-// case. this contract rule 1 forbids a second copy, so this file only points at it.
+// case. The contract forbids a second copy, so this file only points at it.
 // EvidenceCommitmentV1 defines the EvidenceCommitmentV1 wire type.
 message EvidenceCommitmentV1 {
   shared.v1.EvidenceKind evidence_kind = 1;

@@ -33,7 +33,7 @@ const (
 // authority without the Bus generated package entering its import graph.
 //
 // The optional fields are absent, not zero, when the payload does not carry
-// them. this contract is explicit that a missing optional scope value must be loaded from
+// them. The contract is explicit that a missing optional scope value must be loaded from
 // the Task authority the table names and must never be guessed from a field name
 // or copied from an unrelated payload - so a nil TaskHash here means "ask the
 // Task authority", never "the empty hash".
@@ -370,7 +370,7 @@ func projectActor(payload decoded, message string, paths scopePaths) (*string, e
 }
 
 // projectOrderBroadcast is the one kind whose task_id is derived rather than
-// carried: this contract recomputes it from signed_order.order per TaskOrder this contract.
+// carried: it is recomputed from signed_order.order, exactly as the TaskOrder hash defines it.
 func projectOrderBroadcast(scope BusActionScopeV2, payload []byte) (BusActionScopeV2, []byte, error) {
 	broadcast, err := strictDecode(msgOrderBroadcastV1, payload)
 	if err != nil {

@@ -7,7 +7,7 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 
 // This file is the single home of the cross-domain common values of the module split.
 // Every declaration below is referenced by more than one domain or transport, so
-// the closure rule of the module-split design (this contract shared symbol manifest) puts
+// the closure rule of the module-split design (its shared symbol manifest) puts
 // it in shared.v1 instead of the package that used to hold the file it came
 // from. The enum numbers, message field numbers and business meanings are the
 // ones frozen; the migration only changed the

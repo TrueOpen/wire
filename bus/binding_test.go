@@ -78,7 +78,7 @@ func bindingVectorFields(t *testing.T, file bindingVectorFile, index int) Bindin
 	}
 }
 
-// TestBindingMinimumVectorIsFrozen pins this contract values literally, so the
+// TestBindingMinimumVectorIsFrozen pins the contract's values literally, so the
 // fixture file cannot be regenerated away from the contract without this test
 // noticing.
 func TestBindingMinimumVectorIsFrozen(t *testing.T) {

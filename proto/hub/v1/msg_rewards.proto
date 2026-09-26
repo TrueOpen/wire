@@ -38,8 +38,7 @@ message MsgUpdateHubParamsResponse {
   shared.v1.MutationStatusV1 status = 3;
 }
 
-// MsgClaimEarnings is the single claim entry point (the wire API,
-// this contract and this contract).
+// MsgClaimEarnings is the single claim entry point.
 //
 // The request carries only the claim class and the Cosmos signer; the
 // beneficiary equals that signer. claim_id and source_epoch were removed because

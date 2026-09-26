@@ -19,9 +19,8 @@ const BindingDomain = "TRUEOPEN_NATS_USER_BINDING_V1"
 // BindingSchemaVersion is the only schema_version NatsUserBindingV1 accepts.
 const BindingSchemaVersion uint32 = 1
 
-// MaxBindingBytes bounds the encoded NatsUserBindingV1 (
-// this contract). It is checked before the token is decoded and before the protobuf
-// bytes are parsed.
+// MaxBindingBytes bounds the encoded NatsUserBindingV1. It is checked before the
+// token is decoded and before the protobuf bytes are parsed.
 const MaxBindingBytes = 1024
 
 // BindingTokenPrefix distinguishes this token generation inside the NATS

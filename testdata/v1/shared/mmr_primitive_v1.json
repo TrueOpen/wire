@@ -96,7 +96,7 @@
     {
       "leaf_count": 7,
       "name": "left_to_right_fold",
-      "reason": "Produced by acc = leftmost peak then acc = MmrNodeV1(domain, acc, peak) over the remaining peaks left to right. this contract rule 4 fixes the direction to right to left, so this value must be rejected.",
+      "reason": "Produced by acc = leftmost peak then acc = MmrNodeV1(domain, acc, peak) over the remaining peaks left to right. The contract fixes the direction to right to left, so this value must be rejected.",
       "root_hex": "e295ae79a9d65352bb7f66ea5c55c7736c230d194206c1f334c0f8281a3ea88b"
     },
     {

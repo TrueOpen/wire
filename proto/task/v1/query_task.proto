@@ -311,8 +311,7 @@ message QueryTaskBuildersResponse {
   TaskBuilderSelectionViewV1 selection = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryTaskFailureClassRequest selects one Task's failure classification
-//.
+// QueryTaskFailureClassRequest selects one Task's failure classification.
 // QueryTaskFailureClassRequest defines the QueryTaskFailureClassRequest wire type.
 message QueryTaskFailureClassRequest {
   bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];

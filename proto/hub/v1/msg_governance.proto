@@ -13,8 +13,7 @@ import "shared/v1/rest_encoding.proto";
 option go_package = "github.com/TrueOpen/node/x/hub/types";
 
 // MsgSubmitFreezeSignal is a permissionless trigger that asks the Keeper to
-// aggregate one profile risk window into a votable object (the wire API
-// this contract).
+// aggregate one profile risk window into a votable object.
 //
 // The request carries only the profile locator plus the gas payer. Every field
 // the previous wire accepted was Keeper-derived and has been removed:
@@ -47,8 +46,7 @@ message MsgSubmitFreezeSignalResponse {
   shared.v1.MutationStatusV1 status = 4;
 }
 
-// MsgEmergencyFreezeVote records one validator ballot (the wire API
-// this contract).
+// MsgEmergencyFreezeVote records one validator ballot.
 //
 // validator_address is the validator operator account and the sole Cosmos
 // signer. validator_consensus_address, voting_power_snapshot and

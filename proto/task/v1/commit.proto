@@ -38,7 +38,7 @@ enum CommitStatusV1 {
 // Non-canonical placeholder values are rejected at the entry point; there is no
 // "looks like a hash" conditional branch and no optional commitment field.
 //
-// schema_version is 1, the same value as every other this contract stage wire and this contract
+// schema_version is 1, the same value as every other stage wire and every
 // handraise wire. The single normative statement of that value, its derivation and
 // its schema-version rule is independent of the receipt schema versions.
 // VerifyCommitV1 defines the VerifyCommitV1 wire type.

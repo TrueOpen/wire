@@ -27,7 +27,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 //
 // the wire API is the ONLY numeric definition of this enum in the
 // whole contract: the sweep locator, the Query projection
-// TaskStageViewV1.next_deadline_kind and this contract event code 20 `deadline_swept`
+// TaskStageViewV1.next_deadline_kind and event code 20 `deadline_swept`
 // all share these numbers. The values are bound column-by-column to the locator
 // type and the same-height kind_priority of that table and are copied verbatim.
 //
@@ -74,8 +74,8 @@ enum DeadlineKindV1 {
   DEADLINE_KIND_V1_EVIDENCE_CLEANUP = 13;
 }
 
-// DeadlineTransitionCode is the closed transition reason carried by this contract event
-// code 20 `deadline_swept`. Numbers come from this contract enum registry.
+// DeadlineTransitionCode is the closed transition reason carried by event
+// code 20 `deadline_swept`. Numbers come from the contract's enum registry.
 //
 // DeadlineTransitionCode defines the DeadlineTransitionCode wire type.
 enum DeadlineTransitionCode {
@@ -121,7 +121,7 @@ enum DeadlineTransitionCode {
 message TaskDeadlineLocator {
   // task_id is the canonical 32-byte Task ID.
   bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  // deadline_kind must be a TaskDeadlineLocator kind of this contract table.
+  // deadline_kind must be a TaskDeadlineLocator kind of the contract's locator table.
   DeadlineKindV1 deadline_kind = 2;
 }
 
@@ -132,9 +132,9 @@ message TaskRoundDeadlineLocator {
   DeadlineKindV1 deadline_kind = 3;
 }
 
-// SessionLifecycleLocator selects the session idle/close sweep. this contract
-// freezes exactly this shape: a message-typed oneof reusing this contract ByIDV1 /
-// BatchV1 base types. No second scalar oneof shape exists and this contract only
+// SessionLifecycleLocator selects the session idle/close sweep. The contract
+// freezes exactly this shape: a message-typed oneof reusing the shared ByIDV1 /
+// BatchV1 base types. No second scalar oneof shape exists and the contract only
 // references this one.
 // SessionLifecycleLocator defines the SessionLifecycleLocator wire type.
 message SessionLifecycleLocator {

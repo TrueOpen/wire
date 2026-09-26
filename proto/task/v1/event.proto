@@ -14,14 +14,14 @@ import "shared/v1/rest_encoding.proto";
 
 option go_package = "github.com/TrueOpen/node/x/task/types";
 
-// This file carries the Task-owned typed event payloads
-// this contract. The event code numbers themselves are NOT redefined here: the single
-// registry is shared.v1.ProtocolEventCodeV1, because this contract allows one numeric
-// definition per closed enum and this contract forbids a second event code authority. The
+// This file carries the Task-owned typed event payloads.
+// The event code numbers themselves are NOT redefined here: the single
+// registry is shared.v1.ProtocolEventCodeV1, because the contract allows one numeric
+// definition per closed enum and forbids a second event code authority. The
 // payload oneof is split by owning module only because x/hub must not import
 // x/task.
 //
-// Every payload field number/type is copied verbatim from this contract table.
+// Every payload field number/type is copied verbatim from the contract's event table.
 // block_height lives in the envelope and is never repeated in a payload. All
 // enums are the domain's closed protobuf enums; no free-form string status,
 // stringly-typed hash or untyped attribute map is used any more.
@@ -32,7 +32,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 //   EventOpenVerifyAccepted, EventVerificationSampleSeedReady
 //     -> code 13 verifier_assignment_finalized; MsgOpenVerify is deleted.
 //   EventWorkerRevealAccepted, EventWorkerRevealDeadlineClosed
-//     -> no worker reveal Msg and no this contract code exist.
+//     -> no worker reveal Msg and no event code exist.
 //   EventVerifyOpenDeadlineClosed, EventRevealDeadlineClosed, EventWorkerTimeout
 //     -> codes 24/20/23 with the typed DeadlineTransitionCode.
 //   EventResultCredentialAccepted -> code 17 result_accepted.
@@ -51,7 +51,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 //        and none of these four enums is registered in this contract.
 
 // RevealPhaseTrigger identifies why the reveal phase started. Values are the
-// this contract registry values; the previous ALL_COMMITTED / DEADLINE spellings are
+// registered values; the previous ALL_COMMITTED / DEADLINE spellings are
 // replaced by the registered names.
 // RevealPhaseTrigger defines the RevealPhaseTrigger wire type.
 enum RevealPhaseTrigger {
@@ -354,7 +354,7 @@ message EventWorkerEvidenceAccepted {
 }
 
 // EventVerifierHandraisesAccepted is event code 34, emitted once per proposal
-// that added at least one verifier candidate and committed. this contract code 34 carries
+// that added at least one verifier candidate and committed. Code 34 carries
 // no session_id.
 // EventVerifierHandraisesAccepted defines the EventVerifierHandraisesAccepted wire type.
 message EventVerifierHandraisesAccepted {
@@ -375,7 +375,7 @@ message EventTaskParamsUpdated {
   bytes params_hash = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
-// TaskProtocolEventPayloadV1 is the Task-owned half of this contract payload oneof.
+// TaskProtocolEventPayloadV1 is the Task-owned half of the protocol event payload oneof.
 // Each member's field number equals its shared.v1.ProtocolEventCodeV1 value,
 // exactly like hub.v1.ProtocolEventPayloadV1 does for Hub-owned codes.
 // TaskProtocolEventPayloadV1 defines the TaskProtocolEventPayloadV1 wire type.

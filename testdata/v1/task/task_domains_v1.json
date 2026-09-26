@@ -500,7 +500,7 @@
               }
             }
           ],
-          "reason": "The same value 1 as every other this contract stage wire."
+          "reason": "The same value 1 as every other stage wire."
         }
       ],
       "tamper": [
@@ -1112,7 +1112,7 @@
               }
             }
           ],
-          "reason": "this contract pins DUTY_VERIFIER for this wire."
+          "reason": "The contract pins DUTY_VERIFIER for this wire."
         },
         {
           "digest_hex": "e8b45013b43a9a5f8b0183197b15f5ac3ea7374b2f8a6d5b4a0574c7fa9fbdbd",

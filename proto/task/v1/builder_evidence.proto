@@ -121,8 +121,7 @@ message SignedEnvelopeEquivocationV2 {
 // one closed violation. The envelope must verify, its
 // action scope must be recomputable from the typed payload plus Task/BuilderSet
 // state, and it must land on exactly one closed violation value; malformed,
-// unknown-kind and unattributable material is rejected rather than downgraded
-//.
+// unknown-kind and unattributable material is rejected rather than downgraded.
 //
 // Canonical selected fields for the content digest are
 // (bus_signing_digest, violation as enum_u32_be).

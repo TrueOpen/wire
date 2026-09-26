@@ -240,7 +240,7 @@
       "supersedes": {
         "domain": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V1",
         "registered": false,
-        "reason": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V1 committed the BusEnvelope V1 era evidence body. this contract registers only the V2 content digest, and the v0.3.0 fresh schema deletes the V1 row rather than keeping an entry no producer may write."
+        "reason": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V1 committed the BusEnvelope V1 era evidence body. The contract registers only the V2 content digest, and the v0.3.0 fresh schema deletes the V1 row rather than keeping an entry no producer may write."
       },
       "producer": "task/keeper Builder evidence handler after Task authority checks; the hub fault kernel recomputes it from the shared fact",
       "consumers": "Builder evidence ID and fault ID producers",
@@ -266,7 +266,7 @@
       "supersedes": {
         "domain": "TRUEOPEN_BUILDER_EVIDENCE_ID_V1",
         "registered": false,
-        "reason": "TRUEOPEN_BUILDER_EVIDENCE_ID_V1 keyed evidence by the retired V1 content digest. this contract registers only the V2 pair, so the v0.3.0 fresh schema deletes the V1 row instead of linking an ID nothing can recompute."
+        "reason": "TRUEOPEN_BUILDER_EVIDENCE_ID_V1 keyed evidence by the retired V1 content digest. The contract registers only the V2 pair, so the v0.3.0 fresh schema deletes the V1 row instead of linking an ID nothing can recompute."
       },
       "producer": "task/keeper Builder evidence handler; the hub fault kernel recomputes it from local chain context and the shared fact, never trusting a caller-supplied ID",
       "consumers": "task.v1.Msg.SubmitBuilderEvidence idempotency key and event 109",
@@ -292,7 +292,7 @@
       "supersedes": {
         "domain": "TRUEOPEN_BUILDER_FAULT_V1",
         "registered": false,
-        "reason": "TRUEOPEN_BUILDER_FAULT_V1 derived the fault ID from the retired V1 evidence content. this contract registers only TRUEOPEN_BUILDER_FAULT_V2, so the v0.3.0 fresh schema deletes the V1 row rather than retaining a fault ID with no reachable producer."
+        "reason": "TRUEOPEN_BUILDER_FAULT_V1 derived the fault ID from the retired V1 evidence content. The contract registers only TRUEOPEN_BUILDER_FAULT_V2, so the v0.3.0 fresh schema deletes the V1 row rather than retaining a fault ID with no reachable producer."
       },
       "producer": "hub fault kernel",
       "consumers": "Builder fault, slash and jail",
@@ -435,7 +435,7 @@
       "supersedes": {
         "domain": "TRUEOPEN_BUS_PAYLOAD_V1",
         "registered": false,
-        "reason": "There was never a TRUEOPEN_BUS_PAYLOAD_V1 domain: the payload commitment it replaces was an unregistered bare SHA-256 over the payload bytes, retired together with BusEnvelope V1. this contract closes the bare-SHA-256 producer set at three values and forbids a fourth, so the commitment starts at V2 under a registered H_V1 domain rather than being back-registered as V1."
+        "reason": "There was never a TRUEOPEN_BUS_PAYLOAD_V1 domain: the payload commitment it replaces was an unregistered bare SHA-256 over the payload bytes, retired together with BusEnvelope V1. The contract closes the bare-SHA-256 producer set at three values and forbids a fourth, so the commitment starts at V2 under a registered H_V1 domain rather than being back-registered as V1."
       },
       "producer": "Nexus or Cortex sender, over the bytes it publishes once and reuses on every retry",
       "consumers": "Nexus and Cortex receivers, over the bytes they received before any decoding; the Node Builder evidence proof-only verifier",
@@ -484,7 +484,7 @@
       "contract_section": "Public wire domain TRUEOPEN_CANDIDATE_MEMBERSHIP_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "this contract is explicit that this is an audit digest, not a Merkle inclusion proof: security comes from the on-chain lookup of the ACTIVE snapshot bitmap plus the immutable binding, so no interface may advertise it as verifiable without state."
+      "note": "The contract is explicit that this is an audit digest, not a Merkle inclusion proof: security comes from the on-chain lookup of the ACTIVE snapshot bitmap plus the immutable binding, so no interface may advertise it as verifiable without state."
     },
     {
       "domain": "TRUEOPEN_CANDIDATE_MEMBER_SET_V1",
@@ -585,7 +585,7 @@
       "contract_section": "Public wire domain TRUEOPEN_COMMIT_KEY_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "this contract is explicit that chain_id must be inside: commit_key is simultaneously a Store primary key, a response field, a batch object_id and a leaf ordering key, so a missing chain binding would let cross-chain material reuse one key. verify_round is uint32_be and the verifier address is stable operator address codec bytes, not the service address and not Bech32 text."
+      "note": "The contract is explicit that chain_id must be inside: commit_key is simultaneously a Store primary key, a response field, a batch object_id and a leaf ordering key, so a missing chain binding would let cross-chain material reuse one key. verify_round is uint32_be and the verifier address is stable operator address codec bytes, not the service address and not Bech32 text."
     },
     {
       "domain": "TRUEOPEN_COMMIT_V1",
@@ -1147,7 +1147,7 @@
       "contract_section": "Public wire domain TRUEOPEN_METRIC_SUMMARY_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "this contract gives the domain and the \"canonical MetricSummaryV1\" input but no field enumeration, so the ordered preimage is the message's own schema field order per this contract."
+      "note": "The contract gives the domain and the \"canonical MetricSummaryV1\" input but no field enumeration, so the ordered preimage is the message's own schema field order per this contract."
     },
     {
       "domain": "TRUEOPEN_MINT_BOND_V1",
@@ -2100,7 +2100,7 @@
       "contract_section": "Public wire domain TRUEOPEN_SERVICE_DESCRIPTOR_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "this contract deliberately omits chain_id from this preimage; the digest is scoped by (participant_type, operator_address, descriptor_version). tls_pubkey_hash is a caller-authored opaque 32-byte value (this contract rule 7) and is framed as an empty field when absent."
+      "note": "The contract deliberately omits chain_id from this preimage; the digest is scoped by (participant_type, operator_address, descriptor_version). tls_pubkey_hash is a caller-authored opaque 32-byte value (this contract rule 7) and is framed as an empty field when absent."
     },
     {
       "domain": "TRUEOPEN_SERVICE_KEY_RESPONSIBILITY_ID_V1",
@@ -2366,7 +2366,7 @@
       "consumers": "TaskDataRequestAuthV1.body_digest for FetchTaskData",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
       "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_FETCH_BODY_V2",
-      "note": "canonical TaskDataObjectRefV1 is the required nested eight-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. A whole-object read must sign range absent and must not rewrite it as a zero offset and length; a present range needs length above zero with offset plus length neither overflowing nor exceeding the object.",
+      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. A whole-object read must sign range absent and must not rewrite it as a zero offset and length; a present range needs length above zero with offset plus length neither overflowing nor exceeding the object.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,
@@ -2443,7 +2443,7 @@
       "consumers": "TaskDataRequestAuthV1.body_digest for GetTaskDataMetadata",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
       "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_METADATA_BODY_V2",
-      "note": "canonical TaskDataObjectRefV1 is the required nested eight-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator. Transport carries Hash32 as lowercase hex, but the preimage takes raw32.",
+      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as lowercase hex, but the preimage takes raw32.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,
@@ -2492,7 +2492,7 @@
       "consumers": "TaskDataRequestAuthV1.body_digest for UploadTaskResultObject",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
       "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_UPLOAD_BODY_V2",
-      "note": "canonical TaskDataObjectRefV1 is the required nested eight-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. Only the header is signed; the chunks that follow must end up matching the signed content_hash and size_bytes exactly.",
+      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. Only the header is signed; the chunks that follow must end up matching the signed content_hash and size_bytes exactly.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,
@@ -2685,7 +2685,7 @@
       "contract_section": "Public wire domain TRUEOPEN_TASK_STAGE_UNION_BITMAP_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "this contract (lines 337-341) requires the value stored on the union header and on AssignmentCandidateSetState to be byte-identical: the two are the same commitment landing in two rows, not two formulas. stage uses this contract BuilderDutyStageV1 numbering, and a missing segment frames as candidate_bitmap_segment_bytes zero bytes."
+      "note": "The contract requires the value stored on the union header and on AssignmentCandidateSetState to be byte-identical: the two are the same commitment landing in two rows, not two formulas. stage uses this contract BuilderDutyStageV1 numbering, and a missing segment frames as candidate_bitmap_segment_bytes zero bytes."
     },
     {
       "domain": "TRUEOPEN_TASK_TERMINAL_SUMMARY_V1",
@@ -3164,7 +3164,7 @@
       "contract_section": "Public wire domain TRUEOPEN_WORKER_HANDRAISE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "this contract pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (this contract enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy."
+      "note": "The contract pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (the contract's enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy."
     },
     {
       "domain": "TRUEOPEN_WORKER_PROPOSAL_V1",

@@ -275,8 +275,7 @@ message QueryCurrentCandidatePoolResponse {
   CandidatePoolSnapshotViewV1 snapshot = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryCandidatePoolSnapshotRequest identifies one immutable pool snapshot
-//.
+// QueryCandidatePoolSnapshotRequest identifies one immutable pool snapshot.
 // QueryCandidatePoolSnapshotRequest defines the QueryCandidatePoolSnapshotRequest wire type.
 message QueryCandidatePoolSnapshotRequest {
   bytes snapshot_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
@@ -290,8 +289,7 @@ message QueryCandidatePoolSnapshotResponse {
   CandidatePoolSnapshotViewV1 snapshot = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryCandidatePoolMemberRequest selects one stable slot of one snapshot
-//.
+// QueryCandidatePoolMemberRequest selects one stable slot of one snapshot.
 // QueryCandidatePoolMemberRequest defines the QueryCandidatePoolMemberRequest wire type.
 message QueryCandidatePoolMemberRequest {
   bytes snapshot_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];

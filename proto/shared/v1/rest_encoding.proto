@@ -30,8 +30,7 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 // Conversion carries the root message descriptor and walks actual field
 // descriptors: nested, repeated and oneof branches each read their own leaf
 // option, repeated applies the same rule per element, and a field name never
-// inherits an option from an identically named field in another message
-//.
+// inherits an option from an identically named field in another message.
 //
 // Raw protobuf binary, native gRPC, the Store and every hash/signature preimage
 // always use raw bytes and are unaffected by this option. In particular, adding
@@ -45,8 +44,7 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 //
 // V1 public service closure forbids a bytes map value; map-value option semantics
 // must be defined first. A Hash32 REST path variable may only come from a
-// HASH32_LOWER_HEX field, and Base64 bytes never enter a path
-//.
+// HASH32_LOWER_HEX field, and Base64 bytes never enter a path.
 //
 // presence rules:
 //   - only proto `optional bytes` can express absence;

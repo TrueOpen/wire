@@ -13,7 +13,7 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// The linked Builder evidence vectors, byte for byte. this contract requires the wire
+// The linked Builder evidence vectors, byte for byte. The contract requires the wire
 // fixtures to contain them
 // verbatim, so they are transcribed here rather than paraphrased. This test checks
 // that this implementation and the document agree; a restated fixture would only

@@ -50,7 +50,7 @@
   "schema": "trueopen-account-signing-v1",
   "task_data_request": {
     "body_digest_source": "task/task_data_auth_v1.json vector task_data_fetch_body_v2, domain TRUEOPEN_TASK_DATA_FETCH_BODY_V2",
-    "contract": "this contract",
+    "contract": "Task data request typed-data signing",
     "domain": {
       "chain_id": "424242",
       "domain_separator": "43a9e01264c13d99f777f935bb9125ec78f6d19732efca7d1e4328de85dd0d4f",

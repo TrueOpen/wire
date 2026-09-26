@@ -9,7 +9,7 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 // the one protocol event code registry plus the stream metadata shared
 // by every public event service. task.v1.TaskEventService and
 // hub.v1.HubEventService both reference these declarations, so the
-// module-split closure rule (this contract shared symbol manifest) makes them shared.
+// module-split closure rule (its shared symbol manifest) makes them shared.
 // Owner packages keep their own typed payload oneofs: Hub-owned payloads,
 // locators and the chain event envelope stay in hub.v1 and Task-owned
 // payload/event messages stay in task.v1.

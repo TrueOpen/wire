@@ -428,8 +428,8 @@ message TaskStageHandraiseUnionSegmentState {
 // Task admission is the only writer
 // of its frozen selection content; terminal and EvidenceCleanup helpers may only
 // advance the lifecycle fields described below. Every later Task stage reads it:
-// this contract writes it together with the first accepted Worker proposal, this contract
-// derive the fixed Builder bitmap order from selected_task_builders, and this contract
+// it is written together with the first accepted Worker proposal, later stages
+// derive the fixed Builder bitmap order from selected_task_builders, and settlement
 // derives the stable SETTLE duty Builder from the same frozen order and rank.
 //
 // Lifecycle: admission does a checked +1 on the referenced

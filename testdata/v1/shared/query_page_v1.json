@@ -3,7 +3,7 @@
     "Two vectors per paginated Query RPC: the TRUEOPEN_QUERY_RPC_V1 digest over the ASCII fully-qualified method literal, and the TRUEOPEN_QUERY_SELECTOR_V1 digest over chain_id, that RPC digest, and the RPC's own ordered selector fields.",
     "Canonical selectors exclude the page field and encode the remaining request fields in ascending field-number order. Each vector's fields after rpc_method_digest match its request message without the page field.",
     "rpc_method_digest is a derived column: it is TRUEOPEN_QUERY_RPC_V1 over the same rpc_method the paired RPC vector frames, so the two domains are chained rather than independently asserted. A cross-RPC replay row substitutes another registered RPC's digest with the same selector arity, so the digest change cannot be explained away by a length change.",
-    "Builders and Models publish an empty selector on purpose. Section 16.3 specifies that requests have no fields other than page, so the selector digest binds only chain_id and rpc_method_digest. No placeholder input may be added for an empty selector. The reject row on the Models vector executes that prohibition against the producer.",
+    "Builders and Models publish an empty selector on purpose. The contract specifies that requests have no fields other than page, so the selector digest binds only chain_id and rpc_method_digest. No placeholder input may be added for an empty selector. The reject row on the Models vector executes that prohibition against the producer.",
     "address fields frame the address codec bytes, never the Bech32 text. The bech32 column is a derived self-check so a non-Go implementation can validate its own decoder here instead of discovering a broken one as a digest mismatch.",
     "Neither domain enters consensus state; both are page-token scope. They still need cross-language vectors because a token minted by one implementation is presented back to another."
   ],
@@ -572,7 +572,7 @@
       "reject": [
         {
           "name": "placeholder_selector",
-          "reason": "Section 16.3 lines 4029-4032 prohibit placeholder input for an empty selector. A padded selector would let a token minted for one scope verify under another, so the producer refuses the extra field rather than framing it.",
+          "reason": "The contract prohibits placeholder input for an empty selector. A padded selector would let a token minted for one scope verify under another, so the producer refuses the extra field rather than framing it.",
           "rpc_method": "/hub.v1.Query/Models",
           "selector_count": 1
         }

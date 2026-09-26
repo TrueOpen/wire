@@ -11,7 +11,7 @@
         "chunk_utf8": ", ",
         "digest_hex": "f36f8dbbcbb6f0d1703ce01154ca4fc60ff6061434c4a56dbf7e72c14858fccf",
         "mmr_root_hex": "6dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa77",
-        "note": "this contract publishes this preimage in full, which pins the field order and both length prefixes.",
+        "note": "The contract publishes this preimage in full, which pins the field order and both length prefixes.",
         "preimage_hex": "0000000000000018545255454f50454e5f4f55545055545f4348554e4b5f56310000000000000013747275656f70656e2d6c6f63616c6e65742d31000000000000002011111111111111111111111111111111111111111111111111111111111111110000000000000008000000000000000100000000000000206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa77",
         "seq": 1
       },
