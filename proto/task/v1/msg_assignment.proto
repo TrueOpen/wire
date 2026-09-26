@@ -16,7 +16,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 
 // DeadlineLatencyClass is the only latency class set. Values are frozen by
 // the API contract because they enter the user-signed task_hash through
-// TaskOrderV2.deadline_policy (§5.13 field 20).
+// TaskOrderV3.deadline_policy (§5.13 field 20).
 // DeadlineLatencyClass defines the DeadlineLatencyClass wire type.
 enum DeadlineLatencyClass {
   // Never accepted in a signed order.
@@ -75,14 +75,14 @@ message GenerationParamsV1 {
   DecodingParamsV1 decoding_params = 4 [(gogoproto.nullable) = false];
 }
 
-// TaskOrderV2 is the user-authored order (api_contract §5.13). The user signs the
+// TaskOrderV3 is the user-authored order (api_contract §5.13). The user signs the
 // order-domain EIP-712 digest whose taskHash commits
-// H_FIELDS_V1("TRUEOPEN_TASK_ORDER_V2", canonical TaskOrderV2). Keeper
+// H_FIELDS_V1("TRUEOPEN_TASK_ORDER_V3", canonical TaskOrderV3). Keeper
 // derives task_id, task_hash, generation_params_digest, order_value,
 // task_builder_seed, reward bucket, resource tier and the Task Builders; none of
 // them may be submitted here.
-// TaskOrderV2 defines the TaskOrderV2 wire type.
-message TaskOrderV2 {
+// TaskOrderV3 defines the TaskOrderV3 wire type.
+message TaskOrderV3 {
   // Always 2; V1 orders are not accepted by the fresh v0.3.0 schema.
   uint32 schema_version = 1;
   string chain_id = 2;
@@ -109,6 +109,47 @@ message TaskOrderV2 {
   bytes session_anchor_block_hash = 23 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   string builder_set_id = 24;
   bytes builder_set_hash = 25 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // Fields 26-28 are ADR-0024 reserved slots. They enter task_hash and are
+  // therefore covered by the user's order signature; they do NOT enter the
+  // order opening projection.
+  //
+  // Being in task_hash is the reason they exist now rather than later. The
+  // order is what the user signs, and task_hash is derived from it; adding a
+  // field to that derivation after genesis would change the identity of every
+  // task. Signing over PLAINTEXT and two empty values costs three frames.
+  //
+  // With encryption_activation_height at 0, PLAINTEXT is the only accepted
+  // mode and the other two must be empty. An order that sets ENCRYPTED, or
+  // leaves PLAINTEXT but fills either commitment, is refused at admission and
+  // nothing is persisted -- the Builder does not even store the input. Refused
+  // rather than ignored, because an accepted order carrying a key commitment
+  // no one will open looks to a reader like encryption is in effect.
+  PayloadModeV1 payload_mode = 26;
+  bytes input_key_commitment = 27 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // Uncompressed secp256k1 point, 65 bytes, when ADR-0024 activates.
+  bytes user_recipient_pubkey = 28 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+}
+
+// PayloadModeV1 says whether the data plane for a task is plaintext or
+// ADR-0024 encrypted. It is declared in the order and enters task_hash, so the
+// mode a task runs under is fixed by what the user signed rather than by a
+// runtime decision.
+//
+// Phase 0 accepts PLAINTEXT only: encryption_activation_height is 0 and every
+// locked profile has require_encrypted false.
+enum PayloadModeV1 {
+  // Never accepted. An order must state its mode; defaulting to plaintext
+  // would let an unset field mean "unencrypted" and make the distinction
+  // invisible in exactly the case where it matters.
+  // PAYLOAD_MODE_V1_UNSPECIFIED identifies the corresponding protocol value.
+  PAYLOAD_MODE_V1_UNSPECIFIED = 0;
+  // The data plane carries plaintext. The only mode accepted in Phase 0.
+  // PAYLOAD_MODE_V1_PLAINTEXT identifies the corresponding protocol value.
+  PAYLOAD_MODE_V1_PLAINTEXT = 1;
+  // ADR-0024 producer-managed payload encryption. Registered so the enum does
+  // not have to grow later; refused until encryption_activation_height is set.
+  // PAYLOAD_MODE_V1_ENCRYPTED identifies the corresponding protocol value.
+  PAYLOAD_MODE_V1_ENCRYPTED = 2;
 }
 
 // SignedOrderV2 is the upstream-locked signed order envelope (§5.13).
@@ -117,7 +158,7 @@ message TaskOrderV2 {
 // and low-S.
 // SignedOrderV2 defines the SignedOrderV2 wire type.
 message SignedOrderV2 {
-  TaskOrderV2 order = 1 [(gogoproto.nullable) = false];
+  TaskOrderV3 order = 1 [(gogoproto.nullable) = false];
   string signature_scheme = 2;
   bytes user_signature = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
 }
@@ -168,6 +209,12 @@ message WorkerHandraiseV1 {
   uint64 service_authorization_nonce = 9;
   uint64 expiry_height = 10;
   bytes service_signature = 11 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  // ADR-0024 reserved: where a candidate would publish the key material a
+  // producer encrypts to. It sits after service_signature by field number but
+  // inside the handraise preimage, so a candidate cannot offer a recipient key
+  // the signature does not cover. Empty in Phase 0; a non-empty value is
+  // refused at handraise admission.
+  bytes recipient_pubkey = 12 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
 }
 
 // MsgSubmitWorkerHandraises accepts the order plus Worker handraises and ORs the

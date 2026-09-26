@@ -93,6 +93,9 @@ message VerifierHandraiseV1 {
   uint64 service_authorization_nonce = 11;
   uint64 expiry_height = 12;
   bytes service_signature = 13 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  // ADR-0024 reserved, same role and same rule as the Worker handraise's:
+  // inside the preimage, empty in Phase 0, refused non-empty at admission.
+  bytes recipient_pubkey = 14 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
 }
 
 // VerifierCandidateWindowState is the per (task_id, verify_round) window header.
