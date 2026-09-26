@@ -47,11 +47,15 @@ enum ModelStatusSource {
 
 // ProfileStatusSource attributes one profile status transition to its trigger.
 enum ProfileStatusSource {
+  // 1 was AUTO_SUPPORT. Support is model-scoped, so profile status is never
+  // support-derived; the number stays reserved rather than reused or kept as a
+  // deprecated value a consumer could still emit.
+  reserved 1;
+  reserved "PROFILE_STATUS_SOURCE_AUTO_SUPPORT";
+
   // Never written.
   // PROFILE_STATUS_SOURCE_UNSPECIFIED identifies the corresponding protocol value.
   PROFILE_STATUS_SOURCE_UNSPECIFIED = 0;
-  // This value is no longer emitted; profile status is not support-derived.
-  PROFILE_STATUS_SOURCE_AUTO_SUPPORT = 1 [deprecated = true];
   // Applied by a governance transition.
   // PROFILE_STATUS_SOURCE_GOVERNANCE identifies the corresponding protocol value.
   PROFILE_STATUS_SOURCE_GOVERNANCE = 2;

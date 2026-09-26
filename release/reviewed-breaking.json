@@ -357,6 +357,11 @@
     },
     {
       "path": "proto/hub/v1/model_profile_state.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"1\" on enum \"ProfileStatusSource\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/model_profile_state.proto",
       "type": "ENUM_VALUE_SAME_NAME",
       "message": "Enum value \"1\" on enum \"ModelStatusSource\" changed name from \"MODEL_STATUS_SOURCE_AUTO_PROFILE\" to \"MODEL_STATUS_SOURCE_AUTO_SUPPORT\"."
     },
@@ -699,6 +704,11 @@
       "path": "proto/task/v1/epoch_summary.proto",
       "type": "FIELD_SAME_TYPE",
       "message": "Field \"10\" with name \"support_candidates\" on message \"EpochTaskSummaryCursorState\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/task/v1/event.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"6\" with name \"result_payload_hash\" on message \"EventResultAccepted\" was deleted."
     },
     {
       "path": "proto/task/v1/evidence.proto",
