@@ -20,35 +20,36 @@
       "path": "bus/nats_user_binding_v1_vectors.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for bus/nats_user_binding_v1_vectors.json",
-      "bytes": 5345,
-      "sha256": "05c96ef8a630275865a9b4bbaa7fa7edc3a1c0b224fd7cf91f599dfedb130c0e"
+      "bytes": 5351,
+      "sha256": "e40774f8dcc99c76c9ca083dede082f2a735504e9c6b4ac15b75c8073561ec4a"
     },
     {
       "path": "hub/bridge_vrf_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for hub/bridge_vrf_v1.json",
-      "bytes": 39728,
-      "sha256": "bb82a3dc3bc854933ee0a426d8f7260d4dd9cccc4da64d64a99f8b19e5f2c390"
+      "bytes": 39985,
+      "sha256": "02acdc27962c4a04144072f9109fa1b422e8ad7e4b70849ed57816d54884e292"
     },
     {
-      "path": "hub/candidate_pool_v1.json",
-      "source_path": "x/hub/types/testdata/candidate_pool_v1.json",
-      "bytes": 13515,
-      "sha256": "ef791b48994bba1e58194a7d9ebc4f3c2fdf8db247611cd4523ecee7c4752419"
+        "path": "hub/candidate_pool_v1.json",
+        "origin": "wire",
+        "contract_section": "Public candidate pool binding and snapshot vectors",
+        "bytes": 13606,
+        "sha256": "9dc1daad5a8b2e1c3e68cc81bc035216fd403e30d9cbfdfdda750731f7cf7503"
     },
     {
       "path": "hub/hub_domains_v1.json",
       "origin": "wire",
       "contract_section": "Model support and two-kind evidence schema commitments",
-      "bytes": 80637,
-      "sha256": "253cd65b62b532659f269b3dd9c3bcacedaa75edc948b414307860c2f2ac415f"
+      "bytes": 81252,
+      "sha256": "a40a566264455fe3a4e4b4271cd6920cf4fd80f3d4ac8acf6de217fe53a93e0d"
     },
     {
       "path": "hub/hub_keeper_domains_v1.json",
       "origin": "wire",
       "contract_section": "Hub Keeper raw Hash32 model and registry commitments",
-      "bytes": 13838,
-      "sha256": "37741f17a6846fd905d181d99f58e4aaef07759fcbab959b79df494749191bc7"
+      "bytes": 13932,
+      "sha256": "79742a74369a3bb74e1a9377575bb096b63e21b682e496d75514e4fa84675bd1"
     },
     {
       "path": "hub/model_id_v1.json",
@@ -75,55 +76,55 @@
       "path": "shared/account_signing_v1.json",
       "origin": "wire",
       "contract_section": "Account, TaskOrderV3 and TaskDataRequest EIP-712 signatures",
-      "bytes": 7770,
-      "sha256": "04e314f45f8506cad9ef84370d3938f78062eb09efd3b6ebfce181cad11e0fb8"
+      "bytes": 7776,
+      "sha256": "a4aa5d1cf7ffd36a529ebb88acf57c01c7ecd7b6e2efb7529a89d3d34b0dd0f1"
     },
     {
       "path": "shared/framing_v1.json",
       "source_path": "x/shared/types/testdata/framing_v1.json",
-      "bytes": 32585,
-      "sha256": "f9f640ba2531cd4b4b62698c7552f17cb86f5037916ac22b46ca066e4f9cbe97"
+      "bytes": 32691,
+      "sha256": "b6ebeccd2e79556a193061372f90165bcc56d9a8cc01f5e6b88a85829c73d947"
     },
     {
       "path": "shared/mmr_primitive_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for shared/mmr_primitive_v1.json",
-      "bytes": 6001,
-      "sha256": "ea96c938813585e8d9a7769b401f30735922d40d937b87c46ff4242d40d6d7e4"
+      "bytes": 6015,
+      "sha256": "bdd0f8c0b3a20b5f964eea7b3e08aa5ff9a88cd49e82f88c653ee303f63dbd77"
     },
     {
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "Hub and Task parameter commitments and replay separation",
-      "bytes": 57972,
-      "sha256": "796f7d89d2067ac834c2634024c2b3a29b1dff6bc2102923c6e3068dac9e147d"
+      "bytes": 58046,
+      "sha256": "75c9c33b4a632ba4711c62d687da1f779dff69835018c61dd26df2243283700d"
     },
     {
-      "path": "shared/query_page_v1.json",
-      "origin": "wire",
-      "contract_section": "Raw Hash32 query selector and pagination commitments",
-      "bytes": 38709,
-      "sha256": "66ede78211750411d93e208d68ba31c51b6f07538f88e141d302243f6c4e8af6"
+        "path": "shared/query_page_v1.json",
+        "origin": "wire",
+        "contract_section": "Raw Hash32 query selector and pagination commitments",
+        "bytes": 38811,
+        "sha256": "1ff244bbf7bc5feb181704778082978c9be4893d28be5c7fb87f519ff03ec6f8"
     },
     {
       "path": "shared/shared_domains_v1.json",
       "source_path": "x/shared/types/testdata/shared_domains_v1.json",
-      "bytes": 3639,
-      "sha256": "0d73f3c93d544d490f024c534e7fe3c6e1413bdcbe4341328e40f9f66bb0911e"
+      "bytes": 3576,
+      "sha256": "54b862c79b18d0c44ae5ae8d0597b6821f167856c101bde6f84d0b0558fede9a"
     },
     {
       "path": "task/builder_confirmation_v1.json",
       "origin": "wire",
       "contract_section": "Builder storage confirmation V2 signing projection",
-      "bytes": 25766,
-      "sha256": "7a7ba313b32921ee6f2b92841c4f47e305311b24c8e2bb839031916b6a290825"
+      "bytes": 26002,
+      "sha256": "bb3900d1aa381b082b798764ad982ae7caf6a7000c95e683e2537252049d54a2"
     },
     {
       "path": "task/canonical_json_v1.json",
       "origin": "wire",
       "contract_section": "Canonical JSON evidence and generation-parameter digests",
-      "bytes": 6286,
-      "sha256": "67341c44d13897ae93fb5a62505e2639145e48604f2fbdd2b8f022cfb76e3253"
+      "bytes": 6329,
+      "sha256": "c0f23b86a78dae8f89c67dce6f13f6b34471f693e99376d9f2a6cef9e15fd821"
     },
     {
       "path": "task/generation_params_v1.json",
@@ -150,15 +151,15 @@
       "path": "task/output_chunk_equivocation_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for task/output_chunk_equivocation_v1.json",
-      "bytes": 5610,
-      "sha256": "13206a5311d5a7f70591225f2d818fb106fecd1fc4319dc5112361955cfc728d"
+      "bytes": 5690,
+      "sha256": "d77905afa01a6628a97ebdd93e422c74ce49614408f4a15dc528fd2b2ec0210e"
     },
     {
       "path": "task/output_mmr_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for task/output_mmr_v1.json",
-      "bytes": 10926,
-      "sha256": "29d3a9638ded712523d310d031c51b3279d34053bff7bb8a3e9885d3070de84c"
+      "bytes": 10934,
+      "sha256": "9a91461e8c9100eee7861b12909b1f50f20506fa23d642916fb35517b81740f2"
     },
       {
         "path": "task/output_stream_header_v1.json",
@@ -175,31 +176,31 @@
       "sha256": "f776e430734b6282160e44a9fa397308595c95feac2e54bcf7d7e3c786bb4519"
     },
     {
-      "path": "task/result_receipt_v3.json",
-      "origin": "wire",
-      "contract_section": "Result commitment V3, receipt V3 and reveal payload V2",
-      "bytes": 12804,
-      "sha256": "9d1a42f7ba5e5292c988fdb131063a032f9b3bd15a0080055c3d2cef15a6b8ec"
+        "path": "task/result_receipt_v3.json",
+        "origin": "wire",
+        "contract_section": "Result commitment V3, receipt V3 and reveal payload V2",
+        "bytes": 12897,
+        "sha256": "4cd35be17b4d80cfbee22f5ea004d19865b6b04e59d75452125396e364bb80a1"
     },
     {
       "path": "task/round_settlement_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for task/round_settlement_v1.json",
-      "bytes": 95993,
-      "sha256": "9fbaf0caa791f124549e82e16b259d718d075a50fea3a8e209abf0de24a847ca"
+      "bytes": 96315,
+      "sha256": "7e3d4ec85762c1cfa4f56f3af282394626d34d5d2d1c54ed7a184b251b392675"
     },
     {
       "path": "task/task_builder_rank_v1.json",
       "source_path": "x/task/types/testdata/task_builder_rank_v1.json",
-      "bytes": 5046,
-      "sha256": "fc92cf37882c5e15668db49e26d775fdf5f1ec08d2ee71c31285adac84d950e5"
+      "bytes": 5232,
+      "sha256": "c74af0d565b9b72dae29d38916aa14069a84f9bc5e1ec9f79e18a41fc6101bd0"
     },
     {
       "path": "task/task_data_auth_v1.json",
       "origin": "wire",
       "contract_section": "Nexus V2 body and service request signing digests",
-      "bytes": 24621,
-      "sha256": "10b2c9131f5ea18b030178a9108c7982ca5b8f8b3bbf628872e6d094c83d9301"
+      "bytes": 24933,
+      "sha256": "2364236ba36fcb9c0f8648d68d15f60f261ded6b39efe489dca583fe51d53952"
     },
     {
       "path": "task/task_data_plane_v1_golden.json",
@@ -211,15 +212,15 @@
       "path": "task/task_domains_v1.json",
       "origin": "wire",
       "contract_section": "Worker and Verifier handraise signing projections",
-      "bytes": 79157,
-      "sha256": "ff17e6db83a32605696f0c2af24f234df0d3b209685a7de46042daa3020c6726"
+      "bytes": 79187,
+      "sha256": "992de2bf0be6c0383dbfb41c34b87ac9af70c355b20b8aa2c650d9bac6007b45"
     },
     {
       "path": "task/task_keeper_domains_v1.json",
       "origin": "wire",
       "contract_section": "Task Keeper and epoch summary raw Hash32 commitments",
-      "bytes": 93730,
-      "sha256": "25fd3cb64585aa071b0bdb1f56da93ba46455dc7d995da9aad5778f924c7ab96"
+      "bytes": 95072,
+      "sha256": "4527e35645f283dad9e0928b06b5c5d2faf6828273efb9157a19d713bd4be259"
     },
     {
       "path": "task/task_order_v3.json",
@@ -232,8 +233,8 @@
       "path": "task/token_ids_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for task/token_ids_v1.json",
-      "bytes": 2114,
-      "sha256": "c534789ed8d9fcb0b4065f71c2182a44eca3187861ad36136f67a40edd3e9dce"
+      "bytes": 2252,
+      "sha256": "b3ed73c676493888ffe347abf26ec01d50aefa105b372ec9f177236214aeda05"
     },
     {
       "path": "task/verifier_value_leaf_v1.json",

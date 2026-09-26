@@ -1,17 +1,17 @@
 {
   "notes": [
     "Two vectors per paginated Query RPC: the TRUEOPEN_QUERY_RPC_V1 digest over the ASCII fully-qualified method literal, and the TRUEOPEN_QUERY_SELECTOR_V1 digest over chain_id, that RPC digest, and the RPC's own ordered selector fields.",
-    "The selector order is not invented here. Section 16.1 derives it: canonical selectors exclude the page field and encode the remaining request fields in ascending field-number order using the typed-field encoding from section 1.2. Each vector's fields[] after rpc_method_digest is its request message minus the page field, in field-number order.",
+    "Canonical selectors exclude the page field and encode the remaining request fields in ascending field-number order. Each vector's fields after rpc_method_digest match its request message without the page field.",
     "rpc_method_digest is a derived column: it is TRUEOPEN_QUERY_RPC_V1 over the same rpc_method the paired RPC vector frames, so the two domains are chained rather than independently asserted. A cross-RPC replay row substitutes another registered RPC's digest with the same selector arity, so the digest change cannot be explained away by a length change.",
     "Builders and Models publish an empty selector on purpose. Section 16.3 specifies that requests have no fields other than page, so the selector digest binds only chain_id and rpc_method_digest. No placeholder input may be added for an empty selector. The reject row on the Models vector executes that prohibition against the producer.",
-    "address fields frame the address codec bytes, never the Bech32 text (Decision 24). The bech32 column is a derived self-check so a non-Go implementation can validate its own decoder here instead of discovering a broken one as a digest mismatch.",
+    "address fields frame the address codec bytes, never the Bech32 text. The bech32 column is a derived self-check so a non-Go implementation can validate its own decoder here instead of discovering a broken one as a digest mismatch.",
     "Neither domain enters consensus state; both are page-token scope. They still need cross-language vectors because a token minted by one implementation is presented back to another."
   ],
   "schema": "trueopen-query-page-domains-v1",
-  "source": "§16.1 (PageTokenV1 and the selector encoding rule), with the paginated RPC tables at §16.2, §16.3 and §16.4",
+  "source": "Public QueryPageV1 token framing and paginated RPC selector projections",
   "vectors": [
     {
-      "contract_section": "§1.4, §16.1; §16.3 line 4024",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "96a066da26a7ffc9fc9851f64bb57e726c52cec7181e198dd2ab22f5d58a5dd4",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -37,7 +37,7 @@
       ]
     },
     {
-      "contract_section": "§1.4, §16.1; §16.3 line 4021",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "85eb68796c72100c57db1dc49f9aefddb526279bfbd36dbeda2b7575f046336e",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -63,7 +63,7 @@
       ]
     },
     {
-      "contract_section": "§1.4, §16.1; §16.3 line 4008",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "e2be1d98d6619599d0458fc0169bba65a625970128e6aabad802c1711b91956f",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "contract_section": "§1.4, §16.1; §16.3 line 4007",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "7af31658708aec3f5aa42a19abc0fdbf29023ceba7ed01e5e8aa900a02ae5a8f",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -115,7 +115,7 @@
       ]
     },
     {
-      "contract_section": "§1.4, §16.1; §16.3 line 4004",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "8089097d5dc5e138f5c071fe761be674dd38531e53ccb6b95b29a249c5f38543",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -141,7 +141,7 @@
       ]
     },
     {
-      "contract_section": "§1.4, §16.1; §16.3 line 4014",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "8d4135919c2c5feae0f96dc269e9290aa6aad992a63d6f9e601a9cac21a22534",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -167,7 +167,7 @@
       ]
     },
     {
-      "contract_section": "§1.4, §16.1; §16.2 line 3988",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "b18a0901f429262f4f746ec4059acbb0baa739c3ae182613e4fcf517cef64c63",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -193,7 +193,7 @@
       ]
     },
     {
-      "contract_section": "§1.4, §16.1, §16.4",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "c0543f07de8b27ef90bccec69be4d6b8a5d0d9b45cc0c927c5facf0e28c1367d",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -219,7 +219,7 @@
       ]
     },
     {
-      "contract_section": "§1.4, §16.1; §16.3 line 4022",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "793a971812ebd152e8d15c2d67cd14d46c1e9d63fba16d52807a7af4b925c5f6",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -245,7 +245,7 @@
       ]
     },
     {
-      "contract_section": "§1.4, §16.1; §16.2 line 3977",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "b779e3608910e01dc8143d63d109e4c5bca6365ef4cac18d9307ed7970c752e6",
       "domain": "TRUEOPEN_QUERY_RPC_V1",
       "fields": [
@@ -272,7 +272,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1; §16.3 lines 4024 and 4029-4032",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "583e627c8714d74215381a62c88d533fd77fbf832aecec4659f61445617c4bf1",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [
@@ -328,7 +328,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1; §16.3 line 4021",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "922f9f6acc6fd9e5b88dc12d057a6c0f2852dcbc6de627fc2b56840698545b52",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [
@@ -396,7 +396,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1; §16.3 line 4008",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "04d958efeb0fd43ce37c26464dd219ae66be3559cf466a374b885127a21623c9",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [
@@ -464,7 +464,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1; §16.3 line 4007",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "ce8121a4ec54e2f40d2cb2473836e0104cd8d20520e14545a8afe6c57fff36fb",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [
@@ -550,7 +550,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1; §16.3 lines 4004 and 4029-4032",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "12efd707031cfa0eca395eb5d58e2867347831f44dfbf78ee050c8f224f9f776",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [
@@ -614,7 +614,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1; §16.3 line 4014",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "3deae8d7aac8e3fa5d2fa6843f7f424aae59582efeb469166cbb1c964d34ee1d",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [
@@ -695,7 +695,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1; §16.2 line 3988",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "c579304e7e4322f360f5b509c277138dfa1e72395720aa5ccedb512d2af52d58",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [
@@ -775,7 +775,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1, §16.4",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "caf6cced7a56be63bcd564b30d4b2df363e318a4677150774de9e1c150b4acc5",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [
@@ -843,7 +843,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1; §16.3 line 4022",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "bbe3bd537b27821a25e3b94684ff524b7afd6bb55753cd7888af41a796eeb12f",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [
@@ -924,7 +924,7 @@
     },
     {
       "chain_id": "trueopen-page-vector-1",
-      "contract_section": "§1.4, §16.1; §16.2 line 3977",
+      "contract_section": "Public QueryPageV1 selector and RPC projection",
       "digest_hex": "f65bdb081fdd6c7cbc7fe81517437055937a6ea9013a3130c1676c28502578c4",
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
       "fields": [

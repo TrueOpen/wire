@@ -12,7 +12,7 @@ import (
 // length-delimited block. A decoder that demanded wire type 0 would reject the
 // user-signed TaskOrderV3 inside every ORDER_BROADCAST that sets stop tokens,
 // while a consumer using generated code accepted it - which is exactly the
-// two-implementations-disagree failure the API contract has the wire
+// two-implementations-disagree failure the wire API has the wire
 // decoder exist to prevent.
 func TestPackedRepeatedScalarIsAccepted(t *testing.T) {
 	// field 10 << 3 | 2, four payload bytes, elements 1, 2, 300.

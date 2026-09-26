@@ -6,7 +6,7 @@
 // is decoration: a public Msg, Query or event RPC can pull an unannotated
 // message into the client-facing descriptor closure and every generated client
 // will quietly guess an encoding for its bytes leaves - which is exactly the
-// field-name-table behaviour the API contract exists to abolish. The
+// field-name-table behaviour the wire API exists to abolish. The
 // guess is invisible until two implementations guess differently about the
 // same field.
 //
@@ -14,13 +14,13 @@
 // it stays in step with the rest of this module: no wire tool links against
 // generated code, because a tool that shares a code path with the thing it
 // checks cannot detect that code path being wrong. The reader lives in
-// tools/internal/protoimage, shared with apply-rest-encoding, because §1.1a
+// tools/internal/protoimage, shared with apply-rest-encoding, because this contract
 // requires the lint and the OpenAPI projection to read the same option.
 //
 //	buf build -o build/image.json
 //	verify-rest-encoding -image build/image.json
 //
-// Four rules, all from §1.1a:
+// Four rules, all from this contract:
 //
 //  1. The option may only sit on a `bytes` field. Anywhere in the image, not
 //     just under REST.

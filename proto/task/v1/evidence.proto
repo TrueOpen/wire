@@ -53,11 +53,11 @@ enum FinishReasonV1 {
 // the locked profile.
 //
 // The list's commitment - evidence_commitments_hash, domain
-// TRUEOPEN_INFER_EVIDENCE_COMMITMENTS_V1 (§1.4) - has exactly one ordered preimage in
+// TRUEOPEN_INFER_EVIDENCE_COMMITMENTS_V1 - has exactly one ordered preimage in
 // this repository, defined in task/v1/infer_receipt.proto next to the
 // TRUEOPEN_INFER_RECEIPT_V3 formula that consumes it. It covers the per-element frame
 // layout of the three fields below, the leading uint32_be(count) and the empty-list
-// case. §1.4 rule 1 forbids a second copy, so this file only points at it.
+// case. this contract rule 1 forbids a second copy, so this file only points at it.
 // EvidenceCommitmentV1 defines the EvidenceCommitmentV1 wire type.
 message EvidenceCommitmentV1 {
   shared.v1.EvidenceKind evidence_kind = 1;

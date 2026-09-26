@@ -176,7 +176,7 @@ func contentDigest(tag uint32, selected ...[]byte) [32]byte {
 //
 // FaultID below has an identical field list and differs only in the domain
 // literal. That is deliberate, not duplication: evidence_id keys the submission
-// and fault_id keys the punishable fact derived from it, and §5.5 requires the
+// and fault_id keys the punishable fact derived from it, and this contract requires the
 // two to stay distinct values that never substitute for each other.
 func EvidenceID(chainID, builderOperator string, evidenceKind int32, scopeID []byte, contentDigest [32]byte) ([32]byte, error) {
 	return identityDigest(EvidenceIDDomain, chainID, builderOperator, evidenceKind, scopeID, contentDigest)
@@ -270,7 +270,7 @@ type ProofKeyLookup func(participantType int32, operatorAddress string, authoriz
 // EvidenceVerifyOptions configures the chain proof-only profile.
 //
 // There is deliberately no clock and no replay store here. Both are in
-// VerifyOptions for the live receiver, and the API contract is explicit
+// VerifyOptions for the live receiver, and the wire API is explicit
 // that the chain profile has neither: expires_at bounds live transport delivery
 // only, so rejecting an already-signed objective fact by current wall clock
 // would let a Builder outlive its own evidence. Exact replay is done by the
@@ -291,7 +291,7 @@ type VerifiedEvidenceEnvelope struct {
 }
 
 // VerifyEvidenceEnvelope runs the chain proof-only profile of
-// the API contract over one exact serialized BusEnvelopeV1.
+// the wire API over one exact serialized BusEnvelopeV1.
 //
 // The order matters and is the document's: size and strict structure, then
 // schema and chain and kind and the fixed TTL bound, then the payload digest
@@ -430,7 +430,7 @@ func EquivocationPreconditions(a, b VerifiedEvidenceEnvelope) error {
 		{"expires_at_unix_ms", a.Fields.ExpiresAtUnixMS == b.Fields.ExpiresAtUnixMS},
 		{"action scope task_id", bytes.Equal(a.Scope.TaskID, b.Scope.TaskID)},
 		{"action scope subject", a.Scope.ExpectedSubject == b.Scope.ExpectedSubject},
-		// §5.5 requires the same payload-derived action scope, which is the whole
+		// this contract requires the same payload-derived action scope, which is the whole
 		// scope and not just the parts the subject happens to be built from. Two
 		// OPEN_VERIFY envelopes differing only in verify_round share a task_id and
 		// therefore a subject, but they are two rounds, not one equivocation - and

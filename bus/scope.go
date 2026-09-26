@@ -11,7 +11,7 @@ import (
 // projection produced.
 func sha256Sum(preimage []byte) [32]byte { return sha256.Sum256(preimage) }
 
-// Subject prefixes of the trueopen.* task-control subjects. The API contract
+// Subject prefixes of the trueopen.* task-control subjects. The wire API
 // derives the expected subject from the typed payload and then compares it with
 // the signed subject, so these are the only place the templates appear: a second
 // copy in a caller would be a second authority on what the signer committed to.
@@ -33,7 +33,7 @@ const (
 // authority without the Bus generated package entering its import graph.
 //
 // The optional fields are absent, not zero, when the payload does not carry
-// them. §5.5 is explicit that a missing optional scope value must be loaded from
+// them. this contract is explicit that a missing optional scope value must be loaded from
 // the Task authority the table names and must never be guessed from a field name
 // or copied from an unrelated payload - so a nil TaskHash here means "ask the
 // Task authority", never "the empty hash".
@@ -45,7 +45,7 @@ type BusActionScopeV2 struct {
 	// ORDER_BROADCAST, derives it from the signed order.
 	TaskID []byte
 	// TaskHash is raw32 when the payload carries it. It is absent for
-	// VERIFIER_HANDRAISE and VERIFY_RESULT, which §5.5 loads from Task authority,
+	// VERIFIER_HANDRAISE and VERIFY_RESULT, which this contract loads from Task authority,
 	// and for ORDER_BROADCAST - see OrderBytes on DecodedEnvelope.
 	TaskHash []byte
 	// ModelID is raw Hash32 and absent unless the payload carries it.
@@ -60,7 +60,7 @@ type BusActionScopeV2 struct {
 
 // DecodedEnvelope is what the import-leaf decoder returns: the plain signing
 // fields, the exact payload bytes as transmitted, the raw signature, and the
-// business scope. The API contract fixes this return shape so that Node
+// business scope. The wire API fixes this return shape so that Node
 // keeps no second envelope struct, kind numbering, payload map or signing helper.
 type DecodedEnvelope struct {
 	Fields Fields
@@ -190,7 +190,7 @@ func decodeEnvelope(raw []byte, project bool) (DecodedEnvelope, error) {
 // DecodeEnvelopeHeader is DecodeEnvelope without the typed payload projection.
 //
 // The split exists because the two happen at different points in the verified
-// order. The API contract decodes the typed payload at step 6, after the
+// order. The wire API decodes the typed payload at step 6, after the
 // signature has verified at step 5, andstep 8 says
 // the same for the live profile. Doing it earlier does not change which
 // envelopes are accepted, but it changes how a rejection reads: an envelope with
@@ -213,7 +213,7 @@ func (d DecodedEnvelope) ProjectPayload() (BusActionScopeV2, []byte, error) {
 }
 
 // projectScope implements the kind -> field-path -> Subject table of
-// the API contract. The field numbers come from the pinned tables in
+// the wire API. The field numbers come from the pinned tables in
 // prototable.go, which are checked against the .proto sources, so nothing here
 // resolves a field by guessing at its name.
 func projectScope(kind, payloadType int32, payload []byte) (BusActionScopeV2, []byte, error) {
@@ -247,7 +247,7 @@ func projectScope(kind, payloadType int32, payload []byte) (BusActionScopeV2, []
 			taskID: 1, taskHash: 2, modelID: 3, actor: 7, verifyRound: 8,
 		})
 	case KindVerifierHandraise:
-		// task_hash is deliberately not read: §5.5 loads it from Task authority
+		// task_hash is deliberately not read: this contract loads it from Task authority
 		// for this kind, and VerifierHandraiseV1 does not carry one.
 		return projectFromTable(scope, payload, msgVerifierHandraiseV1, subjectVerifierHandraisePrefix, scopePaths{
 			taskID: 3, verifyRound: 4, modelID: 7, memberRef: 9,
@@ -370,7 +370,7 @@ func projectActor(payload decoded, message string, paths scopePaths) (*string, e
 }
 
 // projectOrderBroadcast is the one kind whose task_id is derived rather than
-// carried: §5.5 recomputes it from signed_order.order per TaskOrder §3.
+// carried: this contract recomputes it from signed_order.order per TaskOrder this contract.
 func projectOrderBroadcast(scope BusActionScopeV2, payload []byte) (BusActionScopeV2, []byte, error) {
 	broadcast, err := strictDecode(msgOrderBroadcastV1, payload)
 	if err != nil {

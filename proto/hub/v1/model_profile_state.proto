@@ -60,7 +60,7 @@ enum ProfileStatusSource {
   PROFILE_STATUS_SOURCE_EMERGENCY = 3;
 }
 
-// ModelState is one registered model primary row (data-structure contract 6.3).
+// ModelState is one registered model primary row (wire storage model 6.3).
 message ModelState {
   bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   string proposer_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];

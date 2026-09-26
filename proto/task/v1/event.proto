@@ -15,13 +15,13 @@ import "shared/v1/rest_encoding.proto";
 option go_package = "github.com/TrueOpen/node/x/task/types";
 
 // This file carries the Task-owned typed event payloads
-// §5.11. The event code numbers themselves are NOT redefined here: the single
-// registry is shared.v1.ProtocolEventCodeV1, because §9.6b allows one numeric
-// definition per closed enum and §17 forbids a second event code authority. The
+// this contract. The event code numbers themselves are NOT redefined here: the single
+// registry is shared.v1.ProtocolEventCodeV1, because this contract allows one numeric
+// definition per closed enum and this contract forbids a second event code authority. The
 // payload oneof is split by owning module only because x/hub must not import
 // x/task.
 //
-// Every payload field number/type is copied verbatim from the §5.11 table.
+// Every payload field number/type is copied verbatim from this contract table.
 // block_height lives in the envelope and is never repeated in a payload. All
 // enums are the domain's closed protobuf enums; no free-form string status,
 // stringly-typed hash or untyped attribute map is used any more.
@@ -32,7 +32,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 //   EventOpenVerifyAccepted, EventVerificationSampleSeedReady
 //     -> code 13 verifier_assignment_finalized; MsgOpenVerify is deleted.
 //   EventWorkerRevealAccepted, EventWorkerRevealDeadlineClosed
-//     -> no worker reveal Msg and no §5.11 code exist.
+//     -> no worker reveal Msg and no this contract code exist.
 //   EventVerifyOpenDeadlineClosed, EventRevealDeadlineClosed, EventWorkerTimeout
 //     -> codes 24/20/23 with the typed DeadlineTransitionCode.
 //   EventResultCredentialAccepted -> code 17 result_accepted.
@@ -41,17 +41,17 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 //   EventTimeoutBucketUpdated, EventSettleAccepted,
 //   EventSettlementResultDispatched, EventFaultReportDispatched,
 //   EventEvidenceRootDispatched, EventEpochTaskSummaryDispatched
-//     -> §5.11 assigns them no code; runner/dispatch summary events are
+//     -> this contract assigns them no code; runner/dispatch summary events are
 //        explicitly forbidden. Session idle/close is code 20 with
 //        SESSION_ACTIVE_TO_IDLE / SESSION_IDLE_TO_CLOSED.
 //   Every EventChallenge* / EventEvidenceRequest* message and the
 //   CommitDeadlineOutcome / EvidenceCleanupDeferReason / ChallengeExpiredReason /
 //   ChallengeBondAction enums
 //     -> K-BLOCK-03/04: no public challenge event code or enum may be assigned,
-//        and none of these four enums is registered in §9.6b.
+//        and none of these four enums is registered in this contract.
 
 // RevealPhaseTrigger identifies why the reveal phase started. Values are the
-// §9.6b registry values; the previous ALL_COMMITTED / DEADLINE spellings are
+// this contract registry values; the previous ALL_COMMITTED / DEADLINE spellings are
 // replaced by the registered names.
 // RevealPhaseTrigger defines the RevealPhaseTrigger wire type.
 enum RevealPhaseTrigger {
@@ -100,26 +100,10 @@ message EventRevealPhaseStarted {
 // EventTaskFailureClassUpdated is event code 9, emitted once when the final
 // failure class is first written or replaced by a challenge.
 //
-// CONTRACT-GAP: classification_source uses the 4-value §9.6b
-// FailureClassificationSource, which is the sole numeric authority and the type
-// this event row references. The data-structure contract
-// describe seven finer-grained sources with no numbers
-// (VERIFY_OPEN_DEADLINE / COMMIT_DEADLINE / VERIFY_DEADLINE / SETTLEMENT_VERDICT /
-// DATA_UNAVAILABLE_REPORT_THRESHOLD / CHALLENGE_OUTCOME / MANUAL_CORRECTION), so
-// the finer source cannot be encoded and it feeds the
-// TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1 cross-language vector.
-//
-// RULING 31 (user, unblock round): four values stand. §9.6b is the self-declared
-// sole numeric authority and this event - code 9 - already encodes the field with
-// those numbers, so the enum is confirmed as-is rather than renumbered; changing it
-// now would be a second breaking change for consumers that already pulled it. The
-// seven §6.6 names become descriptive prose, and the mapping table is backfilled
-// into the protocol contract. Because classification_source enters the
-// TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1 preimage as uint32_be (§10.12), the four
-// numbers are now consensus-frozen: a cross-language implementation must encode
-// exactly the §9.6b value and must never widen the enum to carry a finer reason. The
-// single normative record of this ruling, including which of the seven names map
-// unambiguously, is on TaskFailureClassState in task/v1/settlement.proto.
+// classification_source uses the four-value FailureClassificationSource enum.
+// Its uint32 value enters TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1 and cannot
+// be replaced by a finer local reason. The mapping from detailed causes is
+// defined on TaskFailureClassState in task/v1/settlement.proto.
 // EventTaskFailureClassUpdated defines the EventTaskFailureClassUpdated wire type.
 message EventTaskFailureClassUpdated {
   bytes session_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
@@ -361,7 +345,7 @@ message EventWorkerEvidenceAccepted {
 }
 
 // EventVerifierHandraisesAccepted is event code 34, emitted once per proposal
-// that added at least one verifier candidate and committed. §5.11 code 34 carries
+// that added at least one verifier candidate and committed. this contract code 34 carries
 // no session_id.
 // EventVerifierHandraisesAccepted defines the EventVerifierHandraisesAccepted wire type.
 message EventVerifierHandraisesAccepted {
@@ -382,7 +366,7 @@ message EventTaskParamsUpdated {
   bytes params_hash = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
-// TaskProtocolEventPayloadV1 is the Task-owned half of the §5.11 payload oneof.
+// TaskProtocolEventPayloadV1 is the Task-owned half of this contract payload oneof.
 // Each member's field number equals its shared.v1.ProtocolEventCodeV1 value,
 // exactly like hub.v1.ProtocolEventPayloadV1 does for Hub-owned codes.
 // TaskProtocolEventPayloadV1 defines the TaskProtocolEventPayloadV1 wire type.

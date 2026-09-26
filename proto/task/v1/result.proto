@@ -9,7 +9,7 @@ option go_package = "github.com/TrueOpen/node/x/task/types";
 
 // MetricSampleVerdictV1 is the per-sample judgment produced by JudgeMetricSample
 // from the task-snapshot verification thresholds. Frozen values:
-// the API contract. Verifiers never submit a verdict field, and
+// the wire API. Verifiers never submit a verdict field, and
 // METRIC_SAMPLE_VERDICT_V1_INCONCLUSIVE can never become a final task verdict.
 // MetricSampleVerdictV1 defines the MetricSampleVerdictV1 wire type.
 enum MetricSampleVerdictV1 {

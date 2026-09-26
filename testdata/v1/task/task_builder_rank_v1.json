@@ -2,7 +2,7 @@
   "domain": "TRUEOPEN_TASK_BUILDER_RANK_V1",
   "notes": [
     "H_FIELDS_V1(\"TRUEOPEN_TASK_BUILDER_RANK_V1\", task_builder_seed, builder_operator_address). Two fields, in that order; the registry row names both.",
-    "builder_operator_address frames the address codec bytes, never the Bech32 text (Decision 24). The bech32 column is a self-check so a non-Go implementation can validate its own decoder here instead of discovering a broken one as a digest mismatch.",
+    "builder_operator_address frames the address codec bytes, never the Bech32 text. The bech32 column is a self-check so a non-Go implementation can validate its own decoder here instead of discovering a broken one as a digest mismatch.",
     "The vectors share one seed and differ only in the Builder, which is what the rank is for: one task_builder_seed maps every candidate Builder onto its own rank, and selection is the ascending order of those ranks.",
     "This file used to publish (seed, address) -\u003e rank pairs with no per-vector preimage, so the rank VALUES were pinned but the field ORDER was not: swapping the two fields inside the producer would have moved every rank and agreed with a regenerated file. The preimage below is what the root differential compares against the registry row."
   ],
@@ -10,7 +10,7 @@
   "sort": "rank_bytes_asc_then_address_codec_bytes_asc",
   "vectors": [
     {
-      "contract_section": "§1.4; §6.5",
+      "contract_section": "Public wire fixture testdata/v1/task/task_builder_rank_v1.json",
       "digest_hex": "2215fbe71a020f4624a48f6c8649516b7b6937017c023ff4744a7486ca61e1a1",
       "domain": "TRUEOPEN_TASK_BUILDER_RANK_V1",
       "fields": [
@@ -32,7 +32,7 @@
       "producer": "TaskBuilderRank"
     },
     {
-      "contract_section": "§1.4; §6.5",
+      "contract_section": "Public wire fixture testdata/v1/task/task_builder_rank_v1.json",
       "digest_hex": "9165f52562d4bd223a762b5f492c3a25b71e14506b9f91560b3f233abcbb9114",
       "domain": "TRUEOPEN_TASK_BUILDER_RANK_V1",
       "fields": [
@@ -54,7 +54,7 @@
       "producer": "TaskBuilderRank"
     },
     {
-      "contract_section": "§1.4; §6.5",
+      "contract_section": "Public wire fixture testdata/v1/task/task_builder_rank_v1.json",
       "digest_hex": "aa9c78096af16eb02192e040093f5646ea293eeef0e084eda7cc6906a9bb68d0",
       "domain": "TRUEOPEN_TASK_BUILDER_RANK_V1",
       "fields": [
@@ -76,7 +76,7 @@
       "producer": "TaskBuilderRank"
     },
     {
-      "contract_section": "§1.4; §6.5",
+      "contract_section": "Public wire fixture testdata/v1/task/task_builder_rank_v1.json",
       "digest_hex": "8e3252aff82748ed63f9d1caaa9977a5e04fe31ddc623c750ec946e2bb316f2d",
       "domain": "TRUEOPEN_TASK_BUILDER_RANK_V1",
       "fields": [

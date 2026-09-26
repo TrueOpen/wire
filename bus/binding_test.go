@@ -78,7 +78,7 @@ func bindingVectorFields(t *testing.T, file bindingVectorFile, index int) Bindin
 	}
 }
 
-// TestBindingMinimumVectorIsFrozen pins the §7.5.4 values literally, so the
+// TestBindingMinimumVectorIsFrozen pins this contract values literally, so the
 // fixture file cannot be regenerated away from the contract without this test
 // noticing.
 func TestBindingMinimumVectorIsFrozen(t *testing.T) {
@@ -91,13 +91,13 @@ func TestBindingMinimumVectorIsFrozen(t *testing.T) {
 	)
 	if c.Fields.ChainID != "c" || c.Fields.ServiceAuthorizationNonce != "1" || c.Fields.IssuedAtUnixMS != "1" ||
 		c.Fields.OperatorAddress != "trueopen1wltmkp6cpvulh9ya7z0hhw0cpgwsvsdccd5man" || c.Fields.NATSUserPubkey != wantPubkey {
-		t.Fatalf("case 0 inputs drifted from §7.5.4: %+v", c.Fields)
+		t.Fatalf("case 0 inputs drifted from this contract: %+v", c.Fields)
 	}
 	if c.Expected.SigningDigest != wantDigest {
-		t.Fatalf("case 0 digest drifted from §7.5.4: %s", c.Expected.SigningDigest)
+		t.Fatalf("case 0 digest drifted from this contract: %s", c.Expected.SigningDigest)
 	}
 	if c.Expected.Signature != wantSignature {
-		t.Fatalf("case 0 signature drifted from §7.5.4: %s", c.Expected.Signature)
+		t.Fatalf("case 0 signature drifted from this contract: %s", c.Expected.Signature)
 	}
 }
 

@@ -9,7 +9,7 @@
   "vectors": [
     {
       "chain_id": "trueopen-hub-params-v2-vector-1",
-      "contract_section": "§1.4 and §18.0",
+      "contract_section": "Public wire fixture testdata/v1/shared/params_v1.json",
       "digest_hex": "b40396c3c748122fdedfd22585f9cce8abe73a3cb70d607c1bce272ec567a5b1",
       "domain": "TRUEOPEN_HUB_PARAMS_V2",
       "fields": [
@@ -995,7 +995,7 @@
     },
     {
       "chain_id": "trueopen-task-params-v1-vector-1",
-      "contract_section": "§1.4 and §18.0",
+      "contract_section": "Public wire fixture testdata/v1/shared/params_v1.json",
       "digest_hex": "a8e6cef6243f472149f517856b7c98317d4c37a715a490a9d959fcb7850febd8",
       "domain": "TRUEOPEN_TASK_PARAMS_V1",
       "fields": [

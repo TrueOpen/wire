@@ -1,8 +1,8 @@
 {
   "notes": [
     "Every vector is H_FIELDS_V1: preimage = u64_be(len(domain)) || domain || for each field u64_be(len(field)) || field; digest = SHA256(preimage).",
-    "Field encoding (§1.2): string = strict UTF-8 bytes; bytes = raw bytes; uint32/uint64 = 4/8-byte big-endian; bool = 0x00/0x01; enum = uint32 big-endian; frame = domainless NestedFieldFrameV1.",
-    "operator_address is encoded as stable address-codec bytes whenever a vector carries it, per §1.2. Decision 17 aligned the daily support confirmation domain and Decision 24 aligned the remaining five identity/bond domains; no Hub domain frames Bech32 text. A non-Go implementation must decode Bech32 to 20-byte account bytes before framing.",
+    "Field encoding: string = strict UTF-8 bytes; bytes = raw bytes; uint32/uint64 = 4/8-byte big-endian; bool = 0x00/0x01; enum = uint32 big-endian; frame = domainless NestedFieldFrameV1.",
+    "operator_address is encoded as stable address-codec bytes whenever a vector carries it, per this contract. The daily support and identity/bond domains share this rule; no Hub domain frames Bech32 text. A non-Go implementation must decode Bech32 to 20-byte account bytes before framing.",
     "TRUEOPEN_SERVICE_REGISTRATION_V1 binds participant_type immediately after chain_id. This separates Cortex and Builder identity proofs and makes cross_participant_type replay testable.",
     "tamper: XOR one bit of one framed field. \"byte\" indexes the framed field bytes and may be negative to count from the end; \"bit\" is the bit position inside that byte (0 = least significant). An absent optional value frames as an empty field and has no bit to flip, so it is covered by a replay case instead.",
     "replay: apply the listed field overrides (keeping the frozen field type) and expect a different digest. Covers cross-chain, cross-operator, cross-participant-type, stale-nonce/version/epoch and list-reorder replay.",
@@ -10,10 +10,10 @@
     "Regenerate with TRUEOPEN_REGEN_FIXTURES=1; the run rewrites expectations and then fails on purpose so the diff must be reviewed against the frozen contract."
   ],
   "schema": "trueopen.hub.domains.v1",
-  "source": "§1.4 registry; preimages at §10.0c, §10.0c1, §9.6b, §5.7 and §6.1/§6.4",
+  "source": "Public wire conformance vectors in testdata/v1/hub/hub_domains_v1.json",
   "vectors": [
     {
-      "contract_section": "§10.0c step 1",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "9ab3141d52a2b3d3f2800405ec33b6f1d210d490c33de422fb6643723b4b98dc",
       "domain": "TRUEOPEN_SERVICE_REGISTRATION_V1",
       "fields": [
@@ -200,7 +200,7 @@
       ]
     },
     {
-      "contract_section": "§10.0c1",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "22470d271358f9c738b8c1346c60b553895839eb6199718a90987cb3b81fe600",
       "domain": "TRUEOPEN_SERVICE_KEY_ROTATION_V1",
       "fields": [
@@ -400,7 +400,7 @@
       ]
     },
     {
-      "contract_section": "§9.6b (no chain_id in this preimage)",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "c5ff6099bd3aa6ad1cbf8d4b2359d82b842dc93739a2643228bb61d240ddc166",
       "domain": "TRUEOPEN_SERVICE_DESCRIPTOR_V1",
       "fields": [
@@ -548,7 +548,7 @@
       ]
     },
     {
-      "contract_section": "§10.0c step 4",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "8f6757b4c26d268142ad1691d1e846081856ec685638ddf1efa3f0494d15ca37",
       "domain": "TRUEOPEN_UNBONDING_ID_V1",
       "fields": [
@@ -738,7 +738,7 @@
       ]
     },
     {
-      "contract_section": "§6.4",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "0ad047eae4752aae2d77addc728984343ba9253f5aeecb0fdcc3ffa9e2370b65",
       "domain": "TRUEOPEN_UNBONDING_RECEIPT_V1",
       "fields": [
@@ -848,7 +848,7 @@
               }
             }
           ],
-          "reason": "UnbondingStatus values come from §9.6b: WITHDRAWN=3, SLASHED=4"
+          "reason": "UnbondingStatus values come from this contract: WITHDRAWN=3, SLASHED=4"
         },
         {
           "digest_hex": "f8ddb5e29add6aed3ab31c9bbcdd7e6ce5c2ca2a8e8790b4c68afde59f197228",
@@ -941,7 +941,7 @@
       ]
     },
     {
-      "contract_section": "§5.7",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "5359a51fa257665864c0d99ecb477f28125e3902f842fe25a369301ef9902863",
       "domain": "TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_V1",
       "fields": [
@@ -1072,7 +1072,7 @@
       ]
     },
     {
-      "contract_section": "§1.4; §6.1",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "e41be74b9a7cea19e5c2f7b70daf8701f0f4204736511c80f50dd321cb07a44c",
       "domain": "TRUEOPEN_SUPPORT_MODELS_V1",
       "fields": [
@@ -1142,7 +1142,7 @@
       ]
     },
     {
-      "contract_section": "§4.4 and §5.2",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "26fae11ecb82627a7830a4013c7a45c78d3eb71081f4757ce23f313418c47ef2",
       "domain": "TRUEOPEN_PARAMETER_BUCKET_V1",
       "fields": [
@@ -1307,7 +1307,7 @@
       ]
     },
     {
-      "contract_section": "§6.3",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "539022a65f54ca9171c8cbfdea2b257a5b349868066d69432f0ee54d7d7318cc",
       "domain": "TRUEOPEN_BEACON_CHECKPOINT_V1",
       "fields": [
@@ -1353,7 +1353,7 @@
       "producer": "BeaconCheckpointStep"
     },
     {
-      "contract_section": "§6.7",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "ddc073dc2628635cb9d901bf44e449c772b4788521de18dcfeeb9dcecb05b697",
       "domain": "TRUEOPEN_REWARD_BUCKET_BOUNDARIES_V1",
       "fields": [
@@ -1451,7 +1451,7 @@
       "producer": "RewardOrderValueBucketBoundariesHash"
     },
     {
-      "contract_section": "§1.4",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "ae8eb86920e26be499ea3b2482a220c232f8b7aa8166265c9062e2673a3c7921",
       "domain": "TRUEOPEN_REWARD_EPOCH_AUDIT_LEAF_V1",
       "fields": [
@@ -1519,7 +1519,7 @@
       "producer": "RewardEpochAuditLeafHashFramesV1"
     },
     {
-      "contract_section": "§1.4",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "d04127574b71e10708fcf24be56e7e8d4e1790006098a9d0535f923e085a5193",
       "domain": "TRUEOPEN_REWARD_EPOCH_AUDIT_FOLD_V1",
       "fields": [
@@ -1555,7 +1555,7 @@
       "producer": "RewardEpochAuditFoldHash"
     },
     {
-      "contract_section": "§1.4",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "886d968abaeda2e2bc9be43e72dcb5b001ddb65689264cd59c8fd763ced02874",
       "domain": "TRUEOPEN_REWARD_EPOCH_AUDIT_ROOT_V1",
       "fields": [
@@ -1611,7 +1611,7 @@
       "producer": "RewardEpochAuditRootHash"
     },
     {
-      "contract_section": "§1.4 formula block, §10.0a",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "2bc3ee94cf4d38569fabaf4816c19b3b2d5e284f990f8b5efe1a48845c56e23f",
       "domain": "TRUEOPEN_VALIDATOR_SET_SNAPSHOT_V1",
       "fields": [
@@ -1701,7 +1701,7 @@
       "producer": "CanonicalValidatorSetSnapshot"
     },
     {
-      "contract_section": "§5.14 and §9.7",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "32bde2e9a69fef898b82cc23f0be211c17f06cb01cec111494d4ed5fcf35ffe0",
       "domain": "TRUEOPEN_EVIDENCE_SCHEMA_V1",
       "fields": [
@@ -1928,7 +1928,7 @@
       "producer": "EvidenceSchemaHash"
     },
     {
-      "contract_section": "§1.4 and §10.1; §6.2",
+      "contract_section": "Public wire fixture testdata/v1/hub/hub_domains_v1.json",
       "digest_hex": "4a9ed54e0ff10f8f8449997e3cbe549c953f209533fa2debfaeb13978a82f3cc",
       "domain": "TRUEOPEN_PROFILE_VERIFICATION_SNAPSHOT_V1",
       "fields": [

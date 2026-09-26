@@ -39,7 +39,7 @@ type SignedEnvelopeProtocolFaultV2 struct {
 // DataUnavailableStateReferenceV1 contains only stable primary-key fields.
 // Wire requires verify_round=1. The Task caller must additionally require an
 // actual data-ready attester, a CONFIRMED aggregate, and the settlement/finality
-// timing fixed by the protocol contract.
+// timing fixed by the wire protocol.
 type DataUnavailableStateReferenceV1 struct {
 	TaskID          []byte
 	VerifyRound     uint32

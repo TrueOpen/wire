@@ -12,10 +12,10 @@
     "count greater than 8388607"
   ],
   "schema": "trueopen.task.token_ids.v1",
-  "source": "§7 and §7.0",
+  "source": "Public wire conformance vectors in testdata/v1/task/token_ids_v1.json",
   "vectors": [
     {
-      "contract_section": "§7 and §7.0",
+      "contract_section": "Public wire fixture testdata/v1/task/token_ids_v1.json",
       "digest_hex": "5ab982d47fc3c3b0a07e401f1c040c7fe2ef79ae93d0e44c50afe7d07a3ae901",
       "domain": "TRUEOPEN_INPUT_TOKEN_IDS_V1",
       "framing": "H_FIELDS_V1",
@@ -32,7 +32,7 @@
       "token_ids_raw_size_bytes": 12
     },
     {
-      "contract_section": "§7 and §7.0",
+      "contract_section": "Public wire fixture testdata/v1/task/token_ids_v1.json",
       "digest_hex": "057a76f605b3ba2fa26a92e379b5f0f802d97e379d4efc3a34e287f8e9e05efd",
       "domain": "TRUEOPEN_GENERATED_TOKEN_IDS_V1",
       "framing": "H_FIELDS_V1",

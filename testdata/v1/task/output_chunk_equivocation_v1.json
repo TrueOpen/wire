@@ -105,5 +105,5 @@
     "worker_signature_raw64_hex": "1f84ebe71fe88461fee8847157e7adeda7f8d20dbc350dd551842d40626c5f316a8fdf419904e6cb016381660eb50f619bea6fef7f032ed5e8b0d219cba86ee4"
   },
   "schema": "trueopen.task.output_chunk_equivocation.v1",
-  "source": "§6.3"
+  "source": "Public wire conformance vectors in testdata/v1/task/output_chunk_equivocation_v1.json"
 }

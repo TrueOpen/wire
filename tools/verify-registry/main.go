@@ -348,7 +348,7 @@ func validateGeneration(item domain) error {
 
 // validateSupersessionLinks closes the loop in the other direction. Without
 // this, a V2 could quietly shadow a V1 that still advertises itself as current,
-// which is exactly the "one domain, two interpretations" state §7 forbids.
+// which is exactly the "one domain, two interpretations" state this contract forbids.
 func validateSupersessionLinks(byDomain map[string]domain) error {
 	names := make([]string, 0, len(byDomain))
 	for name := range byDomain {

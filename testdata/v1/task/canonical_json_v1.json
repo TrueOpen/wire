@@ -3,13 +3,13 @@
     "H_V1 preimage is ascii(\"TRUEOPEN_FRAME_V1\") || u32_be(len(domain)) || domain || u64_be(len(payload)) || payload, then SHA256.",
     "payload_utf8 is the exact transmitted bytes, not a re-serialisation. Canonical JSON here means: no BOM, no whitespace, no trailing newline, object keys ascending by UTF-8 bytes, uint64 as a decimal string without leading zeros, and Hash32 as 64 lowercase hex.",
     "payload_bytes is asserted against the length the contract states, so an accidental whitespace edit fails at fixture generation rather than in a consumer.",
-    "Each vector carries mutations[]: one per encodable leaf plus the semantic cases §10.1 names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here."
+    "Each vector carries mutations[]: one per encodable leaf plus the semantic cases this contract names. A mutation only asserts the digest moves or the input is rejected; it never introduces a domain. digest_hex is the value the mutated input produces, so an implementation that ignores a field will reproduce the positive digest and fail here."
   ],
   "schema": "trueopen.task.canonical_json.v1",
-  "source": "Both payloads are published verbatim by the contract sections named in each vector. Authored here because no upstream node fixture covers either digest.",
+  "source": "Both canonical payloads and their exact H_V1 digests are published in this fixture.",
   "vectors": [
     {
-      "contract_section": "§2, §2.1",
+      "contract_section": "Public wire fixture testdata/v1/task/canonical_json_v1.json",
       "digest_hex": "9b568692f6d7f01cbc7d6d8fa79d37c73c5e24e6e1f533fe7620be6ea2c9d341",
       "domain": "TRUEOPEN_EVIDENCE_BUNDLE_MANIFEST_V1",
       "framing": "H_V1",
@@ -40,7 +40,7 @@
       "producer": "EvidenceBundleHash"
     },
     {
-      "contract_section": "§5",
+      "contract_section": "Public wire fixture testdata/v1/task/canonical_json_v1.json",
       "digest_hex": "eec33863003ba266126e111f3dc094212619cbe1b397414c7ba4fad7b75d694e",
       "domain": "TRUEOPEN_TASK_GENERATION_PARAMS_V1",
       "framing": "H_V1",

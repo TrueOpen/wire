@@ -8,7 +8,7 @@
   "source": "Builder storage confirmation wire contract",
   "vectors": [
     {
-      "contract_section": "§6.3a",
+      "contract_section": "Public wire fixture testdata/v1/task/builder_confirmation_v1.json",
       "digest_hex": "ad8927da7d82c0a0d9cd4d6f7afbc665ec5189715346622abda27471b02082e5",
       "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
       "fields": [
@@ -168,7 +168,7 @@
       "producer": "BuilderStorageConfirmationDigest"
     },
     {
-      "contract_section": "§6.3a",
+      "contract_section": "Public wire fixture testdata/v1/task/builder_confirmation_v1.json",
       "digest_hex": "d951a86bc4a0ed2b346fc1a09c245b68791e4b6fa2fe9a21d1668e1b27038179",
       "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
       "fields": [
@@ -328,7 +328,7 @@
       "producer": "BuilderStorageConfirmationDigest"
     },
     {
-      "contract_section": "§6.3a",
+      "contract_section": "Public wire fixture testdata/v1/task/builder_confirmation_v1.json",
       "digest_hex": "6423d0ff9fe6ed52a7aba85ba6448b6991f28f70fb066ad641ecccf1964f5bcf",
       "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
       "fields": [
@@ -496,7 +496,7 @@
       "producer": "BuilderStorageConfirmationDigest"
     },
     {
-      "contract_section": "§6.3a",
+      "contract_section": "Public wire fixture testdata/v1/task/builder_confirmation_v1.json",
       "digest_hex": "e3fe8eaf882d72fe3eac626832c0201fba1029eecbf398ccacfc17ddec82e765",
       "domain": "TRUEOPEN_BUILDER_STORAGE_CONFIRMATION_V2",
       "fields": [

@@ -285,7 +285,7 @@ message MetricOptionalFP {
 // generated token position, in real units.
 //
 // The doubles here are transport, not preimage. Canonical encoding and domain
-// hashing §4.4 bans IEEE-754 from any hash input, and nothing on this RPC is
+// hashing this contract bans IEEE-754 from any hash input, and nothing on this RPC is
 // hashed: the verifier converts these to fp_1e6 with a single documented
 // rounding rule before any leaf is framed. Sending fixed point over this hop
 // instead would move that conversion into the model service, where a second

@@ -38,9 +38,9 @@ message ServiceDescriptorV1 {
   repeated ServiceEndpointV1 endpoints = 1 [(gogoproto.nullable) = false];
 }
 
-// CortexNodeState is the single stable Cortex identity row (§6.4). Fields 10-12
-// are the three online-responsibility counters that the API contract /
-// §10.0c1 require MsgRotateServiceKey to see at zero; they replace the previous
+// CortexNodeState is the single stable Cortex identity row. Fields 10-12
+// are the three online-responsibility counters that the wire API /
+// this contract require MsgRotateServiceKey to see at zero; they replace the previous
 // string-keyed TASK_LIABILITY_* responsibility rows.
 // CortexNodeState defines the CortexNodeState wire type.
 message CortexNodeState {

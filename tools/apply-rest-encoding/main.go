@@ -1,7 +1,7 @@
 // Command apply-rest-encoding projects the REST bytes encoding contract into
 // the generated OpenAPI documents.
 //
-// the API contract fixes the projection:
+// the wire API fixes the projection:
 //
 //	HASH32_LOWER_HEX -> {type:string, format:trueopen-hash32,
 //	                     pattern:^[0-9a-f]{64}$, minLength:64, maxLength:64}
@@ -41,7 +41,7 @@ import (
 	"github.com/TrueOpen/wire/tools/internal/protoimage"
 )
 
-// The §1.1a projection constants.
+// This contract projection constants.
 const (
 	hash32Format  = "trueopen-hash32"
 	hash32Pattern = "^[0-9a-f]{64}$"
@@ -49,7 +49,7 @@ const (
 	base64Format  = "byte"
 )
 
-// base64Note is the alphabet/padding statement §1.1a requires the projection to
+// base64Note is the alphabet/padding statement this contract requires the projection to
 // carry. One sentence covers both directions because a definition is shared by
 // requests and responses; splitting the definition per direction to phrase them
 // separately would double the schema for no reader's benefit.

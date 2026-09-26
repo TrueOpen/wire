@@ -1,9 +1,9 @@
 {
   "schema": "trueopen.shared.domains.v1",
-  "source": "§1.4 registry rows for the listed domains; producers live in x/shared/types and are shared by the Hub and Task modules, so the vectors are owned here rather than by either caller",
+  "source": "Public wire conformance vectors in testdata/v1/shared/shared_domains_v1.json",
   "notes": [
     "Every vector is H_FIELDS_V1: preimage = u64_be(len(domain)) || domain || for each field u64_be(len(field)) || field; digest = SHA256(preimage).",
-    "Field encoding (§1.2): string = strict UTF-8 bytes; bytes = raw bytes; uint32/uint64 = 4/8-byte big-endian; enum = uint32 big-endian.",
+    "Field encoding: string = strict UTF-8 bytes; bytes = raw bytes; uint32/uint64 = 4/8-byte big-endian; enum = uint32 big-endian.",
     "\"producer\" names the exported function the vector is executed against. The digest below is what that function returns when fed this vector's own inputs, not only what re-framing fields[] reproduces; a field swap inside the producer therefore fails even when the swapped fields share an encoder.",
     "Batch items occupy one REPEATED_V1 field: FRAME_V1(u32_be(item_count), FRAME_V1(object_id, status)...). The outer item_count is retained as the domain's explicit count and must equal the repeated frame's inner element_count.",
     "Regenerate with TRUEOPEN_REGEN_FIXTURES=1; the run rewrites the expectations and then fails on purpose so the consensus diff must be reviewed before it is committed."
@@ -13,7 +13,7 @@
       "name": "batch_result_v1_model_support",
       "domain": "TRUEOPEN_BATCH_RESULT_V1",
       "framing": "H_FIELDS_V1",
-      "contract_section": "§1.4, §9.6b",
+      "contract_section": "Public wire fixture testdata/v1/shared/shared_domains_v1.json",
       "producer": "BatchResultDigestV1",
       "fields": [
         {

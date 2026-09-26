@@ -13,7 +13,7 @@ option go_package = "github.com/TrueOpen/nexus/gen/trueopen/nexus/v1;nexusv1";
 
 //
 //
-//     FinalizeTaskResult / FinalizeVerifierEvidence；
+//     FinalizeTaskResult / FinalizeVerifierEvidence.
 //
 //
 // IngressAPI defines the IngressAPI wire type.
@@ -137,7 +137,7 @@ enum TaskDataRequesterKindV1 {
 }
 
 //
-// verify_round=0、producer_operator absent。
+// Non-evidence objects use verify_round=0 and no producer_operator.
 // TaskDataObjectRefV1 defines the TaskDataObjectRefV1 wire type.
 message TaskDataObjectRefV1 {
   string task_hash = 1;
@@ -205,8 +205,8 @@ message ByteRangeV1 {
 //       u64_be(retention_until_height))
 //
 //
-//                            producer_kind=UNSPECIFIED、verify_round=0、
-//                            producer_operator absent、artifact_total_size_bytes=0。
+// Non-evidence objects use producer_kind=UNSPECIFIED, verify_round=0,
+// no producer_operator, and artifact_total_size_bytes=0.
 // BuilderStorageConfirmationV1 defines the BuilderStorageConfirmationV1 wire type.
 message BuilderStorageConfirmationV1 {
   uint32 schema_version = 1;
@@ -217,13 +217,13 @@ message BuilderStorageConfirmationV1 {
   uint64 size_bytes = 6;
   uint64 artifact_total_size_bytes = 7;
   uint64 retention_until_height = 8;
-  // compact low-S raw64。
+  // Compact low-S raw64 signature.
   bytes service_signature = 9;
 }
 
 //
 //
-//   USER            EIP-712 v4，domain "TrueOpen Task Data Request" version "1"，
+// USER requests use EIP-712 v4 with domain "TrueOpen Task Data Request" version "1".
 // TaskDataRequestAuthV1 defines the TaskDataRequestAuthV1 wire type.
 message TaskDataRequestAuthV1 {
   uint32 schema_version = 1;
@@ -235,16 +235,16 @@ message TaskDataRequestAuthV1 {
   string requester_address = 7;
   uint64 service_authorization_nonce = 8;
   bytes request_nonce = 9;
-  // current_height <= expiry_height <= current_height + max_service_material_expiry_blocks，
+  // current_height <= expiry_height <= current_height + max_service_material_expiry_blocks.
   uint64 expiry_height = 10;
   bytes signature = 11;
 }
 
-// SubscribeOutput / AckOutput / GetTaskEvents / PrepareChallenge。
+// SubscribeOutput, AckOutput, GetTaskEvents, and PrepareChallenge.
 //
 //   TRUEOPEN_SDK_REQUEST_V1, chain_id, method, endpoint, session_id, task_id,
 //   request_nonce, i64be(expiry_height_or_time), body_digest
-// Replay key：request_domain \x00 chain_id \x00 signer_address \x00 hex(request_nonce)
+// Replay key: request_domain \x00 chain_id \x00 signer_address \x00 hex(request_nonce).
 // SDKRequestEnvelopeV1 defines the SDKRequestEnvelopeV1 wire type.
 message SDKRequestEnvelopeV1 {
   string request_domain = 1;
@@ -310,7 +310,7 @@ message ConfirmOpenTaskResponse {
   string reason = 2;
 }
 
-// size_bytes, media_type)。
+// The upload body includes size_bytes and media_type.
 // UploadTaskResultObjectHeaderV1 defines the UploadTaskResultObjectHeaderV1 wire type.
 message UploadTaskResultObjectHeaderV1 {
   TaskDataObjectRefV1 object_ref = 1;
@@ -463,7 +463,7 @@ message FetchTaskDataResponse {
   }
 }
 
-// task_id, infer_receipt_hash, SHA256(receipt.service_signature))。
+// The finalize body binds task_id, infer_receipt_hash, and SHA256(receipt.service_signature).
 // FinalizeTaskResultRequest defines the FinalizeTaskResultRequest wire type.
 message FinalizeTaskResultRequest {
   string task_hash = 1;
@@ -485,7 +485,7 @@ message FinalizeTaskResultResponse {
 
 // task_hash / verify_round / verifier_evidence_bundle_hash / manifest size and manifest
 // task_id, verify_round, verifier_operator, result_receipt_signing_digest,
-// SHA256(receipt.service_signature))。
+// The verifier finalize body binds SHA256(receipt.service_signature).
 // FinalizeVerifierEvidenceRequest defines the FinalizeVerifierEvidenceRequest wire type.
 message FinalizeVerifierEvidenceRequest {
   string task_hash = 1;
@@ -632,7 +632,7 @@ message SubscribeOutputResponse {
 }
 
 //
-// （04-task/02-data_plane_and_evidence_transport §9.4）。
+// Acknowledgement uses the frozen output stream identity and sequence.
 // AckOutputRequest defines the AckOutputRequest wire type.
 message AckOutputRequest {
   string session_id = 1;

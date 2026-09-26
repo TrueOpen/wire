@@ -13,7 +13,7 @@ import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-// The linked Builder evidence vectors, byte for byte. §5.5 requires the wire
+// The linked Builder evidence vectors, byte for byte. this contract requires the wire
 // fixtures to contain them
 // verbatim, so they are transcribed here rather than paraphrased. This test checks
 // that this implementation and the document agree; a restated fixture would only
@@ -41,10 +41,10 @@ const (
 	invalidStageEvidenceID    = "3f3122f6c7ab6d5776f123a3647e6fc9104b51f1dff76c1c9350bc027d2a6aee"
 	invalidStageFaultID       = "6877e1952a57aae9d4eac657cff2092ac6fb6c00812d0ab823cb927450b01d0d"
 
-	// violationWrongStage is BuilderProtocolViolation.WRONG_STAGE, §9.6b.
+	// violationWrongStage is BuilderProtocolViolation.WRONG_STAGE, this contract.
 	violationWrongStage int32 = 2
 
-	// evidenceTestPrivateKey is the §7.4 test key the linked vectors share. It is
+	// evidenceTestPrivateKey is this contract test key the linked vectors share. It is
 	// a published document fixture, not a secret.
 	evidenceTestPrivateKey = "985ad41a995234c367f70942668b8e2ee2ad95513098dec4ea963b2738de745c"
 )
@@ -258,8 +258,7 @@ type errBinding struct{}
 
 func (errBinding) Error() string { return "no current binding at that authorization nonce" }
 
-// TestEvidenceIdentityGolden reproduces both linked vectors of §5.5 lines
-// 1012-1039 and then the two invariants require.
+// TestEvidenceIdentityGolden reproduces both published linked vectors.
 func TestEvidenceIdentityGolden(t *testing.T) {
 	digestA := mustHex(t, envelopeABusSigningDigest)
 	digestB := mustHex(t, envelopeBBusSigningDigest)
@@ -316,7 +315,7 @@ func assertIdentity(t *testing.T, label string, content [32]byte, kind int32, wa
 	}
 }
 
-// TestEvidenceIdentityIgnoresRawSignature is the invariant of §5.5
+// TestEvidenceIdentityIgnoresRawSignature is the invariant of this contract
 // that the identity must not move when a signature is replaced by another valid
 // low-S signature over the same digest. The identity is built from the signing
 // digest alone, so re-signing cannot fork one fault into two.
@@ -434,7 +433,7 @@ func TestEquivocationPreconditionsIdentifySenderByCodecBytes(t *testing.T) {
 }
 
 // TestEvidenceReservedTagIsNotAttributable pins the permanently reserved oneof
-// tag. The API contract keeps OBJECTIVE_MISSED_DUTY as a Keeper-internal
+// tag. The wire API keeps OBJECTIVE_MISSED_DUTY as a Keeper-internal
 // derivation, so the public branch must not be revivable by number.
 func TestEvidenceReservedTagIsNotAttributable(t *testing.T) {
 	for _, tag := range []uint32{EvidenceTagEquivocation, EvidenceTagInvalidStageSubmission, EvidenceTagDataUnavailable} {
@@ -494,7 +493,7 @@ func TestEvidenceIdentityRejectsUnusableInput(t *testing.T) {
 }
 
 // dataUnavailableContentDigest is an implementation pin, not a specification
-// vector: §5.5 publishes linked vectors for tags 2 and 3 only, so there is no
+// vector: this contract publishes linked vectors for tags 2 and 3 only, so there is no
 // authored value to reproduce for tag 5. Recording the digest here still buys
 // the thing a vector buys - a silent reordering or reframing of the three
 // selected fields becomes a failing test rather than a fork between two chains
@@ -590,7 +589,7 @@ func TestDataUnavailableDigest(t *testing.T) {
 }
 
 // assertIdentityIsWellFormed is assertIdentity for a branch with no published
-// evidence_id/fault_id vector: the values cannot be checked against §5.5, but
+// evidence_id/fault_id vector: the values cannot be checked against this contract, but
 // they must still derive and must still be separated by domain.
 func assertIdentityIsWellFormed(t *testing.T, label string, content [32]byte, kind int32) {
 	t.Helper()

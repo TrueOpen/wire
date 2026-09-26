@@ -8,7 +8,7 @@
   "source": "Result commitment, receipt and reveal payload wire contract",
   "vectors": [
     {
-      "contract_section": "§5.14; 04-task/§7.1",
+      "contract_section": "Public ResultReceiptV3 metric and signing projection",
       "digest_hex": "9790987ab9c449018d2732afa71414d25fe268022f7566b6dac28dc80cbfd037",
       "domain": "TRUEOPEN_METRIC_SUMMARY_V1",
       "fields": [
@@ -76,7 +76,7 @@
       "producer": "MetricSummaryHash"
     },
     {
-      "contract_section": "§5.14; 04-task/§7.1",
+      "contract_section": "Public ResultReceiptV3 metric and signing projection",
       "digest_hex": "b3e33424514fe1e552b1a4578793d08c42cb9f5df3501d077ace1c5e4ee74192",
       "domain": "TRUEOPEN_RESULT_COMMITMENT_V3",
       "fields": [
@@ -123,7 +123,7 @@
       "producer": "ResultCommitHash"
     },
     {
-      "contract_section": "§5.14; 04-task/§7.1",
+      "contract_section": "Public ResultReceiptV3 metric and signing projection",
       "digest_hex": "bba2363794eaf8068fdcd4839da3c71860f21082ba89b7921258cea01e9d4be1",
       "domain": "TRUEOPEN_RESULT_V3",
       "fields": [
