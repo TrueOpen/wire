@@ -2,11 +2,12 @@
   "schema": "trueopen-wire-reviewed-breaking-v1",
   "protocol_version": "v0.3.0",
   "against": "v0.2.2",
-  "review": "Model-scoped support, typed stored identifiers, bounded epoch summaries, and closed storage representations replace the pre-v1 contract shapes.",
+  "review": "TrueOpen/wire#14#issuecomment-5845405279 (v0.3.0 breaking review against v0.2.2; final approval pending)",
   "notes": [
     "This file is the only thing that lets a buf breaking failure pass. It authorizes exactly the findings listed below, for exactly this protocol_version, against exactly this baseline.",
     "tools/reviewed-breaking checks the set both ways: an undeclared finding fails the build, and a declared finding that no longer occurs fails it too, so the list cannot drift away from the code it describes.",
     "Findings are identified by (path, type, message) and carry no line or column, because an unrelated edit above a deleted field would otherwise invalidate the declaration and turn regenerating it into a reflex.",
+    "Do not release this declaration while any model_id signing or state surface still uses a textual identifier; supported_models now signs raw Hash32 bytes and requires the same representation throughout the release.",
     "After this release is tagged, the next one starts from a new baseline: delete this file, or replace it with a declaration naming its own version and review. Carrying it forward unchanged would grant an approval nobody asked for."
   ],
   "findings": [
@@ -268,7 +269,7 @@
     {
       "path": "proto/hub/v1/msg_registry.proto",
       "type": "FIELD_SAME_TYPE",
-      "message": "Field \"2\" with name \"supported_models\" on message \"ModelSupportConfirmationV1\" changed type from \"message\" to \"string\"."
+      "message": "Field \"2\" with name \"supported_models\" on message \"ModelSupportConfirmationV1\" changed type from \"message\" to \"bytes\"."
     },
     {
       "path": "proto/hub/v1/msg_registry.proto",

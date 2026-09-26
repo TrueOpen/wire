@@ -122,6 +122,9 @@ message ServiceParamsV1 {
   shared.v1.Amount min_task_liability = 19 [(gogoproto.nullable) = false];
   uint32 max_service_bond_effective_items_per_block = 20;
   uint32 task_liability_order_coverage_bps = 21;
+  // Positive block delay for newly scheduled min_stake increases. Updating it
+  // never changes a pending_effective_height already stored on a model.
+  uint64 min_stake_grace_period_blocks = 22;
 }
 
 // BuilderParamsV1 groups governed fixed-set and duty parameters.

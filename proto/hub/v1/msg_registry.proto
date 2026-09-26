@@ -159,7 +159,10 @@ message MsgDeclareModelSupportResponse {
 // ModelSupportConfirmationV1 defines the ModelSupportConfirmationV1 wire type.
 message ModelSupportConfirmationV1 {
   string operator_address = 1;
-  repeated string supported_models = 2;
+  // Raw Hash32 model IDs, exactly 32 bytes each, strictly ascending and unique.
+  // Release only with the remaining Hash32 model_id surfaces; text encodings
+  // produce different signing bytes and are not an interim wire contract.
+  repeated bytes supported_models = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint64 service_authorization_nonce = 3;
   uint64 expiry_height = 4;
   bytes service_signature = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];

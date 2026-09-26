@@ -942,7 +942,7 @@
     },
     {
       "contract_section": "§5.7",
-      "digest_hex": "cbce89c1c3bb750cd6bb302f38f2a43b6cbd4f8d2f93ad391c2087e4e7192028",
+      "digest_hex": "5359a51fa257665864c0d99ecb477f28125e3902f842fe25a369301ef9902863",
       "domain": "TRUEOPEN_DAILY_SUPPORT_CONFIRMATION_V1",
       "fields": [
         {
@@ -985,13 +985,13 @@
             },
             {
               "name": "model_0",
-              "type": "string",
-              "utf8": "model-fixture-a"
+              "type": "bytes",
+              "hex": "0101010101010101010101010101010101010101010101010101010101010101"
             },
             {
               "name": "model_1",
-              "type": "string",
-              "utf8": "model-fixture-b"
+              "type": "bytes",
+              "hex": "0202020202020202020202020202020202020202020202020202020202020202"
             }
           ],
           "name": "models",
@@ -1000,10 +1000,10 @@
       ],
       "framing": "H_FIELDS_V1",
       "name": "daily_support_confirmation_v1",
-      "preimage_hex": "0000000000000026545255454f50454e5f4441494c595f535550504f52545f434f4e4649524d4154494f4e5f56310000000000000012747275656f70656e2d666978747572652d310000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b40000000000000008000000000000002a00000000000000080000000000000007000000000000000800000000000007d0000000000000000400000002000000000000003a000000000000000400000002000000000000000f6d6f64656c2d666978747572652d61000000000000000f6d6f64656c2d666978747572652d62",
+      "preimage_hex": "0000000000000026545255454f50454e5f4441494c595f535550504f52545f434f4e4649524d4154494f4e5f56310000000000000012747275656f70656e2d666978747572652d310000000000000014a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b40000000000000008000000000000002a00000000000000080000000000000007000000000000000800000000000007d0000000000000000400000002000000000000005c0000000000000004000000020000000000000020010101010101010101010101010101010101010101010101010101010101010100000000000000200202020202020202020202020202020202020202020202020202020202020202",
       "replay": [
         {
-          "digest_hex": "1dfdab1cecd90fc8e89b164c4a2ee3644d7f6e32c93f428cdd5ba10ed8475d13",
+          "digest_hex": "3cc3626a683dc963b29c05e9996d3361fba1d6fb20eaa5a1f924c3e095c54419",
           "name": "outer_count_mismatch",
           "overrides": [
             {
@@ -1022,49 +1022,49 @@
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "1782a96b1297da78a08f7cac788f6272e62f6f1f64d033e833bbf6eb6474364c",
+          "digest_hex": "cf579218b4030f9337d3239043f2224c87b60a99acfe5c635ca5516b9b4c7b27",
           "field": 0,
           "name": "chain_id_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "70cf8581c92bf629de694695ee6fb9300a0060309f4d90517baf9b1145ce74fd",
+          "digest_hex": "196918c8a937ed52c9ae3dd41cf1cd183b7ccfe46abc0ef2b77e72bf18dc4ef6",
           "field": 1,
           "name": "operator_address_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "a0ce9cd28b6df3b53359b43c9a02777b8329cf95f18876a23486cef25feae6dd",
+          "digest_hex": "1e4df1f348808b6ad18121e1a83da9b34f18f6e41281c648df458a2d81a72206",
           "field": 2,
           "name": "epoch_index_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "3826d6ebb01081836278bb8fa9bae6b66617cb66c171c75e6fc33962dd9f7300",
+          "digest_hex": "c9d446bef124631dc52f127436a81a08f8c1d332b0543a563d253f6283540939",
           "field": 3,
           "name": "service_authorization_nonce_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "e8d4d68aaad4747112f54619d620045de99ed75a3064167694b4ef910f63dafc",
+          "digest_hex": "fc66ccc600c9dac6ae8918a4963f4757742faccb0fb4880e8397affcaf48a9ba",
           "field": 4,
           "name": "expiry_height_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "62995924d54496af2bde66058058a97c3b1616dc61ef6be98d58a26f7b6abefe",
+          "digest_hex": "8e05b4d3bd3db467d2b3b3322da8bef8ca3e429859b682d376e559e68d4aa821",
           "field": 5,
           "name": "model_count_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "bba4650387cc348f73d5e17d10f21a5a6f0ff3ba51ee9cb9d4468f54c86ac467",
+          "digest_hex": "3044b1b9d8e62d2f4127fa162a0db335e3fe123b6816811cdeb04d6c36143a43",
           "field": 6,
           "name": "models_first_bit"
         }
@@ -1073,7 +1073,7 @@
     },
     {
       "contract_section": "§1.4; §6.1",
-      "digest_hex": "cf1166555e61f89e936b2e29a881433231799415525951b316a358047376ed84",
+      "digest_hex": "e41be74b9a7cea19e5c2f7b70daf8701f0f4204736511c80f50dd321cb07a44c",
       "domain": "TRUEOPEN_SUPPORT_MODELS_V1",
       "fields": [
         {
@@ -1090,13 +1090,13 @@
             },
             {
               "name": "model_0",
-              "type": "string",
-              "utf8": "model-fixture-a"
+              "type": "bytes",
+              "hex": "0101010101010101010101010101010101010101010101010101010101010101"
             },
             {
               "name": "model_1",
-              "type": "string",
-              "utf8": "model-fixture-b"
+              "type": "bytes",
+              "hex": "0202020202020202020202020202020202020202020202020202020202020202"
             }
           ],
           "name": "models",
@@ -1105,10 +1105,10 @@
       ],
       "framing": "H_FIELDS_V1",
       "name": "support_models_v1",
-      "preimage_hex": "000000000000001a545255454f50454e5f535550504f52545f4d4f44454c535f5631000000000000000400000002000000000000003a000000000000000400000002000000000000000f6d6f64656c2d666978747572652d61000000000000000f6d6f64656c2d666978747572652d62",
+      "preimage_hex": "000000000000001a545255454f50454e5f535550504f52545f4d4f44454c535f5631000000000000000400000002000000000000005c0000000000000004000000020000000000000020010101010101010101010101010101010101010101010101010101010101010100000000000000200202020202020202020202020202020202020202020202020202020202020202",
       "replay": [
         {
-          "digest_hex": "89b4caaeca011b311d57472fb93d73fd723a017a620de0634098bdf5463506d4",
+          "digest_hex": "f46bfe0438770025979565038fabbd1b36c45cf3eb3fe952dea00e5337d73b3d",
           "name": "outer_count_mismatch",
           "overrides": [
             {
@@ -1127,14 +1127,14 @@
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "17634d7865d38f79ba8b3d9fff6de4cc626656d1539d40360f397dfa2e5439ae",
+          "digest_hex": "b96c90188c9ac618b82c5cc65efe657f98e2918acf3fdc0ba4be9e7fe839f9ae",
           "field": 0,
           "name": "model_count_first_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "e0fe3a2b33ab28485753a42cf4401481a5923eee51ebe3da66497fd126176f36",
+          "digest_hex": "c90ca6b448110339ede00b8f4755c310220ff05e07cedabf370555ef76b3e3c7",
           "field": 1,
           "name": "models_first_bit"
         }

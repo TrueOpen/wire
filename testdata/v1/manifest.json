@@ -30,10 +30,10 @@
     },
     {
       "path": "hub/hub_domains_v1.json",
-      "bytes": 79544,
-      "sha256": "381fd6b41cdf84fe106ee742936ba49e72c0fa997d5fe323a33a7edeecc61010",
+      "bytes": 79868,
+      "sha256": "6518edb00d3ec425cad20320c58337ef25d51136fedf7f82d45cb672d9cf4b80",
       "origin": "wire",
-      "contract_section": "model-level support confirmation and supported-model hash conformance"
+      "contract_section": "model-level support confirmation and supported-model hash conformance using ordered raw Hash32 IDs"
     },
     {
       "path": "hub/model_profile_canonical_v2.json",
@@ -100,8 +100,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "§18.0 (HubParamsV2 and TaskParamsV1 recursive canonical frames)",
-      "bytes": 54481,
-      "sha256": "20dbbc1fc434a6a4dbd2a7f766de0de78b35e3243236a1e302ccffc8ea6804d0"
+      "bytes": 54676,
+      "sha256": "df8664dd61576d27c607313766d4de8b6256d00841d0373b9789e00d69e02347"
     },
     {
       "path": "task/round_settlement_v1.json",

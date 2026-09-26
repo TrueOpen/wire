@@ -703,7 +703,7 @@
         "service_authorization_nonce",
         "expiry_height",
         "model_count",
-        "repeated(model_id) in canonical model_id bytes ascending"
+        "repeated(raw Hash32 model_id bytes) in strict ascending order, unique"
       ],
       "producer": "Cortex current service key, one signature per confirmation",
       "consumers": "Hub daily support heartbeat and support freshness",
@@ -2259,7 +2259,7 @@
       "framing": "H_FIELDS_V1",
       "fields": [
         "model_count",
-        "repeated(model_id) in caller-canonical ascending order"
+        "repeated(raw Hash32 model_id bytes) in strict ascending order, unique"
       ],
       "producer": "Hub Keeper in MsgBatchConfirmModelSupport",
       "consumers": "DailySupportState replay equality check",
