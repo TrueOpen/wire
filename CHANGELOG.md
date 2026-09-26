@@ -14,6 +14,10 @@ scope.
   carries support-derived aggregates.
 - Daily confirmations commit to a canonical model list under
   `TRUEOPEN_SUPPORT_MODELS_V1`; the former profile-list domain is retired.
+- Epoch summaries retain unique model identifiers in canonical UTF-8 byte
+  order; profile versions and composite model/profile strings are invalid. A
+  committed truncation flag distinguishes bounded omission from repetition,
+  and the query exposes only the complete immutable receipt.
 - A bounded recheck cursor and explicit suspension reasons make minimum-stake,
   jail, and bond transitions deterministic without scanning all support rows.
 - Query, event, genesis, parameter, registry, and cross-language fixture
@@ -22,6 +26,8 @@ scope.
 - Stored service-key responsibilities now carry raw Hash32 session and task
   identifiers, slash receipts use the protocol's uint32 effect index, and
   Builder parameters publish a 128-byte Builder-set ID bound.
+- Builder-set mode is now a closed enum, and all Task reference counters use
+  the common uint32 representation.
 
 Consumers must regenerate from this release and start from fresh genesis state.
 The reviewed-breaking declaration is scoped to `v0.3.0` against `v0.2.2`.

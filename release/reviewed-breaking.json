@@ -2,7 +2,7 @@
   "schema": "trueopen-wire-reviewed-breaking-v1",
   "protocol_version": "v0.3.0",
   "against": "v0.2.2",
-  "review": "Model-level support and typed stored identifiers replace the pre-v1 contract shapes.",
+  "review": "Model-scoped support, typed stored identifiers, bounded epoch summaries, and closed storage representations replace the pre-v1 contract shapes.",
   "notes": [
     "This file is the only thing that lets a buf breaking failure pass. It authorizes exactly the findings listed below, for exactly this protocol_version, against exactly this baseline.",
     "tools/reviewed-breaking checks the set both ways: an undeclared finding fails the build, and a declared finding that no longer occurs fails it too, so the list cannot drift away from the code it describes.",
@@ -10,6 +10,11 @@
     "After this release is tagged, the next one starts from a new baseline: delete this file, or replace it with a declaration naming its own version and review. Carrying it forward unchanged would grant an approval nobody asked for."
   ],
   "findings": [
+    {
+      "path": "proto/hub/v1/builder.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"mode\" on message \"CurrentBuilderSetState\" changed type from \"string\" to \"enum\"."
+    },
     {
       "path": "proto/hub/v1/daily_support.proto",
       "type": "FIELD_NO_DELETE",
@@ -419,6 +424,41 @@
       "path": "proto/hub/v1/query_registry.proto",
       "type": "MESSAGE_NO_DELETE",
       "message": "Previously present message \"QueryProfileCapabilityResponse\" was deleted from file."
+    },
+    {
+      "path": "proto/hub/v1/reward.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"10\" with name \"task_ref_count\" on message \"ParameterBucketVersionState\" changed type from \"uint64\" to \"uint32\"."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"2\" with name \"receipt\" on message \"QueryEpochTaskSummaryResponse\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_SAME_JSON_NAME",
+      "message": "Field \"1\" with name \"receipt\" on message \"QueryEpochTaskSummaryResponse\" changed option \"json_name\" from \"running\" to \"receipt\"."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_SAME_NAME",
+      "message": "Field \"1\" on message \"QueryEpochTaskSummaryResponse\" changed name from \"running\" to \"receipt\"."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_SAME_ONEOF",
+      "message": "Field \"1\" with name \"receipt\" on message \"QueryEpochTaskSummaryResponse\" moved from inside to outside a oneof."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"1\" with name \"receipt\" on message \"QueryEpochTaskSummaryResponse\" changed type from \"task.v1.EpochTaskSummaryCursorState\" to \"task.v1.EpochTaskSummaryReceiptState\"."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "ONEOF_NO_DELETE",
+      "message": "Previously present oneof \"value\" on message \"QueryEpochTaskSummaryResponse\" was deleted."
     }
   ]
 }
