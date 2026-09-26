@@ -1,11 +1,15 @@
 # Changelog
 
-## v0.3.0
+## v0.3.0-rc.1
+
+Pre-release of v0.3.0. Node, Nexus and Cortex implement against this
+descriptor; `v0.3.0` final follows once those implementations and a localnet
+run confirm it, and any break found first ships as a further `-rc`.
 
 Breaking. This release freezes the contract a fresh genesis starts from.
 Consumers must regenerate from it and start from fresh genesis state; no stored
-state is migrated. The reviewed-breaking declaration is scoped to `v0.3.0`
-against `v0.2.2`.
+state is migrated. The reviewed-breaking declaration is scoped to
+`v0.3.0-rc.1` against `v0.2.2`.
 
 ### Model identity, source and parsers
 

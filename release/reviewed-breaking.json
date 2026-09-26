@@ -1,8 +1,8 @@
 {
   "schema": "trueopen-wire-reviewed-breaking-v1",
-  "protocol_version": "v0.3.0",
+  "protocol_version": "v0.3.0-rc.1",
   "against": "v0.2.2",
-  "review": "TrueOpen/wire#14 (integrated schema review requested; approval pending)",
+  "review": "TrueOpen/wire#14 and TrueOpen/wire#16 (approved on #14 for v0.3.0-rc.1)",
   "notes": [
     "This file is the only thing that lets a buf breaking failure pass. It authorizes exactly the findings listed below, for exactly this protocol_version, against exactly this baseline.",
     "tools/reviewed-breaking checks the set both ways: an undeclared finding fails the build, and a declared finding that no longer occurs fails it too, so the list cannot drift away from the code it describes.",
