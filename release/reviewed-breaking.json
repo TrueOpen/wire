@@ -17,6 +17,41 @@
     },
     {
       "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"10\" with name \"checkpoint_ref\" on message \"InferResponse\" was deleted."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"14\" with name \"metric_samples\" on message \"VerifyResponse\" was deleted."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"2\" with name \"trace\" on message \"VerifyEvidenceItem\" was deleted."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"checkpoint\" on message \"VerifyEvidenceItem\" was deleted."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"supports_trace\" on message \"ManagedModelCapability\" was deleted."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"4\" with name \"supports_checkpoint\" on message \"ManagedModelCapability\" was deleted."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"9\" with name \"trace_ref\" on message \"InferResponse\" was deleted."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
       "type": "FIELD_SAME_TYPE",
       "message": "Field \"1\" with name \"model_id\" on message \"GenerationContext\" changed type from \"string\" to \"bytes\"."
     },
@@ -69,6 +104,16 @@
       "path": "proto/cortex/v1/model_management.proto",
       "type": "FIELD_SAME_TYPE",
       "message": "Field \"6\" with name \"model_id\" on message \"VerifyRequest\" changed type from \"string\" to \"bytes\"."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"MetricOptionalFP\" was deleted from file."
+    },
+    {
+      "path": "proto/cortex/v1/model_management.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"MetricSampleV1\" was deleted from file."
     },
     {
       "path": "proto/hub/v1/builder.proto",

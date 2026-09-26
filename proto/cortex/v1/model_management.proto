@@ -100,9 +100,15 @@ message ListCapabilitiesResponse {
 message ManagedModelCapability {
   bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   string capability = 2;
-  bool supports_trace = 3;
-  bool supports_checkpoint = 4;
   bool supports_batch_log = 5;
+  // supports_token_ids and supports_position_values say whether Infer can
+  // return token_ids_ref and position_values_ref, the raw material behind the
+  // A-level and B-level Worker evidence.
+  bool supports_token_ids = 6;
+  bool supports_position_values = 7;
+  // trace (3) and checkpoint (4) are no longer Worker evidence.
+  reserved 3, 4;
+  reserved "supports_trace", "supports_checkpoint";
 }
 
 // ResourceSnapshot is the concurrency picture at the moment the response was
@@ -225,8 +231,6 @@ message InferResponse {
   string profile_version = 6;
   bytes request_digest = 7;
   string output_ref = 8;
-  string trace_ref = 9;
-  string checkpoint_ref = 10;
   ModelServiceError error = 11;
   uint64 generated_token_count = 12;
   uint64 work_unit = 13;
@@ -236,20 +240,80 @@ message InferResponse {
   string finish_reason = 14;
   // Successful responses must echo the validated digest of applied parameters.
   bytes generation_params_digest = 15;
+  // token_ids_ref names a TokenIDsV1 artifact: the input and generated token
+  // ids of this run. Cortex encodes the A-level Worker evidence from it.
+  string token_ids_ref = 16;
+  // position_values_ref names a PositionValuesV1 artifact: the engine's raw
+  // value at every generated position. Cortex encodes the B-level Worker
+  // evidence (worker_values) from it.
+  string position_values_ref = 17;
+  // trace (9) and checkpoint (10) are no longer Worker evidence; token_ids_ref
+  // and position_values_ref replace them.
+  reserved 9, 10;
+  reserved "trace_ref", "checkpoint_ref";
 }
 
-// VerifyEvidenceItem is one kind of Worker evidence to re-derive. Kinds are
-// listed rather than fixed as two fields so a capability can require a
+// TokenIDsV1 is the token id material of one generation, as the model service
+// tokenized the input and emitted the output.
+message TokenIDsV1 {
+  repeated uint32 input_token_ids = 1;
+  repeated uint32 generated_token_ids = 2;
+}
+
+// TokenLogprobV1 is one entry of a position's top-k list.
+message TokenLogprobV1 {
+  uint32 token_id = 1;
+  double logprob = 2;
+}
+
+// PositionValueV1 is the engine's raw value at one generated token position,
+// in real units.
+//
+// The doubles here are transport, not preimage. Canonical encoding and domain
+// hashing ban IEEE-754 from any hash input, and nothing on this RPC is hashed:
+// Cortex converts these to fp_1e6 with a single documented rounding rule, and
+// derives finite_flag, before any leaf is framed. Sending fixed point over this
+// hop instead would move that conversion into the model service, where a second
+// implementation of it could drift from the one the leaf encoder uses.
+message PositionValueV1 {
+  uint32 position = 1;
+  uint32 token_id = 2;
+  // missing is true when the engine returned no logprob or top-k for this
+  // position. The remaining value fields are then ignored.
+  bool missing = 3;
+  double logprob = 4;
+  // rank is the 1-based rank of token_id in the engine's distribution, or 0
+  // when the engine did not report it.
+  uint32 rank = 5;
+  // top_logprobs is in ascending rank order, one entry per distinct token.
+  repeated TokenLogprobV1 top_logprobs = 6;
+}
+
+// PositionValuesV1 carries one PositionValueV1 per generated token, in
+// ascending position order starting at 0.
+message PositionValuesV1 {
+  repeated PositionValueV1 values = 1;
+}
+
+// VerifyEvidenceItem is one kind of Worker evidence the service computes over.
+// Kinds are listed rather than fixed as fields so a capability can require a
 // different set without a wire change.
+//
+// Only token material is accepted. The Worker's per-position values
+// (WORKER_VALUE_OPENING) are deliberately not an input: the verifier must be
+// able to produce and commit its own values without having seen them, and the
+// comparison against them is computed by Cortex, not by the model service.
 message VerifyEvidenceItem {
-  // evidence_kind is the kind of evidence being verified (e.g. WORKER_VALUE_OPENING).
+  // evidence_kind is the kind of evidence carried (e.g. WORKER_TOKEN_OPENING).
   string evidence_kind = 1;
-  bytes trace = 2;
-  bytes checkpoint = 3;
+  TokenIDsV1 token_ids = 4;
+  // trace (2) and checkpoint (3) are no longer Worker evidence.
+  reserved 2, 3;
+  reserved "trace", "checkpoint";
 }
 
-// VerifyRequest re-derives a Worker's evidence. The service teacher-forces over
-// the token sequence the Worker already produced, so the comparison is
+// VerifyRequest runs the verifier's prefill. The service teacher-forces over the
+// token sequence the Worker already produced, so the resulting values are
 // independent of the temperature or seed that originally sampled it.
 message VerifyRequest {
   string request_id = 1;
@@ -272,40 +336,10 @@ message VerifyRequest {
   reserved "trace", "checkpoint";
 }
 
-// MetricOptionalFP carries an optional real-valued metric with explicit
-// presence. Absent and "present, measured zero" are different facts all the way
-// down to the fixed-point leaf encoding, so presence is a field rather than a
-// sentinel value.
-message MetricOptionalFP {
-  bool present = 1;
-  double value = 2;
-}
-
-// MetricSampleV1 is the verifier's prefill/teacher-forcing comparison at one
-// generated token position, in real units.
-//
-// The doubles here are transport, not preimage. Canonical encoding and domain
-// hashing this contract bans IEEE-754 from any hash input, and nothing on this RPC is
-// hashed: the verifier converts these to fp_1e6 with a single documented
-// rounding rule before any leaf is framed. Sending fixed point over this hop
-// instead would move that conversion into the model service, where a second
-// implementation of it could drift from the one the leaf encoder uses.
-message MetricSampleV1 {
-  uint32 output_position = 1;
-  uint32 emitted_token_id = 2;
-  double worker_logprob = 3;
-  double verifier_logprob = 4;
-  uint32 worker_rank = 5;
-  uint32 verifier_rank = 6;
-  MetricOptionalFP topk_jaccard = 7;
-  MetricOptionalFP union_js = 8;
-  bool missing_flag = 9;
-  bool finite_flag = 10;
-}
-
-// VerifyResponse is the per-position comparison the verifier turns into a
-// result credential. It reports measurements only: the verdict is the
-// verifier's to compute, and the chain recomputes it again from the summary.
+// VerifyResponse reports the verifier's own prefill values. It reports
+// measurements only: the comparison against the Worker, the metric leaves and
+// the verdict are Cortex's to compute, and the chain recomputes the verdict
+// again from the summary.
 message VerifyResponse {
   string request_id = 1;
   string model_service_id = 2;
@@ -320,20 +354,18 @@ message VerifyResponse {
   bytes sample_value_digest = 11;
   bytes result_commit_material_digest = 12;
   ModelServiceError error = 13;
-  // The metric material behind metric_root and metric_summary. A model service
-  // that does not fill these leaves the verifier unable to assemble the frozen
-  // result credential, and the verifier says so by name rather than signing a
-  // zero.
-  //
-  // There is deliberately no aggregate field beside it, and 15 stays reserved
-  // so nobody re-adds one: MetricSummaryV1 is derived from these samples by the
-  // verifier, so metric_root and metric_summary provably describe the same
-  // data. A model service that could state the aggregation separately could
-  // hand over honest samples and a summary about something else, and no party
-  // downstream would be able to tell.
-  repeated MetricSampleV1 metric_samples = 14;
-  reserved 15;
   bytes generation_params_digest = 16;
+  // verifier_values is the verifier's value at every generated position, in
+  // real units, with the same shape and ordering rules as the Worker's
+  // PositionValuesV1. Cortex frames the verifier value leaves and root from it
+  // and derives every metric leaf and MetricSummaryV1 by comparing it with the
+  // Worker's committed values, so metric_root and metric_summary provably
+  // describe the same data.
+  PositionValuesV1 verifier_values = 17;
+  // metric_samples (14) moved into Cortex, which now computes the comparison.
+  // 15 stays reserved so nobody adds a service-stated aggregate.
+  reserved 14, 15;
+  reserved "metric_samples";
 }
 
 // FetchArtifactRequest streams back one artifact named by an earlier response.
