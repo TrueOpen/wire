@@ -13,7 +13,9 @@ enum EvidenceKind {
   // Never written; rejects an unset requirement or commitment.
   // EVIDENCE_KIND_UNSPECIFIED identifies the corresponding protocol value.
   EVIDENCE_KIND_UNSPECIFIED = 0;
-  // Selected Worker four-artifact opening folded by WorkerValueCommitmentV2.
+  // Selected Worker B-level opening: the worker_values Merkle tree, folded by
+  // WorkerValueCommitmentV3. ADR-0023 splits Worker evidence in two, and this
+  // is the half a Verifier may only read after locking its own values.
   // EVIDENCE_KIND_WORKER_VALUE_OPENING identifies the corresponding protocol value.
   EVIDENCE_KIND_WORKER_VALUE_OPENING = 1;
   // Selected Verifier value and metric opening.
@@ -22,6 +24,16 @@ enum EvidenceKind {
   // Settlement duty Builder opening against task_evidence_root.
   // EVIDENCE_KIND_SETTLEMENT_ROOT_OPENING identifies the corresponding protocol value.
   EVIDENCE_KIND_SETTLEMENT_ROOT_OPENING = 3;
+  // Selected Worker A-level opening: input_token_ids and generated_token_ids,
+  // folded by WorkerTokenCommitmentV1. ADR-0023 decision one.
+  //
+  // It is 4 rather than a value that would sort it before WORKER_VALUE_OPENING,
+  // and that ordering is load-bearing: InferReceiptV3 carries exactly these two
+  // commitments sorted by this enum's numeric value, so the A-level entry is
+  // second. Renumbering either kind would silently reorder every receipt
+  // preimage.
+  // EVIDENCE_KIND_WORKER_TOKEN_OPENING identifies the corresponding protocol value.
+  EVIDENCE_KIND_WORKER_TOKEN_OPENING = 4;
 }
 
 // InferEvidenceRequirementV1 freezes one evidence kind required from the

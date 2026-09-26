@@ -405,7 +405,7 @@ message GetTaskDataMetadataRequest {
 message GetTaskDataMetadataResponse {
   TaskDataObjectMetadataV1 metadata = 1;
   EvidenceBundleSummaryV1 evidence_bundle = 2;
-  task.v1.InferReceiptV2 infer_receipt = 3;
+  task.v1.InferReceiptV3 infer_receipt = 3;
   uint64 retain_until_height = 4;
 }
 
@@ -446,7 +446,7 @@ message FinalizeTaskResultRequest {
   string task_hash = 1;
   string session_id = 2;
   string task_id = 3;
-  task.v1.InferReceiptV2 receipt = 4;
+  task.v1.InferReceiptV3 receipt = 4;
   TaskDataRequestAuthV1 request_auth = 5;
 }
 
@@ -468,7 +468,7 @@ message FinalizeVerifierEvidenceRequest {
   string task_id = 3;
   uint32 verify_round = 4;
   string verifier_operator = 5;
-  task.v1.ResultReceiptV2 receipt = 6;
+  task.v1.ResultReceiptV3 receipt = 6;
   TaskDataRequestAuthV1 request_auth = 7;
 }
 
@@ -481,7 +481,7 @@ message FinalizeVerifierEvidenceResponse {
 
 // SubmitInferReceiptRequest defines the SubmitInferReceiptRequest wire type.
 message SubmitInferReceiptRequest {
-  task.v1.InferReceiptV2 receipt = 1;
+  task.v1.InferReceiptV3 receipt = 1;
 }
 
 // SubmitInferReceiptResponse defines the SubmitInferReceiptResponse wire type.
@@ -509,7 +509,7 @@ message SubmitVerifyCommitResponse {
 
 // SubmitVerifyResultRequest defines the SubmitVerifyResultRequest wire type.
 message SubmitVerifyResultRequest {
-  task.v1.ResultReceiptV2 receipt = 1;
+  task.v1.ResultReceiptV3 receipt = 1;
 }
 
 // SubmitVerifyResultResponse defines the SubmitVerifyResultResponse wire type.

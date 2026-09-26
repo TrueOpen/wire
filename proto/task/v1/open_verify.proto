@@ -74,7 +74,7 @@ message CandidateMemberRefV1 {
 // nonce at verification time.
 //
 // schema_version is 1: §4.1 writes `schema_version: uint32 = 1` literally for this
-// wire. InferReceiptV2 is the only sibling receipt that uses schema version 2.
+// wire. InferReceiptV3 is the only sibling receipt that uses schema version 3.
 // VerifierHandraiseV1 defines the VerifierHandraiseV1 wire type.
 message VerifierHandraiseV1 {
   // Always 1; §4.1 pins it literally.
