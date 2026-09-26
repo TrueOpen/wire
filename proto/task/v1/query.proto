@@ -103,7 +103,9 @@ service Query {
   rpc EvidenceCleanup(QueryEvidenceCleanupRequest) returns (QueryEvidenceCleanupResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/cleanup";
   }
-  // EpochTaskSummary returns either the resumable fold or its retained receipt.
+  // EpochTaskSummary returns the retained immutable receipt. Epoch zero is
+  // invalid, an in-progress fold fails precondition, and a missing or pruned
+  // receipt is not found. Partial cursor state is never returned.
   rpc EpochTaskSummary(QueryEpochTaskSummaryRequest) returns (QueryEpochTaskSummaryResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/epoch/{epoch}/task_summary";
   }

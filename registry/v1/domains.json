@@ -811,7 +811,8 @@
         "valid_task_count",
         "histogram",
         "support_candidate_seen_count",
-        "support_candidates",
+        "repeated(model_id in canonical UTF-8 byte order)",
+        "support_candidates_truncated",
         "source_root"
       ],
       "producer": "Task epoch summary runner",
@@ -822,7 +823,7 @@
       "contract_section": "§1.4",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "histogram and support_candidates are independent scalar REPEATED_V1 fields; retained truncation counts remain state metadata."
+      "note": "histogram and support_candidates are independent scalar REPEATED_V1 fields. Support candidates are unique model identifiers in strict canonical byte order; profile versions and composite strings are excluded. support_candidate_seen_count counts valid-task occurrences, while support_candidates_truncated commits whether either configured bound skipped a distinct model."
     },
     {
       "domain": "TRUEOPEN_EPOCH_TASK_SUMMARY_SOURCE_V1",

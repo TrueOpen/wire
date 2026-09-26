@@ -351,15 +351,10 @@ message QueryEpochTaskSummaryRequest {
   uint64 epoch = 1;
 }
 
-// QueryEpochTaskSummaryResponse returns either in-progress fold state or the
-// immutable dispatch receipt.
+// QueryEpochTaskSummaryResponse returns the immutable dispatch receipt.
 // QueryEpochTaskSummaryResponse defines the QueryEpochTaskSummaryResponse wire type.
 message QueryEpochTaskSummaryResponse {
-  // value distinguishes a resumable cursor from a completed receipt.
-  oneof value {
-    EpochTaskSummaryCursorState running = 1;
-    EpochTaskSummaryReceiptState receipt = 2;
-  }
+  EpochTaskSummaryReceiptState receipt = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryRoleActiveTasksRequest pages one operator's active duty Tasks (§16.3).

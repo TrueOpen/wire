@@ -30,8 +30,8 @@
     },
     {
       "path": "hub/hub_domains_v1.json",
-      "bytes": 81879,
-      "sha256": "bb8d981059c8a33cfc8886fd6dbe9c003b52341b6164b82d35cfc7213f418c1e",
+      "bytes": 79544,
+      "sha256": "381fd6b41cdf84fe106ee742936ba49e72c0fa997d5fe323a33a7edeecc61010",
       "origin": "wire",
       "contract_section": "model-level support confirmation and supported-model hash conformance"
     },
@@ -87,8 +87,8 @@
     {
       "path": "task/task_keeper_domains_v1.json",
       "source_path": "x/task/keeper/testdata/task_keeper_domains_v1.json",
-      "bytes": 92303,
-      "sha256": "9ec4601b2499c736ca22f7362674c028951f5b5c3e51561027f12c89cc76ca4e"
+      "bytes": 92430,
+      "sha256": "add44520e1a782612fe0c06ff917dc638860b0023ab36f623f4b0db7481bec87"
     },
     {
       "path": "shared/query_page_v1.json",
@@ -100,8 +100,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "§18.0 (HubParamsV2 and TaskParamsV1 recursive canonical frames)",
-      "bytes": 55990,
-      "sha256": "8c38159a22f6166aec2c7d876d70482f0f9ebf317cee3046310c4716cf9d5d21"
+      "bytes": 54481,
+      "sha256": "20dbbc1fc434a6a4dbd2a7f766de0de78b35e3243236a1e302ccffc8ea6804d0"
     },
     {
       "path": "task/round_settlement_v1.json",
