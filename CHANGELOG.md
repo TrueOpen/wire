@@ -9,6 +9,11 @@ pinned to `v0.3.0` computes different values for the same registration. No chain
 runs `v0.3.0`; implementations move to `v0.3.1` together. Proto changes are
 additive, so `buf breaking` is clean.
 
+Revised in place under the "Before genesis" policy in `VERSIONING.md`:
+`TRUEOPEN_MODEL_CHAIN_PROJECTION_V3` and `TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3`
+(through `chain_projection_hash`). Digests computed for these two domains under
+`v0.3.0` are superseded; all implementations must use `v0.3.1`.
+
 - `shared/v1/model_profile.proto`: `ModelProfileProjection.manifest_uri`
   (field 23), the registrant-hosted retrieval pointer for the manifest body.
   It enters the projection and registration digests; it is not inside the

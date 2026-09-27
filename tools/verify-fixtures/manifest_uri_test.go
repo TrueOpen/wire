@@ -59,6 +59,11 @@ func validHTTPSURI(rest string) error {
 		if err := validIPv6Literal(host); err != nil {
 			return err
 		}
+		// Only ":" port may follow the bracket; path and query were split off
+		// above, so anything else here is glued onto the literal.
+		if port != "" && port[0] != ':' {
+			return fmt.Errorf("%q after the IPv6 literal is not a :port", port)
+		}
 	} else {
 		if colon := strings.LastIndex(authority, ":"); colon >= 0 {
 			host, port = authority[:colon], authority[colon:]

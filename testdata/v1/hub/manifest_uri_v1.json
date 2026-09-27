@@ -150,6 +150,22 @@
       "reason": "IPv6 zone"
     },
     {
+      "uri": "https://[2001:db8::1]443/m.json",
+      "reason": "port after the IPv6 literal without a colon"
+    },
+    {
+      "uri": "https://[2001:db8::1]x/m.json",
+      "reason": "characters after the IPv6 literal that are not :port"
+    },
+    {
+      "uri": "https://[2001:db8::1]:/m.json",
+      "reason": "empty port after the IPv6 literal"
+    },
+    {
+      "uri": "https://[2001:db8::1]]/m.json",
+      "reason": "second closing bracket after the IPv6 literal"
+    },
+    {
       "uri": "https://models.trueopen.example:0/m.json",
       "reason": "port 0"
     },

@@ -147,8 +147,10 @@ func TestVerifyRegistryVariantRules(t *testing.T) {
 	}
 }
 
-// TestVerifyRegistryGenerationRules covers the reviewed-V2 mechanism. A
-// preimage change requires a new domain generation,
+// TestVerifyRegistryGenerationRules covers the reviewed-V2 mechanism. After
+// genesis a preimage change requires a new domain generation (before genesis
+// VERSIONING.md allows an in-place revision stated in the CHANGELOG, which
+// needs no new row and so is not what these cases exercise),
 // so the verifier has to accept one - but a row that postdates the pinned node
 // source_commit is no longer a copy of it, and every case below is a way of
 // adding such a row without leaving a reviewer anything to check.
