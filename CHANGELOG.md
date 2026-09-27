@@ -19,6 +19,21 @@
   bundle hash, the result signing digest and the payload digest are
   recomputed. `verify-fixtures` rebuilds the proof from the published chain and
   checks every link.
+- `canonical_json_v1.json`: the Verifier evidence manifest
+  (`evidence_bundle_manifest_v1`) named the Worker as `producer_operator` and a
+  placeholder `evidence_schema_hash`. It now belongs to the Verifier result it
+  is bound to (the Verifier's address, the chain's evidence schema hash); its
+  bundle hash, `result_v3_signing_digest` and the V2 reveal payload are
+  recomputed, and `verify-fixtures` checks the manifest identity against the
+  result.
+- `result_receipt_v3.json`: `verify-fixtures` recomputes `metric_summary_v1`
+  from the published metric leaves with an integer-only implementation of the
+  MetricSummaryV1 rules (half-up mean, nearest-rank percentiles, rank-delta
+  rate over comparable leaves); the published summary already matched. A new
+  standalone vector, `metric_summary_v1_all_missing`, pins the rule for a
+  summary with no comparable leaf: every enabled comparison takes its worst
+  value (abs logprob diff 4294967295, rank-delta rate 1000000, top-K Jaccard
+  present(0), union JS present(1000000)) and both compared counts are 0.
 
 ## v0.3.0-rc.2
 

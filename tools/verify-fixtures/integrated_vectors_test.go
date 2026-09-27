@@ -885,3 +885,168 @@ func TestVerifierManifestIdentityMatchesTheResult(t *testing.T) {
 		t.Fatal("the Verifier manifest's identity differs from the Verifier result it is bound to")
 	}
 }
+
+// summaryLeaf is the part of a metric leaf MetricSummaryV1 is computed from.
+type summaryLeaf struct {
+	comparable       bool // missing_flag=false and finite_flag=true
+	absDiff          uint64
+	rankDelta        int64
+	jaccard, unionJS uint64
+}
+
+type summaryFlags struct{ rank, jaccard, unionJS bool }
+
+// expectedSummary applies the MetricSummaryV1 rules in integers only: F is the
+// comparable leaves; the mean rounds half up, percentiles take the
+// nearest-rank element; with no comparable leaf every enabled comparison takes
+// its worst value and both compared counts are 0. It returns the ten fields in
+// schema order, with -1 standing for an absent optional.
+func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
+	const worstDiff = 4294967295
+	roundHalfUp := func(a, b uint64) int64 { return int64((2*a + b) / (2 * b)) }
+	nearestRank := func(q uint64, xs []uint64) int64 {
+		sorted := append([]uint64(nil), xs...)
+		for i := range sorted {
+			for j := i + 1; j < len(sorted); j++ {
+				if sorted[j] < sorted[i] {
+					sorted[i], sorted[j] = sorted[j], sorted[i]
+				}
+			}
+		}
+		k := (q*uint64(len(sorted)) + 99) / 100
+		return int64(sorted[k-1])
+	}
+	var diffs, js []uint64
+	var diffSum, jaccardSum, nonzero uint64
+	for _, leaf := range leaves {
+		if !leaf.comparable {
+			continue
+		}
+		diffs = append(diffs, leaf.absDiff)
+		js = append(js, leaf.unionJS)
+		diffSum += leaf.absDiff
+		jaccardSum += leaf.jaccard
+		if leaf.rankDelta != 0 {
+			nonzero++
+		}
+	}
+	n := uint64(len(diffs))
+	out := make([]int64, 10)
+	out[0], out[1] = int64(n), int64(uint64(len(leaves))-n)
+	out[6], out[7] = -1, -1
+	if n == 0 {
+		out[2], out[3], out[4] = worstDiff, worstDiff, worstDiff
+		if flags.rank {
+			out[5] = 1_000_000
+		}
+		if flags.jaccard {
+			out[6] = 0
+		}
+		if flags.unionJS {
+			out[7] = 1_000_000
+		}
+		return out
+	}
+	out[2], out[3], out[4] = roundHalfUp(diffSum, n), nearestRank(95, diffs), nearestRank(99, diffs)
+	if flags.rank {
+		out[5], out[9] = roundHalfUp(1_000_000*nonzero, n), int64(n)
+	}
+	if flags.jaccard {
+		out[6] = roundHalfUp(jaccardSum, n)
+	}
+	if flags.unionJS {
+		out[7] = nearestRank(99, js)
+	}
+	if flags.jaccard || flags.unionJS {
+		out[8] = int64(n)
+	}
+	return out
+}
+
+// publishedSummary reads a MetricSummaryV1 vector back into the same shape.
+func publishedSummary(t *testing.T, vector map[string]any) []int64 {
+	t.Helper()
+	frame := vector["fields"].([]any)[0].(map[string]any)["fields"].([]any)
+	out := make([]int64, len(frame))
+	for i, raw := range frame {
+		field := raw.(map[string]any)
+		if field["type"] == "optional" {
+			out[i] = -1
+			if field["present"] == true {
+				out[i] = fieldInt(t, field["fields"].([]any)[0].(map[string]any))
+			}
+			continue
+		}
+		out[i] = fieldInt(t, field)
+	}
+	return out
+}
+
+func TestMetricSummariesFollowTheRules(t *testing.T) {
+	optional := func(field map[string]any) uint64 {
+		if field["present"] != true {
+			return 0
+		}
+		return uint64(fieldInt(t, field["fields"].([]any)[0].(map[string]any)))
+	}
+	metricDoc := loadIntegratedFixture(t, "task", "result_metric_v3.json")
+	var leaves []summaryLeaf
+	var proof map[string]any
+	for _, raw := range metricDoc["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["name"] == "metric_aggregate_proof_v1" {
+			proof = vector
+		}
+		if vector["domain"] != "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3" {
+			continue
+		}
+		leaf := map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]}
+		leaves = append(leaves, summaryLeaf{
+			comparable: integratedField(t, leaf, "missing_flag")["value"] == false && integratedField(t, leaf, "finite_flag")["value"] == true,
+			absDiff:    uint64(fieldInt(t, integratedField(t, leaf, "abs_logprob_diff_fp_1e6"))),
+			rankDelta:  fieldInt(t, integratedField(t, leaf, "rank_delta")),
+			jaccard:    optional(integratedField(t, leaf, "topk_jaccard_fp_1e6")),
+			unionJS:    optional(integratedField(t, leaf, "union_js_fp_1e6")),
+		})
+	}
+	flags := summaryFlags{
+		rank:    integratedField(t, proof, "compare_rank_delta")["value"] == true,
+		jaccard: integratedField(t, proof, "compare_topk_jaccard")["value"] == true,
+		unionJS: integratedField(t, proof, "compare_union_js")["value"] == true,
+	}
+	receiptDoc := loadIntegratedFixture(t, "task", "result_receipt_v3.json")
+	var chain, allMissing map[string]any
+	for _, raw := range receiptDoc["vectors"].([]any) {
+		switch vector := raw.(map[string]any); vector["name"] {
+		case "metric_summary_v1":
+			chain = vector
+		case "metric_summary_v1_all_missing":
+			allMissing = vector
+		}
+	}
+	if chain == nil || allMissing == nil {
+		t.Fatal("result_receipt_v3.json must publish metric_summary_v1 and metric_summary_v1_all_missing")
+	}
+	if got, want := publishedSummary(t, chain), expectedSummary(leaves, flags); fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("metric_summary_v1 is %v, the leaves give %v", got, want)
+	}
+
+	inputs := allMissing["inputs"].(map[string]any)
+	var missing []summaryLeaf
+	for _, raw := range inputs["leaves"].([]any) {
+		leaf := raw.(map[string]any)
+		missing = append(missing, summaryLeaf{comparable: leaf["missing_flag"] == false && leaf["finite_flag"] == true})
+	}
+	allOn := summaryFlags{
+		rank:    inputs["compare_rank_delta"] == true,
+		jaccard: inputs["compare_topk_jaccard"] == true,
+		unionJS: inputs["compare_union_js"] == true,
+	}
+	if !allOn.rank || !allOn.jaccard || !allOn.unionJS || len(missing) == 0 {
+		t.Fatal("the all-missing vector must enable every comparison over at least one leaf")
+	}
+	want := []int64{0, int64(len(missing)), 4294967295, 4294967295, 4294967295, 1_000_000, 0, 1_000_000, 0, 0}
+	if got := publishedSummary(t, allMissing); fmt.Sprint(got) != fmt.Sprint(want) || fmt.Sprint(expectedSummary(missing, allOn)) != fmt.Sprint(want) {
+		t.Fatalf("metric_summary_v1_all_missing is %v, the worst-value rule gives %v", got, want)
+	}
+}
