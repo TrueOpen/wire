@@ -38,8 +38,9 @@
   `metric_summary_v1_worker_values_missing` (three leaves whose Worker values
   are all missing): abs logprob diff mean/p95/p99 4294967295, rank-delta rate
   1000000, top-K Jaccard present(0), union JS present(1000000), compared counts
-  0, so it never reads as agreement. A Verifier-side miss produces no summary
-  (a Verifier execution failure), so it has no vector.
+  0, so it never reads as agreement. When no comparable leaf exists, a
+  Verifier-side miss produces no summary (a Verifier execution failure), so it
+  has no vector; with comparable leaves, missing positions count in the summary.
 
 ## v0.3.0-rc.2
 

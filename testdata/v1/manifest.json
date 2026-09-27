@@ -179,8 +179,8 @@
         "path": "task/result_receipt_v3.json",
         "origin": "wire",
         "contract_section": "Result commitment V3, receipt V3 and reveal payload V2",
-        "bytes": 19874,
-        "sha256": "815657b332d6f7a6d55a00f3a6bc40a180261ffeb349f99f857dd48676483c3d"
+        "bytes": 19996,
+        "sha256": "b56aa7e710eb6c0a453d139876403c8615d45448f7731770d8bf2b6aad59024b"
     },
     {
       "path": "task/round_settlement_v1.json",

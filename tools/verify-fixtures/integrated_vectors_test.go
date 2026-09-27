@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -480,6 +481,15 @@ func fieldInt(t *testing.T, field map[string]any) int64 {
 	return value
 }
 
+func fieldUint(t *testing.T, field map[string]any) uint64 {
+	t.Helper()
+	value, err := strconv.ParseUint(fmt.Sprint(field["value"]), 10, 64)
+	if err != nil {
+		t.Fatalf("field %s: %v", field["name"], err)
+	}
+	return value
+}
+
 // Two same-typed receipt fields that carry equal values cannot pin their
 // order: swapping them leaves the digest unchanged. The distinct-count vector
 // must differ from the base only in generated_token_count, and must give it a
@@ -903,13 +913,13 @@ type summaryFlags struct{ rank, jaccard, unionJS bool }
 // for an absent optional. With no comparable leaf the caller has already
 // established the cause: no leaves at all is a zero-token output (zeros,
 // enabled ratios present(0)); leaves whose Worker values are all missing take
-// the worst value for each enabled comparison. A Verifier-side miss produces no
-// summary, so it never reaches this function.
+// the worst value for each enabled comparison. When no comparable leaves exist,
+// a finite Worker value with a missing Verifier value produces no summary.
 func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
 	const u32Max = 4294967295
 	roundHalfUp := func(a, b uint64) int64 { return int64((2*a + b) / (2 * b)) }
-	saturate := func(v int64) int64 { return min(v, u32Max) }
-	nearestRank := func(q uint64, xs []uint64) int64 {
+	saturate := func(v uint64) int64 { return int64(min(v, u32Max)) }
+	nearestRank := func(q uint64, xs []uint64) uint64 {
 		sorted := append([]uint64(nil), xs...)
 		for i := range sorted {
 			for j := i + 1; j < len(sorted); j++ {
@@ -919,17 +929,18 @@ func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
 			}
 		}
 		k := (q*uint64(len(sorted)) + 99) / 100
-		return int64(sorted[k-1])
+		return sorted[k-1]
 	}
 	var diffs, js []uint64
-	var diffSum, jaccardSum, nonzero uint64
+	var jaccardSum, nonzero uint64
+	diffSum := new(big.Int)
 	for _, leaf := range leaves {
 		if !leaf.comparable {
 			continue
 		}
 		diffs = append(diffs, leaf.absDiff)
 		js = append(js, leaf.unionJS)
-		diffSum += leaf.absDiff
+		diffSum.Add(diffSum, new(big.Int).SetUint64(leaf.absDiff))
 		jaccardSum += leaf.jaccard
 		if leaf.rankDelta != 0 {
 			nonzero++
@@ -958,7 +969,16 @@ func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
 		}
 		return out
 	}
-	out[2], out[3], out[4] = saturate(roundHalfUp(diffSum, n)), saturate(nearestRank(95, diffs)), saturate(nearestRank(99, diffs))
+	divisor := new(big.Int).SetUint64(n)
+	mean, remainder := new(big.Int).QuoRem(diffSum, divisor, new(big.Int))
+	if remainder.Mul(remainder, big.NewInt(2)).Cmp(divisor) >= 0 {
+		mean.Add(mean, big.NewInt(1))
+	}
+	out[2] = u32Max
+	if mean.IsUint64() {
+		out[2] = saturate(mean.Uint64())
+	}
+	out[3], out[4] = saturate(nearestRank(95, diffs)), saturate(nearestRank(99, diffs))
 	if flags.rank {
 		out[5], out[9] = roundHalfUp(1_000_000*nonzero, n), int64(n)
 	}
@@ -966,12 +986,48 @@ func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
 		out[6] = roundHalfUp(jaccardSum, n)
 	}
 	if flags.unionJS {
-		out[7] = nearestRank(99, js)
+		out[7] = int64(nearestRank(99, js))
 	}
 	if flags.jaccard || flags.unionJS {
 		out[8] = int64(n)
 	}
 	return out
+}
+
+func TestMetricSummaryBoundaryAndPartialMissing(t *testing.T) {
+	const u32Max = 4294967295
+	for _, tc := range []struct {
+		name   string
+		leaves []summaryLeaf
+		want   []int64
+	}{
+		{
+			name:   "uint64 maximum saturates without overflowing",
+			leaves: []summaryLeaf{{comparable: true, absDiff: ^uint64(0)}, {comparable: true, absDiff: ^uint64(0)}},
+			want:   []int64{2, 0, u32Max, u32Max, u32Max, 0, -1, -1, 0, 0},
+		},
+		{
+			name:   "half-up mean saturates at uint32 maximum",
+			leaves: []summaryLeaf{{comparable: true, absDiff: u32Max}, {comparable: true, absDiff: u32Max + 1}},
+			want:   []int64{2, 0, u32Max, u32Max, u32Max, 0, -1, -1, 0, 0},
+		},
+		{
+			name:   "half-up mean rounds an exact midpoint",
+			leaves: []summaryLeaf{{comparable: true, absDiff: 1}, {comparable: true, absDiff: 2}},
+			want:   []int64{2, 0, 2, 2, 2, 0, -1, -1, 0, 0},
+		},
+		{
+			name:   "partial Verifier miss remains in the summary",
+			leaves: []summaryLeaf{{comparable: true, absDiff: 7}, {}},
+			want:   []int64{1, 1, 7, 7, 7, 0, -1, -1, 0, 0},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := expectedSummary(tc.leaves, summaryFlags{}); fmt.Sprint(got) != fmt.Sprint(tc.want) {
+				t.Fatalf("summary is %v, want %v", got, tc.want)
+			}
+		})
+	}
 }
 
 // publishedSummary reads a MetricSummaryV1 vector back into the same shape.
@@ -1014,7 +1070,7 @@ func TestMetricSummaryFollowsTheLeaves(t *testing.T) {
 		leaf := map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]}
 		leaves = append(leaves, summaryLeaf{
 			comparable: integratedField(t, leaf, "missing_flag")["value"] == false && integratedField(t, leaf, "finite_flag")["value"] == true,
-			absDiff:    uint64(fieldInt(t, integratedField(t, leaf, "abs_logprob_diff_fp_1e6"))),
+			absDiff:    fieldUint(t, integratedField(t, leaf, "abs_logprob_diff_fp_1e6")),
 			rankDelta:  fieldInt(t, integratedField(t, leaf, "rank_delta")),
 			jaccard:    optional(integratedField(t, leaf, "topk_jaccard_fp_1e6")),
 			unionJS:    optional(integratedField(t, leaf, "union_js_fp_1e6")),
