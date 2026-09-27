@@ -1,8 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.3.1
 
-Intended as `v0.3.1`. **Digest-changing, pre-genesis.** The V3 model projection
+**Digest-changing, pre-genesis.** The V3 model projection
 gains a field in place, so `TRUEOPEN_MODEL_CHAIN_PROJECTION_V3` and
 `TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3` digests change and an implementation
 pinned to `v0.3.0` computes different values for the same registration. No chain
