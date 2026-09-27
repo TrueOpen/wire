@@ -35,6 +35,11 @@ encoding rule changes, so the descriptor is unchanged.
   reveal payload recomputed; the Worker evidence confirmations in
   `builder_confirmation_v1.json` name the published commitments, manifest
   lengths and artifact totals. `verify-fixtures` checks each link.
+- The Verifier side binds the same parameters: every metric leaf in
+  `metric_leaf_v3.json` and `result_metric_v3.json`, and
+  `result_v3_signing_digest`, carry the real generation-parameter digest
+  instead of a placeholder; the metric roots, the result signing digest and
+  the V2 reveal payload are recomputed, and `verify-fixtures` checks the link.
 
 ## v0.3.0-rc.1
 

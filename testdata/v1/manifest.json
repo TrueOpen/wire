@@ -145,7 +145,7 @@
       "origin": "wire",
       "contract_section": "Metric leaf and root V3 conformance",
       "bytes": 19572,
-      "sha256": "34074f7f3ee3ef6a0509b0b24dbbc1d13de3877bf7a5a91e328bf87cd69a2345"
+      "sha256": "f856e5c223303adf1babbe240ee9dfbd83309293bedfd2de05011b171f5beb4c"
     },
     {
       "path": "task/output_chunk_equivocation_v1.json",
@@ -173,14 +173,14 @@
       "origin": "wire",
       "contract_section": "Integrated three-position metric root",
       "bytes": 18372,
-      "sha256": "f776e430734b6282160e44a9fa397308595c95feac2e54bcf7d7e3c786bb4519"
+      "sha256": "9b1d1c546fa888a9e25cbcf9a7b1c4e5b6b3c46273a91b6569111002ac875057"
     },
     {
         "path": "task/result_receipt_v3.json",
         "origin": "wire",
         "contract_section": "Result commitment V3, receipt V3 and reveal payload V2",
         "bytes": 12897,
-        "sha256": "e863f4ecea14bc6df32c768e01dde0b4144f6ec35a26312970cc277527a09d4f"
+        "sha256": "62189647af3df5a00a32de80f9dbe965c14dbdd4b022e4114abcddd3cd026a45"
     },
     {
       "path": "task/round_settlement_v1.json",

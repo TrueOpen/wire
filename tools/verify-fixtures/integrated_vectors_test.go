@@ -641,6 +641,24 @@ func TestALevelBundleBindsGenerationParams(t *testing.T) {
 			t.Fatalf("%v does not bind the published generation parameters", receipt["name"])
 		}
 	}
+	// The Verifier side of the same task binds the same parameters: the
+	// result receipt and every metric leaf that feeds its metric_root.
+	result := integratedVector(t, loadIntegratedFixture(t, "task", "result_receipt_v3.json"), "TRUEOPEN_RESULT_V3")
+	if integratedField(t, result, "generation_params_digest")["hex"] != payload[1] {
+		t.Fatal("ResultReceiptV3 does not bind the published generation parameters")
+	}
+	for _, name := range []string{"metric_leaf_v3.json", "result_metric_v3.json"} {
+		for _, raw := range loadIntegratedFixture(t, "task", name)["vectors"].([]any) {
+			vector := raw.(map[string]any)
+			if vector["domain"] != "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3" {
+				continue
+			}
+			leaf := map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]}
+			if integratedField(t, leaf, "generation_params_digest")["hex"] != payload[1] {
+				t.Fatalf("%s %v does not bind the published generation parameters", name, vector["name"])
+			}
+		}
+	}
 }
 
 // Each Worker evidence confirmation names the published object: the typed
