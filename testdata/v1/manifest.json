@@ -55,8 +55,8 @@
       "path": "hub/manifest_uri_v1.json",
       "origin": "wire",
       "contract_section": "Public manifest_uri syntax conformance forms",
-      "bytes": 10975,
-      "sha256": "65ac5a148b900f2a260f5fe10dec4dc3e9ce615fd31bc537e09af4aaeb806e3e"
+      "bytes": 11147,
+      "sha256": "2e1e8f843ce8a4e21c4142ee57898d1289d8bf5db940938e4c39ad49a3fb1cf0"
     },
     {
       "path": "hub/model_id_v1.json",
@@ -76,8 +76,8 @@
       "path": "hub/model_profile_canonical_v3.json",
       "origin": "wire",
       "contract_section": "Model chain projection and registration digest V3",
-      "bytes": 6078,
-      "sha256": "2f07f328f625292e9947bc95b91d6ab8a4577e0a5978fc1b9d4f43b600e82272"
+      "bytes": 6239,
+      "sha256": "dcdb9fe304022ad5878e44e12058dbb88368889cf7afea0139ff3fee7fe31a9d"
     },
     {
       "path": "shared/account_signing_v1.json",

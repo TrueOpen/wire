@@ -22,8 +22,12 @@ additive, so `buf breaking` is clean.
   forms for `https` and `ipfs`, with the strict reading taken where the syntax
   leaves room; `verify-fixtures` runs a reference validator over it.
 - `testdata/v1/hub/model_profile_canonical_v3.json`: the projection carries a
-  `manifest_uri`; `chain_projection_hash` `d9a3cc73…` → `e0dff825…`, registration
-  digest `abd16723…` → `50448948…`.
+  `manifest_uri` whose query contains `&`, written literally, so an encoder
+  that HTML-escapes canonical JSON cannot reproduce it; `chain_projection_hash`
+  `d9a3cc73…` → `e8bc8a61…`, registration digest `abd16723…` → `6a55016e…`.
+- `verify-fixtures` re-encodes canonical JSON with HTML escaping off (it had
+  used `json.Marshal`, which escapes `<`, `>` and `&`) and asserts the
+  projection payload carries a literal `&`.
 - `testdata/v1/shared/params_v1.json`: `hub_params_v2` includes the new cap;
   digest `b40396c3…` → `62cc263e…`, replay and tamper rows recomputed.
 - `docs/MANIFEST_RETRIEVAL_V1.md`: fetch order, processing order, downloader

@@ -10,7 +10,7 @@
     "challenge_open_window_blocks": 100,
     "generation_type": "SAMPLED",
     "manifest_hash": "0x9b0148865efde2dbf366305733ee5275dc247e3b9af8def770955d3758b52031",
-    "manifest_uri": "https://models.trueopen.example/manifests/golden-model/v1.json",
+    "manifest_uri": "https://models.trueopen.example/manifests/golden-model/v1.json?rev=3&sig=ab",
     "min_stake": {
       "amount": 1000000,
       "denom": "uusdc"
@@ -106,9 +106,9 @@
       "reject_union_js_p99_min": 200000
     }
   },
-  "canonical_projection_bytes": 3064,
+  "canonical_projection_bytes": 3077,
   "chain_id": "trueopen-golden-1",
-  "chain_projection_hash": "e0dff8258c811a221d8b3e5c7c02460e89053dfe79e121ce961d2bc45fb3b398",
+  "chain_projection_hash": "e8bc8a61ad223ed5782d7b6cec4bb4b86d3ba0d383a699f785e03b79a072cdf1",
   "contract": "Model profile projection and registration wire contract",
   "evidence_schema_hash": "0x32bde2e9a69fef898b82cc23f0be211c17f06cb01cec111494d4ed5fcf35ffe0",
   "notes": [
@@ -116,11 +116,11 @@
     "The two required Worker evidence commitments are ordered by EvidenceKind numeric value.",
     "The manifest hash is an opaque caller input in this independent projection vector.",
     "Both digests use canonical JSON bytes under their distinct V3 H_V1 domains.",
-    "manifest_uri is part of the projection, so it enters chain_projection_hash and, through it, the registration digest; it is not inside the manifest and does not enter manifest_hash. Its syntax is pinned by manifest_uri_v1.json."
+    "manifest_uri is part of the projection, so it enters chain_projection_hash and, through it, the registration digest; it is not inside the manifest and does not enter manifest_hash. Its syntax is pinned by manifest_uri_v1.json. The golden manifest_uri carries & in its query: canonical JSON writes it literally, so an encoder that HTML-escapes cannot reproduce these digests."
   ],
   "proposer_address": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz",
-  "registration_digest": "504489485e07206a532b36066e2759df3d69143205d2bb9f3a8f762d0e9eee9b",
-  "registration_payload_bytes": "{\"chain_id\":\"trueopen-golden-1\",\"chain_projection_hash\":\"0xe0dff8258c811a221d8b3e5c7c02460e89053dfe79e121ce961d2bc45fb3b398\",\"manifest_hash\":\"0x9b0148865efde2dbf366305733ee5275dc247e3b9af8def770955d3758b52031\",\"profile_version\":1,\"proposer_address\":\"trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz\"}",
+  "registration_digest": "6a55016e31a510a71457e4fb962558792ff93e770965fe6a55ad6f2edb3f771a",
+  "registration_payload_bytes": "{\"chain_id\":\"trueopen-golden-1\",\"chain_projection_hash\":\"0xe8bc8a61ad223ed5782d7b6cec4bb4b86d3ba0d383a699f785e03b79a072cdf1\",\"manifest_hash\":\"0x9b0148865efde2dbf366305733ee5275dc247e3b9af8def770955d3758b52031\",\"profile_version\":1,\"proposer_address\":\"trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz\"}",
   "schema": "trueopen-model-profile-canonical-v3",
   "task_types_numeric_order": [
     {

@@ -24,6 +24,10 @@
       "case": "port, path and query"
     },
     {
+      "uri": "https://models.trueopen.example/manifests/golden-model/v1.json?rev=3&sig=ab",
+      "case": "query with & (written literally in canonical JSON)"
+    },
+    {
       "uri": "https://xn--bcher-kva.example/m.json",
       "case": "internationalized name in xn-- form"
     },
