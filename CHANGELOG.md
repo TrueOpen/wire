@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+Intended as `v0.3.1`. **Digest-changing, pre-genesis.** The V3 model projection
+gains a field in place, so `TRUEOPEN_MODEL_CHAIN_PROJECTION_V3` and
+`TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3` digests change and an implementation
+pinned to `v0.3.0` computes different values for the same registration. No chain
+runs `v0.3.0`; implementations move to `v0.3.1` together. Proto changes are
+additive, so `buf breaking` is clean.
+
+- `shared/v1/model_profile.proto`: `ModelProfileProjection.manifest_uri`
+  (field 23), the registrant-hosted retrieval pointer for the manifest body.
+  It enters the projection and registration digests; it is not inside the
+  manifest and does not enter `manifest_hash`.
+- `hub/v1/model_profile_state.proto`: `ProfileState.manifest_uri` (field 34),
+  frozen with the profile version and returned by `Query/Profile`, which
+  serves as the manifest-pointer query.
+- `hub/v1/params.proto`: `ModelParamsV1.max_manifest_uri_bytes` (field 12,
+  2048 in the published parameters).
+- `testdata/v1/hub/manifest_uri_v1.json`: accepted and rejected `manifest_uri`
+  forms for `https` and `ipfs`, with the strict reading taken where the syntax
+  leaves room; `verify-fixtures` runs a reference validator over it.
+- `testdata/v1/hub/model_profile_canonical_v3.json`: the projection carries a
+  `manifest_uri`; `chain_projection_hash` `d9a3cc73…` → `e0dff825…`, registration
+  digest `abd16723…` → `50448948…`.
+- `testdata/v1/shared/params_v1.json`: `hub_params_v2` includes the new cap;
+  digest `b40396c3…` → `62cc263e…`, replay and tamper rows recomputed.
+- `docs/MANIFEST_RETRIEVAL_V1.md`: fetch order, processing order, downloader
+  safety obligations and the test scenarios implementers must cover.
+- `release/reviewed-breaking.json` is retired: it authorized the `v0.3.0`
+  break against `v0.3.0-rc.2`, and this release has no `buf breaking` findings.
+
+## v0.3.0
+
 - `hub/v1/daily_support.proto`, `hub/v1/params.proto`, `hub/v1/genesis.proto`:
   add `ModelSupportDeactivateCursorState`, a bounded one-way sweep that
   deactivates every `ModelSupportState` row for a model after it transitions
