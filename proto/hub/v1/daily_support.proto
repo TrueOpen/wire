@@ -42,6 +42,20 @@ message ModelSupportRecheckCursorState {
   bool min_stake_lowered = 7;
 }
 
+// ModelSupportDeactivateCursorState resumes a bounded, one-way sweep that
+// deactivates every ModelSupportState row for a model after it transitions
+// to FROZEN or DELISTED. Unlike ModelSupportRecheckCursorState this cursor
+// has no branches: every visited row is deactivated. While this cursor
+// exists for a model_id, MsgSetModelStatus for that model_id is rejected,
+// including transitioning back to REGISTERED. The cursor is deleted when
+// the sweep completes; support declarations are not restored afterward.
+message ModelSupportDeactivateCursorState {
+  bytes model_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  string last_operator_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint64 visited_count = 3;
+  uint64 deactivated_count = 4;
+}
+
 // ModelSupportState is the single operator/model support row.
 message ModelSupportState {
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
