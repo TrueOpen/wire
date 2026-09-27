@@ -1,6 +1,6 @@
 {
   "schema": "trueopen-wire-reviewed-breaking-v1",
-  "protocol_version": "v0.3.0-rc.3",
+  "protocol_version": "v0.3.0",
   "against": "v0.3.0-rc.2",
   "review": "TrueOpen/wire#23",
   "notes": [
