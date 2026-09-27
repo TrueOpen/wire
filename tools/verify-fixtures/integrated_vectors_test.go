@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -70,6 +71,7 @@ func TestIntegratedContractVectors(t *testing.T) {
 		"output_stream_header_v1.json",
 		"task_data_auth_v1.json",
 		"builder_confirmation_v1.json",
+		"canonical_json_v1.json",
 	}
 	docs := map[string]map[string]any{}
 	for _, name := range taskFiles {
@@ -131,6 +133,28 @@ func TestIntegratedContractVectors(t *testing.T) {
 		binary.BigEndian.Uint32(parts[12]) != 3 ||
 		!bytes.Equal(parts[17], make([]byte, 32)) {
 		t.Fatal("V2 reveal payload is not linked to the V3 receipt and evidence roots")
+	}
+	// The receipt and the reveal both name the Verifier's evidence manifest by
+	// bundle hash and size. They must name the manifest this release publishes,
+	// so a manifest change cannot leave them pointing at a retired one.
+	var manifest map[string]any
+	for _, raw := range docs["canonical_json_v1.json"]["vectors"].([]any) {
+		if vector := raw.(map[string]any); vector["name"] == "evidence_bundle_manifest_v1" {
+			manifest = vector
+		}
+	}
+	if manifest == nil {
+		t.Fatal("canonical_json_v1.json publishes no Verifier evidence manifest")
+	}
+	manifestSize, err := strconv.ParseUint(fmt.Sprint(manifest["payload_bytes"]), 10, 64)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if integratedField(t, result, "verifier_evidence_bundle_hash")["hex"] != manifest["digest_hex"] ||
+		fmt.Sprint(integratedField(t, result, "verifier_evidence_manifest_size_bytes")["value"]) != fmt.Sprint(manifestSize) ||
+		hex.EncodeToString(parts[15]) != manifest["digest_hex"] ||
+		len(parts[16]) != 8 || binary.BigEndian.Uint64(parts[16]) != manifestSize {
+		t.Fatal("ResultReceiptV3 and the V2 reveal do not name the published Verifier evidence manifest")
 	}
 	for _, raw := range docs["task_order_v3.json"]["vectors"].([]any) {
 		order := raw.(map[string]any)
@@ -442,5 +466,246 @@ func TestEvidenceManifestsBindTheirArtifacts(t *testing.T) {
 	hash, size := artifact(manifests["evidence_bundle_manifest_worker_value_v1"], "worker_values")
 	if hash != sum(values) || size != uint64(len(values)) || size != commitments["EVIDENCE_KIND_WORKER_VALUE_OPENING"] {
 		t.Fatalf("B-level manifest does not describe the worker_values the B-level commitment sizes")
+	}
+}
+
+// fieldInt reads an integer field value, which the fixtures decode as
+// json.Number through loadIntegratedFixture.
+func fieldInt(t *testing.T, field map[string]any) int64 {
+	t.Helper()
+	value, err := strconv.ParseInt(fmt.Sprint(field["value"]), 10, 64)
+	if err != nil {
+		t.Fatalf("field %s: %v", field["name"], err)
+	}
+	return value
+}
+
+// Two same-typed receipt fields that carry equal values cannot pin their
+// order: swapping them leaves the digest unchanged. The distinct-count vector
+// must differ from the base only in generated_token_count, and must give it a
+// value output_leaf_count does not have.
+func TestInferReceiptCountsHaveDistinctValues(t *testing.T) {
+	doc := loadIntegratedFixture(t, "task", "infer_receipt_v3.json")
+	vectors := map[string]map[string]any{}
+	for _, raw := range doc["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		vectors[fmt.Sprint(vector["name"])] = vector
+	}
+	base, distinct := vectors["infer_receipt_v3"], vectors["infer_receipt_v3_distinct_counts"]
+	if base == nil || distinct == nil {
+		t.Fatal("infer_receipt_v3.json must publish the base and the distinct-count vectors")
+	}
+	if fieldInt(t, integratedField(t, distinct, "generated_token_count")) ==
+		fieldInt(t, integratedField(t, distinct, "output_leaf_count")) {
+		t.Fatal("the distinct-count vector gives both counts the same value")
+	}
+	baseFields, distinctFields := base["fields"].([]any), distinct["fields"].([]any)
+	if len(baseFields) != len(distinctFields) {
+		t.Fatal("the two receipt vectors have different field lists")
+	}
+	for i := range baseFields {
+		a, b := baseFields[i].(map[string]any), distinctFields[i].(map[string]any)
+		if a["name"] != b["name"] {
+			t.Fatalf("field %d is %v in one vector and %v in the other", i, a["name"], b["name"])
+		}
+		if fmt.Sprint(a) != fmt.Sprint(b) && a["name"] != "generated_token_count" {
+			t.Fatalf("the vectors also differ in %v", a["name"])
+		}
+	}
+	if base["digest_hex"] == distinct["digest_hex"] {
+		t.Fatal("changing generated_token_count did not change the receipt digest")
+	}
+}
+
+// Every finite metric leaf must satisfy rank_delta = effective_rank(verifier)
+// - effective_rank(worker), with effective_rank(0) = required_top_k + 1, and at
+// least one leaf must exercise a zero rank so the rule is pinned at all.
+func TestMetricLeafRankDeltaUsesEffectiveRank(t *testing.T) {
+	var zeroRankSeen bool
+	for _, name := range []string{"metric_leaf_v3.json", "result_metric_v3.json"} {
+		for _, raw := range loadIntegratedFixture(t, "task", name)["vectors"].([]any) {
+			vector := raw.(map[string]any)
+			if vector["domain"] != "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3" {
+				continue
+			}
+			leaf := map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]}
+			if integratedField(t, leaf, "finite_flag")["value"] != true {
+				continue
+			}
+			k := fieldInt(t, integratedField(t, leaf, "required_top_k"))
+			effective := func(rank int64) int64 {
+				if rank == 0 {
+					zeroRankSeen = true
+					return k + 1
+				}
+				return rank
+			}
+			worker := fieldInt(t, integratedField(t, leaf, "worker_rank"))
+			verifier := fieldInt(t, integratedField(t, leaf, "verifier_rank"))
+			if got, want := fieldInt(t, integratedField(t, leaf, "rank_delta")), effective(verifier)-effective(worker); got != want {
+				t.Fatalf("%s %v: rank_delta = %d, want %d", name, vector["name"], got, want)
+			}
+		}
+	}
+	if !zeroRankSeen {
+		t.Fatal("no finite metric leaf has a zero rank, so effective_rank(0) is unpinned")
+	}
+}
+
+// generationParamsPayloads returns every published canonical generation
+// parameter payload with the digest it declares.
+func generationParamsPayloads(t *testing.T) map[string][2]string {
+	t.Helper()
+	payloads := map[string][2]string{}
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["domain"] == "TRUEOPEN_TASK_GENERATION_PARAMS_V1" {
+			payloads[fmt.Sprint(vector["name"])] = [2]string{vector["payload_utf8"].(string), vector["digest_hex"].(string)}
+		}
+	}
+	params := loadIntegratedFixture(t, "task", "generation_params_v1.json")
+	payloads["generation_params_v1.json"] = [2]string{params["canonical_json"].(string), params["digest_hex"].(string)}
+	return payloads
+}
+
+// Canonical JSON disables HTML escaping: '<', '>' and '&' are written as
+// themselves. A payload produced by an encoder with HTML escaping left on
+// would still decode to the same value, so only the bytes can catch it.
+func TestGenerationParamsJSONIsNotHTMLEscaped(t *testing.T) {
+	payloads := generationParamsPayloads(t)
+	if len(payloads) < 2 {
+		t.Fatal("expected the canonical_json_v1 and generation_params_v1 parameter payloads")
+	}
+	for name, payload := range payloads {
+		for _, escaped := range []string{`\u003c`, `\u003e`, `\u0026`} {
+			if strings.Contains(payload[0], escaped) {
+				t.Fatalf("%s payload contains the HTML escape %s", name, escaped)
+			}
+		}
+		digest := sha256.Sum256(encodeHV1("TRUEOPEN_TASK_GENERATION_PARAMS_V1", []byte(payload[0])))
+		if hex.EncodeToString(digest[:]) != payload[1] {
+			t.Fatalf("%s digest does not match its payload", name)
+		}
+	}
+}
+
+// The A-level bundle carries the generation parameters it was produced under.
+// Its generation_params artifact must hash to the payload whose
+// TRUEOPEN_TASK_GENERATION_PARAMS_V1 digest the A-level commitment and every
+// receipt bind, and must not count toward the A-level encoded_size_bytes.
+func TestALevelBundleBindsGenerationParams(t *testing.T) {
+	payload := generationParamsPayloads(t)["task_generation_params_v1"]
+	var manifest map[string]any
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["name"] == "evidence_bundle_manifest_worker_token_v1" {
+			if err := json.Unmarshal([]byte(vector["payload_utf8"].(string)), &manifest); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	artifacts := manifest["artifacts"].([]any)
+	var ids []string
+	var tokenBytes uint64
+	for _, raw := range artifacts {
+		item := raw.(map[string]any)
+		id := item["artifact_id"].(string)
+		ids = append(ids, id)
+		size, err := strconv.ParseUint(item["size_bytes"].(string), 10, 64)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if id == "generation_params" {
+			sum := sha256.Sum256([]byte(payload[0]))
+			if item["content_hash"] != hex.EncodeToString(sum[:]) || size != uint64(len(payload[0])) {
+				t.Fatal("A-level generation_params artifact is not the published parameter payload")
+			}
+			continue
+		}
+		tokenBytes += size
+	}
+	if strings.Join(ids, ",") != "generated_token_ids,generation_params,input_token_ids" {
+		t.Fatalf("A-level artifacts are %v", ids)
+	}
+	token := integratedVector(t, loadIntegratedFixture(t, "task", "worker_token_commitment_v1.json"), "TRUEOPEN_WORKER_TOKEN_COMMITMENT_V1")
+	if integratedField(t, token, "generation_params_digest")["hex"] != payload[1] {
+		t.Fatal("the A-level commitment does not bind the published generation parameters")
+	}
+	if fmt.Sprint(token["expected_encoded_size_bytes"]) != fmt.Sprint(tokenBytes) {
+		t.Fatalf("A-level encoded_size_bytes %v must count only the token ids (%d bytes)", token["expected_encoded_size_bytes"], tokenBytes)
+	}
+	receipts := loadIntegratedFixture(t, "task", "infer_receipt_v3.json")
+	for _, raw := range receipts["vectors"].([]any) {
+		receipt := raw.(map[string]any)
+		if integratedField(t, receipt, "generation_params_digest")["hex"] != payload[1] {
+			t.Fatalf("%v does not bind the published generation parameters", receipt["name"])
+		}
+	}
+	// The Verifier side of the same task binds the same parameters: the
+	// result receipt and every metric leaf that feeds its metric_root.
+	result := integratedVector(t, loadIntegratedFixture(t, "task", "result_receipt_v3.json"), "TRUEOPEN_RESULT_V3")
+	if integratedField(t, result, "generation_params_digest")["hex"] != payload[1] {
+		t.Fatal("ResultReceiptV3 does not bind the published generation parameters")
+	}
+	for _, name := range []string{"metric_leaf_v3.json", "result_metric_v3.json"} {
+		for _, raw := range loadIntegratedFixture(t, "task", name)["vectors"].([]any) {
+			vector := raw.(map[string]any)
+			if vector["domain"] != "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3" {
+				continue
+			}
+			leaf := map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]}
+			if integratedField(t, leaf, "generation_params_digest")["hex"] != payload[1] {
+				t.Fatalf("%s %v does not bind the published generation parameters", name, vector["name"])
+			}
+		}
+	}
+}
+
+// Each Worker evidence confirmation names the published object: the typed
+// commitment the receipt carries for its kind, the manifest length and the sum
+// of the manifest's artifact sizes.
+func TestWorkerEvidenceConfirmationsNameThePublishedObjects(t *testing.T) {
+	manifests := map[string]map[string]any{}
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		manifests[fmt.Sprint(raw.(map[string]any)["name"])] = raw.(map[string]any)
+	}
+	commitments := map[string]string{}
+	for _, raw := range loadIntegratedFixture(t, "task", "infer_receipt_v3.json")["commitment_list"].(map[string]any)["items"].([]any) {
+		item := raw.(map[string]any)
+		commitments[item["evidence_kind_name"].(string)] = item["evidence_hash_or_root_hex"].(string)
+	}
+	cases := map[string][2]string{
+		"builder_confirmation_worker_token_evidence": {"EVIDENCE_KIND_WORKER_TOKEN_OPENING", "evidence_bundle_manifest_worker_token_v1"},
+		"builder_confirmation_worker_value_evidence": {"EVIDENCE_KIND_WORKER_VALUE_OPENING", "evidence_bundle_manifest_worker_value_v1"},
+	}
+	for _, raw := range loadIntegratedFixture(t, "task", "builder_confirmation_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		want, ok := cases[fmt.Sprint(vector["name"])]
+		if !ok {
+			continue
+		}
+		delete(cases, fmt.Sprint(vector["name"]))
+		manifest := manifests[want[1]]
+		var parsed map[string]any
+		if err := json.Unmarshal([]byte(manifest["payload_utf8"].(string)), &parsed); err != nil {
+			t.Fatal(err)
+		}
+		var total uint64
+		for _, item := range parsed["artifacts"].([]any) {
+			size, err := strconv.ParseUint(item.(map[string]any)["size_bytes"].(string), 10, 64)
+			if err != nil {
+				t.Fatal(err)
+			}
+			total += size
+		}
+		ref := map[string]any{"fields": integratedField(t, vector, "object_ref")["fields"], "domain": vector["domain"]}
+		if integratedField(t, ref, "content_hash")["hex"] != commitments[want[0]] ||
+			fmt.Sprint(integratedField(t, vector, "size_bytes")["value"]) != fmt.Sprint(manifest["payload_bytes"]) ||
+			fieldInt(t, integratedField(t, vector, "artifact_total_size_bytes")) != int64(total) {
+			t.Fatalf("%v does not name the published %s object", vector["name"], want[0])
+		}
+	}
+	if len(cases) != 0 {
+		t.Fatalf("missing Worker confirmation cases %v", cases)
 	}
 }

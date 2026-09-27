@@ -1,5 +1,46 @@
 # Changelog
 
+## Unreleased
+
+Fixture-only corrections to the v0.3.0 vectors. No proto, registry or
+encoding rule changes, so the descriptor is unchanged.
+
+- `result_receipt_v3.json`: `result_v3_signing_digest` and
+  `verifier_result_payload_v2` now name the Verifier evidence manifest this
+  release publishes (`canonical_json_v1.json`, 603 bytes, `5b56779a…`)
+  instead of the retired 556-byte one. `verify-fixtures` now checks that
+  link, so the two cannot drift apart again.
+- `infer_receipt_v3.json`: adds `infer_receipt_v3_distinct_counts`, in which
+  `generated_token_count` and `output_leaf_count` differ. With both at 3,
+  an implementation that swapped the two fields reproduced every vector.
+- `metric_leaf_v3.json`: adds `metric_leaf_v3_worker_rank_outside_top_k`, a
+  finite leaf with `worker_rank` 0, so `effective_rank(0) = required_top_k
+  + 1` is pinned; `verify-fixtures` checks `rank_delta` on every finite leaf.
+- `output_stream_header_v1.json`: names the service key the header
+  signature verifies under.
+- Generation-parameter payloads (`canonical_json_v1.json`
+  `task_generation_params_v1`, `generation_params_v1.json`) were produced with
+  HTML escaping on (`\u003c/s\u003e`); canonical JSON writes `<`, `>` and `&`
+  as themselves. Both are regenerated (new digests `b9cc1d8c…` and
+  `632e73cf…`), and `verify-fixtures` rejects HTML escapes in these payloads.
+  `docs/CANONICAL_ENCODING_V1.md` now states the string escaping rule and that
+  signed integers are allowed where the schema declares them.
+- The Worker A-level bundle carries `generation_params`, the exact canonical
+  generation-parameter bytes, so a Verifier has the parameters it prefills
+  under. `evidence_bundle_manifest_worker_token_v1` gains that artifact; the
+  A-level `encoded_size_bytes` still counts only the two token-id artifacts.
+- The vectors are now consistent end to end: the A-level commitment and both
+  `infer_receipt_v3` vectors bind the real generation-parameter digest instead
+  of a placeholder, with the commitment list, receipt digests and the V2
+  reveal payload recomputed; the Worker evidence confirmations in
+  `builder_confirmation_v1.json` name the published commitments, manifest
+  lengths and artifact totals. `verify-fixtures` checks each link.
+- The Verifier side binds the same parameters: every metric leaf in
+  `metric_leaf_v3.json` and `result_metric_v3.json`, and
+  `result_v3_signing_digest`, carry the real generation-parameter digest
+  instead of a placeholder; the metric roots, the result signing digest and
+  the V2 reveal payload are recomputed, and `verify-fixtures` checks the link.
+
 ## v0.3.0-rc.1
 
 Pre-release of v0.3.0. Node, Nexus and Cortex implement against this
