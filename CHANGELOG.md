@@ -18,6 +18,23 @@ encoding rule changes, so the descriptor is unchanged.
   + 1` is pinned; `verify-fixtures` checks `rank_delta` on every finite leaf.
 - `output_stream_header_v1.json`: names the service key the header
   signature verifies under.
+- Generation-parameter payloads (`canonical_json_v1.json`
+  `task_generation_params_v1`, `generation_params_v1.json`) were produced with
+  HTML escaping on (`\u003c/s\u003e`); canonical JSON writes `<`, `>` and `&`
+  as themselves. Both are regenerated (new digests `b9cc1d8c…` and
+  `632e73cf…`), and `verify-fixtures` rejects HTML escapes in these payloads.
+  `docs/CANONICAL_ENCODING_V1.md` now states the string escaping rule and that
+  signed integers are allowed where the schema declares them.
+- The Worker A-level bundle carries `generation_params`, the exact canonical
+  generation-parameter bytes, so a Verifier has the parameters it prefills
+  under. `evidence_bundle_manifest_worker_token_v1` gains that artifact; the
+  A-level `encoded_size_bytes` still counts only the two token-id artifacts.
+- The vectors are now consistent end to end: the A-level commitment and both
+  `infer_receipt_v3` vectors bind the real generation-parameter digest instead
+  of a placeholder, with the commitment list, receipt digests and the V2
+  reveal payload recomputed; the Worker evidence confirmations in
+  `builder_confirmation_v1.json` name the published commitments, manifest
+  lengths and artifact totals. `verify-fixtures` checks each link.
 
 ## v0.3.0-rc.1
 

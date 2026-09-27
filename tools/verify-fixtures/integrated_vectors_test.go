@@ -551,3 +551,143 @@ func TestMetricLeafRankDeltaUsesEffectiveRank(t *testing.T) {
 		t.Fatal("no finite metric leaf has a zero rank, so effective_rank(0) is unpinned")
 	}
 }
+
+// generationParamsPayloads returns every published canonical generation
+// parameter payload with the digest it declares.
+func generationParamsPayloads(t *testing.T) map[string][2]string {
+	t.Helper()
+	payloads := map[string][2]string{}
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["domain"] == "TRUEOPEN_TASK_GENERATION_PARAMS_V1" {
+			payloads[fmt.Sprint(vector["name"])] = [2]string{vector["payload_utf8"].(string), vector["digest_hex"].(string)}
+		}
+	}
+	params := loadIntegratedFixture(t, "task", "generation_params_v1.json")
+	payloads["generation_params_v1.json"] = [2]string{params["canonical_json"].(string), params["digest_hex"].(string)}
+	return payloads
+}
+
+// Canonical JSON disables HTML escaping: '<', '>' and '&' are written as
+// themselves. A payload produced by an encoder with HTML escaping left on
+// would still decode to the same value, so only the bytes can catch it.
+func TestGenerationParamsJSONIsNotHTMLEscaped(t *testing.T) {
+	payloads := generationParamsPayloads(t)
+	if len(payloads) < 2 {
+		t.Fatal("expected the canonical_json_v1 and generation_params_v1 parameter payloads")
+	}
+	for name, payload := range payloads {
+		for _, escaped := range []string{`\u003c`, `\u003e`, `\u0026`} {
+			if strings.Contains(payload[0], escaped) {
+				t.Fatalf("%s payload contains the HTML escape %s", name, escaped)
+			}
+		}
+		digest := sha256.Sum256(encodeHV1("TRUEOPEN_TASK_GENERATION_PARAMS_V1", []byte(payload[0])))
+		if hex.EncodeToString(digest[:]) != payload[1] {
+			t.Fatalf("%s digest does not match its payload", name)
+		}
+	}
+}
+
+// The A-level bundle carries the generation parameters it was produced under.
+// Its generation_params artifact must hash to the payload whose
+// TRUEOPEN_TASK_GENERATION_PARAMS_V1 digest the A-level commitment and every
+// receipt bind, and must not count toward the A-level encoded_size_bytes.
+func TestALevelBundleBindsGenerationParams(t *testing.T) {
+	payload := generationParamsPayloads(t)["task_generation_params_v1"]
+	var manifest map[string]any
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["name"] == "evidence_bundle_manifest_worker_token_v1" {
+			if err := json.Unmarshal([]byte(vector["payload_utf8"].(string)), &manifest); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	artifacts := manifest["artifacts"].([]any)
+	var ids []string
+	var tokenBytes uint64
+	for _, raw := range artifacts {
+		item := raw.(map[string]any)
+		id := item["artifact_id"].(string)
+		ids = append(ids, id)
+		size, err := strconv.ParseUint(item["size_bytes"].(string), 10, 64)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if id == "generation_params" {
+			sum := sha256.Sum256([]byte(payload[0]))
+			if item["content_hash"] != hex.EncodeToString(sum[:]) || size != uint64(len(payload[0])) {
+				t.Fatal("A-level generation_params artifact is not the published parameter payload")
+			}
+			continue
+		}
+		tokenBytes += size
+	}
+	if strings.Join(ids, ",") != "generated_token_ids,generation_params,input_token_ids" {
+		t.Fatalf("A-level artifacts are %v", ids)
+	}
+	token := integratedVector(t, loadIntegratedFixture(t, "task", "worker_token_commitment_v1.json"), "TRUEOPEN_WORKER_TOKEN_COMMITMENT_V1")
+	if integratedField(t, token, "generation_params_digest")["hex"] != payload[1] {
+		t.Fatal("the A-level commitment does not bind the published generation parameters")
+	}
+	if fmt.Sprint(token["expected_encoded_size_bytes"]) != fmt.Sprint(tokenBytes) {
+		t.Fatalf("A-level encoded_size_bytes %v must count only the token ids (%d bytes)", token["expected_encoded_size_bytes"], tokenBytes)
+	}
+	receipts := loadIntegratedFixture(t, "task", "infer_receipt_v3.json")
+	for _, raw := range receipts["vectors"].([]any) {
+		receipt := raw.(map[string]any)
+		if integratedField(t, receipt, "generation_params_digest")["hex"] != payload[1] {
+			t.Fatalf("%v does not bind the published generation parameters", receipt["name"])
+		}
+	}
+}
+
+// Each Worker evidence confirmation names the published object: the typed
+// commitment the receipt carries for its kind, the manifest length and the sum
+// of the manifest's artifact sizes.
+func TestWorkerEvidenceConfirmationsNameThePublishedObjects(t *testing.T) {
+	manifests := map[string]map[string]any{}
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		manifests[fmt.Sprint(raw.(map[string]any)["name"])] = raw.(map[string]any)
+	}
+	commitments := map[string]string{}
+	for _, raw := range loadIntegratedFixture(t, "task", "infer_receipt_v3.json")["commitment_list"].(map[string]any)["items"].([]any) {
+		item := raw.(map[string]any)
+		commitments[item["evidence_kind_name"].(string)] = item["evidence_hash_or_root_hex"].(string)
+	}
+	cases := map[string][2]string{
+		"builder_confirmation_worker_token_evidence": {"EVIDENCE_KIND_WORKER_TOKEN_OPENING", "evidence_bundle_manifest_worker_token_v1"},
+		"builder_confirmation_worker_value_evidence": {"EVIDENCE_KIND_WORKER_VALUE_OPENING", "evidence_bundle_manifest_worker_value_v1"},
+	}
+	for _, raw := range loadIntegratedFixture(t, "task", "builder_confirmation_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		want, ok := cases[fmt.Sprint(vector["name"])]
+		if !ok {
+			continue
+		}
+		delete(cases, fmt.Sprint(vector["name"]))
+		manifest := manifests[want[1]]
+		var parsed map[string]any
+		if err := json.Unmarshal([]byte(manifest["payload_utf8"].(string)), &parsed); err != nil {
+			t.Fatal(err)
+		}
+		var total uint64
+		for _, item := range parsed["artifacts"].([]any) {
+			size, err := strconv.ParseUint(item.(map[string]any)["size_bytes"].(string), 10, 64)
+			if err != nil {
+				t.Fatal(err)
+			}
+			total += size
+		}
+		ref := map[string]any{"fields": integratedField(t, vector, "object_ref")["fields"], "domain": vector["domain"]}
+		if integratedField(t, ref, "content_hash")["hex"] != commitments[want[0]] ||
+			fmt.Sprint(integratedField(t, vector, "size_bytes")["value"]) != fmt.Sprint(manifest["payload_bytes"]) ||
+			fieldInt(t, integratedField(t, vector, "artifact_total_size_bytes")) != int64(total) {
+			t.Fatalf("%v does not name the published %s object", vector["name"], want[0])
+		}
+	}
+	if len(cases) != 0 {
+		t.Fatalf("missing Worker confirmation cases %v", cases)
+	}
+}

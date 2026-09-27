@@ -60,10 +60,19 @@ deduplicates, or pads leaves; the owning business contract defines leaf order.
 ## Canonical JSON
 
 Canonical JSON accepts UTF-8 object keys and strings, arrays, booleans, and
-non-negative integer values. It rejects null, floating-point values, negative
-integers, byte slices, and implementation-specific objects. Object keys use
-deterministic UTF-8 lexical order and HTML escaping is disabled. No trailing
-newline is part of the canonical payload.
+integer values. Integers are non-negative unless the owning schema declares a
+signed field (for example the generation-parameter penalties, such as
+`presence_penalty_milli`); every integer uses the shortest decimal form, with
+no `+`, leading zero, fraction or exponent. It rejects null, floating-point
+values, negative values in unsigned fields, byte slices, and
+implementation-specific objects. Object keys use deterministic UTF-8 lexical
+order. No trailing newline is part of the canonical payload.
+
+Strings escape only `"`, `\` and U+0000..U+001F (`\b`, `\t`, `\n`, `\f` and
+`\r` use the short form, every other control character lowercase `\u00xx`),
+plus U+2028 and U+2029 as `\u2028` and `\u2029`. HTML escaping is disabled:
+`<`, `>`, `&` and `/` are written as themselves, and every other character as
+its UTF-8 bytes.
 
 ## Signatures
 

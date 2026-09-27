@@ -116,29 +116,29 @@
       "path": "task/builder_confirmation_v1.json",
       "origin": "wire",
       "contract_section": "Builder storage confirmation V2 signing projection",
-      "bytes": 32773,
-      "sha256": "0d99f639bdea88910aae1a2847a7eb9c96381e54e21c36823279782025bc85ef"
+      "bytes": 33045,
+      "sha256": "e773b87a90eaddc044f6f90f41e8ffc2c1d4a4fe28515d072b9bc8239abcbbeb"
     },
     {
       "path": "task/canonical_json_v1.json",
       "origin": "wire",
       "contract_section": "Canonical JSON evidence and generation-parameter digests",
-      "bytes": 10896,
-      "sha256": "3e315bcef10413f8c2f60a3c2de3e1b82900b1dfb2365e9feb78dd3a5c79dab9"
+      "bytes": 11285,
+      "sha256": "1fa026e01ffc130277514de8fd1d8be84f12538838e9f456cb6bef3f0eeafaae"
     },
     {
       "path": "task/generation_params_v1.json",
       "origin": "wire",
       "contract_section": "Canonical effective generation parameters with raw model identity",
-      "bytes": 1639,
-      "sha256": "5d39c3cdbbdab84d054bfa6484830b3732ce01f81d9105c102da798c2a7453e4"
+      "bytes": 1637,
+      "sha256": "22de2a71089b183ba80132ca23b1d960df5eb67bb01f5099f3c0df99dbf9b58c"
     },
     {
       "path": "task/infer_receipt_v3.json",
       "origin": "wire",
       "contract_section": "Two-kind InferReceiptV3 signing digest",
       "bytes": 10231,
-      "sha256": "ad1b363acb23ac3fc458962f9db3779f6e14cb24e60d9d8e2f94827130f68b32"
+      "sha256": "bf54ff2ba92c23aa7b97be7ad7497e12b89bf49270d950b5018b1796e6c20b30"
     },
     {
       "path": "task/metric_leaf_v3.json",
@@ -180,7 +180,7 @@
         "origin": "wire",
         "contract_section": "Result commitment V3, receipt V3 and reveal payload V2",
         "bytes": 12897,
-        "sha256": "c15d2847f5b92cc30c21209befb28ba8c07682ba3fbca502279bbeb630956c60"
+        "sha256": "e863f4ecea14bc6df32c768e01dde0b4144f6ec35a26312970cc277527a09d4f"
     },
     {
       "path": "task/round_settlement_v1.json",
@@ -248,7 +248,7 @@
       "origin": "wire",
       "contract_section": "A-level Worker token commitment",
       "bytes": 4053,
-      "sha256": "b71b2cb73c5dee4c1285f4fff32075a655ed1c7f6efbae38b00cd5e0ba96be19"
+      "sha256": "11731ba7daf443ccbd86a6756db56af9166eb68587ad14041c135665cef8bd0a"
     },
     {
       "path": "task/worker_value_commitment_v3.json",
