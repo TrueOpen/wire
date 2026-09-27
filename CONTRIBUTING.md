@@ -103,7 +103,9 @@ naming its own version and review.
 3. Describe compatibility and consumer impact in the pull request.
 4. Merge only after the descriptor build passes and the breaking-change check
    either reports nothing or matches a committed reviewed-breaking declaration.
-5. Tag a wire release before updating Node, Builder, Cortex, or SDK pins.
+5. Verify Node, Cortex and SDK against the candidate commit before tagging, and
+   tag a wire release before merging any consumer pin update: see
+   [Cutting a release](release/README.md#cutting-a-release).
 
 During the bootstrap phase, changes must also be reconciled with the matching
 Node proto snapshot until the consumer cutover is complete.

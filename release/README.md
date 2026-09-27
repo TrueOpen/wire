@@ -26,6 +26,38 @@ job runs it in dry-run mode on every push and pull request. A release manifest
 that first executes while a tag is being cut is a release-day surprise; the
 dry-run means the whole path is already proven when the tag lands.
 
+## Cutting a release
+
+A tag is permanent. Once any Go consumer has fetched a version, the Go module
+proxy and checksum database keep that content for good: moving the tag later
+hands consumers the stale content or fails with a checksum mismatch. Every
+consumer is therefore verified against the release candidate **before** the tag
+is pushed.
+
+1. Open the release pull request (changelog heading renamed to the version) and
+   push its branch. Do not tag.
+2. Run the release path locally against the candidate commit: `buf breaking`
+   against the previous release, and `tools/release-manifest` in write and
+   verify mode. The previous release must be picked as the baseline.
+3. Point each consumer at the candidate commit on a local branch and run its
+   full test suite:
+   - Node and Cortex: `go get github.com/TrueOpen/wire@<commit>`, then
+     regenerate and test;
+   - SDK: move the `third_party/wire` submodule to `<commit>`, regenerate and
+     test.
+4. If a consumer finds a mismatch, fix it here, push, and repeat step 3 against
+   the new commit. Nothing is published yet, so this costs nothing.
+5. Once every consumer passes, merge the release pull request, wait for `main`
+   to go green, and tag the merge commit.
+6. Consumers switch their pins from the commit to the tag before merging. A
+   commit pin is for verification only and must never be merged.
+
+Not every mismatch needs a release. A change that alters a digest, a preimage,
+framing or a signature is fixed in wire and released. A descriptive error in a
+fixture that leaves every digest and byte intact may be carried by the consumer
+as a narrowly scoped exception that fails once wire corrects it, and batched
+into the next release.
+
 ## Release scope
 
 `release/packages.json` declares which proto packages a release publishes as
