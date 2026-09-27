@@ -1,9 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.3.2
 
-Intended as `v0.3.2`. **Fixture-only correction, digest-changing,
-pre-genesis.** No proto change.
+**Fixture-only correction, digest-changing, pre-genesis.** No proto change.
 
 - `testdata/v1/shared/params_v1.json`: `hub_params_v2` omitted
   `SupportParamsV1.max_model_support_deactivate_items_per_block` (field 14),
