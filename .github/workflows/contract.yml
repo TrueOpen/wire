@@ -327,8 +327,15 @@ jobs:
           if [ -f release/reviewed-breaking.json ]; then
             assets+=( release/reviewed-breaking.json )
           fi
+          # A tag with a semver pre-release suffix (v0.3.0-rc.2) is published as
+          # a pre-release, so it never becomes the repository's latest release.
+          release_flags=()
+          case "${GITHUB_REF_NAME}" in
+            *-*) release_flags+=( --prerelease ) ;;
+          esac
           gh release create "${GITHUB_REF_NAME}" \
             --repo "${GITHUB_REPOSITORY}" \
             --title "TrueOpen wire ${GITHUB_REF_NAME}" \
             --notes-file CHANGELOG.md \
+            ${release_flags[@]+"${release_flags[@]}"} \
             "${assets[@]}"
