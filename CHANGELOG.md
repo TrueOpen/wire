@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## v0.3.0-rc.2
 
-Fixture-only corrections to the v0.3.0 vectors. No proto, registry or
-encoding rule changes, so the descriptor is unchanged.
+Second pre-release of v0.3.0. Fixture-only corrections to the v0.3.0 vectors,
+plus the release job now marks pre-release tags as pre-releases. No proto,
+registry or encoding rule changes; `buf breaking` against `v0.3.0-rc.1` is
+clean, so the reviewed-breaking declaration that authorized the v0.3.0 break
+against `v0.2.2` is retired.
 
 - `result_receipt_v3.json`: `result_v3_signing_digest` and
   `verifier_result_payload_v2` now name the Verifier evidence manifest this
