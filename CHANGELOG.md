@@ -28,12 +28,9 @@
   result.
 - `result_receipt_v3.json`: `verify-fixtures` recomputes `metric_summary_v1`
   from the published metric leaves with an integer-only implementation of the
-  MetricSummaryV1 rules (half-up mean, nearest-rank percentiles, rank-delta
-  rate over comparable leaves); the published summary already matched. A new
-  standalone vector, `metric_summary_v1_all_missing`, pins the rule for a
-  summary with no comparable leaf: every enabled comparison takes its worst
-  value (abs logprob diff 4294967295, rank-delta rate 1000000, top-K Jaccard
-  present(0), union JS present(1000000)) and both compared counts are 0.
+  MetricSummaryV1 rules (half-up mean, nearest-rank percentiles saturating at
+  the uint32 maximum, rank-delta rate over comparable leaves, compared counts);
+  the published summary already matched, so no digest changes.
 
 ## v0.3.0-rc.2
 

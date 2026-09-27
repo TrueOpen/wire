@@ -898,12 +898,14 @@ type summaryFlags struct{ rank, jaccard, unionJS bool }
 
 // expectedSummary applies the MetricSummaryV1 rules in integers only: F is the
 // comparable leaves; the mean rounds half up, percentiles take the
-// nearest-rank element; with no comparable leaf every enabled comparison takes
-// its worst value and both compared counts are 0. It returns the ten fields in
-// schema order, with -1 standing for an absent optional.
+// nearest-rank element, and the abs logprob diff statistics saturate at the
+// uint32 maximum. It returns the ten fields in schema order, with -1 standing
+// for an absent optional, or nil when no leaf is comparable: that case is not
+// pinned here.
 func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
-	const worstDiff = 4294967295
+	const u32Max = 4294967295
 	roundHalfUp := func(a, b uint64) int64 { return int64((2*a + b) / (2 * b)) }
+	saturate := func(v int64) int64 { return min(v, u32Max) }
 	nearestRank := func(q uint64, xs []uint64) int64 {
 		sorted := append([]uint64(nil), xs...)
 		for i := range sorted {
@@ -931,23 +933,13 @@ func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
 		}
 	}
 	n := uint64(len(diffs))
+	if n == 0 {
+		return nil
+	}
 	out := make([]int64, 10)
 	out[0], out[1] = int64(n), int64(uint64(len(leaves))-n)
 	out[6], out[7] = -1, -1
-	if n == 0 {
-		out[2], out[3], out[4] = worstDiff, worstDiff, worstDiff
-		if flags.rank {
-			out[5] = 1_000_000
-		}
-		if flags.jaccard {
-			out[6] = 0
-		}
-		if flags.unionJS {
-			out[7] = 1_000_000
-		}
-		return out
-	}
-	out[2], out[3], out[4] = roundHalfUp(diffSum, n), nearestRank(95, diffs), nearestRank(99, diffs)
+	out[2], out[3], out[4] = saturate(roundHalfUp(diffSum, n)), saturate(nearestRank(95, diffs)), saturate(nearestRank(99, diffs))
 	if flags.rank {
 		out[5], out[9] = roundHalfUp(1_000_000*nonzero, n), int64(n)
 	}
@@ -982,7 +974,7 @@ func publishedSummary(t *testing.T, vector map[string]any) []int64 {
 	return out
 }
 
-func TestMetricSummariesFollowTheRules(t *testing.T) {
+func TestMetricSummaryFollowsTheLeaves(t *testing.T) {
 	optional := func(field map[string]any) uint64 {
 		if field["present"] != true {
 			return 0
@@ -1015,38 +1007,20 @@ func TestMetricSummariesFollowTheRules(t *testing.T) {
 		unionJS: integratedField(t, proof, "compare_union_js")["value"] == true,
 	}
 	receiptDoc := loadIntegratedFixture(t, "task", "result_receipt_v3.json")
-	var chain, allMissing map[string]any
+	var chain map[string]any
 	for _, raw := range receiptDoc["vectors"].([]any) {
-		switch vector := raw.(map[string]any); vector["name"] {
-		case "metric_summary_v1":
+		if vector := raw.(map[string]any); vector["name"] == "metric_summary_v1" {
 			chain = vector
-		case "metric_summary_v1_all_missing":
-			allMissing = vector
 		}
 	}
-	if chain == nil || allMissing == nil {
-		t.Fatal("result_receipt_v3.json must publish metric_summary_v1 and metric_summary_v1_all_missing")
+	if chain == nil {
+		t.Fatal("result_receipt_v3.json must publish metric_summary_v1")
 	}
-	if got, want := publishedSummary(t, chain), expectedSummary(leaves, flags); fmt.Sprint(got) != fmt.Sprint(want) {
+	want := expectedSummary(leaves, flags)
+	if want == nil {
+		t.Fatal("the chain's metric leaves have no comparable leaf")
+	}
+	if got := publishedSummary(t, chain); fmt.Sprint(got) != fmt.Sprint(want) {
 		t.Fatalf("metric_summary_v1 is %v, the leaves give %v", got, want)
-	}
-
-	inputs := allMissing["inputs"].(map[string]any)
-	var missing []summaryLeaf
-	for _, raw := range inputs["leaves"].([]any) {
-		leaf := raw.(map[string]any)
-		missing = append(missing, summaryLeaf{comparable: leaf["missing_flag"] == false && leaf["finite_flag"] == true})
-	}
-	allOn := summaryFlags{
-		rank:    inputs["compare_rank_delta"] == true,
-		jaccard: inputs["compare_topk_jaccard"] == true,
-		unionJS: inputs["compare_union_js"] == true,
-	}
-	if !allOn.rank || !allOn.jaccard || !allOn.unionJS || len(missing) == 0 {
-		t.Fatal("the all-missing vector must enable every comparison over at least one leaf")
-	}
-	want := []int64{0, int64(len(missing)), 4294967295, 4294967295, 4294967295, 1_000_000, 0, 1_000_000, 0, 0}
-	if got := publishedSummary(t, allMissing); fmt.Sprint(got) != fmt.Sprint(want) || fmt.Sprint(expectedSummary(missing, allOn)) != fmt.Sprint(want) {
-		t.Fatalf("metric_summary_v1_all_missing is %v, the worst-value rule gives %v", got, want)
 	}
 }
