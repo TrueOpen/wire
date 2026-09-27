@@ -171,6 +171,103 @@ func TestIntegratedContractVectors(t *testing.T) {
 	}
 }
 
+// The aggregate proof is an untagged FRAME_V1 opening. Rebuild it from its
+// typed fields, then follow its hash through the result and evidence bundle.
+func TestMetricAggregateProofBindsResultAndManifest(t *testing.T) {
+	metricDoc := loadIntegratedFixture(t, "task", "result_metric_v3.json")
+	var proof map[string]any
+	for _, raw := range metricDoc["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["name"] == "metric_aggregate_proof_v1" {
+			proof = vector
+		}
+	}
+	if proof == nil {
+		t.Fatal("result_metric_v3.json has no aggregate proof opening")
+	}
+	fields := proof["fields"].([]any)
+	if len(fields) != 19 || integratedField(t, proof, "model_id")["type"] != "bytes" {
+		t.Fatal("aggregate proof must carry 19 typed frames and a raw model ID")
+	}
+	modelID, err := hex.DecodeString(integratedField(t, proof, "model_id")["hex"].(string))
+	if err != nil || len(modelID) != 32 {
+		t.Fatal("aggregate proof model ID is not raw Hash32")
+	}
+	parts := make([][]byte, 0, len(fields))
+	for _, raw := range fields {
+		encoded, err := encodePublishedField(raw.(map[string]any))
+		if err != nil {
+			t.Fatal(err)
+		}
+		parts = append(parts, encoded)
+	}
+	payload := encodeFrame(parts...)
+	computed := sha256.Sum256(payload)
+	if hex.EncodeToString(payload) != proof["preimage_hex"] ||
+		len(payload) != int(fieldInt(t, map[string]any{"value": proof["preimage_size_bytes"]})) ||
+		hex.EncodeToString(computed[:]) != proof["digest_hex"] {
+		t.Fatal("aggregate proof fields do not reproduce its published bytes and digest")
+	}
+	leaf := integratedVector(t, metricDoc, "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3")
+	leafFields := map[string]any{"fields": integratedField(t, leaf, "canonical_leaf_bytes")["fields"]}
+	for _, name := range []string{"chain_id", "task_id", "model_id", "profile_version", "judgment_function_version", "canonical_encoding_version", "evidence_schema_hash", "tokenizer_hash", "generation_params_digest", "required_top_k"} {
+		if fmt.Sprint(integratedField(t, proof, name)) != fmt.Sprint(integratedField(t, leafFields, name)) {
+			t.Fatalf("aggregate proof %s differs from the metric leaves", name)
+		}
+	}
+	if integratedField(t, proof, "compare_topk_jaccard")["bool"] != integratedField(t, leafFields, "topk_jaccard_fp_1e6")["present"] ||
+		integratedField(t, proof, "compare_union_js")["bool"] != integratedField(t, leafFields, "union_js_fp_1e6")["present"] ||
+		integratedField(t, proof, "compared_top_k")["value"] != integratedField(t, proof, "required_top_k")["value"] {
+		t.Fatal("aggregate proof compare flags or top-k disagree with its leaves")
+	}
+	root := metricDoc["vectors"].([]any)[len(metricDoc["vectors"].([]any))-1].(map[string]any)
+	receiptDoc := loadIntegratedFixture(t, "task", "result_receipt_v3.json")
+	result := integratedVector(t, receiptDoc, "TRUEOPEN_RESULT_V3")
+	summary := integratedVector(t, receiptDoc, "TRUEOPEN_METRIC_SUMMARY_V1")
+	if integratedField(t, proof, "metric_root")["hex"] != root["root_hex"] ||
+		integratedField(t, proof, "metric_root")["hex"] != integratedField(t, result, "metric_root")["hex"] ||
+		integratedField(t, proof, "metric_leaf_count")["value"] != integratedField(t, result, "metric_leaf_count")["value"] ||
+		integratedField(t, proof, "metric_summary_hash")["hex"] != summary["digest_hex"] ||
+		integratedField(t, proof, "generation_params_digest")["hex"] != integratedField(t, result, "generation_params_digest")["hex"] ||
+		proof["digest_hex"] != integratedField(t, result, "aggregate_proof_hash")["hex"] {
+		t.Fatal("aggregate proof does not bind the published metric root, summary and result")
+	}
+	var manifest map[string]any
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["name"] == "evidence_bundle_manifest_v1" {
+			manifest = vector
+		}
+	}
+	if manifest == nil {
+		t.Fatal("missing Verifier evidence manifest")
+	}
+	var manifestPayload map[string]any
+	if err := json.Unmarshal([]byte(manifest["payload_utf8"].(string)), &manifestPayload); err != nil {
+		t.Fatal(err)
+	}
+	artifacts := manifestPayload["artifacts"].([]any)
+	if len(artifacts) != 1 {
+		t.Fatal("Verifier manifest must carry exactly one aggregate proof artifact")
+	}
+	artifact := artifacts[0].(map[string]any)
+	if artifact["artifact_id"] != "aggregate_proof" || artifact["content_hash"] != proof["digest_hex"] ||
+		artifact["size_bytes"] != strconv.Itoa(len(payload)) ||
+		manifest["digest_hex"] != integratedField(t, result, "verifier_evidence_bundle_hash")["hex"] {
+		t.Fatal("Verifier manifest does not name the aggregate proof and result")
+	}
+	reveal := integratedVector(t, receiptDoc, "TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V2")
+	revealBytes, err := hex.DecodeString(reveal["payload_hex"].(string))
+	if err != nil {
+		t.Fatal(err)
+	}
+	revealParts := splitCanonicalFrame(t, revealBytes)
+	if len(revealParts) != 18 || hex.EncodeToString(revealParts[14]) != proof["digest_hex"] ||
+		hex.EncodeToString(revealParts[15]) != manifest["digest_hex"] {
+		t.Fatal("V2 reveal does not carry the published aggregate proof and manifest hashes")
+	}
+}
+
 func splitCanonicalFrame(t *testing.T, raw []byte) [][]byte {
 	t.Helper()
 	var parts [][]byte

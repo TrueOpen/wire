@@ -7,7 +7,7 @@ encoding rule changes, so the descriptor is unchanged.
 
 - `result_receipt_v3.json`: `result_v3_signing_digest` and
   `verifier_result_payload_v2` now name the Verifier evidence manifest this
-  release publishes (`canonical_json_v1.json`, 603 bytes, `5b56779a…`)
+  release publishes (`canonical_json_v1.json`, 603 bytes, `ee00bb5f…`)
   instead of the retired 556-byte one. `verify-fixtures` now checks that
   link, so the two cannot drift apart again.
 - `infer_receipt_v3.json`: adds `infer_receipt_v3_distinct_counts`, in which
@@ -40,6 +40,13 @@ encoding rule changes, so the descriptor is unchanged.
   `result_v3_signing_digest`, carry the real generation-parameter digest
   instead of a placeholder; the metric roots, the result signing digest and
   the V2 reveal payload are recomputed, and `verify-fixtures` checks the link.
+- `result_metric_v3.json` now publishes the 504-byte
+  `metric_aggregate_proof_v1` opening with raw32 `model_id`. Its SHA-256
+  (`fae247a0…`) is bound by the Verifier evidence manifest, ResultReceiptV3
+  and V2 reveal payload; `verify-fixtures` rebuilds the bytes from typed
+  fields and checks those links. The result fixture's model ID and profile
+  version differ from the TaskOrder example, so it is not an end-to-end
+  TaskOrder vector.
 
 ## v0.3.0-rc.1
 

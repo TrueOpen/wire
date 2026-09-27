@@ -10,25 +10,25 @@
   "vectors": [
     {
       "contract_section": "Public wire fixture testdata/v1/task/canonical_json_v1.json",
-      "digest_hex": "5b56779af1df4a720e944c89571cda6613e6749e4b4919eaa5fe6d526f3fe866",
+      "digest_hex": "ee00bb5fa7964356eb6012c6e05c5e24ea0d3c66c22c4e90fa31bf503107d9c2",
       "domain": "TRUEOPEN_EVIDENCE_BUNDLE_MANIFEST_V1",
       "framing": "H_V1",
       "mutations": [
         {
           "change": "flip the low bit of the payload's last byte",
-          "digest_hex": "93b7a67f63a03a367e17d43b7d8adda90f1973efb68ca7c3ae76bd30c9b05cd7",
+          "digest_hex": "8871745450fc2f36a0c3fb0d7e8e34785e647759c057a7e69e4db307cd4d64e5",
           "expect": "digest_changes",
           "name": "payload.last_byte_flipped"
         },
         {
           "change": "drop the payload's last byte, which also changes the framed length",
-          "digest_hex": "f4f8001317315c50993a0e558bbc7fb94bd4933e1c132c1bfd2faf8e6cd57dcd",
+          "digest_hex": "d87db0833850352adb7d7f922e810a87ae1517cde84ac518ab963daae2003678",
           "expect": "digest_changes",
           "name": "payload.truncated_by_one"
         },
         {
           "change": "flip the low bit of the payload's first byte",
-          "digest_hex": "53f8de54578d6f9d3e014c26da003a6ea037bd451124552cb920c2c12b1d167d",
+          "digest_hex": "ac9fef6cf8ddbf2b8b538b4a048b1dbc3bce437e671b4651c029d4409673d5a0",
           "expect": "digest_changes",
           "name": "payload.first_byte_flipped"
         }
@@ -36,7 +36,7 @@
       "name": "evidence_bundle_manifest_v1",
       "note": "The payload is the exact manifest bytes as transmitted. A relay must hash what it received and must never parse and re-serialise first. A Verifier manifest must carry exactly one artifact with artifact_id aggregate_proof.",
       "payload_bytes": 603,
-      "payload_utf8": "{\"artifacts\":[{\"artifact_id\":\"aggregate_proof\",\"content_hash\":\"6a54c75efb90d4fb60f16fa685633e634e3ce8a3c1d3ab68f5ff600eb1952db2\",\"size_bytes\":\"487\"}],\"chain_id\":\"trueopen-golden-1\",\"evidence_kind\":\"VERIFIER_VALUE_OPENING\",\"evidence_schema_hash\":\"7777777777777777777777777777777777777777777777777777777777777777\",\"manifest_version\":1,\"producer_kind\":\"VERIFIER\",\"producer_operator\":\"trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz\",\"task_hash\":\"2222222222222222222222222222222222222222222222222222222222222222\",\"task_id\":\"1111111111111111111111111111111111111111111111111111111111111111\",\"verify_round\":1}",
+      "payload_utf8": "{\"artifacts\":[{\"artifact_id\":\"aggregate_proof\",\"content_hash\":\"fae247a0c474d717b1664551d73164995218c74f5a6e1490b38b290fbab6bb4c\",\"size_bytes\":\"504\"}],\"chain_id\":\"trueopen-golden-1\",\"evidence_kind\":\"VERIFIER_VALUE_OPENING\",\"evidence_schema_hash\":\"7777777777777777777777777777777777777777777777777777777777777777\",\"manifest_version\":1,\"producer_kind\":\"VERIFIER\",\"producer_operator\":\"trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz\",\"task_hash\":\"2222222222222222222222222222222222222222222222222222222222222222\",\"task_id\":\"1111111111111111111111111111111111111111111111111111111111111111\",\"verify_round\":1}",
       "producer": "EvidenceBundleHash"
     },
     {

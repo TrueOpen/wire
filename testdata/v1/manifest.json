@@ -124,7 +124,7 @@
       "origin": "wire",
       "contract_section": "Canonical JSON evidence and generation-parameter digests",
       "bytes": 11285,
-      "sha256": "1fa026e01ffc130277514de8fd1d8be84f12538838e9f456cb6bef3f0eeafaae"
+      "sha256": "cff007185d5d78facc67aedbd734f7679fe5ee613e9dc414d8efd13811f7a4ca"
     },
     {
       "path": "task/generation_params_v1.json",
@@ -171,16 +171,16 @@
       {
         "path": "task/result_metric_v3.json",
       "origin": "wire",
-      "contract_section": "Integrated three-position metric root",
-      "bytes": 18372,
-      "sha256": "9b1d1c546fa888a9e25cbcf9a7b1c4e5b6b3c46273a91b6569111002ac875057"
+      "contract_section": "Integrated three-position metric root and aggregate proof opening",
+      "bytes": 22953,
+      "sha256": "dc0ce6e7c87c4bca863f41b0a6ab02b670c40f6f82bada90c589071f34e11f2b"
     },
     {
         "path": "task/result_receipt_v3.json",
         "origin": "wire",
         "contract_section": "Result commitment V3, receipt V3 and reveal payload V2",
         "bytes": 12897,
-        "sha256": "62189647af3df5a00a32de80f9dbe965c14dbdd4b022e4114abcddd3cd026a45"
+        "sha256": "7b8b8abf5dc9475b37d566079c63e6875e6acfcc29a83ffd51684ade1814d29b"
     },
     {
       "path": "task/round_settlement_v1.json",
