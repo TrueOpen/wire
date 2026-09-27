@@ -232,27 +232,48 @@ func validCID(cid string) error {
 		if base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(raw) != strings.ToUpper(body) {
 			return fmt.Errorf("CIDv1 base32 is not canonical")
 		}
-		version, n := binary.Uvarint(raw)
-		if n <= 0 || version != 1 {
-			return fmt.Errorf("CID version is not 1")
+		version, n, err := minimalUvarint(raw)
+		if err != nil || version != 1 {
+			return fmt.Errorf("CID version: not a minimal varint 1")
 		}
 		raw = raw[n:]
-		if _, n = binary.Uvarint(raw); n <= 0 {
-			return fmt.Errorf("CIDv1 codec varint is malformed")
+		if _, n, err = minimalUvarint(raw); err != nil {
+			return fmt.Errorf("CIDv1 codec: %w", err)
 		}
 		raw = raw[n:]
-		if _, n = binary.Uvarint(raw); n <= 0 {
-			return fmt.Errorf("multihash code varint is malformed")
+		if _, n, err = minimalUvarint(raw); err != nil {
+			return fmt.Errorf("multihash code: %w", err)
 		}
 		raw = raw[n:]
-		length, n := binary.Uvarint(raw)
-		if n <= 0 || length == 0 || uint64(len(raw)-n) != length {
+		length, n, err := minimalUvarint(raw)
+		if err != nil {
+			return fmt.Errorf("multihash length: %w", err)
+		}
+		if length == 0 || uint64(len(raw)-n) != length {
 			return fmt.Errorf("multihash length does not match its digest")
 		}
 		return nil
 	default:
 		return fmt.Errorf("CID must be CIDv0 (Qm...) or CIDv1 base32 (b...)")
 	}
+}
+
+// minimalUvarint decodes a multiformats unsigned varint, which must be
+// minimally encoded and at most 9 bytes. binary.Uvarint alone accepts padded
+// forms such as 0x81 0x00 for 1, which would let two byte strings name the
+// same CID.
+func minimalUvarint(raw []byte) (uint64, int, error) {
+	value, n := binary.Uvarint(raw)
+	if n <= 0 {
+		return 0, 0, fmt.Errorf("malformed varint")
+	}
+	if n > 9 {
+		return 0, 0, fmt.Errorf("varint longer than 9 bytes")
+	}
+	if n > 1 && raw[n-1] == 0 {
+		return 0, 0, fmt.Errorf("varint is not minimally encoded")
+	}
+	return value, n, nil
 }
 
 type manifestURICase struct {

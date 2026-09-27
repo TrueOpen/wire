@@ -7,7 +7,7 @@
     "Scheme: exactly the lowercase prefixes https:// or ipfs://. No fragment anywhere; https takes no userinfo; ipfs takes no query.",
     "https host: a DNS name of at least two lowercase labels (letters, digits, inner hyphens; 1-63 bytes each; no trailing dot; top-level label not all digits; internationalized names only in their xn-- ASCII form), a dotted-decimal IPv4 literal without leading zeros, or a bracketed IPv6 literal without a zone and in canonical lowercase compressed form. Port, when present, is decimal 1-65535 without leading zeros.",
     "https path and query: RFC 3986 pchar plus / (and ? inside the query); percent-encoding must be %XX with uppercase hex. Characters outside that set, including space and the other unsafe characters, are rejected even though the whole string is printable ASCII.",
-    "ipfs CID: CIDv0 is Qm followed by base58btc, 46 characters, decoding to a 34-byte sha2-256 multihash; CIDv1 is the multibase prefix b followed by lowercase unpadded base32 that decodes to version 1, a codec varint and a multihash whose declared length matches its digest. Other multibase prefixes and uppercase base32 are rejected. An optional /path follows the CID.",
+    "ipfs CID: CIDv0 is Qm followed by base58btc, 46 characters, decoding to a 34-byte sha2-256 multihash; CIDv1 is the multibase prefix b followed by lowercase unpadded base32 that decodes to version 1, a codec varint and a multihash whose declared length matches its digest. Every varint in a CIDv1 (version, content codec, multihash function code, digest length) must be minimally encoded and at most 9 bytes, as the multiformats unsigned-varint rule requires; a padded form such as 0x81 0x00 for 1 is rejected. Other multibase prefixes and uppercase base32 are rejected. An optional /path follows the CID.",
     "Syntax acceptance says nothing about reachability or safety: downloaders still refuse loopback, private, link-local and metadata addresses at connection time, so an accepted IP literal can still be unfetchable."
   ],
   "accepted": [
@@ -208,6 +208,22 @@
     {
       "uri": "ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55f",
       "reason": "CIDv1 whose multihash length does not match its digest"
+    },
+    {
+      "uri": "ipfs://bqeahaeraypchgpwiv76qnt46t72q77dlzuxmqwtboaaexnyjm2oddxuuhena",
+      "reason": "CID version encoded as a non-minimal varint"
+    },
+    {
+      "uri": "ipfs://bahyaaeraypchgpwiv76qnt46t72q77dlzuxmqwtboaaexnyjm2oddxuuhena",
+      "reason": "content codec encoded as a non-minimal varint"
+    },
+    {
+      "uri": "ipfs://bafyjeabaypchgpwiv76qnt46t72q77dlzuxmqwtboaaexnyjm2oddxuuhena",
+      "reason": "multihash function code encoded as a non-minimal varint"
+    },
+    {
+      "uri": "ipfs://bafybfiaaypchgpwiv76qnt46t72q77dlzuxmqwtboaaexnyjm2oddxuuhena",
+      "reason": "multihash digest length encoded as a non-minimal varint"
     },
     {
       "uri": "ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi?x=1",

@@ -55,8 +55,8 @@
       "path": "hub/manifest_uri_v1.json",
       "origin": "wire",
       "contract_section": "Public manifest_uri syntax conformance forms",
-      "bytes": 11634,
-      "sha256": "30b8fadcabbbcbb937ce740d02ca05911e14f34acc83e51b065e42d5c631ce91"
+      "bytes": 12538,
+      "sha256": "1112c546447762c93c09a7dcd198c2f39f74f6125d1cc1f969ee302774ad0208"
     },
     {
       "path": "hub/model_id_v1.json",

@@ -33,6 +33,9 @@ https:// host [":" port] [path] ["?" query]     no userinfo, no fragment
 ipfs://  CID [path]                             CIDv0 base58btc or CIDv1 lowercase base32
 ```
 
+Every varint inside a CIDv1 (version, content codec, multihash function code,
+digest length) must be minimally encoded and at most 9 bytes.
+
 `testdata/v1/hub/manifest_uri_v1.json` is the reference: every accepted and
 rejected form, and the strict reading taken wherever the rule leaves room.
 
