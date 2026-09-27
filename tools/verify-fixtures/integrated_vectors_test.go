@@ -210,6 +210,9 @@ func TestMetricAggregateProofBindsResultAndManifest(t *testing.T) {
 	}
 	leaf := integratedVector(t, metricDoc, "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3")
 	leafFields := map[string]any{"fields": integratedField(t, leaf, "canonical_leaf_bytes")["fields"]}
+	if integratedField(t, proof, "proof_version")["utf8"] != integratedField(t, leafFields, "metric_aggregate_proof_version")["utf8"] {
+		t.Fatal("aggregate proof version differs from the metric leaves")
+	}
 	for _, name := range []string{"chain_id", "task_id", "model_id", "profile_version", "judgment_function_version", "canonical_encoding_version", "evidence_schema_hash", "tokenizer_hash", "generation_params_digest", "required_top_k"} {
 		if fmt.Sprint(integratedField(t, proof, name)) != fmt.Sprint(integratedField(t, leafFields, name)) {
 			t.Fatalf("aggregate proof %s differs from the metric leaves", name)
