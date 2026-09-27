@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- `task/v1/infer_receipt.proto`: the byte-exact expansion of
+  `TRUEOPEN_INFER_EVIDENCE_COMMITMENTS_V1` in the comment wrote the list
+  elements at the top level and gave the domain as 35 bytes. It now matches
+  the published vectors and the encoding every implementation uses: a leading
+  `uint32_be(count)` plus one repeated field that carries its own count and the
+  length-framed elements; the domain is 38 bytes. Comment only; no encoding or
+  vector changes.
+
 ## v0.3.0-rc.2
 
 Second pre-release of v0.3.0. Fixture-only corrections to the v0.3.0 vectors,
