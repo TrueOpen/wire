@@ -1672,20 +1672,6 @@
           "note": "Discovery RPCs take only page, so the selector binds chain_id and the RPC digest without a placeholder input."
         },
         {
-          "key": "/hub.v1.Query/PendingEarnings",
-          "fields": [
-            "address"
-          ]
-        },
-        {
-          "key": "/hub.v1.Query/RewardEligibleTasks",
-          "fields": [
-            "epoch",
-            "reward_bucket",
-            "order_value_bucket"
-          ]
-        },
-        {
           "key": "/hub.v1.Query/ServiceUnbondings",
           "fields": [
             "operator_address",
@@ -1710,6 +1696,12 @@
           "key": "/task.v1.Query/SessionsByOwner",
           "fields": [
             "user_address"
+          ]
+        },
+        {
+          "key": "/task.v1.Query/TaskGasReimbursements",
+          "fields": [
+            "task_id"
           ]
         }
       ],
