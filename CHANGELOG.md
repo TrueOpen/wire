@@ -9,6 +9,16 @@
   `uint32_be(count)` plus one repeated field that carries its own count and the
   length-framed elements; the domain is 38 bytes. Comment only; no encoding or
   vector changes.
+- `result_metric_v3.json`: publishes `metric_aggregate_proof_v1`, the v0.3.0
+  aggregate proof (`PREFILL_METRIC_AGGREGATE_PROOF_V1`, 504 bytes) of the same
+  Verifier result, with `model_id` framed as its raw 32 bytes, like every other
+  v0.3.0 encoding of a model ID. Its digest replaces the opaque
+  `aggregate_proof_hash` in `result_v3_signing_digest` and the V2 reveal
+  payload and the `aggregate_proof` content hash in the Verifier evidence
+  manifest (`evidence_bundle_manifest_v1`, still 603 bytes); the manifest's
+  bundle hash, the result signing digest and the payload digest are
+  recomputed. `verify-fixtures` rebuilds the proof from the published chain and
+  checks every link.
 
 ## v0.3.0-rc.2
 
