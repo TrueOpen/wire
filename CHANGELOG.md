@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+Intended as `v0.3.2`. **Fixture-only correction, digest-changing,
+pre-genesis.** No proto change.
+
+- `testdata/v1/shared/params_v1.json`: `hub_params_v2` omitted
+  `SupportParamsV1.max_model_support_deactivate_items_per_block` (field 14),
+  which `v0.3.0` added to the proto, so `v0.3.0` and `v0.3.1` published a
+  `TRUEOPEN_HUB_PARAMS_V2` digest computed over a message without that field.
+  The field is added at its position with value 32; digest `62cc263e…` →
+  `56c5d2e3…`, with the replay and tamper rows recomputed. Under the "Before
+  genesis" policy in `VERSIONING.md`, the `hub_params_v2` digest published by
+  `v0.3.0` and `v0.3.1` is superseded and implementations move to `v0.3.2`.
+- `tools/verify-params-fixture` (new CI step): every field of every params
+  message the parameter vectors encode must appear in the fixture, by name and
+  in field-number order, so a params field added to the proto without a
+  fixture entry fails CI.
+
 ## v0.3.1
 
 **Digest-changing, pre-genesis.** The V3 model projection
