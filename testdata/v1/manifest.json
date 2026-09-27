@@ -124,7 +124,7 @@
       "origin": "wire",
       "contract_section": "Canonical JSON evidence and generation-parameter digests",
       "bytes": 11285,
-      "sha256": "cff007185d5d78facc67aedbd734f7679fe5ee613e9dc414d8efd13811f7a4ca"
+      "sha256": "26c521f2557492af8407d80b4fea3597343bbd6bf4976b1e9011631e4ee59fd1"
     },
     {
       "path": "task/generation_params_v1.json",
@@ -180,7 +180,7 @@
         "origin": "wire",
         "contract_section": "Result commitment V3, receipt V3 and reveal payload V2",
         "bytes": 12897,
-        "sha256": "7b8b8abf5dc9475b37d566079c63e6875e6acfcc29a83ffd51684ade1814d29b"
+        "sha256": "ec59634eea7cca93aa1b68a1a73343bb4a27c48c31534f2d9bb9c79e8d8b641f"
     },
     {
       "path": "task/round_settlement_v1.json",

@@ -841,3 +841,47 @@ func TestAggregateProofBindsTheVerifierChain(t *testing.T) {
 		t.Fatal("the Verifier manifest's aggregate_proof artifact is not the published proof")
 	}
 }
+
+// The Verifier manifest belongs to the Verifier result the receipt signs: its
+// identity fields are the chain's, and its producer is the Verifier that signs
+// the receipt, not any other party in the fixtures.
+func TestVerifierManifestIdentityMatchesTheResult(t *testing.T) {
+	var manifest struct {
+		ChainID            string `json:"chain_id"`
+		TaskID             string `json:"task_id"`
+		TaskHash           string `json:"task_hash"`
+		EvidenceKind       string `json:"evidence_kind"`
+		EvidenceSchemaHash string `json:"evidence_schema_hash"`
+		ProducerKind       string `json:"producer_kind"`
+		ProducerOperator   string `json:"producer_operator"`
+		VerifyRound        int64  `json:"verify_round"`
+	}
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		if vector := raw.(map[string]any); vector["name"] == "evidence_bundle_manifest_v1" {
+			if err := json.Unmarshal([]byte(vector["payload_utf8"].(string)), &manifest); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	result := integratedVector(t, loadIntegratedFixture(t, "task", "result_receipt_v3.json"), "TRUEOPEN_RESULT_V3")
+	var leaf map[string]any
+	for _, raw := range loadIntegratedFixture(t, "task", "result_metric_v3.json")["vectors"].([]any) {
+		if vector := raw.(map[string]any); vector["domain"] == "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3" {
+			leaf = map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]}
+			break
+		}
+	}
+	hrp, operator, err := decodeBech32(manifest.ProducerOperator)
+	if err != nil || hrp != "trueopen" {
+		t.Fatalf("producer_operator %q is not a trueopen address: %v", manifest.ProducerOperator, err)
+	}
+	if manifest.ProducerKind != "VERIFIER" || manifest.EvidenceKind != "VERIFIER_VALUE_OPENING" ||
+		hex.EncodeToString(operator) != integratedField(t, result, "verifier_operator_address")["hex"] ||
+		manifest.ChainID != integratedField(t, result, "chain_id")["utf8"] ||
+		manifest.TaskID != integratedField(t, result, "task_id")["hex"] ||
+		manifest.TaskHash != integratedField(t, leaf, "task_hash")["hex"] ||
+		manifest.EvidenceSchemaHash != integratedField(t, leaf, "evidence_schema_hash")["hex"] ||
+		manifest.VerifyRound != fieldInt(t, integratedField(t, result, "verify_round")) {
+		t.Fatal("the Verifier manifest's identity differs from the Verifier result it is bound to")
+	}
+}
