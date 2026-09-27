@@ -60,6 +60,14 @@ jobs:
         working-directory: tools
         run: go run ./verify-import-boundaries -image ../build/image.json
 
+      # A params field added to the proto but not to the fixture leaves the
+      # published parameter commitment computed over a message that no longer
+      # exists. Every field of every params message the vectors encode must be
+      # present, by name and in field-number order.
+      - name: Verify parameter fixtures cover every params field
+        working-directory: tools
+        run: go run ./verify-params-fixture -image ../build/image.json -fixture ../testdata/v1/shared/params_v1.json
+
       - name: Verify language-neutral fixtures
         working-directory: tools
         run: go run ./verify-fixtures -manifest ../testdata/v1/manifest.json
