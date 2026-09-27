@@ -159,6 +159,8 @@ message ProfileSourceRefV1 {
 // ParserRefV1 selects one governance-approved parser specification.
 // The zero value is the sole representation of an absent parser.
 message ParserRefV1 {
+  option (gogoproto.equal) = true;
+
   string name = 1;
   uint32 version = 2;
 }

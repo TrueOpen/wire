@@ -1632,7 +1632,7 @@
       "contract_section": "Public wire domain TRUEOPEN_QUERY_RPC_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "rpc_method is the ASCII fully-qualified /package.Service/Method literal. The closed set of eleven paginated RPCs is QueryPageSelectorSchemaV1's key set; QueryRPCDigestV1 refuses any other method."
+      "note": "rpc_method is the ASCII fully-qualified /package.Service/Method literal. The closed set of ten paginated RPCs is QueryPageSelectorSchemaV1's key set; QueryRPCDigestV1 refuses any other method."
     },
     {
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
@@ -1672,20 +1672,6 @@
           "note": "Discovery RPCs take only page, so the selector binds chain_id and the RPC digest without a placeholder input."
         },
         {
-          "key": "/hub.v1.Query/PendingEarnings",
-          "fields": [
-            "address"
-          ]
-        },
-        {
-          "key": "/hub.v1.Query/RewardEligibleTasks",
-          "fields": [
-            "epoch",
-            "reward_bucket",
-            "order_value_bucket"
-          ]
-        },
-        {
           "key": "/hub.v1.Query/ServiceUnbondings",
           "fields": [
             "operator_address",
@@ -1711,6 +1697,12 @@
           "fields": [
             "user_address"
           ]
+        },
+        {
+          "key": "/task.v1.Query/TaskGasReimbursements",
+          "fields": [
+            "task_id"
+          ]
         }
       ],
       "producer": "QueryPageDigestsV1",
@@ -1721,7 +1713,7 @@
       "contract_section": "Public wire domain TRUEOPEN_QUERY_SELECTOR_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The eleven selector variants match the paginated request descriptors, QueryPageSelectorSchemaV1, and the published golden vectors. Each variant binds its RPC-specific selector fields in the listed order."
+      "note": "The ten selector variants match the paginated request descriptors, QueryPageSelectorSchemaV1, and the published golden vectors. Each variant binds its RPC-specific selector fields in the listed order."
     },
     {
       "domain": "TRUEOPEN_REPLACE_BUILDER_SET_V1",
@@ -2897,7 +2889,8 @@
         "FieldFrameV1(member: candidate_pool_snapshot_id, slot, slot_version, operator_address)",
         "duty",
         "service_authorization_nonce",
-        "expiry_height"
+        "expiry_height",
+        "recipient_pubkey"
       ],
       "producer": "Cortex current service key; carried inside a Builder Open Verify proposal",
       "consumers": "Builder, Task Keeper (verifier legal set, proposal digest input)",
@@ -3154,7 +3147,8 @@
         "FieldFrameV1(member: candidate_pool_snapshot_id, slot, slot_version, operator_address)",
         "duty",
         "service_authorization_nonce",
-        "expiry_height"
+        "expiry_height",
+        "recipient_pubkey"
       ],
       "producer": "Cortex current service key; carried inside a Builder Worker proposal",
       "consumers": "Builder, Task Keeper (stage union OR, proposal digest input)",
@@ -3164,7 +3158,7 @@
       "contract_section": "Public wire domain TRUEOPEN_WORKER_HANDRAISE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The contract pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (the contract's enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy."
+      "note": "The contract pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (the contract's enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy. recipient_pubkey is a reserved bytes field: Phase 0 requires it empty, but its length-prefixed frame - eight zero bytes - is still part of the preimage."
     },
     {
       "domain": "TRUEOPEN_WORKER_PROPOSAL_V1",
