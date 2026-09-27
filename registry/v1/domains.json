@@ -2897,7 +2897,8 @@
         "FieldFrameV1(member: candidate_pool_snapshot_id, slot, slot_version, operator_address)",
         "duty",
         "service_authorization_nonce",
-        "expiry_height"
+        "expiry_height",
+        "recipient_pubkey"
       ],
       "producer": "Cortex current service key; carried inside a Builder Open Verify proposal",
       "consumers": "Builder, Task Keeper (verifier legal set, proposal digest input)",
@@ -3154,7 +3155,8 @@
         "FieldFrameV1(member: candidate_pool_snapshot_id, slot, slot_version, operator_address)",
         "duty",
         "service_authorization_nonce",
-        "expiry_height"
+        "expiry_height",
+        "recipient_pubkey"
       ],
       "producer": "Cortex current service key; carried inside a Builder Worker proposal",
       "consumers": "Builder, Task Keeper (stage union OR, proposal digest input)",
@@ -3164,7 +3166,7 @@
       "contract_section": "Public wire domain TRUEOPEN_WORKER_HANDRAISE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The contract pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (the contract's enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy."
+      "note": "The contract pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (the contract's enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy. recipient_pubkey is a reserved bytes field: Phase 0 requires it empty, but its length-prefixed frame - eight zero bytes - is still part of the preimage."
     },
     {
       "domain": "TRUEOPEN_WORKER_PROPOSAL_V1",
