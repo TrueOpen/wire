@@ -246,7 +246,10 @@ jobs:
         run: |
           mkdir -p build
           version="${GITHUB_REF_NAME}"
-          newest="$(git tag --list 'v*' --sort=-v:refname | grep -v "^${version}$" | head -n1 || true)"
+          # versionsort.suffix=- orders a pre-release before its release
+          # (v0.3.0-rc.2 < v0.3.0); git's default puts it after, which picks a
+          # release candidate as the baseline of the next release.
+          newest="$(git -c versionsort.suffix=- tag --list 'v*' --sort=-v:refname | grep -v "^${version}$" | head -n1 || true)"
           if [ -f release/reviewed-breaking.json ]; then
             previous="$(go run ./tools/reviewed-breaking/main.go -baseline)"
             # The declaration names its own baseline so CI cannot check against a

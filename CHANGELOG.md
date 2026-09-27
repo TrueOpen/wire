@@ -40,6 +40,10 @@ Revised in place under the "Before genesis" policy in `VERSIONING.md`:
 - `release/reviewed-breaking.json` is retired: it authorized the `v0.3.0`
   break against `v0.3.0-rc.2`, and this release has no `buf breaking` findings.
 
+- The release job picks the previous release as its compatibility baseline by
+  semantic version, ordering a pre-release before its release; it had picked
+  `v0.3.0-rc.2` over `v0.3.0`.
+
 ## v0.3.0
 
 - `hub/v1/daily_support.proto`, `hub/v1/params.proto`, `hub/v1/genesis.proto`:
