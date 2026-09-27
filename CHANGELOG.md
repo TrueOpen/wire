@@ -31,6 +31,15 @@
   MetricSummaryV1 rules (half-up mean, nearest-rank percentiles saturating at
   the uint32 maximum, rank-delta rate over comparable leaves, compared counts);
   the published summary already matched, so no digest changes.
+- `result_receipt_v3.json`: two standalone summaries pin the case with no
+  comparable leaf, every comparison enabled. `metric_summary_v1_zero_leaves`
+  (no leaves, a legal zero-token output judged PASS with count 0): every
+  numeric field 0, both ratios present(0), all counts 0.
+  `metric_summary_v1_worker_values_missing` (three leaves whose Worker values
+  are all missing): abs logprob diff mean/p95/p99 4294967295, rank-delta rate
+  1000000, top-K Jaccard present(0), union JS present(1000000), compared counts
+  0, so it never reads as agreement. A Verifier-side miss produces no summary
+  (a Verifier execution failure), so it has no vector.
 
 ## v0.3.0-rc.2
 

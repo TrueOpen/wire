@@ -900,8 +900,11 @@ type summaryFlags struct{ rank, jaccard, unionJS bool }
 // comparable leaves; the mean rounds half up, percentiles take the
 // nearest-rank element, and the abs logprob diff statistics saturate at the
 // uint32 maximum. It returns the ten fields in schema order, with -1 standing
-// for an absent optional, or nil when no leaf is comparable: that case is not
-// pinned here.
+// for an absent optional. With no comparable leaf the caller has already
+// established the cause: no leaves at all is a zero-token output (zeros,
+// enabled ratios present(0)); leaves whose Worker values are all missing take
+// the worst value for each enabled comparison. A Verifier-side miss produces no
+// summary, so it never reaches this function.
 func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
 	const u32Max = 4294967295
 	roundHalfUp := func(a, b uint64) int64 { return int64((2*a + b) / (2 * b)) }
@@ -933,12 +936,28 @@ func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
 		}
 	}
 	n := uint64(len(diffs))
-	if n == 0 {
-		return nil
-	}
 	out := make([]int64, 10)
 	out[0], out[1] = int64(n), int64(uint64(len(leaves))-n)
 	out[6], out[7] = -1, -1
+	if n == 0 {
+		worst := len(leaves) > 0
+		if worst {
+			out[2], out[3], out[4] = u32Max, u32Max, u32Max
+		}
+		if flags.rank && worst {
+			out[5] = 1_000_000
+		}
+		if flags.jaccard {
+			out[6] = 0
+		}
+		if flags.unionJS {
+			out[7] = 0
+			if worst {
+				out[7] = 1_000_000
+			}
+		}
+		return out
+	}
 	out[2], out[3], out[4] = saturate(roundHalfUp(diffSum, n)), saturate(nearestRank(95, diffs)), saturate(nearestRank(99, diffs))
 	if flags.rank {
 		out[5], out[9] = roundHalfUp(1_000_000*nonzero, n), int64(n)
@@ -1016,11 +1035,43 @@ func TestMetricSummaryFollowsTheLeaves(t *testing.T) {
 	if chain == nil {
 		t.Fatal("result_receipt_v3.json must publish metric_summary_v1")
 	}
-	want := expectedSummary(leaves, flags)
-	if want == nil {
-		t.Fatal("the chain's metric leaves have no comparable leaf")
-	}
-	if got := publishedSummary(t, chain); fmt.Sprint(got) != fmt.Sprint(want) {
+	if got, want := publishedSummary(t, chain), expectedSummary(leaves, flags); fmt.Sprint(got) != fmt.Sprint(want) {
 		t.Fatalf("metric_summary_v1 is %v, the leaves give %v", got, want)
+	}
+
+	// The two summaries with no comparable leaf, whose values are fixed by the
+	// cause rather than derived from data.
+	for name, want := range map[string][]int64{
+		"metric_summary_v1_zero_leaves":           {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		"metric_summary_v1_worker_values_missing": {0, 3, 4294967295, 4294967295, 4294967295, 1_000_000, 0, 1_000_000, 0, 0},
+	} {
+		var vector map[string]any
+		for _, raw := range receiptDoc["vectors"].([]any) {
+			if candidate := raw.(map[string]any); candidate["name"] == name {
+				vector = candidate
+			}
+		}
+		if vector == nil {
+			t.Fatalf("result_receipt_v3.json must publish %s", name)
+		}
+		inputs := vector["inputs"].(map[string]any)
+		on := summaryFlags{
+			rank:    inputs["compare_rank_delta"] == true,
+			jaccard: inputs["compare_topk_jaccard"] == true,
+			unionJS: inputs["compare_union_js"] == true,
+		}
+		if !on.rank || !on.jaccard || !on.unionJS || inputs["compare_logprob_diff"] != true {
+			t.Fatalf("%s must enable every comparison", name)
+		}
+		var inputLeaves []summaryLeaf
+		for _, raw := range inputs["leaves"].([]any) {
+			if leaf := raw.(map[string]any); leaf["worker_value"] != "missing" || leaf["verifier_value"] != "finite" {
+				t.Fatalf("%s may only hold leaves whose Worker value is missing", name)
+			}
+			inputLeaves = append(inputLeaves, summaryLeaf{})
+		}
+		if got := publishedSummary(t, vector); fmt.Sprint(got) != fmt.Sprint(want) || fmt.Sprint(expectedSummary(inputLeaves, on)) != fmt.Sprint(want) {
+			t.Fatalf("%s is %v, the rule gives %v", name, got, want)
+		}
 	}
 }
