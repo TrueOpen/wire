@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- `hub/v1/daily_support.proto`, `hub/v1/params.proto`, `hub/v1/genesis.proto`:
+  add `ModelSupportDeactivateCursorState`, a bounded one-way sweep that
+  deactivates every `ModelSupportState` row for a model after it transitions
+  to FROZEN or DELISTED (`GenesisState` field 105), and its per-block budget
+  `SupportParamsV1.max_model_support_deactivate_items_per_block` (field 14),
+  independent from the existing recheck-cursor budget. Purely additive.
 - `task/v1/infer_receipt.proto`: the byte-exact expansion of
   `TRUEOPEN_INFER_EVIDENCE_COMMITMENTS_V1` in the comment wrote the list
   elements at the top level and gave the domain as 35 bytes. It now matches
