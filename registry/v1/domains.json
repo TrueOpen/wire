@@ -1632,7 +1632,7 @@
       "contract_section": "Public wire domain TRUEOPEN_QUERY_RPC_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "rpc_method is the ASCII fully-qualified /package.Service/Method literal. The closed set of eleven paginated RPCs is QueryPageSelectorSchemaV1's key set; QueryRPCDigestV1 refuses any other method."
+      "note": "rpc_method is the ASCII fully-qualified /package.Service/Method literal. The closed set of ten paginated RPCs is QueryPageSelectorSchemaV1's key set; QueryRPCDigestV1 refuses any other method."
     },
     {
       "domain": "TRUEOPEN_QUERY_SELECTOR_V1",
@@ -1713,7 +1713,7 @@
       "contract_section": "Public wire domain TRUEOPEN_QUERY_SELECTOR_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The eleven selector variants match the paginated request descriptors, QueryPageSelectorSchemaV1, and the published golden vectors. Each variant binds its RPC-specific selector fields in the listed order."
+      "note": "The ten selector variants match the paginated request descriptors, QueryPageSelectorSchemaV1, and the published golden vectors. Each variant binds its RPC-specific selector fields in the listed order."
     },
     {
       "domain": "TRUEOPEN_REPLACE_BUILDER_SET_V1",
