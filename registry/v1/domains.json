@@ -1176,14 +1176,14 @@
       "domain": "TRUEOPEN_MODEL_CHAIN_PROJECTION_V3",
       "framing": "H_V1",
       "fields": [
-        "payload: canonical_json_v1(ModelProfileProjection including raw Hash32 model_id, source, tool_call_parser, reasoning_parser)"
+        "payload: canonical_json_v1(ModelProfileProjection including raw Hash32 model_id, source, tool_call_parser, reasoning_parser, manifest_uri)"
       ],
       "producer": "The registrant SDK; recomputed by the Keeper",
       "consumers": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3 and the Hub registry",
       "store": "not persisted; ProfileState stores the projection field by field and only the registration digest is kept as a hash",
       "query": "-",
       "contract_section": "Public wire domain TRUEOPEN_MODEL_CHAIN_PROJECTION_V3",
-      "note": "canonical_json_v1 is not protobuf ProtoJSON: object keys ascend by UTF-8 bytes, integers have no float, exponent or leading zero, and bytes32 uses lowercase 0x hex. PricingProfile.initial_output_price and min_order_value remain denomless u64 in the published projection vector.",
+      "note": "canonical_json_v1 is not protobuf ProtoJSON: object keys ascend by UTF-8 bytes, integers have no float, exponent or leading zero, and bytes32 uses lowercase 0x hex. PricingProfile.initial_output_price and min_order_value remain denomless u64 in the published projection vector. manifest_uri is part of the projection (so it changes this digest and the registration digest) but not of the manifest or manifest_hash; its syntax is pinned by testdata/v1/hub/manifest_uri_v1.json and the Keeper checks only syntax and length, never fetching it. Revised in place in v0.3.1 under the pre-genesis policy in VERSIONING.md: digests computed under v0.3.0 are superseded.",
       "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_MODEL_CHAIN_PROJECTION_V2",
@@ -1242,7 +1242,7 @@
       "store": "ProfileState.registration_digest and RegistrationReceipt, which is keyed by the digest itself",
       "query": "QueryProfile",
       "contract_section": "Public wire domain TRUEOPEN_MODEL_REGISTRATION_DIGEST_V3",
-      "note": "The five JSON keys already ascend by UTF-8 bytes. chain_projection_hash and manifest_hash appear as 0x-prefixed 64 hex strings. proposer_address is simultaneously the Cosmos Msg signer, the registrant and the fee payer, so no second detached signature over this digest is accepted. RegistrationReceipt is a pure replay nullifier rebuilt from ProfileState and is not exported in Genesis.",
+      "note": "The five JSON keys already ascend by UTF-8 bytes. chain_projection_hash and manifest_hash appear as 0x-prefixed 64 hex strings. proposer_address is simultaneously the Cosmos Msg signer, the registrant and the fee payer, so no second detached signature over this digest is accepted. RegistrationReceipt is a pure replay nullifier rebuilt from ProfileState and is not exported in Genesis. Revised in place in v0.3.1 under the pre-genesis policy in VERSIONING.md, because chain_projection_hash now covers manifest_uri: digests computed under v0.3.0 are superseded.",
       "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_MODEL_REGISTRATION_DIGEST_V2",

@@ -190,6 +190,20 @@ func splitCanonicalFrame(t *testing.T, raw []byte) [][]byte {
 	return parts
 }
 
+// canonicalJSONBytes re-encodes a decoded fixture object as canonical JSON.
+// encoding/json already sorts object keys and keeps json.Number verbatim, but
+// json.Marshal also HTML-escapes <, > and &, which canonical JSON forbids, so
+// the encoder runs with escaping off and its trailing newline is dropped.
+func canonicalJSONBytes(value any) ([]byte, error) {
+	var buffer bytes.Buffer
+	encoder := json.NewEncoder(&buffer)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(value); err != nil {
+		return nil, err
+	}
+	return bytes.TrimSuffix(buffer.Bytes(), []byte("\n")), nil
+}
+
 func TestModelProjectionV3DigestChain(t *testing.T) {
 	identity := loadIntegratedFixture(t, "hub", "model_id_v1.json")
 	modelID := integratedVector(t, identity, "TRUEOPEN_MODEL_ID_V1")["digest_hex"].(string)
@@ -198,7 +212,7 @@ func TestModelProjectionV3DigestChain(t *testing.T) {
 	if projection["model_id"] != "0x"+modelID {
 		t.Fatal("model projection does not use the derived model ID")
 	}
-	encoded, err := json.Marshal(projection)
+	encoded, err := canonicalJSONBytes(projection)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -208,6 +222,11 @@ func TestModelProjectionV3DigestChain(t *testing.T) {
 	}
 	if int64(len(encoded)) != declaredSize {
 		t.Fatal("canonical model projection length mismatch")
+	}
+	// The golden manifest_uri carries & in its query, so an implementation
+	// that HTML-escapes canonical JSON cannot reproduce this digest.
+	if !bytes.Contains(encoded, []byte("&")) || bytes.Contains(encoded, []byte(`\u0026`)) {
+		t.Fatal("the projection payload must carry a literal & and no HTML escape")
 	}
 	projectionDigest := sha256.Sum256(encodeHV1("TRUEOPEN_MODEL_CHAIN_PROJECTION_V3", encoded))
 	if hex.EncodeToString(projectionDigest[:]) != profile["chain_projection_hash"] {
@@ -219,7 +238,7 @@ func TestModelProjectionV3DigestChain(t *testing.T) {
 		t.Fatal("model registration digest mismatch")
 	}
 	manifest := loadIntegratedFixture(t, "hub", "model_manifest_v4.json")
-	manifestBytes, err := json.Marshal(manifest["manifest"])
+	manifestBytes, err := canonicalJSONBytes(manifest["manifest"])
 	if err != nil {
 		t.Fatal(err)
 	}

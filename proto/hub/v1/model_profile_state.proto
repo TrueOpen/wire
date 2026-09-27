@@ -121,6 +121,11 @@ message ProfileState {
   shared.v1.ProfileSourceRefV1 source = 31 [(gogoproto.nullable) = false];
   shared.v1.ParserRefV1 tool_call_parser = 32 [(gogoproto.nullable) = false];
   shared.v1.ParserRefV1 reasoning_parser = 33 [(gogoproto.nullable) = false];
+  // manifest_uri is the registrant-hosted retrieval pointer for the manifest
+  // body, copied from the registered ModelProfileProjection.manifest_uri and
+  // frozen with this profile version. QueryProfile returns it together with
+  // manifest_hash; there is no separate manifest-pointer query.
+  string manifest_uri = 34;
 }
 
 // RegistrationReceipt is the minimal replay locator stored under the
