@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -480,6 +481,15 @@ func fieldInt(t *testing.T, field map[string]any) int64 {
 	return value
 }
 
+func fieldUint(t *testing.T, field map[string]any) uint64 {
+	t.Helper()
+	value, err := strconv.ParseUint(fmt.Sprint(field["value"]), 10, 64)
+	if err != nil {
+		t.Fatalf("field %s: %v", field["name"], err)
+	}
+	return value
+}
+
 // Two same-typed receipt fields that carry equal values cannot pin their
 // order: swapping them leaves the digest unchanged. The distinct-count vector
 // must differ from the base only in generated_token_count, and must give it a
@@ -707,5 +717,417 @@ func TestWorkerEvidenceConfirmationsNameThePublishedObjects(t *testing.T) {
 	}
 	if len(cases) != 0 {
 		t.Fatalf("missing Worker confirmation cases %v", cases)
+	}
+}
+
+// The aggregate proof is rebuilt from the Verifier chain the fixtures already
+// publish, not from its own vector: the metric leaves supply the identity, the
+// metric tree its root and leaf count, the result receipt its summary. model_id
+// is framed as its raw 32 bytes. The proof's digest must be the one the
+// receipt, the reveal payload and the Verifier manifest all name.
+func TestAggregateProofBindsTheVerifierChain(t *testing.T) {
+	metricDoc := loadIntegratedFixture(t, "task", "result_metric_v3.json")
+	var proofVector, root map[string]any
+	var leaves []map[string]any
+	for _, raw := range metricDoc["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		switch {
+		case vector["name"] == "metric_aggregate_proof_v1":
+			proofVector = vector
+		case vector["domain"] == "TRUEOPEN_PREFILL_TOKEN_METRIC_ROOT_V3":
+			root = vector
+		case vector["domain"] == "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3":
+			leaves = append(leaves, map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]})
+		}
+	}
+	if proofVector == nil || root == nil || len(leaves) == 0 {
+		t.Fatal("result_metric_v3.json must publish the leaves, the root and metric_aggregate_proof_v1")
+	}
+	leaf := leaves[0]
+	text := func(name string) []byte { return []byte(integratedField(t, leaf, name)["utf8"].(string)) }
+	raw := func(vector map[string]any, name string) []byte {
+		value, err := hex.DecodeString(integratedField(t, vector, name)["hex"].(string))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return value
+	}
+	u32 := func(value int64) []byte { return binary.BigEndian.AppendUint32(nil, uint32(value)) }
+	flag := func(name string) []byte {
+		if integratedField(t, proofVector, name)["value"] == true {
+			return []byte{1}
+		}
+		return []byte{0}
+	}
+	modelID := raw(leaf, "model_id")
+	if len(modelID) != 32 || integratedField(t, proofVector, "model_id")["type"] != "bytes" {
+		t.Fatal("the aggregate proof must frame model_id as raw 32 bytes")
+	}
+	// The profile flags are the proof's own inputs, but they must agree with
+	// what the leaves show: an optional ratio is present exactly when its
+	// compare flag is on, and compared_top_k equals required_top_k.
+	requiredTopK := fieldInt(t, integratedField(t, leaf, "required_top_k"))
+	if fieldInt(t, integratedField(t, proofVector, "compared_top_k")) != requiredTopK {
+		t.Fatal("compared_top_k must equal required_top_k")
+	}
+	for _, pair := range [][2]string{{"compare_topk_jaccard", "topk_jaccard_fp_1e6"}, {"compare_union_js", "union_js_fp_1e6"}} {
+		for _, each := range leaves {
+			if integratedField(t, each, "finite_flag")["value"] != true {
+				continue
+			}
+			if integratedField(t, proofVector, pair[0])["value"] != integratedField(t, each, pair[1])["present"] {
+				t.Fatalf("%s disagrees with the presence of %s in the leaves", pair[0], pair[1])
+			}
+		}
+	}
+	receiptDoc := loadIntegratedFixture(t, "task", "result_receipt_v3.json")
+	summary := integratedVector(t, receiptDoc, "TRUEOPEN_METRIC_SUMMARY_V1")
+	metricRoot, err := hex.DecodeString(root["root_hex"].(string))
+	if err != nil {
+		t.Fatal(err)
+	}
+	summaryHash, err := hex.DecodeString(summary["digest_hex"].(string))
+	if err != nil {
+		t.Fatal(err)
+	}
+	leafCount := int64(len(root["leaves_hex"].([]any)))
+	parts := [][]byte{
+		[]byte("PREFILL_METRIC_AGGREGATE_PROOF_V1"),
+		text("chain_id"), raw(leaf, "task_id"), modelID,
+		u32(fieldInt(t, integratedField(t, leaf, "profile_version"))),
+		text("judgment_function_version"), text("canonical_encoding_version"),
+		raw(leaf, "evidence_schema_hash"), raw(leaf, "tokenizer_hash"), raw(leaf, "generation_params_digest"),
+		u32(requiredTopK),
+		flag("compare_logprob_diff"), flag("compare_rank_delta"), flag("compare_topk_jaccard"), flag("compare_union_js"),
+		u32(requiredTopK), metricRoot, u32(leafCount), summaryHash,
+	}
+	var proof []byte
+	for _, part := range parts {
+		proof = binary.BigEndian.AppendUint64(proof, uint64(len(part)))
+		proof = append(proof, part...)
+	}
+	if hex.EncodeToString(proof) != proofVector["preimage_hex"] {
+		t.Fatal("metric_aggregate_proof_v1 is not the proof of the published Verifier chain")
+	}
+	sum := sha256.Sum256(proof)
+	proofHash := hex.EncodeToString(sum[:])
+
+	result := integratedVector(t, receiptDoc, "TRUEOPEN_RESULT_V3")
+	if integratedField(t, result, "aggregate_proof_hash")["hex"] != proofHash {
+		t.Fatal("ResultReceiptV3 does not name the published aggregate proof")
+	}
+	if fieldInt(t, integratedField(t, result, "metric_leaf_count")) != leafCount {
+		t.Fatal("ResultReceiptV3 metric_leaf_count differs from the metric tree")
+	}
+	payload := integratedVector(t, receiptDoc, "TRUEOPEN_VERIFIER_RESULT_PAYLOAD_V2")
+	payloadBytes, err := hex.DecodeString(payload["payload_hex"].(string))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hex.EncodeToString(splitCanonicalFrame(t, payloadBytes)[14]) != proofHash {
+		t.Fatal("the V2 reveal payload does not name the published aggregate proof")
+	}
+	var manifest struct {
+		Artifacts []struct {
+			ID          string `json:"artifact_id"`
+			ContentHash string `json:"content_hash"`
+			SizeBytes   string `json:"size_bytes"`
+		} `json:"artifacts"`
+	}
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		if vector := raw.(map[string]any); vector["name"] == "evidence_bundle_manifest_v1" {
+			if err := json.Unmarshal([]byte(vector["payload_utf8"].(string)), &manifest); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	found := false
+	for _, artifact := range manifest.Artifacts {
+		if artifact.ID == "aggregate_proof" {
+			found = artifact.ContentHash == proofHash && artifact.SizeBytes == strconv.Itoa(len(proof))
+		}
+	}
+	if !found {
+		t.Fatal("the Verifier manifest's aggregate_proof artifact is not the published proof")
+	}
+}
+
+// The Verifier manifest belongs to the Verifier result the receipt signs: its
+// identity fields are the chain's, and its producer is the Verifier that signs
+// the receipt, not any other party in the fixtures.
+func TestVerifierManifestIdentityMatchesTheResult(t *testing.T) {
+	var manifest struct {
+		ChainID            string `json:"chain_id"`
+		TaskID             string `json:"task_id"`
+		TaskHash           string `json:"task_hash"`
+		EvidenceKind       string `json:"evidence_kind"`
+		EvidenceSchemaHash string `json:"evidence_schema_hash"`
+		ProducerKind       string `json:"producer_kind"`
+		ProducerOperator   string `json:"producer_operator"`
+		VerifyRound        int64  `json:"verify_round"`
+	}
+	for _, raw := range loadIntegratedFixture(t, "task", "canonical_json_v1.json")["vectors"].([]any) {
+		if vector := raw.(map[string]any); vector["name"] == "evidence_bundle_manifest_v1" {
+			if err := json.Unmarshal([]byte(vector["payload_utf8"].(string)), &manifest); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	result := integratedVector(t, loadIntegratedFixture(t, "task", "result_receipt_v3.json"), "TRUEOPEN_RESULT_V3")
+	var leaf map[string]any
+	for _, raw := range loadIntegratedFixture(t, "task", "result_metric_v3.json")["vectors"].([]any) {
+		if vector := raw.(map[string]any); vector["domain"] == "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3" {
+			leaf = map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]}
+			break
+		}
+	}
+	hrp, operator, err := decodeBech32(manifest.ProducerOperator)
+	if err != nil || hrp != "trueopen" {
+		t.Fatalf("producer_operator %q is not a trueopen address: %v", manifest.ProducerOperator, err)
+	}
+	if manifest.ProducerKind != "VERIFIER" || manifest.EvidenceKind != "VERIFIER_VALUE_OPENING" ||
+		hex.EncodeToString(operator) != integratedField(t, result, "verifier_operator_address")["hex"] ||
+		manifest.ChainID != integratedField(t, result, "chain_id")["utf8"] ||
+		manifest.TaskID != integratedField(t, result, "task_id")["hex"] ||
+		manifest.TaskHash != integratedField(t, leaf, "task_hash")["hex"] ||
+		manifest.EvidenceSchemaHash != integratedField(t, leaf, "evidence_schema_hash")["hex"] ||
+		manifest.VerifyRound != fieldInt(t, integratedField(t, result, "verify_round")) {
+		t.Fatal("the Verifier manifest's identity differs from the Verifier result it is bound to")
+	}
+}
+
+// summaryLeaf is the part of a metric leaf MetricSummaryV1 is computed from.
+type summaryLeaf struct {
+	comparable       bool // missing_flag=false and finite_flag=true
+	absDiff          uint64
+	rankDelta        int64
+	jaccard, unionJS uint64
+}
+
+type summaryFlags struct{ rank, jaccard, unionJS bool }
+
+// expectedSummary applies the MetricSummaryV1 rules in integers only: F is the
+// comparable leaves; the mean rounds half up, percentiles take the
+// nearest-rank element, and the abs logprob diff statistics saturate at the
+// uint32 maximum. It returns the ten fields in schema order, with -1 standing
+// for an absent optional. With no comparable leaf the caller has already
+// established the cause: no leaves at all is a zero-token output (zeros,
+// enabled ratios present(0)); leaves whose Worker values are all missing take
+// the worst value for each enabled comparison. When no comparable leaves exist,
+// a finite Worker value with a missing Verifier value produces no summary.
+func expectedSummary(leaves []summaryLeaf, flags summaryFlags) []int64 {
+	const u32Max = 4294967295
+	roundHalfUp := func(a, b uint64) int64 { return int64((2*a + b) / (2 * b)) }
+	saturate := func(v uint64) int64 { return int64(min(v, u32Max)) }
+	nearestRank := func(q uint64, xs []uint64) uint64 {
+		sorted := append([]uint64(nil), xs...)
+		for i := range sorted {
+			for j := i + 1; j < len(sorted); j++ {
+				if sorted[j] < sorted[i] {
+					sorted[i], sorted[j] = sorted[j], sorted[i]
+				}
+			}
+		}
+		k := (q*uint64(len(sorted)) + 99) / 100
+		return sorted[k-1]
+	}
+	var diffs, js []uint64
+	var jaccardSum, nonzero uint64
+	diffSum := new(big.Int)
+	for _, leaf := range leaves {
+		if !leaf.comparable {
+			continue
+		}
+		diffs = append(diffs, leaf.absDiff)
+		js = append(js, leaf.unionJS)
+		diffSum.Add(diffSum, new(big.Int).SetUint64(leaf.absDiff))
+		jaccardSum += leaf.jaccard
+		if leaf.rankDelta != 0 {
+			nonzero++
+		}
+	}
+	n := uint64(len(diffs))
+	out := make([]int64, 10)
+	out[0], out[1] = int64(n), int64(uint64(len(leaves))-n)
+	out[6], out[7] = -1, -1
+	if n == 0 {
+		worst := len(leaves) > 0
+		if worst {
+			out[2], out[3], out[4] = u32Max, u32Max, u32Max
+		}
+		if flags.rank && worst {
+			out[5] = 1_000_000
+		}
+		if flags.jaccard {
+			out[6] = 0
+		}
+		if flags.unionJS {
+			out[7] = 0
+			if worst {
+				out[7] = 1_000_000
+			}
+		}
+		return out
+	}
+	divisor := new(big.Int).SetUint64(n)
+	mean, remainder := new(big.Int).QuoRem(diffSum, divisor, new(big.Int))
+	if remainder.Mul(remainder, big.NewInt(2)).Cmp(divisor) >= 0 {
+		mean.Add(mean, big.NewInt(1))
+	}
+	out[2] = u32Max
+	if mean.IsUint64() {
+		out[2] = saturate(mean.Uint64())
+	}
+	out[3], out[4] = saturate(nearestRank(95, diffs)), saturate(nearestRank(99, diffs))
+	if flags.rank {
+		out[5], out[9] = roundHalfUp(1_000_000*nonzero, n), int64(n)
+	}
+	if flags.jaccard {
+		out[6] = roundHalfUp(jaccardSum, n)
+	}
+	if flags.unionJS {
+		out[7] = int64(nearestRank(99, js))
+	}
+	if flags.jaccard || flags.unionJS {
+		out[8] = int64(n)
+	}
+	return out
+}
+
+func TestMetricSummaryBoundaryAndPartialMissing(t *testing.T) {
+	const u32Max = 4294967295
+	for _, tc := range []struct {
+		name   string
+		leaves []summaryLeaf
+		want   []int64
+	}{
+		{
+			name:   "uint64 maximum saturates without overflowing",
+			leaves: []summaryLeaf{{comparable: true, absDiff: ^uint64(0)}, {comparable: true, absDiff: ^uint64(0)}},
+			want:   []int64{2, 0, u32Max, u32Max, u32Max, 0, -1, -1, 0, 0},
+		},
+		{
+			name:   "half-up mean saturates at uint32 maximum",
+			leaves: []summaryLeaf{{comparable: true, absDiff: u32Max}, {comparable: true, absDiff: u32Max + 1}},
+			want:   []int64{2, 0, u32Max, u32Max, u32Max, 0, -1, -1, 0, 0},
+		},
+		{
+			name:   "half-up mean rounds an exact midpoint",
+			leaves: []summaryLeaf{{comparable: true, absDiff: 1}, {comparable: true, absDiff: 2}},
+			want:   []int64{2, 0, 2, 2, 2, 0, -1, -1, 0, 0},
+		},
+		{
+			name:   "partial Verifier miss remains in the summary",
+			leaves: []summaryLeaf{{comparable: true, absDiff: 7}, {}},
+			want:   []int64{1, 1, 7, 7, 7, 0, -1, -1, 0, 0},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := expectedSummary(tc.leaves, summaryFlags{}); fmt.Sprint(got) != fmt.Sprint(tc.want) {
+				t.Fatalf("summary is %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
+// publishedSummary reads a MetricSummaryV1 vector back into the same shape.
+func publishedSummary(t *testing.T, vector map[string]any) []int64 {
+	t.Helper()
+	frame := vector["fields"].([]any)[0].(map[string]any)["fields"].([]any)
+	out := make([]int64, len(frame))
+	for i, raw := range frame {
+		field := raw.(map[string]any)
+		if field["type"] == "optional" {
+			out[i] = -1
+			if field["present"] == true {
+				out[i] = fieldInt(t, field["fields"].([]any)[0].(map[string]any))
+			}
+			continue
+		}
+		out[i] = fieldInt(t, field)
+	}
+	return out
+}
+
+func TestMetricSummaryFollowsTheLeaves(t *testing.T) {
+	optional := func(field map[string]any) uint64 {
+		if field["present"] != true {
+			return 0
+		}
+		return uint64(fieldInt(t, field["fields"].([]any)[0].(map[string]any)))
+	}
+	metricDoc := loadIntegratedFixture(t, "task", "result_metric_v3.json")
+	var leaves []summaryLeaf
+	var proof map[string]any
+	for _, raw := range metricDoc["vectors"].([]any) {
+		vector := raw.(map[string]any)
+		if vector["name"] == "metric_aggregate_proof_v1" {
+			proof = vector
+		}
+		if vector["domain"] != "TRUEOPEN_PREFILL_TOKEN_METRIC_LEAF_V3" {
+			continue
+		}
+		leaf := map[string]any{"fields": integratedField(t, vector, "canonical_leaf_bytes")["fields"], "domain": vector["domain"]}
+		leaves = append(leaves, summaryLeaf{
+			comparable: integratedField(t, leaf, "missing_flag")["value"] == false && integratedField(t, leaf, "finite_flag")["value"] == true,
+			absDiff:    fieldUint(t, integratedField(t, leaf, "abs_logprob_diff_fp_1e6")),
+			rankDelta:  fieldInt(t, integratedField(t, leaf, "rank_delta")),
+			jaccard:    optional(integratedField(t, leaf, "topk_jaccard_fp_1e6")),
+			unionJS:    optional(integratedField(t, leaf, "union_js_fp_1e6")),
+		})
+	}
+	flags := summaryFlags{
+		rank:    integratedField(t, proof, "compare_rank_delta")["value"] == true,
+		jaccard: integratedField(t, proof, "compare_topk_jaccard")["value"] == true,
+		unionJS: integratedField(t, proof, "compare_union_js")["value"] == true,
+	}
+	receiptDoc := loadIntegratedFixture(t, "task", "result_receipt_v3.json")
+	var chain map[string]any
+	for _, raw := range receiptDoc["vectors"].([]any) {
+		if vector := raw.(map[string]any); vector["name"] == "metric_summary_v1" {
+			chain = vector
+		}
+	}
+	if chain == nil {
+		t.Fatal("result_receipt_v3.json must publish metric_summary_v1")
+	}
+	if got, want := publishedSummary(t, chain), expectedSummary(leaves, flags); fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Fatalf("metric_summary_v1 is %v, the leaves give %v", got, want)
+	}
+
+	// The two summaries with no comparable leaf, whose values are fixed by the
+	// cause rather than derived from data.
+	for name, want := range map[string][]int64{
+		"metric_summary_v1_zero_leaves":           {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		"metric_summary_v1_worker_values_missing": {0, 3, 4294967295, 4294967295, 4294967295, 1_000_000, 0, 1_000_000, 0, 0},
+	} {
+		var vector map[string]any
+		for _, raw := range receiptDoc["vectors"].([]any) {
+			if candidate := raw.(map[string]any); candidate["name"] == name {
+				vector = candidate
+			}
+		}
+		if vector == nil {
+			t.Fatalf("result_receipt_v3.json must publish %s", name)
+		}
+		inputs := vector["inputs"].(map[string]any)
+		on := summaryFlags{
+			rank:    inputs["compare_rank_delta"] == true,
+			jaccard: inputs["compare_topk_jaccard"] == true,
+			unionJS: inputs["compare_union_js"] == true,
+		}
+		if !on.rank || !on.jaccard || !on.unionJS || inputs["compare_logprob_diff"] != true {
+			t.Fatalf("%s must enable every comparison", name)
+		}
+		var inputLeaves []summaryLeaf
+		for _, raw := range inputs["leaves"].([]any) {
+			if leaf := raw.(map[string]any); leaf["worker_value"] != "missing" || leaf["verifier_value"] != "finite" {
+				t.Fatalf("%s may only hold leaves whose Worker value is missing", name)
+			}
+			inputLeaves = append(inputLeaves, summaryLeaf{})
+		}
+		if got := publishedSummary(t, vector); fmt.Sprint(got) != fmt.Sprint(want) || fmt.Sprint(expectedSummary(inputLeaves, on)) != fmt.Sprint(want) {
+			t.Fatalf("%s is %v, the rule gives %v", name, got, want)
+		}
 	}
 }

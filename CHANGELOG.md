@@ -1,5 +1,47 @@
 # Changelog
 
+## Unreleased
+
+- `task/v1/infer_receipt.proto`: the byte-exact expansion of
+  `TRUEOPEN_INFER_EVIDENCE_COMMITMENTS_V1` in the comment wrote the list
+  elements at the top level and gave the domain as 35 bytes. It now matches
+  the published vectors and the encoding every implementation uses: a leading
+  `uint32_be(count)` plus one repeated field that carries its own count and the
+  length-framed elements; the domain is 38 bytes. Comment only; no encoding or
+  vector changes.
+- `result_metric_v3.json`: publishes `metric_aggregate_proof_v1`, the v0.3.0
+  aggregate proof (`PREFILL_METRIC_AGGREGATE_PROOF_V1`, 504 bytes) of the same
+  Verifier result, with `model_id` framed as its raw 32 bytes, like every other
+  v0.3.0 encoding of a model ID. Its digest replaces the opaque
+  `aggregate_proof_hash` in `result_v3_signing_digest` and the V2 reveal
+  payload and the `aggregate_proof` content hash in the Verifier evidence
+  manifest (`evidence_bundle_manifest_v1`, still 603 bytes); the manifest's
+  bundle hash, the result signing digest and the payload digest are
+  recomputed. `verify-fixtures` rebuilds the proof from the published chain and
+  checks every link.
+- `canonical_json_v1.json`: the Verifier evidence manifest
+  (`evidence_bundle_manifest_v1`) named the Worker as `producer_operator` and a
+  placeholder `evidence_schema_hash`. It now belongs to the Verifier result it
+  is bound to (the Verifier's address, the chain's evidence schema hash); its
+  bundle hash, `result_v3_signing_digest` and the V2 reveal payload are
+  recomputed, and `verify-fixtures` checks the manifest identity against the
+  result.
+- `result_receipt_v3.json`: `verify-fixtures` recomputes `metric_summary_v1`
+  from the published metric leaves with an integer-only implementation of the
+  MetricSummaryV1 rules (half-up mean, nearest-rank percentiles saturating at
+  the uint32 maximum, rank-delta rate over comparable leaves, compared counts);
+  the published summary already matched, so no digest changes.
+- `result_receipt_v3.json`: two standalone summaries pin the case with no
+  comparable leaf, every comparison enabled. `metric_summary_v1_zero_leaves`
+  (no leaves, a legal zero-token output judged PASS with count 0): every
+  numeric field 0, both ratios present(0), all counts 0.
+  `metric_summary_v1_worker_values_missing` (three leaves whose Worker values
+  are all missing): abs logprob diff mean/p95/p99 4294967295, rank-delta rate
+  1000000, top-K Jaccard present(0), union JS present(1000000), compared counts
+  0, so it never reads as agreement. When no comparable leaf exists, a
+  Verifier-side miss produces no summary (a Verifier execution failure), so it
+  has no vector; with comparable leaves, missing positions count in the summary.
+
 ## v0.3.0-rc.2
 
 Second pre-release of v0.3.0. Fixture-only corrections to the v0.3.0 vectors,
