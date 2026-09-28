@@ -49,6 +49,9 @@ Consumers that byte-compare fixture copies must refresh
 `hub/manifest_uri_v1.json`, `shared/account_signing_v1.json` and
 `task/task_order_v3.json`.
 
+- Release pages now carry only their own version's CHANGELOG section
+  (`release/notes.sh`); the release job fails when the tag has no section.
+
 ## v0.3.3
 
 **Fixture and notes correction only; no preimage, framing
