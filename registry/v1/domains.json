@@ -608,7 +608,7 @@
       "contract_section": "Public wire domain TRUEOPEN_COMMIT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "commit_hash must be the canonical TRUEOPEN_RESULT_COMMITMENT_V1 value; this contract forbids a \"non-empty placeholder\" and forbids a \"looks like a SHA256\" conditional branch. Same 8-field shape as the two handraise digests: chain/task scope plus service_authorization_nonce plus expiry_height."
+      "note": "commit_hash must be the canonical TRUEOPEN_RESULT_COMMITMENT_V3 value; this contract forbids a \"non-empty placeholder\" and forbids a \"looks like a SHA256\" conditional branch. Same 8-field shape as the two handraise digests: chain/task scope plus service_authorization_nonce plus expiry_height."
     },
     {
       "domain": "TRUEOPEN_CONFIRM_BRIDGE_CUTOVER_V1",
@@ -2503,7 +2503,8 @@
       "query": "TaskAssignmentViewV1 field 16",
       "contract_section": "Public wire domain TRUEOPEN_TASK_GENERATION_PARAMS_V1",
       "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "preimage_diverges_from_contract": false,
+      "note": "The payload is canonical JSON, and model_id is written as 0x followed by 64 lowercase hex, unlike the Hash32 values of the evidence bundle manifest, which carry no prefix."
     },
     {
       "domain": "TRUEOPEN_TASK_ID_V1",
