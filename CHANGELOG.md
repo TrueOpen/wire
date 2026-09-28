@@ -70,6 +70,8 @@ vector and a CI check that would have caught the rest.
   replay digest, the wrong `leaf_accounting` and the duplicate names above.
 - `testdata/v1/manifest.json`: sizes and SHA-256 refreshed for the nine changed
   fixtures.
+- Removed references to non-public material from comments, notes and fixture
+  prose; no semantic change.
 - Release process (committed earlier on this branch): `release/README.md`,
   `CONTRIBUTING.md` and `VERSIONING.md` now require Node, Cortex and SDK to be
   verified against the candidate wire commit before the tag is cut, and a wire
@@ -352,7 +354,7 @@ move together, so consumers cannot mix the old and new semantics.
 Additive. Two enum values, one field and two vector entries arrive; no existing
 field number, message name or digest changes.
 
-- ADR-0027 makes the Worker-signed Fin the authoritative source of
+- The Worker-signed Fin becomes the authoritative source of
   `finish_reason`. Three things follow from that, and they ship together
   because any one of them alone leaves the contract inconsistent.
 
@@ -384,12 +386,12 @@ field number, message name or digest changes.
 
   Present only for `OUTPUT` objects that have reached `STORED`. This release
   makes the field exist; populating it on `GetTaskDataMetadata(OUTPUT)` is
-  Nexus's side of the ADR.
+  Nexus's side of the change.
 
 - `registry/v1/domains.json` corrects the `TRUEOPEN_OUTPUT_FIN_V1` entry.
 
-  `origin` repoints from this repository to ADR-0027, and two statements the
-  ADR makes false are removed: that `finish_reason` does not enter
+  `origin` no longer names this repository as the source, and two statements
+  the new rule makes false are removed: that `finish_reason` does not enter
   `TaskDataObjectMetadataV1` -- the MMR half of that claim still holds and is
   kept -- and that cancellation produces no `OutputFinV1`. The closed set
   becomes 1..6.
@@ -435,11 +437,11 @@ compatibility promise about it and no existing package changes.
   the second copy is the one that drifts. `ChatInferInput` in particular is
   constructed by the SDK and parsed by Cortex.
 
-  It is **withheld, not released**. Its fields are not frozen: ADR-0022 is still
-  open, and its back-write matrix assigns Cortex further changes to
+  It is **withheld, not released**. Its fields are not frozen: an open design decision
+  still assigns Cortex further changes to
   `chat_input` — an `output_decoding` block, a `tool_calling` block, and
   `manifest_version` 3. Releasing it now would mean breaking it next. Move it to
-  `released` once ADR-0022 is adopted and those fields have landed.
+  `released` once those fields have landed.
 
   Documentation comments were added to 47 messages, RPCs and the service to
   satisfy this repository's `COMMENTS` lint rule, which the originating

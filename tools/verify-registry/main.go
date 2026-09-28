@@ -308,7 +308,7 @@ func splitGeneration(name string) (string, int, error) {
 // anything". A V1 row may be a plain copy of the node registry at source_commit.
 // A higher generation cannot be: source_commit predates the decision that
 // created it, so the row has to name the review that authorized it, and it has
-// to name the generation it replaces - Canonicalupgrades a
+// to name the generation it replaces - a new generation upgrades a
 // domain, it does not invent an unrelated one.
 func validateGeneration(item domain) error {
 	base, version, err := splitGeneration(item.Domain)

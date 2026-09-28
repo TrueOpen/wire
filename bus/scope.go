@@ -190,9 +190,8 @@ func decodeEnvelope(raw []byte, project bool) (DecodedEnvelope, error) {
 // DecodeEnvelopeHeader is DecodeEnvelope without the typed payload projection.
 //
 // The split exists because the two happen at different points in the verified
-// order. The wire API decodes the typed payload at step 6, after the
-// signature has verified at step 5, andstep 8 says
-// the same for the live profile. Doing it earlier does not change which
+// order. The typed payload is decoded only after the signature has verified,
+// and the live profile follows the same order. Doing it earlier does not change which
 // envelopes are accepted, but it changes how a rejection reads: an envelope with
 // a valid signature and a malformed payload would come back as ErrDecode, which
 // this package defines as material that is nobody's fault, when in fact it is

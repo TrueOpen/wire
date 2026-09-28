@@ -20,15 +20,15 @@
       "path": "bus/nats_user_binding_v1_vectors.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for bus/nats_user_binding_v1_vectors.json",
-      "bytes": 5351,
-      "sha256": "e40774f8dcc99c76c9ca083dede082f2a735504e9c6b4ac15b75c8073561ec4a"
+      "bytes": 5303,
+      "sha256": "0da5ba4021166e4638789974a888ec2c9b810aa1af1393ab61859626e5f4ab8c"
     },
     {
       "path": "hub/bridge_vrf_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for hub/bridge_vrf_v1.json",
-      "bytes": 39985,
-      "sha256": "02acdc27962c4a04144072f9109fa1b422e8ad7e4b70849ed57816d54884e292"
+      "bytes": 39983,
+      "sha256": "5e5cced8732106972a241207e3246e710ab90019396bc23eb82546d73eebdc98"
     },
     {
         "path": "hub/candidate_pool_v1.json",
@@ -89,15 +89,15 @@
     {
       "path": "shared/framing_v1.json",
       "source_path": "x/shared/types/testdata/framing_v1.json",
-      "bytes": 32691,
-      "sha256": "b6ebeccd2e79556a193061372f90165bcc56d9a8cc01f5e6b88a85829c73d947"
+      "bytes": 32522,
+      "sha256": "7974904500e9ec69c6e6648dd13ada4c812e209bee929f1ab07b98732d0caf71"
     },
     {
       "path": "shared/mmr_primitive_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for shared/mmr_primitive_v1.json",
-      "bytes": 6007,
-      "sha256": "d9b3fcc63bb62a0c438e11c56c1b13a1d54311c3869abcc3405f368978c10ad4"
+      "bytes": 5993,
+      "sha256": "be29ecd4ac20ca56264e126e38dbaceb1db5a37a41e4917d4665e212bbb6d352"
     },
     {
       "path": "shared/params_v1.json",
@@ -226,8 +226,8 @@
       "path": "task/task_keeper_domains_v1.json",
       "origin": "wire",
       "contract_section": "Task Keeper and epoch summary raw Hash32 commitments",
-      "bytes": 95072,
-      "sha256": "4527e35645f283dad9e0928b06b5c5d2faf6828273efb9157a19d713bd4be259"
+      "bytes": 95052,
+      "sha256": "ae1526ada5dd4103ae6a78a5fc6b81b8eded0974eb529a02dfaae385301589b6"
     },
     {
       "path": "task/task_order_v3.json",
