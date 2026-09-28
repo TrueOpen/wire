@@ -2,6 +2,53 @@
 
 ## Unreleased
 
+Additional vectors and notes; no preimage, framing or proto field change. Every
+existing digest, preimage, domain and field number is unchanged. The proto
+edits are comments only.
+
+- Generation parameter ranges. `DecodingParamsV1` comments now state the
+  inclusive ranges the Keeper enforces: `temperature_milli` 0..2000,
+  `top_p_ppm` 1..1000000, `top_k` 0..`generation.top_k_max` (default 1000),
+  both penalties -2000..2000, `repetition_penalty_ppm` 100000..2000000. The
+  chain fills no default. New `testdata/v1/task/generation_params_ranges_v1.json`
+  has min, max, min-1 and max+1 for each field, with the accepted payloads and
+  digests. The order projection does not bound `top_k`; only the generation
+  parameter digest does.
+- Order economics. The `TaskOrderV3` comment states how `order_value` is
+  derived (`floor(max_output_tokens * price_bid / 1e6)` plus
+  `floor(worker_max * verify_ratio_bps / 1e4)`, u64 with a 128-bit
+  intermediate) and every rejection. New
+  `testdata/v1/task/order_economics_v1.json` covers rounding and overflow.
+- Fee denomination. The order EIP-712 `feeDenom`, `ProfileState.min_stake` and
+  `registration_fee_paid`, and the projection's `min_stake` and
+  `registration_fee` Coins are documented as the chain `business_denom`, with
+  amounts only in state. `account_signing_v1.json` gains `fee_denom_source`
+  notes.
+- `account_signing_v1.json` gains `direct_sign_mode_transaction`: a
+  SIGN_MODE_DIRECT transaction with an eth_secp256k1 key, from SignDoc bytes
+  through keccak256 to the 64-byte signature, with the public key type URL.
+- `task_order_v3.json`: every mutation row gains an `edit` that states its
+  change machine-readably. Digests are unchanged.
+  `tools/verify-vector-consistency` now recomputes every mutation row that has
+  one.
+- End-to-end vectors. New `testdata/v1/hub/model_registration_chain_v1.json`
+  chains the golden manifest digest through the projection to the
+  registration digest, and adds projection-only vectors with non-empty
+  `ParserRefV1` values. New `testdata/v1/task/task_order_eip712_v1.json` links
+  each accepted `task_order_v3.json` order to its EIP-712 signing digest.
+- `manifest_uri_v1.json` gains IPv6 zero-run tie-break, IPv4-mapped and
+  dotted-tail IPv6, label and port cases.
+- New `testdata/v1/shared/rest_json_shapes_v1.json` shows how the Node REST
+  gateway renders QueryTask (active and terminal), QueryProfile, QueryCortexNode
+  and both Params responses: snake_case names, Hash32 as lowercase hex (omitted
+  when unset), other bytes as Base64, 64-bit integers as strings.
+- `testdata/README.md` and the fixture manifest notes list the three fixture
+  values above 2^53 that are bare JSON numbers. The values are unchanged.
+
+Consumers that byte-compare fixture copies must refresh
+`hub/manifest_uri_v1.json`, `shared/account_signing_v1.json` and
+`task/task_order_v3.json`.
+
 - Release pages now carry only their own version's CHANGELOG section
   (`release/notes.sh`); the release job fails when the tag has no section.
 

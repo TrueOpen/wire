@@ -10,6 +10,33 @@
     "pub_uncompressed_xy": "1b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f70beaf8f588b541507fed6a642c5ab42dfdf8120a7f639de5122d47a69a8e8d1"
   },
   "contract": "the account and signature protocol",
+  "direct_sign_mode_transaction": {
+    "account_number": "7",
+    "auth_info_bytes_hex": "0a5a0a500a292f636f736d6f732e65766d2e63727970746f2e76312e657468736563703235366b312e5075624b657912230a21031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f12040a020801180912140a0e0a0575757364631205313233343510c09a0c",
+    "body_bytes_hex": "0a4e0a192f7461736b2e76312e4d736743726561746553657373696f6e12310a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a",
+    "chain_id": "trueopen-golden-1",
+    "fee_amount": "12345",
+    "fee_denom": "uusdc",
+    "gas": "200000",
+    "keccak256_sign_doc": "3f0c08f695962cf6d72cea05641387a0d341827e0ae2301817a4f853e061df0f",
+    "msg_type_url": "/task.v1.MsgCreateSession",
+    "negative_cases": [
+      "signature over sha256(sign_doc_bytes)",
+      "65-byte R||S||V signature",
+      "high-S signature",
+      "public key other than eth_secp256k1 or not the stored account key",
+      "wrong chain_id or account_number in the SignDoc",
+      "any extension option other than one Web3 option (which selects the EIP-712 path)"
+    ],
+    "note": "SIGN_MODE_DIRECT with an eth_secp256k1 account key. sign_doc_bytes is the protobuf SignDoc {body_bytes, auth_info_bytes, chain_id, account_number}; the signature covers keccak256(sign_doc_bytes), not SHA-256, and is exactly 64 bytes R||S with low S. The 65-byte form some Ethereum signers return is rejected on this path. The transaction carries no extension option; a Web3 extension option selects the EIP-712 path of msg_create_session_transaction instead. The public key is the account key of this file, packed as an Any of pubkey_type_url, and must be the compressed 33-byte point stored on the account. Derived from the Node signature path and the cosmos/evm key type.",
+    "pubkey_any_value_hex": "0a21031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+    "pubkey_type_url": "/cosmos.evm.crypto.v1.ethsecp256k1.PubKey",
+    "sequence": "9",
+    "sign_doc_bytes_hex": "0a500a4e0a192f7461736b2e76312e4d736743726561746553657373696f6e12310a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a12720a5a0a500a292f636f736d6f732e65766d2e63727970746f2e76312e657468736563703235366b312e5075624b657912230a21031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f12040a020801180912140a0e0a0575757364631205313233343510c09a0c1a11747275656f70656e2d676f6c64656e2d312007",
+    "signature_64": "950659af11385de58445f407144f5be0f27f5d8c2affc454467cb6bf5bb63fc619ffd364b1adb3f96dcbae609eec4792d7ce9f80d616a1849903b3805bcb2e70",
+    "signer_address": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz",
+    "tx_raw_hex": "0a500a4e0a192f7461736b2e76312e4d736743726561746553657373696f6e12310a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a12720a5a0a500a292f636f736d6f732e65766d2e63727970746f2e76312e657468736563703235366b312e5075624b657912230a21031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f12040a020801180912140a0e0a0575757364631205313233343510c09a0c1a40950659af11385de58445f407144f5be0f27f5d8c2affc454467cb6bf5bb63fc619ffd364b1adb3f96dcbae609eec4792d7ce9f80d616a1849903b3805bcb2e70"
+  },
   "msg_create_session_transaction": {
     "account_number": "7",
     "amino_name": "trueopen/x/task/MsgCreateSession",
@@ -19,6 +46,7 @@
     "evm_chain_id": "424242",
     "fee_amount": "12345",
     "fee_denom": "uusdc",
+    "fee_denom_source": "The fee Coin denom must be the chain business_denom (hub.v1 Params phase0.business_denom); \"uusdc\" is its default.",
     "gas": "200000",
     "hash_struct": "0ad5af5bc47571a077af5391c9d17c116252b42d1bb137e1ca53cd38dc27b114",
     "memo": "",
@@ -89,6 +117,7 @@
       "version": "3"
     },
     "encode_type": "TaskOrder(string chainId,string user,bytes32 sessionId,uint64 orderSequence,bytes32 modelId,uint32 profileVersion,string maxFee,string feeDenom,uint64 earliestSubmitHeight,uint64 orderExpireHeight,bytes32 taskHash)",
+    "fee_denom_source": "feeDenom is not a TaskOrderV3 field and does not enter taskHash. It must equal the chain business_denom, hub.v1 Params phase0.business_denom; the chain stores and compares amounts only, and the Keeper verifies the signature with feeDenom set to its current business_denom. \"uusdc\" here is that parameter's default.",
     "hash_struct": "30575d2f720d371976f50864ec4c7b1e20bbe7dbe9fde908ace815166ad65871",
     "message": {
       "chainId": "trueopen-golden-1",
