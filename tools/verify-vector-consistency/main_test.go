@@ -14,7 +14,7 @@ func TestPublishedFixturesAreSelfConsistent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.bases == 0 || got.tampers == 0 || got.replays == 0 || got.accounting == 0 {
+	if got.bases == 0 || got.tampers == 0 || got.replays == 0 || got.mutations == 0 || got.accounting == 0 {
 		t.Fatalf("a check ran over nothing: %+v", got)
 	}
 }
@@ -95,6 +95,69 @@ func TestStaleBaseDigestFails(t *testing.T) {
 	vector := selectorVector()
 	vector["digest_hex"] = strings.Repeat("00", 32)
 	requireProblem(t, run(t, map[string]any{"vectors": []any{vector}}), "fields hash to")
+}
+
+// mutationVector adds one mutation row per edit op to the selector vector,
+// each with the digest its edit produces.
+func mutationVector() map[string]any {
+	vector := selectorVector()
+	chain := []byte("chain-1")
+	model := make([]byte, 32)
+	for index := range model {
+		model[index] = 0x55
+	}
+	edited := append([]byte(nil), model...)
+	edited[31] ^= 1
+	digest := func(parts ...[]byte) string { return digestHex(hFields("TRUEOPEN_TEST_V1", parts)) }
+	vector["mutations"] = []any{
+		map[string]any{"name": "replace", "digest_hex": digest(chain, edited), "edit": map[string]any{
+			"op": "replace", "path": "model_id", "field": map[string]any{"name": "model_id", "type": "bytes", "hex": hex.EncodeToString(edited)},
+		}},
+		map[string]any{"name": "swap", "digest_hex": digest(model, chain), "edit": map[string]any{
+			"op": "swap", "paths": []any{"chain_id", "model_id"},
+		}},
+		map[string]any{"name": "remove", "digest_hex": digest(chain), "edit": map[string]any{"op": "remove", "path": "model_id"}},
+		map[string]any{"name": "append", "digest_hex": digest(chain, model, []byte{0, 0, 0, 1}), "edit": map[string]any{
+			"op": "append", "field": map[string]any{"name": "__extra", "type": "uint32", "value": json.Number("1")},
+		}},
+		map[string]any{"name": "prose_only", "digest_hex": strings.Repeat("00", 32), "change": "not recomputable"},
+	}
+	return vector
+}
+
+func TestMutationEditsRecompute(t *testing.T) {
+	if problems := run(t, map[string]any{"vectors": []any{mutationVector()}}); len(problems) != 0 {
+		t.Fatal(problems)
+	}
+}
+
+func TestStaleMutationDigestFails(t *testing.T) {
+	vector := mutationVector()
+	vector["mutations"].([]any)[1].(map[string]any)["digest_hex"] = strings.Repeat("00", 32)
+	requireProblem(t, run(t, map[string]any{"vectors": []any{vector}}), `mutation "swap" recomputes to`)
+}
+
+func TestMutationEditErrorsFail(t *testing.T) {
+	for name, edit := range map[string]map[string]any{
+		"unknown edit op":             {"op": "rename"},
+		`no field "missing"`:          {"op": "remove", "path": "missing"},
+		"is not a frame":              {"op": "remove", "path": "chain_id.inner"},
+		"two distinct fields":         {"op": "swap", "paths": []any{"chain_id", "chain_id"}},
+		"replace needs a typed field": {"op": "replace", "path": "chain_id"},
+	} {
+		vector := mutationVector()
+		vector["mutations"].([]any)[0].(map[string]any)["edit"] = edit
+		requireProblem(t, run(t, map[string]any{"vectors": []any{vector}}), name)
+	}
+}
+
+// An edit that changes nothing is not a mutation, whatever digest it claims.
+func TestMutationEditThatChangesNothingFails(t *testing.T) {
+	vector := mutationVector()
+	vector["mutations"].([]any)[0].(map[string]any)["edit"] = map[string]any{
+		"op": "replace", "path": "chain_id", "field": map[string]any{"name": "chain_id", "type": "string", "utf8": "chain-1"},
+	}
+	requireProblem(t, run(t, map[string]any{"vectors": []any{vector}}), "leaves the base digest unchanged")
 }
 
 func TestDuplicateVectorNameFails(t *testing.T) {

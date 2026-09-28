@@ -7,7 +7,9 @@
 //   - the digest of every tamper and replay row, which is a mutation of the base
 //     vector and has to move whenever the base's encoding moves;
 //   - vector names, which consumers use to select a vector and which only work
-//     as a key if no two vectors in a file share one.
+//     as a key if no two vectors in a file share one;
+//   - the digest of every mutation row that states its change as a
+//     machine-readable edit (see applyEdit).
 //
 // Base preimages are recomputed too, so a row is always checked against a base
 // that is itself known to be right.
@@ -44,14 +46,14 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	fmt.Printf("verified %d file(s): %d base digest(s), %d tamper row(s), %d replay row(s), %d leaf_accounting block(s), %d descriptive row(s) not recomputable\n",
-		report.files, report.bases, report.tampers, report.replays, report.accounting, report.descriptive)
+	fmt.Printf("verified %d file(s): %d base digest(s), %d tamper row(s), %d replay row(s), %d mutation row(s), %d leaf_accounting block(s), %d descriptive row(s) not recomputable\n",
+		report.files, report.bases, report.tampers, report.replays, report.mutations, report.accounting, report.descriptive)
 }
 
 // report counts what was checked, so a run that silently checks nothing is
 // visible in the CI log.
 type report struct {
-	files, bases, tampers, replays, accounting, descriptive int
+	files, bases, tampers, replays, mutations, accounting, descriptive int
 }
 
 // verifyRoot checks every fixture file under root (the fixture manifest itself
@@ -89,6 +91,7 @@ func verifyRoot(root string) (report, error) {
 		total.bases += got.bases
 		total.tampers += got.tampers
 		total.replays += got.replays
+		total.mutations += got.mutations
 		total.accounting += got.accounting
 		total.descriptive += got.descriptive
 		problems = append(problems, errs...)
@@ -258,6 +261,149 @@ func (c *fileChecker) checkObject(where string, object map[string]any) {
 		c.report.replays++
 		c.checkReplay(where, domain, fields, parts, row)
 	}
+	for _, row := range rows(object, "mutations") {
+		if _, ok := row["edit"]; !ok {
+			// Rows that state their change only in prose, and reject rows
+			// that carry no digest, cannot be recomputed.
+			if _, ok := row["digest_hex"]; ok {
+				c.report.descriptive++
+			}
+			continue
+		}
+		c.report.mutations++
+		c.checkMutation(where, domain, fields, object["digest_hex"], row)
+	}
+}
+
+// checkMutation recomputes a mutation row from its edit, applied to a copy of
+// the vector's typed fields.
+func (c *fileChecker) checkMutation(where, domain string, fields []any, base any, row map[string]any) {
+	published, ok := row["digest_hex"].(string)
+	if !ok {
+		c.fail("%s: mutation %q has an edit but no digest_hex", where, rowName(row))
+		return
+	}
+	edit, _ := row["edit"].(map[string]any)
+	mutated, err := applyEdit(fields, edit)
+	if err != nil {
+		c.fail("%s: mutation %q: %v", where, rowName(row), err)
+		return
+	}
+	parts, err := encodeFields(mutated)
+	if err != nil {
+		c.fail("%s: mutation %q: %v", where, rowName(row), err)
+		return
+	}
+	got := digestHex(hFields(domain, parts))
+	if got == base {
+		c.fail("%s: mutation %q leaves the base digest unchanged", where, rowName(row))
+		return
+	}
+	if got != published {
+		c.fail("%s: mutation %q recomputes to %s, the row publishes %s", where, rowName(row), got, published)
+	}
+}
+
+// applyEdit returns a copy of fields with one edit applied. A path names a
+// field by its name, and a nested field by the names of its enclosing frames
+// joined with ".". The operations are:
+//
+//   - {"op":"replace","path":P,"field":F} replaces the field at P with the
+//     fully typed field F;
+//   - {"op":"swap","paths":[P,Q]} exchanges two fields of the same frame;
+//   - {"op":"remove","path":P} drops the field at P;
+//   - {"op":"append","field":F} appends F after the last top-level field.
+func applyEdit(fields []any, edit map[string]any) ([]any, error) {
+	root, _ := cloneJSON(fields).([]any)
+	locate := func(path string) ([]any, int, func([]any), error) {
+		names := strings.Split(path, ".")
+		list, set := root, func(updated []any) { root = updated }
+		for depth, name := range names {
+			index := fieldIndexByName(list, name)
+			if index < 0 {
+				return nil, 0, nil, fmt.Errorf("path %q: no field %q", path, name)
+			}
+			if depth == len(names)-1 {
+				return list, index, set, nil
+			}
+			frame, _ := list[index].(map[string]any)
+			children, ok := frame["fields"].([]any)
+			if !ok {
+				return nil, 0, nil, fmt.Errorf("path %q: %q is not a frame", path, name)
+			}
+			list, set = children, func(updated []any) { frame["fields"] = updated }
+		}
+		return nil, 0, nil, fmt.Errorf("empty path")
+	}
+	if edit == nil {
+		return nil, errors.New("edit is not an object")
+	}
+	switch edit["op"] {
+	case "replace":
+		path, _ := edit["path"].(string)
+		field, ok := edit["field"].(map[string]any)
+		if !ok {
+			return nil, errors.New("replace needs a typed field")
+		}
+		list, index, _, err := locate(path)
+		if err != nil {
+			return nil, err
+		}
+		list[index] = cloneJSON(field)
+	case "swap":
+		paths, _ := edit["paths"].([]any)
+		if len(paths) != 2 {
+			return nil, errors.New("swap needs exactly two paths")
+		}
+		first, _ := paths[0].(string)
+		second, _ := paths[1].(string)
+		listA, indexA, _, err := locate(first)
+		if err != nil {
+			return nil, err
+		}
+		listB, indexB, _, err := locate(second)
+		if err != nil {
+			return nil, err
+		}
+		if &listA[0] != &listB[0] || indexA == indexB {
+			return nil, errors.New("swap needs two distinct fields of the same frame")
+		}
+		listA[indexA], listA[indexB] = listA[indexB], listA[indexA]
+	case "remove":
+		path, _ := edit["path"].(string)
+		list, index, set, err := locate(path)
+		if err != nil {
+			return nil, err
+		}
+		set(append(append([]any{}, list[:index]...), list[index+1:]...))
+	case "append":
+		field, ok := edit["field"].(map[string]any)
+		if !ok {
+			return nil, errors.New("append needs a typed field")
+		}
+		root = append(root, cloneJSON(field))
+	default:
+		return nil, fmt.Errorf("unknown edit op %v", edit["op"])
+	}
+	return root, nil
+}
+
+func cloneJSON(value any) any {
+	switch typed := value.(type) {
+	case map[string]any:
+		out := make(map[string]any, len(typed))
+		for key, child := range typed {
+			out[key] = cloneJSON(child)
+		}
+		return out
+	case []any:
+		out := make([]any, len(typed))
+		for index, child := range typed {
+			out[index] = cloneJSON(child)
+		}
+		return out
+	}
+	return value
 }
 
 // checkBase requires the typed fields to reproduce preimage_hex and the
