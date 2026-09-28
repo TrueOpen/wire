@@ -51,8 +51,15 @@ is pushed.
    the new commit. Nothing is published yet, so this costs nothing.
 5. Once every consumer passes, merge the release pull request, wait for `main`
    to go green, and tag the merge commit.
-6. Consumers switch their pins from the commit to the tag before merging. A
-   commit pin is for verification only and must never be merged.
+6. Consumers switch their pins from the commit to the tag before merging a
+   pin update for a release.
+
+A consumer may merge a pin to a commit on wire `main` only to consume
+additive, unreleased material it needs now (for example new test vectors),
+and only when that commit is on `main` rather than a branch. It must say so
+where it records the pin, and move to the next wire tag once one exists.
+That commit must add to the last tag only: no proto field, domain, framing or
+existing digest may differ from it.
 
 Not every mismatch needs a release. A change that alters a digest, a preimage,
 framing or a signature is fixed in wire and released. A descriptive error in a

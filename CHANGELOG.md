@@ -49,6 +49,10 @@ Consumers that byte-compare fixture copies must refresh
 `hub/manifest_uri_v1.json`, `shared/account_signing_v1.json` and
 `task/task_order_v3.json`.
 
+- Consumers may merge a pin to a commit on `main` between releases to use
+  additive, unreleased material, and move to the next tag once it exists
+  (`release/README.md`, `VERSIONING.md`).
+
 - Release pages now carry only their own version's CHANGELOG section
   (`release/notes.sh`); the release job fails when the tag has no section.
 

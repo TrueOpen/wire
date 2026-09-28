@@ -10,7 +10,10 @@ Wire releases use semantic version tags.
 Every release publishes an immutable `wire.binpb` descriptor image. Consumers
 must pin an exact tag or descriptor digest; they must not track `main`. A
 consumer may pin a candidate commit on a local branch to verify a release before
-it is tagged, but never merges that pin. A published tag is never moved.
+it is tagged. Between releases, a consumer may also merge a pin to a commit
+on `main` to use additive, unreleased material such as new test vectors,
+stating so and moving to the next tag once it exists; see
+`release/README.md`. A published tag is never moved.
 
 The first release should remain `v0.x` until Node, Builder, Cortex, and SDK all
 build successfully from the same descriptor and one complete localnet workflow
