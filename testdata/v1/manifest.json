@@ -91,8 +91,8 @@
       "path": "shared/account_signing_v1.json",
       "origin": "wire",
       "contract_section": "Account, TaskOrderV3, SDK request, session grant and TaskDataRequest EIP-712 signatures",
-      "bytes": 47463,
-      "sha256": "e6b019f59bba43e70fa86d647bd5d3868a47d3be62b62d8db454a237bdf0797f"
+      "bytes": 50899,
+      "sha256": "e68ab6be424d1265568a98bc5dc091a26c8e30d136e1e3c35bf7cd88ea432f07"
     },
     {
       "path": "shared/framing_v1.json",

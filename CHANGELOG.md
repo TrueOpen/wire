@@ -6,6 +6,33 @@
   `SDKRequestEnvelopeV2`, each always returns Unimplemented with
   `NEXUS_INGRESS_METHOD_RETIRED`, before parsing the request or verifying any
   signature. No body domain is defined for them. Comment-only change.
+- User request verification rules are pinned; comment and fixture-note
+  change only, with no field, domain, digest or signature changed:
+  - The verifier rebuilds the `SDKRequest` and `TaskDataRequest` digests with
+    its own `chain_id` and `evm_chain_id`, never the request's. A request
+    signed for another chain fails at recovery with
+    `SDK_AUTH_INVALID_SIGNATURE` (as `sdk_request_other_chain_id` shows), not
+    at the format step. The replay key uses the verifier's own `chain_id`.
+  - A wallet-signed USER `TaskDataRequestAuthV1` gets the same account check
+    as `SDKRequestEnvelopeV2`: the recovered key must equal the account's
+    stored `eth_secp256k1` key, otherwise `DATA_ACCESS_INVALID_SIGNATURE`.
+    The service step then checks, in order, `builder_operator_address`
+    (another Builder is `DATA_ACCESS_DENIED`), the
+    `max_service_material_expiry_blocks` expiry window (`NEXUS_DATA_EXPIRED`,
+    distinct from the retention `DATA_EXPIRED`), replay and the Task duty.
+  - An OpenTask chain-height expiry must satisfy
+    `current_height <= expiry <= current_height + request_ttl_blocks`
+    (Builder configuration, default 20), otherwise `SDK_AUTH_EXPIRED`; an
+    unavailable chain height is a rejection.
+  - `SDKRequestEnvelopeV2.signer_address` and the OpenTask `user_address`
+    must be canonical lowercase Bech32 with the `trueopen` prefix, decoding
+    to exactly 20 bytes, otherwise `NEXUS_INGRESS_MALFORMED` at the format
+    step. The `TRUEOPEN_SDK_BODY_OPEN_TASK_V1` registry note says so.
+  - `testdata/v1/shared/account_signing_v1.json` notes now state the timing
+    the expected results assume: `max_session_grant_blocks` 400,
+    `max_service_material_expiry_blocks` 604800 (any value of 800 or more
+    gives the same results), `request_ttl_blocks` 20, current height 1200
+    for the session rows, and 1000 for the OpenTask `sdk_request` row.
 
 ### User request signing: EIP-712 with session grants (breaking)
 
