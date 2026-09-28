@@ -36,7 +36,9 @@ is pushed.
 
 1. Open the release pull request (changelog heading renamed to the version) and
    push its branch. Do not tag.
-2. Run the release path locally against the candidate commit: `buf breaking`
+2. Run the release path locally against the candidate commit. First,
+   `release/notes.sh <version>` must print the new section; the release job
+   publishes exactly that text and fails without it. Then: `buf breaking`
    against the previous release, and `tools/release-manifest` in write and
    verify mode. The previous release must be picked as the baseline.
 3. Point each consumer at the candidate commit on a local branch and run its

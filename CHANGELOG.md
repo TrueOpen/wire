@@ -2,7 +2,12 @@
 
 ## Unreleased
 
-Intended as `v0.3.3`. **Fixture and notes correction only; no preimage, framing
+- Release pages now carry only their own version's CHANGELOG section
+  (`release/notes.sh`); the release job fails when the tag has no section.
+
+## v0.3.3
+
+**Fixture and notes correction only; no preimage, framing
 or proto change.** Every base digest is unchanged. What changes is rows,
 counts, names and notes that described the vectors wrongly, plus one added
 vector and a CI check that would have caught the rest.
