@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- `SubmitOrder`, `FetchOutputRef` and `RefreshCredential` are retired: once Nexus switches to
+  `SDKRequestEnvelopeV2`, each always returns Unimplemented with
+  `NEXUS_INGRESS_METHOD_RETIRED`, before parsing the request or verifying any
+  signature. No body domain is defined for them. Comment-only change.
+
 ### User request signing: EIP-712 with session grants (breaking)
 
 User requests to Builder Ingress and USER Task data requests are now signed as
