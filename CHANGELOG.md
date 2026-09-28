@@ -20,7 +20,14 @@
     (another Builder is `DATA_ACCESS_DENIED`), the
     `max_service_material_expiry_blocks` expiry window (`NEXUS_DATA_EXPIRED`,
     distinct from the retention `DATA_EXPIRED`), replay and the Task duty.
-  - An OpenTask chain-height expiry must satisfy
+  - The envelope `chain_id` field (and the Task data request `chain_id`)
+    must equal the verifier's own `chain_id`. A mismatch is rejected at the
+    signature step with `SDK_AUTH_INVALID_SIGNATURE` or
+    `DATA_ACCESS_INVALID_SIGNATURE`, never as `NEXUS_INGRESS_MALFORMED`. A
+    session grant's `chain_id` is compared with the verifier's own `chain_id`.
+  - OpenTask accepts only a chain-height expiry; a Unix millisecond value
+    (10^12 or more) is `NEXUS_INGRESS_MALFORMED` at the format step. The
+    height must satisfy
     `current_height <= expiry <= current_height + request_ttl_blocks`
     (Builder configuration, default 20), otherwise `SDK_AUTH_EXPIRED`; an
     unavailable chain height is a rejection.

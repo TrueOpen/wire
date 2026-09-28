@@ -276,8 +276,11 @@ message BuilderStorageConfirmationV1 {
 //   3. The grant -> DATA_ACCESS_SESSION_GRANT_INVALID or
 //      DATA_ACCESS_SESSION_GRANT_EXPIRED.
 //   4. The request signature, over the digest the verifier rebuilds with its
-//      own chain_id and evm_chain_id -> DATA_ACCESS_INVALID_SIGNATURE. This
-//      covers a wrong derived grant hash, a wrong domain chainId, a chainId
+//      own chain_id and evm_chain_id -> DATA_ACCESS_INVALID_SIGNATURE. The
+//      chain_id field must also equal the verifier's own chain_id; a mismatch
+//      is rejected here with DATA_ACCESS_INVALID_SIGNATURE even though it could
+//      be detected earlier, never as a format error. This covers a wrong
+//      derived grant hash, a wrong domain chainId, a chainId
 //      string of another chain and a version 1 signature. Without a grant it
 //      also covers the account check of SDKRequestEnvelopeV2: requester_address
 //      must be an existing account holding an eth_secp256k1 public key equal to
@@ -325,7 +328,8 @@ message TaskDataRequestAuthV1 {
 // that carries a grant binds it through sessionGrantHash = hashStruct(SessionGrant).
 //
 // A verifier rejects the grant unless:
-//   - chain_id equals the request chain_id and the current chain, and user
+//   - chain_id equals the verifier's own chain_id (whether the request's
+//     chain_id field matches is checked at the signature step), and user
 //     equals the request's signer (signer_address or requester_address);
 //   - user_signature recovers over the SessionGrant signing digest to user, user
 //     is an existing on-chain account, and the recovered public key equals the
@@ -397,11 +401,13 @@ message SessionGrantV1 {
 // The verifier runs five steps in order and stops at the first failure:
 //   1. Format: session_id and task_id in 64-character lowercase hex, a 32-byte
 //      request_nonce, expiry_height_or_time above zero, endpoint matching
-//      method, for OpenTask the derived task_id and payload_ref, signer_address
+//      method, for OpenTask a chain-height expiry (below 10^12; a Unix
+//      millisecond value is rejected here) and the derived task_id and
+//      payload_ref, signer_address
 //      (and the OpenTask body user_address) in canonical lowercase Bech32 with
 //      the chain's account prefix, trueopen, decoding to exactly 20 bytes, and
 //      a body that projects -> NEXUS_INGRESS_MALFORMED. A chain_id other than
-//      the verifier's is not a format error; see step 4.
+//      the verifier's could be seen here but is not a format error; see step 4.
 //   2. With session_grant, a method outside the session-allowed set ->
 //      SDK_AUTH_SESSION_METHOD_NOT_ALLOWED.
 //   3. With session_grant, a grant whose chain, user, user signature or stored
@@ -412,8 +418,10 @@ message SessionGrantV1 {
 //      or a wallet-signed request whose account key does not match ->
 //      SDK_AUTH_INVALID_SIGNATURE. A wrong grant hash shows up only here. The
 //      verifier rebuilds the digest with its own chain_id (typed chainId) and
-//      evm_chain_id (domain chainId), never with the envelope's chain_id, so
-//      a request signed for another chain fails here, at recovery.
+//      evm_chain_id (domain chainId), never with the envelope's chain_id, and
+//      the envelope chain_id must equal the verifier's own chain_id. A request
+//      signed for another chain, or whose chain_id field names another chain,
+//      fails here with SDK_AUTH_INVALID_SIGNATURE.
 //   5. Request expiry -> SDK_AUTH_EXPIRED; nonce replay -> SDK_AUTH_REPLAY.
 //      An OpenTask chain-height expiry must satisfy
 //      current_height <= expiry <= current_height + request_ttl_blocks, with
@@ -434,9 +442,9 @@ message SessionGrantV1 {
 message SDKRequestEnvelopeV2 {
   // Exactly "TRUEOPEN_SDK_REQUEST_V2". Checked and used in the replay key; not signed.
   string request_domain = 1;
-  // The chain the request is for. The verifier never builds the digest or the
-  // replay key from it: it uses its own chain_id, so a mismatch is rejected at
-  // the signature step with SDK_AUTH_INVALID_SIGNATURE.
+  // Must equal the verifier's own chain_id. The verifier never builds the
+  // digest or the replay key from it; a mismatch is rejected at the signature
+  // step with SDK_AUTH_INVALID_SIGNATURE, not as a format error.
   string chain_id = 2;
   // The bare name of the method called, such as "SubscribeOutput".
   string method = 3;
@@ -453,9 +461,11 @@ message SDKRequestEnvelopeV2 {
   bytes request_nonce = 7;
   // Above zero; 0 and negative values are rejected before projection into the
   // uint64 typed field. Values of 10^12 and above are Unix milliseconds;
-  // smaller values are a chain height, accepted only for OpenTask, where
-  // current_height <= expiry <= current_height + request_ttl_blocks must hold
-  // (see OpenTaskHeader).
+  // smaller values are a chain height, accepted only for OpenTask. OpenTask
+  // accepts only a chain height: a Unix millisecond value is
+  // NEXUS_INGRESS_MALFORMED at the format step, and the height must satisfy
+  // current_height <= expiry <= current_height + request_ttl_blocks (see
+  // OpenTaskHeader).
   int64 expiry_height_or_time = 8;
   // 32 bytes: the body domain digest of the method called.
   bytes body_digest = 9;
@@ -481,7 +491,9 @@ message SDKRequestEnvelopeV2 {
 // authorized only by the SignedOrder EIP-712 user signature, which the Keeper
 // verifies; there is no outer order signature.
 //
-// A chain-height expiry_height_or_time on request_envelope must satisfy
+// expiry_height_or_time on request_envelope must be a chain height (below
+// 10^12); a Unix millisecond value is rejected at the format step with
+// NEXUS_INGRESS_MALFORMED. The height must satisfy
 // current_height <= expiry <= current_height + request_ttl_blocks, with checked
 // addition. request_ttl_blocks is Builder configuration with a default of 20
 // blocks. Outside the window the request is rejected with SDK_AUTH_EXPIRED; a
