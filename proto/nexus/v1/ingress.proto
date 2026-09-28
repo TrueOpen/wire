@@ -62,14 +62,23 @@ service IngressAPI {
 
 
   // SubmitOrder executes the SubmitOrder operation.
+  // Retired. Once Nexus switches to SDKRequestEnvelopeV2, this RPC always returns
+  // Unimplemented with NEXUS_INGRESS_METHOD_RETIRED, before parsing the request or
+  // verifying any signature. No body domain is defined for it.
   rpc SubmitOrder(SubmitOrderRequest) returns (SubmitOrderResponse) {
     option deprecated = true;
   }
   // FetchOutputRef executes the FetchOutputRef operation.
+  // Retired. Once Nexus switches to SDKRequestEnvelopeV2, this RPC always returns
+  // Unimplemented with NEXUS_INGRESS_METHOD_RETIRED, before parsing the request or
+  // verifying any signature. No body domain is defined for it.
   rpc FetchOutputRef(FetchOutputRefRequest) returns (FetchOutputRefResponse) {
     option deprecated = true;
   }
   // RefreshCredential executes the RefreshCredential operation.
+  // Retired. Once Nexus switches to SDKRequestEnvelopeV2, this RPC always returns
+  // Unimplemented with NEXUS_INGRESS_METHOD_RETIRED, before parsing the request or
+  // verifying any signature. No body domain is defined for it.
   rpc RefreshCredential(RefreshCredentialRequest) returns (RefreshCredentialResponse) {
     option deprecated = true;
   }
