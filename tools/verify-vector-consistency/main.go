@@ -9,7 +9,10 @@
 //   - vector names, which consumers use to select a vector and which only work
 //     as a key if no two vectors in a file share one;
 //   - the digest of every mutation row that states its change as a
-//     machine-readable edit (see applyEdit).
+//     machine-readable edit (see applyEdit);
+//   - every EIP-712 value: key derivations, domain separators, type hashes,
+//     hash_struct, signing digests, signatures and recovered addresses, and the
+//     negative request-authentication rows built from them (see eip712.go).
 //
 // Base preimages are recomputed too, so a row is always checked against a base
 // that is itself known to be right.
@@ -48,12 +51,15 @@ func main() {
 	}
 	fmt.Printf("verified %d file(s): %d base digest(s), %d tamper row(s), %d replay row(s), %d mutation row(s), %d leaf_accounting block(s), %d descriptive row(s) not recomputable\n",
 		report.files, report.bases, report.tampers, report.replays, report.mutations, report.accounting, report.descriptive)
+	fmt.Printf("verified EIP-712: %d key(s), %d domain separator(s), %d typed digest(s), %d signature(s), %d negative request row(s)\n",
+		report.keys, report.domains, report.eip712, report.signatures, report.negatives)
 }
 
 // report counts what was checked, so a run that silently checks nothing is
 // visible in the CI log.
 type report struct {
 	files, bases, tampers, replays, mutations, accounting, descriptive int
+	keys, domains, eip712, signatures, negatives                       int
 }
 
 // verifyRoot checks every fixture file under root (the fixture manifest itself
@@ -94,6 +100,11 @@ func verifyRoot(root string) (report, error) {
 		total.mutations += got.mutations
 		total.accounting += got.accounting
 		total.descriptive += got.descriptive
+		total.keys += got.keys
+		total.domains += got.domains
+		total.eip712 += got.eip712
+		total.signatures += got.signatures
+		total.negatives += got.negatives
 		problems = append(problems, errs...)
 	}
 	if len(problems) != 0 {
@@ -114,6 +125,7 @@ func verifyFile(name string, raw []byte) (report, []string) {
 	checker.collectRPCDigests(document)
 	checker.checkNames(document)
 	checker.walk(name, document)
+	checker.checkEIP712Document(document)
 	return checker.report, checker.problems
 }
 
@@ -456,7 +468,11 @@ func (c *fileChecker) checkTamper(where, domain string, parts [][]byte, row map[
 	c.compareRow(where, "tamper", row, published, hFields(domain, mutated))
 }
 
-// checkReplay recomputes a replay row. Three shapes exist:
+// checkReplay recomputes a replay row. A row may name another "domain" to hash
+// under, which is how a cross-domain replay states that the same fields are
+// framed under a different domain; the field shapes below then apply on top of
+// it, and a row with only a domain changes nothing else. Three field shapes
+// exist:
 //
 //   - overrides: [{field, value}] replaces top-level fields by index with fully
 //     typed fields;
@@ -485,8 +501,20 @@ func (c *fileChecker) checkReplay(where, domain string, fields []any, parts [][]
 		return nil
 	}
 
+	hashDomain := domain
+	if other, ok := row["domain"]; ok {
+		name, isString := other.(string)
+		if !isString || name == domain || !strings.HasPrefix(name, "TRUEOPEN_") {
+			c.fail("%s: replay %q: domain must name another TRUEOPEN_ domain", where, rowName(row))
+			return
+		}
+		hashDomain = name
+	}
+
 	var err error
 	switch {
+	case row["domain"] != nil && row["overrides"] == nil && row["field"] == nil && len(row) == len(onlyReplayMeta(row)):
+		// Cross-domain only: the unchanged fields under another domain.
 	case row["overrides"] != nil:
 		overrides, _ := row["overrides"].([]any)
 		if len(overrides) == 0 {
@@ -514,7 +542,7 @@ func (c *fileChecker) checkReplay(where, domain string, fields []any, parts [][]
 	default:
 		replaced := 0
 		for key, value := range row {
-			if key == "digest_hex" || key == "name" || key == "reason" {
+			if key == "digest_hex" || key == "name" || key == "reason" || key == "domain" {
 				continue
 			}
 			index := fieldIndexByName(fields, key)
@@ -535,7 +563,19 @@ func (c *fileChecker) checkReplay(where, domain string, fields []any, parts [][]
 		c.fail("%s: replay %q: %v", where, rowName(row), err)
 		return
 	}
-	c.compareRow(where, "replay", row, published, hFields(domain, mutated))
+	c.compareRow(where, "replay", row, published, hFields(hashDomain, mutated))
+}
+
+// onlyReplayMeta returns the keys of a replay row that change nothing by
+// themselves: its name, reason, published digest and target domain.
+func onlyReplayMeta(row map[string]any) map[string]any {
+	meta := map[string]any{}
+	for _, key := range []string{"name", "reason", "digest_hex", "domain"} {
+		if value, ok := row[key]; ok {
+			meta[key] = value
+		}
+	}
+	return meta
 }
 
 func (c *fileChecker) compareRow(where, kind string, row map[string]any, published string, preimage []byte) {

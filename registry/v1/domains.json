@@ -2033,6 +2033,102 @@
       "preimage_diverges_from_contract": false
     },
     {
+      "domain": "TRUEOPEN_SDK_BODY_ACK_OUTPUT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "session_id",
+        "task_id",
+        "last_seq"
+      ],
+      "producer": "User SDK, signed by the user wallet or by a session key under a SessionGrant",
+      "consumers": "SDKRequestEnvelopeV2.body_digest, which is the bodyDigest of the EIP-712 SDKRequest, for AckOutput; recomputed by the Task Builder Ingress",
+      "store": "not persisted on chain; bound only into the Builder replay record of the request",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Public wire domain TRUEOPEN_SDK_BODY_ACK_OUTPUT_V1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "session_id and task_id are Hash32, raw 32 bytes after decoding the transport lowercase hex; last_seq is u64_be. The deprecated output_id does not enter the preimage. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
+    },
+    {
+      "domain": "TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "session_id",
+        "task_id",
+        "optional from_cursor"
+      ],
+      "producer": "User SDK, signed by the user wallet or by a session key under a SessionGrant",
+      "consumers": "SDKRequestEnvelopeV2.body_digest, which is the bodyDigest of the EIP-712 SDKRequest, for GetTaskEvents; recomputed by the Task Builder Ingress",
+      "store": "not persisted on chain; bound only into the Builder replay record of the request",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Public wire domain TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "from_cursor is decimal text on the transport: the empty string is OPTIONAL_V1 absent; otherwise it must be unsigned decimal without leading zeros and at most 2^64-1 (\"0\" is valid) and is present as u64_be, and anything else is rejected before hashing. The field shapes equal those of TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1, so only the domain separates the two. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
+    },
+    {
+      "domain": "TRUEOPEN_SDK_BODY_OPEN_TASK_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_hash",
+        "session_id",
+        "order_sequence",
+        "user_address",
+        "input_size_bytes",
+        "input_hash",
+        "input_media_type",
+        "idempotency_key"
+      ],
+      "producer": "User SDK, signed by the user wallet directly; a session key may never sign OpenTask",
+      "consumers": "SDKRequestEnvelopeV2.body_digest, which is the bodyDigest of the EIP-712 SDKRequest, for OpenTask; recomputed by the Task Builder Ingress",
+      "store": "not persisted on chain; bound only into the Builder replay record of the request",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Public wire domain TRUEOPEN_SDK_BODY_OPEN_TASK_V1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "task_hash is recomputed by the verifier from the SignedOrderV2 in OpenTaskHeader.order_envelope and never taken from the caller; the order_envelope bytes do not enter the preimage. payload_ref is not a field: it is derived from the signed input_hash and checked on the transport only, as \"nexus://sha256/\" || lowercase_hex(input_hash). user_address frames the 20 bytes decoded from canonical Bech32, Hash32 values are raw 32 bytes, integers are u64_be and strings UTF-8. There is no outer order signature: OpenTaskHeader.signature and signature_scheme must be empty and are not fields here, and the order is authorized only by the SignedOrder EIP-712 user signature. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
+    },
+    {
+      "domain": "TRUEOPEN_SDK_BODY_PREPARE_CHALLENGE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "session_id",
+        "task_id",
+        "challenge_kind",
+        "optional local_evidence_digest"
+      ],
+      "producer": "User SDK, signed by the user wallet or by a session key under a SessionGrant",
+      "consumers": "SDKRequestEnvelopeV2.body_digest, which is the bodyDigest of the EIP-712 SDKRequest, for PrepareChallenge; recomputed by the Task Builder Ingress",
+      "store": "not persisted on chain; bound only into the Builder replay record of the request",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Public wire domain TRUEOPEN_SDK_BODY_PREPARE_CHALLENGE_V1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "local_evidence_digest is bytes on the transport: empty is OPTIONAL_V1 absent, exactly 32 bytes is present, and any other length is rejected before hashing. challenge_kind is bound although V1 does not act on it. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
+    },
+    {
+      "domain": "TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "session_id",
+        "task_id",
+        "optional resume_after_seq"
+      ],
+      "producer": "User SDK, signed by the user wallet or by a session key under a SessionGrant",
+      "consumers": "SDKRequestEnvelopeV2.body_digest, which is the bodyDigest of the EIP-712 SDKRequest, for SubscribeOutput; recomputed by the Task Builder Ingress",
+      "store": "not persisted on chain; bound only into the Builder replay record of the request",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Public wire domain TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "resume_after_seq follows transport presence: unset is OPTIONAL_V1 absent and a set 0 is present 0. The field shapes equal those of TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1, so only the domain separates the two. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
+    },
+    {
       "domain": "TRUEOPEN_SELECTED_TASK_BUILDERS_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -2354,7 +2450,7 @@
         "canonical TaskDataObjectRefV1",
         "optional ByteRangeV1(offset, length)"
       ],
-      "producer": "The original User SDK or a Cortex service holding the current duty",
+      "producer": "The original User SDK, directly or through a session key for an OUTPUT object, or a Cortex service holding the current duty",
       "consumers": "TaskDataRequestAuthV1.body_digest for FetchTaskData",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
       "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_FETCH_BODY_V2",
@@ -2431,7 +2527,7 @@
       "fields": [
         "canonical TaskDataObjectRefV1"
       ],
-      "producer": "The original User SDK or a Cortex service holding the current duty",
+      "producer": "The original User SDK, directly or through a session key for an OUTPUT object, or a Cortex service holding the current duty",
       "consumers": "TaskDataRequestAuthV1.body_digest for GetTaskDataMetadata",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
       "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_METADATA_BODY_V2",
@@ -2460,7 +2556,7 @@
       "consumers": "Nexus Ingress request authentication for the five Task-data RPCs",
       "store": "not persisted on chain; each Builder keeps a durable StoreOnce row keyed by (chain_id, builder_operator_address, requester_kind, requester_address, service_authorization_nonce, request_nonce)",
       "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_REQUEST_V1",
-      "note": "CORTEX_SERVICE only. The USER path signs the same ten fields as EIP-712 v4 typed data under the TrueOpen Task Data Request domain and never reaches this digest, so requester_kind alone selects the verifier: exactly 64 raw bytes here, exactly 65 there, with no length sniffing and no caller-supplied pubkey.",
+      "note": "CORTEX_SERVICE only, and never with a session grant. The USER path signs EIP-712 typed data under the TrueOpen Task Data Request domain version 2 - these ten fields plus sessionGrantHash, which binds an optional SessionGrant - and never reaches this digest, so requester_kind alone selects the verifier: exactly 64 raw bytes here, exactly 65 there, with no length sniffing and no caller-supplied pubkey.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,

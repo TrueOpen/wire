@@ -2,9 +2,119 @@
 
 ## Unreleased
 
-Additional vectors and notes; no preimage, framing or proto field change. Every
-existing digest, preimage, domain and field number is unchanged. The proto
-edits are comments only.
+### User request signing: EIP-712 with session grants (breaking)
+
+User requests to Builder Ingress and USER Task data requests are now signed as
+EIP-712 typed data that a browser wallet can sign, a short-lived session key can
+sign the read and delivery-progress requests after one wallet prompt, and every
+request body digest is a registered `H_FIELDS_V1` domain. This is a
+pre-genesis revision: digests and signatures computed under earlier releases
+for the domains and messages named below are superseded, and every
+implementation must move to this release. The proto change is a reviewed
+break, declared in `release/reviewed-breaking.json` for v0.4.0 against
+v0.3.3.
+
+- **`SDKRequestEnvelopeV1` is renamed `SDKRequestEnvelopeV2`** (`nexus.v1`).
+  Field numbers are unchanged. `request_domain` is now
+  `TRUEOPEN_SDK_REQUEST_V2`; it is checked and used in the replay key but not
+  signed. `signature` is now 65 bytes `R||S||V` (V in {27, 28}, low S) over
+  the EIP-712 `SDKRequest` digest, and the verifier recovers the signer from
+  it. `signer_pubkey` (field 12) is deprecated and ignored: no address is
+  derived from or checked against it. The old signature - SHA-256 over the
+  length-prefixed `TRUEOPEN_SDK_REQUEST_V1` field list, 64 bytes `r||s`, with
+  a caller-supplied public key - is removed. The nine request messages that
+  carry the envelope change type accordingly: `OpenTaskHeader`,
+  `ConfirmOpenTaskRequest`, `SubscribeOutputRequest`, `AckOutputRequest`,
+  `GetTaskEventsRequest`, `PrepareChallengeRequest`, and the deprecated
+  `SubmitOrderRequest`, `FetchOutputRefRequest` and
+  `RefreshCredentialRequest`.
+- **New EIP-712 domain `"TrueOpen SDK Request"` version `"1"`** (chainId the
+  EVM chain ID) with two primary types:
+  `SDKRequest(string chainId,string method,string endpoint,bytes32 sessionId,bytes32 taskId,bytes32 requestNonce,uint64 expiryHeightOrTime,bytes32 bodyDigest,bytes32 sessionGrantHash)`
+  and
+  `SessionGrant(string chainId,string user,address sessionKey,uint64 expiryHeight,bytes32 grantNonce)`.
+  `sessionGrantHash` is 32 zero bytes without a grant and
+  `hashStruct(SessionGrant)` with one; the verifier derives it. `method` is
+  the bare method name and `endpoint` the full procedure
+  `/nexus.v1.IngressAPI/<Method>`, whose `<Method>` must equal `method`.
+  `session_id` and `task_id` are decoded strictly from 64-character lowercase
+  hex without `0x`; `request_nonce` is exactly 32 bytes; an expiry of 0 or
+  below is rejected before projection; an OpenTask `task_id` must equal
+  `TRUEOPEN_TASK_ID_V1(session_id, order_sequence)`. A SessionGrant is always
+  signed under this domain, including when a Task data request carries it.
+- **Session grant.** New message `SessionGrantV1` (`chain_id`, `user`,
+  `session_key` raw 20 bytes, `expiry_height`, `grant_nonce` 32 bytes,
+  `user_signature` 65 bytes) and the optional field
+  `SDKRequestEnvelopeV2.session_grant` (13). A grant is valid while
+  `current_height <= expiry_height <= current_height + max_session_grant_blocks`;
+  there is no revocation. A session key may sign only SubscribeOutput,
+  AckOutput, GetTaskEvents and PrepareChallenge, and GetTaskDataMetadata and
+  FetchTaskData of an OUTPUT object. OpenTask and every other request must be
+  signed by the wallet and are rejected with a grant. Grant failures have
+  their own codes: `SDK_AUTH_SESSION_GRANT_INVALID`,
+  `SDK_AUTH_SESSION_GRANT_EXPIRED` and `SDK_AUTH_SESSION_METHOD_NOT_ALLOWED`,
+  and the `DATA_ACCESS_SESSION_*` counterparts on the Task data path. The
+  verifier runs format, session method set, grant, request signature, then
+  expiry and replay, stopping at the first failure; a wrong derived grant hash
+  is a request signature failure (`SDK_AUTH_INVALID_SIGNATURE` or
+  `DATA_ACCESS_INVALID_SIGNATURE`).
+  `max_session_grant_blocks` is off-chain configuration that every Task
+  Builder must set to the same value.
+- **TaskDataRequest EIP-712 domain version `"2"`.** The USER path of
+  `TaskDataRequestAuthV1` signs
+  `TaskDataRequest(uint32 schemaVersion,string chainId,string builderOperatorAddress,string rpcMethod,bytes32 bodyDigest,uint32 requesterKind,string requesterAddress,uint64 serviceAuthorizationNonce,bytes32 requestNonce,uint64 expiryHeight,bytes32 sessionGrantHash)`
+  under `"TrueOpen Task Data Request"` version `"2"`; version `"1"`, without
+  `sessionGrantHash`, is no longer accepted. `TaskDataRequestAuthV1` gains
+  field 12 `session_grant` (USER only). The CORTEX_SERVICE path and
+  `TRUEOPEN_TASK_DATA_REQUEST_V1` are unchanged.
+- **Five new body domains**, registered in `registry/v1/domains.json` as
+  `H_FIELDS_V1` rows and replacing unregistered bare SHA-256 body digests:
+  `TRUEOPEN_SDK_BODY_OPEN_TASK_V1`, `TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1`,
+  `TRUEOPEN_SDK_BODY_ACK_OUTPUT_V1`, `TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1`
+  and `TRUEOPEN_SDK_BODY_PREPARE_CHALLENGE_V1`. `tools/verify-registry` now
+  requires all five.
+- **OpenTask has no outer order signature.** `OpenTaskHeader.signature` and
+  `signature_scheme` are deprecated, must be empty and do not enter the body
+  digest. The order is authorized only by the SignedOrder EIP-712 user
+  signature; the request envelope must be wallet-signed and recover to the
+  order user, whose account must already hold its public key on chain. The
+  OpenTask body takes `task_hash` recomputed from the order, never from the
+  caller. `payload_ref` is not in the body: it must equal
+  `"nexus://sha256/" || lowercase_hex(input_hash)`, a transport check only.
+- **ConfirmOpenTask is not callable in V1.** Its body domain is not frozen, so
+  the Builder returns FailedPrecondition with
+  `NEXUS_INGRESS_CONTRACT_NOT_FROZEN`; it carries the V2 envelope type only
+  so that the message stays defined.
+- **Obsolete vector.** `account_signing_v1.json` `task_data_request` is now
+  the version 2 vector. The version 1 vector is kept, unchanged, as
+  `task_data_request_v1_obsolete` with `expect: reject`.
+- **Vectors.** `account_signing_v1.json` gains `sdk_request` (OpenTask,
+  wallet signed), `sdk_request_session` (SubscribeOutput, session-key signed),
+  `session_grant`, `task_data_request_session` (GetTaskDataMetadata of an
+  OUTPUT object under a grant), the `session_key` and `wrong_key` test keys,
+  and `request_auth_negative_cases`: wrong chain ID and EVM chain ID, domain
+  version 1, wrong signing key, `sessionGrantHash` mismatch in both
+  directions, expired and out-of-window grants with the inclusive edges,
+  a grant for another chain, OpenTask and UploadTaskResultObject with a
+  grant, ConfirmOpenTask, a tampered body digest, zero and negative expiry,
+  uppercase and `0x`-prefixed ids, a 16-byte nonce, a method/endpoint
+  mismatch and an OpenTask `task_id` that is not derived from the order. New `testdata/v1/task/sdk_request_body_v1.json` has one base vector
+  per body domain with tamper, replay and cross-domain rows.
+- **Tools.** New `tools/internal/eip712`, a dependency-free Keccak-256,
+  secp256k1 (RFC 6979, recovery) and EIP-712 implementation, checked against
+  the Node-produced order signature. `tools/verify-vector-consistency` now
+  recomputes every EIP-712 value (key derivations, domain separators, type
+  hashes, hash_struct, signing digests, exact signatures, recovered
+  addresses, the Tx vector from its canonical amino JSON, and every negative
+  request row) and supports cross-domain replay rows.
+
+Consumers that byte-compare fixture copies must refresh
+`shared/account_signing_v1.json` and add `task/sdk_request_body_v1.json`.
+
+### Vectors and notes
+
+The items below add vectors and notes only: no preimage, framing or proto
+field change. The proto edits they made are comments only.
 
 - Generation parameter ranges. `DecodingParamsV1` comments now state the
   inclusive ranges the Keeper enforces: `temperature_milli` 0..2000,
