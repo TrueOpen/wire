@@ -18,7 +18,7 @@
     "schema": { "const": "trueopen-framing-registry-v1" },
     "status": { "enum": ["bootstrap-copy", "authoritative"] },
     "source_repository": { "type": "string", "format": "uri" },
-    "source_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "source_commit": { "description": "Bootstrap provenance: a commit of source_repository, not of this repository, from which this registry was copied. It is not reachable in the public history of source_repository, so it records provenance and cannot be fetched or diffed against; tooling checks only its form and that it equals the domain registry's source_commit.", "type": "string", "pattern": "^[0-9a-f]{40}$" },
     "hash": { "const": "SHA-256" },
     "integer_encoding": {
       "type": "object",

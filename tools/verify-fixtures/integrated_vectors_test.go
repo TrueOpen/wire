@@ -466,7 +466,7 @@ func TestEvidenceManifestsBindTheirArtifacts(t *testing.T) {
 	var leaves [][]byte
 	for _, raw := range loadIntegratedFixture(t, "task", "worker_value_leaf_v1.json")["vectors"].([]any) {
 		vector := raw.(map[string]any)
-		if vector["name"] != "worker_value_leaf" {
+		if vector["domain"] != "TRUEOPEN_PREFILL_WORKER_VALUE_LEAF_V1" {
 			continue
 		}
 		preimage, err := hex.DecodeString(vector["preimage_hex"].(string))
@@ -1114,12 +1114,20 @@ func TestMetricSummaryFollowsTheLeaves(t *testing.T) {
 		t.Fatalf("metric_summary_v1 is %v, the leaves give %v", got, want)
 	}
 
-	// The two summaries with no comparable leaf, whose values are fixed by the
-	// cause rather than derived from data.
-	for name, want := range map[string][]int64{
-		"metric_summary_v1_zero_leaves":           {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-		"metric_summary_v1_worker_values_missing": {0, 3, 4294967295, 4294967295, 4294967295, 1_000_000, 0, 1_000_000, 0, 0},
+	// The summaries with no comparable leaf, whose values are fixed by the cause
+	// rather than derived from data. Each pins the comparisons it enables, so a
+	// vector cannot drift to a different flag set and still pass; -1 is an
+	// absent optional ratio.
+	all := summaryFlags{rank: true, jaccard: true, unionJS: true}
+	for name, tc := range map[string]struct {
+		flags summaryFlags
+		want  []int64
+	}{
+		"metric_summary_v1_zero_leaves":                          {all, []int64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}},
+		"metric_summary_v1_worker_values_missing":                {all, []int64{0, 3, 4294967295, 4294967295, 4294967295, 1_000_000, 0, 1_000_000, 0, 0}},
+		"metric_summary_v1_zero_leaves_optional_ratios_disabled": {summaryFlags{rank: true}, []int64{0, 0, 0, 0, 0, 0, -1, -1, 0, 0}},
 	} {
+		want := tc.want
 		var vector map[string]any
 		for _, raw := range receiptDoc["vectors"].([]any) {
 			if candidate := raw.(map[string]any); candidate["name"] == name {
@@ -1135,8 +1143,8 @@ func TestMetricSummaryFollowsTheLeaves(t *testing.T) {
 			jaccard: inputs["compare_topk_jaccard"] == true,
 			unionJS: inputs["compare_union_js"] == true,
 		}
-		if !on.rank || !on.jaccard || !on.unionJS || inputs["compare_logprob_diff"] != true {
-			t.Fatalf("%s must enable every comparison", name)
+		if on != tc.flags || inputs["compare_logprob_diff"] != true {
+			t.Fatalf("%s enables %+v, want %+v with the logprob comparison on", name, on, tc.flags)
 		}
 		var inputLeaves []summaryLeaf
 		for _, raw := range inputs["leaves"].([]any) {

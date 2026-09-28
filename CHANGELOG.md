@@ -1,5 +1,83 @@
 # Changelog
 
+## Unreleased
+
+Intended as `v0.3.3`. **Fixture and notes correction only; no preimage, framing
+or proto change.** Every base digest is unchanged. What changes is rows,
+counts, names and notes that described the vectors wrongly, plus one added
+vector and a CI check that would have caught the rest.
+
+- `testdata/v1/shared/query_page_v1.json`: the `cross_chain` replay row of
+  `query_selector_v1_hub_freeze_signals` still carried the digest of the
+  preimage from before `model_id` became raw 32 bytes. Recomputed with the
+  current framing: `163429a0…` → `efcd3bed…`. Every other tamper and replay row
+  in the file recomputes to its published digest.
+- `testdata/v1/shared/params_v1.json`: `hub_params_v2` `leaf_accounting` is
+  corrected from 138 scalars / 34 submessages / 4 repeated to 137 / 32 / 4. The
+  counting rule, which `task_params_v1` already followed, is now a file note:
+  within the params frame, a non-frame field is a scalar, a frame whose first
+  child is `element_count` is one repeated field (and that `element_count` is
+  not a scalar), and any other frame below the root is a submessage. Node
+  byte-compares this file, so its copy must be refreshed.
+- `testdata/v1/shared/shared_domains_v1.json`: the `TRUEOPEN_BATCH_RESULT_V1`
+  vector's `contract_section` now reads "Public wire domain
+  TRUEOPEN_BATCH_RESULT_V1", matching `registry/v1/domains.json`.
+- `source_commit` in `registry/v1/domains.json`, `registry/v1/framing.json` and
+  `testdata/v1/manifest.json` is documented rather than changed. It names a
+  commit of `source_repository` (TrueOpen/node), not of this repository, and
+  pins only the registry rows without an `origin` and the `origin: node`
+  fixtures. It is not reachable in the public history of that repository, so it
+  is provenance only; tooling checks its form and that the two registries
+  agree. `README.md` and the three JSON schemas now say so. No value was
+  changed, because no public commit is the one those bytes were copied from.
+- `registry/v1/domains.json`: the `TRUEOPEN_COMMIT_V1` note named
+  `TRUEOPEN_RESULT_COMMITMENT_V1` as the source of `commit_hash`; the proto and
+  the registry both define it as `TRUEOPEN_RESULT_COMMITMENT_V3`. The note is
+  corrected.
+- `testdata/v1/task/task_data_auth_v1.json`: the four `evidence_kind` mutation
+  rows changed the kind by +1, which lands on a kind that is illegal for that
+  object or request (a Verifier evidence object carrying
+  `SETTLEMENT_ROOT_OPENING`, a result finalize selecting
+  `VERIFIER_VALUE_OPENING`, an `OUTPUT` reference carrying
+  `WORKER_VALUE_OPENING`). They were published as `digest_changes`; they are now
+  `expect: reject_before_hash` rows with no digest and a `reason`, the reject
+  convention `output_chunk_equivocation_v1.json` already uses. A file note
+  explains the two row kinds.
+- Canonical JSON notes: `canonical_json_v1.json` said Hash32 is written as 64
+  lowercase hex, but the generation-parameter payloads write `model_id` as `0x`
+  followed by 64 lowercase hex. The note now states the exception, and the
+  `TRUEOPEN_TASK_GENERATION_PARAMS_V1` registry row gains a note saying the
+  same. No vector bytes changed.
+- Duplicate vector names are made unique by output position:
+  `integrated_metric_leaf_position_{0,1,2}` in `result_metric_v3.json`,
+  `verifier_topk_set_position_{0,1,2}` and
+  `verifier_value_leaf_position_{0,1,2}` in `verifier_value_leaf_v1.json`, and
+  `worker_value_leaf_position_{0,1,2}` in `worker_value_leaf_v1.json`. A
+  consumer that selected these by the old name (or by name plus occurrence
+  index) must switch to the new names or select by domain.
+- `testdata/v1/task/result_receipt_v3.json`: new vector
+  `metric_summary_v1_zero_leaves_optional_ratios_disabled`, a result with no
+  metric leaves and both optional ratios (top-K Jaccard and union JS) disabled.
+  Every count and number is 0, both optional ratios are absent, and the sample
+  is judged PASS. It is computed by the same MetricSummaryV1 rule
+  `verify-fixtures` applies to `metric_summary_v1_zero_leaves`, and that test
+  now pins the comparison flags of each no-comparable-leaf vector.
+- `tools/verify-vector-consistency` (new CI step in the `contract` job): it
+  recomputes every `leaf_accounting` from its field tree, recomputes every base
+  vector, tamper row and replay row from domain and fields and compares the
+  result with the published digest, and requires vector names to be unique
+  within a file. Run against the `v0.3.2` fixtures it reports exactly the stale
+  replay digest, the wrong `leaf_accounting` and the duplicate names above.
+- `testdata/v1/manifest.json`: sizes and SHA-256 refreshed for the nine changed
+  fixtures.
+- Removed references to non-public material from comments, notes and fixture
+  prose; no semantic change.
+- Release process (committed earlier on this branch): `release/README.md`,
+  `CONTRIBUTING.md` and `VERSIONING.md` now require Node, Cortex and SDK to be
+  verified against the candidate wire commit before the tag is cut, and a wire
+  tag to exist before any consumer pin update merges.
+
+
 ## v0.3.2
 
 **Fixture-only correction, digest-changing, pre-genesis.** No proto change.
@@ -276,7 +354,7 @@ move together, so consumers cannot mix the old and new semantics.
 Additive. Two enum values, one field and two vector entries arrive; no existing
 field number, message name or digest changes.
 
-- ADR-0027 makes the Worker-signed Fin the authoritative source of
+- The Worker-signed Fin becomes the authoritative source of
   `finish_reason`. Three things follow from that, and they ship together
   because any one of them alone leaves the contract inconsistent.
 
@@ -308,12 +386,12 @@ field number, message name or digest changes.
 
   Present only for `OUTPUT` objects that have reached `STORED`. This release
   makes the field exist; populating it on `GetTaskDataMetadata(OUTPUT)` is
-  Nexus's side of the ADR.
+  Nexus's side of the change.
 
 - `registry/v1/domains.json` corrects the `TRUEOPEN_OUTPUT_FIN_V1` entry.
 
-  `origin` repoints from this repository to ADR-0027, and two statements the
-  ADR makes false are removed: that `finish_reason` does not enter
+  `origin` no longer names this repository as the source, and two statements
+  the new rule makes false are removed: that `finish_reason` does not enter
   `TaskDataObjectMetadataV1` -- the MMR half of that claim still holds and is
   kept -- and that cancellation produces no `OutputFinV1`. The closed set
   becomes 1..6.
@@ -359,11 +437,11 @@ compatibility promise about it and no existing package changes.
   the second copy is the one that drifts. `ChatInferInput` in particular is
   constructed by the SDK and parsed by Cortex.
 
-  It is **withheld, not released**. Its fields are not frozen: ADR-0022 is still
-  open, and its back-write matrix assigns Cortex further changes to
+  It is **withheld, not released**. Its fields are not frozen: an open design decision
+  still assigns Cortex further changes to
   `chat_input` — an `output_decoding` block, a `tool_calling` block, and
   `manifest_version` 3. Releasing it now would mean breaking it next. Move it to
-  `released` once ADR-0022 is adopted and those fields have landed.
+  `released` once those fields have landed.
 
   Documentation comments were added to 47 messages, RPCs and the service to
   satisfy this repository's `COMMENTS` lint rule, which the originating

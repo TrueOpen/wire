@@ -19,7 +19,7 @@
   "withheld": [
     {
       "package": "cortex.v1",
-      "reason": "Fields are not frozen. ADR-0022 is still open and its back-write matrix assigns Cortex further changes to chat_input - an output_decoding block, a tool_calling block, and manifest_version 3 - so a release that promised compatibility here would have to break it. Release once ADR-0022 is adopted and those fields have landed."
+      "reason": "Fields are not frozen. An open design decision still assigns Cortex further changes to chat_input - an output_decoding block, a tool_calling block, and manifest_version 3 - so a release that promised compatibility here would have to break it. Release once those fields have landed."
     }
   ]
 }

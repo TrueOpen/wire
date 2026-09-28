@@ -246,7 +246,7 @@
       "consumers": "Builder evidence ID and fault ID producers",
       "store": "BuilderFaultState.canonical_evidence_digest",
       "event": "109 builder_evidence_accepted",
-      "query": "Builder fault query pending D-13",
+      "query": "no Builder fault query is registered yet",
       "contract_section": "Public wire domain TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
@@ -272,7 +272,7 @@
       "consumers": "task.v1.Msg.SubmitBuilderEvidence idempotency key and event 109",
       "store": "BuilderFaultState.evidence_id",
       "event": "109 builder_evidence_accepted",
-      "query": "Msg response; Builder fault query pending D-13",
+      "query": "Msg response; no Builder fault query is registered yet",
       "contract_section": "Public wire domain TRUEOPEN_BUILDER_EVIDENCE_ID_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
@@ -298,7 +298,7 @@
       "consumers": "Builder fault, slash and jail",
       "store": "BuilderFaultState.fault_id",
       "event": "109 builder_evidence_accepted",
-      "query": "Builder fault query pending D-13",
+      "query": "no Builder fault query is registered yet",
       "contract_section": "Public wire domain TRUEOPEN_BUILDER_FAULT_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
@@ -608,7 +608,7 @@
       "contract_section": "Public wire domain TRUEOPEN_COMMIT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "commit_hash must be the canonical TRUEOPEN_RESULT_COMMITMENT_V1 value; this contract forbids a \"non-empty placeholder\" and forbids a \"looks like a SHA256\" conditional branch. Same 8-field shape as the two handraise digests: chain/task scope plus service_authorization_nonce plus expiry_height."
+      "note": "commit_hash must be the canonical TRUEOPEN_RESULT_COMMITMENT_V3 value; this contract forbids a \"non-empty placeholder\" and forbids a \"looks like a SHA256\" conditional branch. Same 8-field shape as the two handraise digests: chain/task scope plus service_authorization_nonce plus expiry_height."
     },
     {
       "domain": "TRUEOPEN_CONFIRM_BRIDGE_CUTOVER_V1",
@@ -651,7 +651,7 @@
       "producer": "Task Keeper BuildSettlementFacts after signature, commitment, summary and aggregate-proof validation",
       "consumers": "settlement, challenge and auditors",
       "store": "SettlementFactsV1.consensus_cluster_hash",
-      "event": "task_settled indirectly through settlement_facts_hash after K-BLOCK-16",
+      "event": "task_settled indirectly through settlement_facts_hash once funded final settlement is enabled",
       "query": "settlement facts view",
       "contract_section": "Public wire domain TRUEOPEN_CONSENSUS_CLUSTER_V1",
       "registered_in_contract": true,
@@ -1455,9 +1455,9 @@
       ],
       "producer": "Task Keeper from SettlementFactsV1.paid_roles",
       "consumers": "settlement event, reward and auditors",
-      "store": "terminal settlement commitment after K-BLOCK-16",
-      "event": "task_settled.paid_roles_hash after K-BLOCK-16",
-      "query": "Task settlement view after K-BLOCK-16",
+      "store": "terminal settlement commitment once funded final settlement is enabled",
+      "event": "task_settled.paid_roles_hash once funded final settlement is enabled",
+      "query": "Task settlement view once funded final settlement is enabled",
       "contract_section": "Public wire domain TRUEOPEN_PAID_ROLES_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
@@ -1779,7 +1779,7 @@
       "producer": "Task Keeper BuildSettlementFacts",
       "consumers": "SettlementFactsV1, TaskEvidenceRoot and auditors",
       "store": "SettlementFactsV1.result_receipt_refs_hash and TaskEvidenceRootState.result_receipt_refs_hash",
-      "event": "task_settled indirectly through settlement_facts_hash after K-BLOCK-16",
+      "event": "task_settled indirectly through settlement_facts_hash once funded final settlement is enabled",
       "query": "settlement and TaskEvidenceRoot views",
       "contract_section": "Public wire domain TRUEOPEN_RESULT_RECEIPT_REFS_V1",
       "registered_in_contract": true,
@@ -2092,7 +2092,7 @@
       "contract_section": "Public wire domain TRUEOPEN_SERVICE_DESCRIPTOR_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The contract deliberately omits chain_id from this preimage; the digest is scoped by (participant_type, operator_address, descriptor_version). tls_pubkey_hash is a caller-authored opaque 32-byte value (this contract rule 7) and is framed as an empty field when absent."
+      "note": "The contract deliberately omits chain_id from this preimage; the digest is scoped by (participant_type, operator_address, descriptor_version). tls_pubkey_hash is a caller-authored opaque 32-byte value and is framed as an empty field when absent."
     },
     {
       "domain": "TRUEOPEN_SERVICE_KEY_RESPONSIBILITY_ID_V1",
@@ -2224,13 +2224,13 @@
       ],
       "producer": "Task Keeper BuildSettlementFacts",
       "consumers": "verdict, TaskEvidenceRoot, query, event and auditors",
-      "store": "terminal settlement facts commitment after K-BLOCK-16",
-      "event": "task_settled.settlement_facts_hash after K-BLOCK-16",
-      "query": "QueryTask settlement view after K-BLOCK-16",
+      "store": "terminal settlement facts commitment once funded final settlement is enabled",
+      "event": "task_settled.settlement_facts_hash once funded final settlement is enabled",
+      "query": "QueryTask settlement view once funded final settlement is enabled",
       "contract_section": "Public wire domain TRUEOPEN_SETTLEMENT_FACTS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "SettlementFactsV1 contains no amount and does not authorize a funded terminal transition while K-BLOCK-16 remains open."
+      "note": "SettlementFactsV1 contains no amount and does not authorize a funded terminal transition while funded final settlement is not enabled."
     },
     {
       "domain": "TRUEOPEN_SETTLEMENT_PLAN_V1",
@@ -2503,7 +2503,8 @@
       "query": "TaskAssignmentViewV1 field 16",
       "contract_section": "Public wire domain TRUEOPEN_TASK_GENERATION_PARAMS_V1",
       "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "preimage_diverges_from_contract": false,
+      "note": "The payload is canonical JSON, and model_id is written as 0x followed by 64 lowercase hex, unlike the Hash32 values of the evidence bundle manifest, which carry no prefix."
     },
     {
       "domain": "TRUEOPEN_TASK_ID_V1",
@@ -2586,7 +2587,7 @@
       "contract_section": "Public wire domain TRUEOPEN_TASK_PARAMS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "params is ONE nested position, parallel to TRUEOPEN_HUB_PARAMS_V2: NESTED_V1(TaskParamsV1) frames the message's twelve proto fields recursively in field-number order. The two messages use the same fundamentals this contract nested encoding; testdata/v1/shared/params_v1.json publishes both trees."
+      "note": "params is ONE nested position, parallel to TRUEOPEN_HUB_PARAMS_V2: NESTED_V1(TaskParamsV1) frames the message's twelve proto fields recursively in field-number order. The two messages use the same nested encoding; testdata/v1/shared/params_v1.json publishes both trees."
     },
     {
       "domain": "TRUEOPEN_TASK_ROUND_SUMMARY_V1",
@@ -2628,8 +2629,8 @@
       ],
       "producer": "Task Keeper BuildSettlementFacts",
       "consumers": "settlement, event, reward, challenge and auditors",
-      "store": "TaskEvidenceRootState.settlement_id and terminal settlement references after K-BLOCK-16",
-      "event": "task_settled after K-BLOCK-16",
+      "store": "TaskEvidenceRootState.settlement_id and terminal settlement references once funded final settlement is enabled",
+      "event": "task_settled once funded final settlement is enabled",
       "query": "QueryTask settlement view",
       "contract_section": "Public wire domain TRUEOPEN_TASK_SETTLEMENT_ID_V1",
       "registered_in_contract": true,
@@ -3083,7 +3084,7 @@
       "store": "neither the digest nor the proof is persisted; VrfKeyState keeps the public key and the monotonic nonce, and the raw private key never reaches chain state, Genesis or query",
       "query": "QueryVrfKey reaches it only indirectly",
       "contract_section": "Public wire domain TRUEOPEN_VRF_KEY_POP_V1",
-      "note": "The possession proof is an ECVRF prove over this digest rather than a signature, because what must be proven is that the key can execute Prove. effective_from_epoch stays out of the preimage: the Keeper derives it as current_epoch + 1, so signing it would invalidate any delayed transaction. Both the wire API and the wire storage model point at this contract for the golden vector, but that section currently carries only the formula.",
+      "note": "The possession proof is an ECVRF prove over this digest rather than a signature, because what must be proven is that the key can execute Prove. effective_from_epoch stays out of the preimage: the Keeper derives it as current_epoch + 1, so signing it would invalidate any delayed transaction. The golden vector is vrf_key_pop_v1 in testdata/v1/hub/bridge_vrf_v1.json.",
       "event": "-",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false

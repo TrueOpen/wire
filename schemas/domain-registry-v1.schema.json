@@ -23,6 +23,7 @@
       "format": "uri"
     },
     "source_commit": {
+      "description": "Bootstrap provenance: a commit of source_repository, not of this repository, from which every row without an origin was copied unchanged. It is not reachable in the public history of source_repository, so it records provenance and cannot be fetched or diffed against; tooling checks only its form and that it equals the framing registry's source_commit.",
       "type": "string",
       "pattern": "^[0-9a-f]{40}$"
     },

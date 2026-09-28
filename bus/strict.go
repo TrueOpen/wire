@@ -58,7 +58,7 @@ type decoded map[uint32][]value
 
 // strictDecode parses one message against its pinned table.
 //
-// The rules are the wire API step 1: reject unknown fields, reject a
+// The strict-decoding rules: reject unknown fields, reject a
 // duplicate singular field, reject a wrong wire type, and check a length before
 // allocating against it. Nothing is skipped and nothing is retained as an
 // unknown-field set - "we decoded it and ignored the rest" is exactly the

@@ -8,7 +8,9 @@ Wire releases use semantic version tags.
   version or a new protobuf package version.
 
 Every release publishes an immutable `wire.binpb` descriptor image. Consumers
-must pin an exact tag or descriptor digest; they must not track `main`.
+must pin an exact tag or descriptor digest; they must not track `main`. A
+consumer may pin a candidate commit on a local branch to verify a release before
+it is tagged, but never merges that pin. A published tag is never moved.
 
 The first release should remain `v0.x` until Node, Builder, Cortex, and SDK all
 build successfully from the same descriptor and one complete localnet workflow
