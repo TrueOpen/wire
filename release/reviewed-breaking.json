@@ -2,7 +2,7 @@
   "schema": "trueopen-wire-reviewed-breaking-v1",
   "protocol_version": "v0.4.0",
   "against": "v0.3.3",
-  "review": "TrueOpen/wire feat/sdk-request-eip712: SDK request EIP-712 signing and session grants",
+  "review": "TrueOpen/wire#38: SDK request EIP-712 signing and session grants",
   "notes": [
     "This file is the only thing that lets a buf breaking failure pass. It authorizes exactly the findings listed below, for exactly this protocol_version, against exactly this baseline.",
     "tools/reviewed-breaking checks the set both ways: an undeclared finding fails the build, and a declared finding that no longer occurs fails it too, so the list cannot drift away from the code it describes.",
