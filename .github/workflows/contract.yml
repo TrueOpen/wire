@@ -72,6 +72,15 @@ jobs:
         working-directory: tools
         run: go run ./verify-fixtures -manifest ../testdata/v1/manifest.json
 
+      # A vector describes itself in ways no consumer re-derives: the
+      # leaf_accounting of a parameter tree, the digest of every tamper and
+      # replay row, and the name consumers select it by. Each of those shipped
+      # stale once while the base digest stayed correct, so all three are
+      # recomputed from the vector's own fields rather than trusted.
+      - name: Verify vector self-consistency
+        working-directory: tools
+        run: go run ./verify-vector-consistency -root ../testdata/v1
+
       - name: Verify canonical domain registry
         run: go run ./tools/verify-registry/main.go
 
