@@ -353,9 +353,11 @@ jobs:
           case "${GITHUB_REF_NAME}" in
             *-*) release_flags+=( --prerelease ) ;;
           esac
+          # The release page carries only this version's CHANGELOG section.
+          release/notes.sh "${GITHUB_REF_NAME}" > build/release-notes.md
           gh release create "${GITHUB_REF_NAME}" \
             --repo "${GITHUB_REPOSITORY}" \
             --title "TrueOpen wire ${GITHUB_REF_NAME}" \
-            --notes-file CHANGELOG.md \
+            --notes-file build/release-notes.md \
             ${release_flags[@]+"${release_flags[@]}"} \
             "${assets[@]}"
