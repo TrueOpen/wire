@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.4.0
+
+**Reviewed breaking change, pre-genesis.** User request signing moves to EIP-712 with session grants (see the breaking section below); Nexus and the SDK must upgrade together. Also includes the release-notes and SDK-coverage vectors merged after v0.3.3.
 
 - `SubmitOrder`, `FetchOutputRef` and `RefreshCredential` are retired: once Nexus switches to
   `SDKRequestEnvelopeV2`, each always returns Unimplemented with
