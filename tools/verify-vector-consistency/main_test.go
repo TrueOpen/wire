@@ -14,7 +14,8 @@ func TestPublishedFixturesAreSelfConsistent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.bases == 0 || got.tampers == 0 || got.replays == 0 || got.mutations == 0 || got.accounting == 0 {
+	if got.bases == 0 || got.tampers == 0 || got.replays == 0 || got.mutations == 0 || got.accounting == 0 ||
+		got.keys == 0 || got.domains == 0 || got.eip712 == 0 || got.signatures == 0 || got.negatives == 0 {
 		t.Fatalf("a check ran over nothing: %+v", got)
 	}
 }
