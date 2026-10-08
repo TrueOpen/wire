@@ -1,65 +1,19 @@
 {
   "schema": "trueopen-wire-reviewed-breaking-v1",
-  "protocol_version": "v0.4.0",
-  "against": "v0.3.3",
-  "review": "TrueOpen/wire#38: SDK request EIP-712 signing and session grants",
+  "protocol_version": "v0.5.0",
+  "against": "v0.4.0",
+  "review": "TrueOpen/wire#42: EIP-712 domain chainId chosen by the signer; remove evm_chain_id",
   "notes": [
     "This file is the only thing that lets a buf breaking failure pass. It authorizes exactly the findings listed below, for exactly this protocol_version, against exactly this baseline.",
     "tools/reviewed-breaking checks the set both ways: an undeclared finding fails the build, and a declared finding that no longer occurs fails it too, so the list cannot drift away from the code it describes.",
     "Findings are identified by (path, type, message) and carry no line or column, because an unrelated edit above a deleted field would otherwise invalidate the declaration and turn regenerating it into a reflex.",
-    "After this release is tagged, the next one starts from a new baseline: delete this file, or replace it with a declaration naming its own version and review. Carrying it forward unchanged would grant an approval nobody asked for.",
-    "All ten findings are one change: the request envelope is renamed SDKRequestEnvelopeV2 because its signature changed from a 64-byte digest signature with a caller-supplied public key to a 65-byte EIP-712 signature the verifier recovers. The message is deleted under its old name, and the nine fields that carry it change type name only; every field number is unchanged, so the wire bytes of an unsigned envelope are unchanged too."
+    "After this release is tagged, the next one starts from a new baseline: delete this file, or replace it with a declaration naming its own version and review. Carrying it forward unchanged would grant an approval nobody asked for."
   ],
   "findings": [
     {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "FIELD_SAME_TYPE",
-      "message": "Field \"3\" with name \"request_envelope\" on message \"ConfirmOpenTaskRequest\" changed type from \"nexus.v1.SDKRequestEnvelopeV1\" to \"nexus.v1.SDKRequestEnvelopeV2\"."
-    },
-    {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "FIELD_SAME_TYPE",
-      "message": "Field \"3\" with name \"request_envelope\" on message \"SubscribeOutputRequest\" changed type from \"nexus.v1.SDKRequestEnvelopeV1\" to \"nexus.v1.SDKRequestEnvelopeV2\"."
-    },
-    {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "FIELD_SAME_TYPE",
-      "message": "Field \"4\" with name \"request_envelope\" on message \"AckOutputRequest\" changed type from \"nexus.v1.SDKRequestEnvelopeV1\" to \"nexus.v1.SDKRequestEnvelopeV2\"."
-    },
-    {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "FIELD_SAME_TYPE",
-      "message": "Field \"4\" with name \"request_envelope\" on message \"GetTaskEventsRequest\" changed type from \"nexus.v1.SDKRequestEnvelopeV1\" to \"nexus.v1.SDKRequestEnvelopeV2\"."
-    },
-    {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "FIELD_SAME_TYPE",
-      "message": "Field \"4\" with name \"request_envelope\" on message \"OpenTaskHeader\" changed type from \"nexus.v1.SDKRequestEnvelopeV1\" to \"nexus.v1.SDKRequestEnvelopeV2\"."
-    },
-    {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "FIELD_SAME_TYPE",
-      "message": "Field \"4\" with name \"request_envelope\" on message \"SubmitOrderRequest\" changed type from \"nexus.v1.SDKRequestEnvelopeV1\" to \"nexus.v1.SDKRequestEnvelopeV2\"."
-    },
-    {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "FIELD_SAME_TYPE",
-      "message": "Field \"5\" with name \"request_envelope\" on message \"PrepareChallengeRequest\" changed type from \"nexus.v1.SDKRequestEnvelopeV1\" to \"nexus.v1.SDKRequestEnvelopeV2\"."
-    },
-    {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "FIELD_SAME_TYPE",
-      "message": "Field \"7\" with name \"request_envelope\" on message \"FetchOutputRefRequest\" changed type from \"nexus.v1.SDKRequestEnvelopeV1\" to \"nexus.v1.SDKRequestEnvelopeV2\"."
-    },
-    {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "FIELD_SAME_TYPE",
-      "message": "Field \"7\" with name \"request_envelope\" on message \"RefreshCredentialRequest\" changed type from \"nexus.v1.SDKRequestEnvelopeV1\" to \"nexus.v1.SDKRequestEnvelopeV2\"."
-    },
-    {
-      "path": "proto/nexus/v1/ingress.proto",
-      "type": "MESSAGE_NO_DELETE",
-      "message": "Previously present message \"SDKRequestEnvelopeV1\" was deleted from file."
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"11\" with name \"evm_chain_id\" on message \"Phase0ParamsV1\" was deleted."
     }
   ]
 }

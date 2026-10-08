@@ -1,5 +1,66 @@
 # Changelog
 
+## Unreleased
+
+### EIP-712 domain chainId chosen by the signer; `evm_chain_id` removed (breaking)
+
+Ethereum wallets require the EIP-712 domain `chainId` to equal their active
+network, so a domain pinned to a chain parameter forced users onto a TrueOpen
+network that runs no EVM. The domain `chainId` of all four domains is now chosen
+by the signer and carried next to the signature (TrueOpen/wire#42). This is a
+pre-genesis break with no transition window: signers and verifiers of the old
+and new rules do not interoperate, and node, Nexus, the SDK and Cortex must move
+together. The proto change is declared in `release/reviewed-breaking.json` for
+v0.5.0 against v0.4.0.
+
+- **New carried fields**, each the domain `chainId` of its signature, in
+  `1..MaxInt64` (0 is `NEXUS_INGRESS_MALFORMED` at the format step):
+  `task.v1.SignedOrderV2.signature_chain_id = 4`,
+  `nexus.v1.SessionGrantV1.signature_chain_id = 7`,
+  `nexus.v1.TaskDataRequestAuthV1.signature_chain_id = 13` (USER only;
+  CORTEX_SERVICE must carry 0) and
+  `nexus.v1.SDKRequestEnvelopeV2.signature_chain_id = 14`. The transaction
+  path keeps the upstream `ExtensionOptionsWeb3Tx.typed_data_chain_id`; only
+  its rule changes, from "equals `evm_chain_id`" to `1..MaxInt64`.
+- **`hub.v1.Phase0ParamsV1.evm_chain_id` is removed**; field 11 and the name
+  are reserved. The `hub_params_v2` commitment in
+  `testdata/v1/shared/params_v1.json` is recomputed without it (2265-byte
+  preimage, 136 scalars); `task_params_v1` is unchanged.
+- **Cross-chain isolation comes only from the `chain_id` string.** The
+  verifier still takes `Tx.chain_id` and every typed `chainId` from its own
+  chain; the domain `chainId` isolates nothing. Domain names, versions and
+  typed structs are unchanged, so every existing digest computed with
+  `424242` as the domain `chainId` is still the digest of the same message
+  carrying `signature_chain_id = 424242`.
+- **Identity, replay and retry bindings exclude signatures.** No identity,
+  replay, dedup or OpenTask exact-retry binding may include the signature or
+  `signature_chain_id`. An OpenTask retry under the same `idempotency_key`
+  compares `task_hash`, `input_hash` and `input_size_bytes` only; a retry
+  re-signed under another network is verified on its own and the stored
+  `SignedOrderV2` is kept.
+- **OpenTask may be signed by a session key.** OpenTask joins the
+  session-allowed set; the grant user must also equal the `SignedOrderV2`
+  user, otherwise `SDK_AUTH_SESSION_GRANT_INVALID`. The order itself is still
+  signed by the wallet.
+- `testdata/v1/shared/account_signing_v1.json`: every typed section, envelope
+  and grant transport publishes its carried `signature_chain_id`, and
+  `tools/verify-vector-consistency` requires it to equal the domain `chainId`
+  the digest was built with. New sections and rows:
+  `sdk_request_open_task_session` (session-signed OpenTask, accepted);
+  `sdk_request_tampered_signature_chain_id` and
+  `task_data_request_tampered_signature_chain_id` (renamed from the
+  `other_evm_chain_id` rows); `sdk_request_signed_under_other_signature_chain_id`;
+  wallet-network `signature_chain_id = 1` acceptances for the SDK request,
+  Task data request, task order and session grant;
+  `signature_chain_id_zero`, `signature_chain_id_above_max_int64`,
+  `session_grant_signature_chain_id_zero`,
+  `cortex_service_signature_chain_id_nonzero` and
+  `open_task_session_grant_user_not_order_user` (rejections). The
+  `open_task_with_session_grant` rejection is removed. On
+  `msg_create_session_transaction`, `evm_chain_id` is renamed
+  `typed_data_chain_id`.
+- `bus` strict decoding pins `SignedOrderV2` field 4.
+
 ## v0.4.0
 
 **Reviewed breaking change, pre-genesis.** User request signing moves to EIP-712 with session grants (see the breaking section below); Nexus and the SDK must upgrade together. Also includes the release-notes and SDK-coverage vectors merged after v0.3.3.
