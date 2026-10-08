@@ -535,7 +535,6 @@
             "epoch_block_reward": {
               "atomic_units": "0"
             },
-            "evm_chain_id": "31337",
             "fee_bypass_type_urls": [],
             "fee_policy_version": "1",
             "max_bypass_gas_per_block": "10000000",
