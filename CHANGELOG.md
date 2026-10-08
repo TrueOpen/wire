@@ -60,6 +60,19 @@ v0.5.0 against v0.4.0.
   `msg_create_session_transaction`, `evm_chain_id` is renamed
   `typed_data_chain_id`.
 - `bus` strict decoding pins `SignedOrderV2` field 4.
+- **Wallet prompt surface.** Before this change an Ethereum wallet produced a
+  TrueOpen typed-data signature only while on the network whose chainId was
+  `evm_chain_id`; a site could still prompt a network switch, and Keplr never
+  checked it, so this was a prompt rather than a guarantee. Now any site on any
+  network can request one. What a user can check is the domain name
+  (`TrueOpen Task Order`, `TrueOpen SDK Request`, `TrueOpen Task Data Request`,
+  or `Cosmos Web3` for transactions) and the displayed content, including the
+  `chainId` string. Wallet integrations should show the domain name and the
+  `chainId` string prominently.
+- **Consumers that reject unknown fields must regenerate first.** A decoder
+  that rejects unknown fields (as Nexus does for `SignedOrderV2` at ingress)
+  rejects field 4, 7, 13 or 14 until it is regenerated against this release,
+  so every such consumer must upgrade before any client sends the new fields.
 
 ## v0.4.0
 
