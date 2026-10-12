@@ -91,8 +91,8 @@
       "path": "shared/account_signing_v1.json",
       "origin": "wire",
       "contract_section": "Account, TaskOrderV3, SDK request, session grant and TaskDataRequest EIP-712 signatures",
-      "bytes": 61966,
-      "sha256": "011e9f4a30081af2d80d3d9630e3be0cebbd10a054cb8d3d681e8f0f292fc74c"
+      "bytes": 62058,
+      "sha256": "5fb6b09a64a6201c0c61a61ee7aeef5e73c5d17a23b3d924ca3f1f36d6d42f9f"
     },
     {
       "path": "shared/framing_v1.json",
@@ -125,8 +125,8 @@
       "path": "shared/rest_json_shapes_v1.json",
       "origin": "wire",
       "contract_section": "Node REST gateway JSON rendering of query responses",
-      "bytes": 36837,
-      "sha256": "f2f79d6a2d78210049fae1383cb6f645298e52b077701c8670d89e873102f30c"
+      "bytes": 36962,
+      "sha256": "c150be0038adf420556e241695763dd89ab2ba727e51c68fb174f91074e97883"
     },
     {
       "path": "shared/shared_domains_v1.json",
@@ -229,8 +229,8 @@
       "path": "task/sdk_request_body_v1.json",
       "origin": "wire",
       "contract_section": "User Ingress request body digests: the five TRUEOPEN_SDK_BODY_*_V1 domains",
-      "bytes": 22557,
-      "sha256": "05029710793e7de0275b232bfa0ada22ff320ec254e4bcc8af4eda86d624e086"
+      "bytes": 22569,
+      "sha256": "016a07065b2e0154566f46da33380e3f57f853e90e3a95b0b9fa7d36581b1bef"
     },
     {
       "path": "task/task_builder_rank_v1.json",
