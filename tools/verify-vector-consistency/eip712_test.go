@@ -78,6 +78,23 @@ func TestEIP712ValuesAreRecomputed(t *testing.T) {
 			key := d["session_key"].(map[string]any)
 			key["address_0x"] = strings.ToLower(key["address_0x"].(string))
 		}, "session_key: address_0x is"},
+		{"carried signature_chain_id", func(d map[string]any) {
+			d["sdk_request"].(map[string]any)["signature_chain_id"] = "1"
+		}, "sdk_request: signature_chain_id is 1"},
+		{"envelope signature_chain_id", func(d map[string]any) {
+			d["sdk_request_session"].(map[string]any)["envelope"].(map[string]any)["signature_chain_id"] = "424243"
+		}, "sdk_request_session: envelope.signature_chain_id is 424243"},
+		{"grant transport signature_chain_id", func(d map[string]any) {
+			d["session_grant"].(map[string]any)["transport"].(map[string]any)["signature_chain_id"] = "0"
+		}, "session_grant: transport.signature_chain_id is 0"},
+		{"domain chainId outside 1..MaxInt64", func(d map[string]any) {
+			section := d["task_order"].(map[string]any)
+			section["domain"].(map[string]any)["chain_id"] = "0"
+			section["signature_chain_id"] = "0"
+		}, "task_order: domain chainId 0 is outside 1..MaxInt64"},
+		{"amino typed_data_chain_id", func(d map[string]any) {
+			d["msg_create_session_transaction"].(map[string]any)["typed_data_chain_id"] = "1"
+		}, "typed_data_chain_id differs from the transaction domain chain_id"},
 		{"amino transaction", func(d map[string]any) {
 			tx := d["msg_create_session_transaction"].(map[string]any)
 			tx["canonical_amino_json"] = strings.Replace(tx["canonical_amino_json"].(string), `"sequence":"9"`, `"sequence":"10"`, 1)
@@ -102,11 +119,11 @@ func TestNegativeRequestRowsAreRecomputed(t *testing.T) {
 			negativeRow(t, d, "sdk_request_other_chain_id")["recovered_address"] = d["account"].(map[string]any)["address_bytes"]
 		}, "[sdk_request_other_chain_id]: recovered_address is"},
 		{"signature of a signed row", func(d map[string]any) {
-			row := negativeRow(t, d, "open_task_with_session_grant")
+			row := negativeRow(t, d, "sdk_request_wallet_network_signature_chain_id")
 			row["signed"].(map[string]any)["signer"] = "wrong_key"
-		}, "[open_task_with_session_grant]: signature_65 is"},
+		}, "[sdk_request_wallet_network_signature_chain_id]: signature_65 is"},
 		{"edit naming no member", func(d map[string]any) {
-			negativeRow(t, d, "sdk_request_other_evm_chain_id")["verified"] = map[string]any{"message": map[string]any{"chain": "x"}}
+			negativeRow(t, d, "sdk_request_tampered_signature_chain_id")["verified"] = map[string]any{"message": map[string]any{"chain": "x"}}
 		}, `edit names "chain"`},
 		{"window decision", func(d map[string]any) {
 			negativeRow(t, d, "session_grant_window_upper_edge")["expect"] = "reject"

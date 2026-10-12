@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math"
 	"sort"
 	"strconv"
 
@@ -192,6 +193,7 @@ func (c *eip712Checker) checkSection(where string, section map[string]any) {
 			return
 		}
 	}
+	c.checkSignatureChainID(where, section, domain)
 	typeHash, hashStruct, digest, ok := c.digestOf(where, section, nil, nil)
 	if !ok {
 		return
@@ -201,6 +203,36 @@ func (c *eip712Checker) checkSection(where string, section map[string]any) {
 	c.expectEqual(where, "hash_struct", section["hash_struct"], hex.EncodeToString(hashStruct[:]))
 	c.expectEqual(where, "signing_digest", section["signing_digest"], hex.EncodeToString(digest[:]))
 	c.checkSignature(where, section, digest)
+}
+
+// checkSignatureChainID ties the carried signature_chain_id to the domain. The
+// domain chainId is chosen by the signer and carried next to the signature
+// (the section's signature_chain_id, its envelope's or its transport's), so
+// wherever a section publishes the carried value it must be the domain chainId
+// the digest was built with, and a positive vector must carry a value in
+// 1..MaxInt64.
+func (c *eip712Checker) checkSignatureChainID(where string, section, domain map[string]any) {
+	chainID := stringOf(domain["chain_id"])
+	carriers := map[string]any{"signature_chain_id": section["signature_chain_id"]}
+	for _, holder := range []string{"envelope", "transport"} {
+		if object, ok := section[holder].(map[string]any); ok {
+			carriers[holder+".signature_chain_id"] = object["signature_chain_id"]
+		}
+	}
+	for _, field := range sortedKeys(carriers) {
+		published := carriers[field]
+		if published == nil {
+			continue
+		}
+		if stringOf(published) != chainID {
+			c.fail("%s: %s is %v, the digest is built with domain chainId %s", where, field, published, chainID)
+		}
+	}
+	if value, err := strconv.ParseUint(chainID, 10, 64); err != nil || value == 0 || value > math.MaxInt64 {
+		if section["expect"] != "reject" {
+			c.fail("%s: domain chainId %s is outside 1..MaxInt64", where, chainID)
+		}
+	}
 }
 
 // checkSignature recovers a published signature and, when the signer is known,
@@ -277,8 +309,8 @@ func (c *eip712Checker) checkAminoTransaction(where string, object map[string]an
 		c.fail("%s: %v", where, err)
 		return
 	}
-	if stringOf(domainObject["chain_id"]) != stringOf(object["evm_chain_id"]) {
-		c.fail("%s: evm_chain_id differs from the transaction domain chain_id", where)
+	if stringOf(domainObject["chain_id"]) != stringOf(object["typed_data_chain_id"]) {
+		c.fail("%s: typed_data_chain_id differs from the transaction domain chain_id", where)
 	}
 	typeHash := types.TypeHash(primary)
 	digest := eip712.SigningDigest(separator, hashStruct)

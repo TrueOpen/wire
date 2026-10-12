@@ -124,6 +124,7 @@ var protoTables = map[string]messageSpec{
 		1: {name: "order", kind: kindMessage, message: "task.v1.TaskOrderV3"},
 		2: {name: "signature_scheme", kind: kindString},
 		3: {name: "user_signature", kind: kindBytes},
+		4: {name: "signature_chain_id", kind: kindVarint},
 	},
 	"task.v1.TaskOrderV3": {
 		1:  {name: "schema_version", kind: kindVarint},

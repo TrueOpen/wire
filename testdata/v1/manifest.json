@@ -91,8 +91,8 @@
       "path": "shared/account_signing_v1.json",
       "origin": "wire",
       "contract_section": "Account, TaskOrderV3, SDK request, session grant and TaskDataRequest EIP-712 signatures",
-      "bytes": 51217,
-      "sha256": "0736b6263ba1645b9b0d6884af4e77b787c2b89adb782b54a43e5813d7cd0cdc"
+      "bytes": 61966,
+      "sha256": "011e9f4a30081af2d80d3d9630e3be0cebbd10a054cb8d3d681e8f0f292fc74c"
     },
     {
       "path": "shared/framing_v1.json",
@@ -111,8 +111,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "Hub and Task parameter commitments and replay separation",
-      "bytes": 58695,
-      "sha256": "bfe9ee9599814b777f82dcae6a959ae6f74aa978d6abbc4085d863e8fc7d3fcf"
+      "bytes": 58515,
+      "sha256": "14c7a77c5166028c920194d185fe7146689cec4415502d11c2ce301cd61c4e23"
     },
     {
         "path": "shared/query_page_v1.json",
@@ -125,8 +125,8 @@
       "path": "shared/rest_json_shapes_v1.json",
       "origin": "wire",
       "contract_section": "Node REST gateway JSON rendering of query responses",
-      "bytes": 36874,
-      "sha256": "120feb21c94bd41b7b90bd9fe8736eb2d6570cee145d7341547ed3dd39260025"
+      "bytes": 36837,
+      "sha256": "f2f79d6a2d78210049fae1383cb6f645298e52b077701c8670d89e873102f30c"
     },
     {
       "path": "shared/shared_domains_v1.json",
@@ -269,8 +269,8 @@
       "path": "task/task_order_eip712_v1.json",
       "origin": "wire",
       "contract_section": "TaskOrderV3 to order-domain EIP-712 digest",
-      "bytes": 3810,
-      "sha256": "81f21547fb952477fb6ad5852473530477cb68c9a6d2e34cc2235043d6701e42"
+      "bytes": 3915,
+      "sha256": "2b6d1401365bc16c8828ff71d34c5985cf157c5ca32698e4c418eacd54c91e99"
     },
     {
       "path": "task/task_order_v3.json",
