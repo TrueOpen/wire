@@ -4,13 +4,13 @@
 // the wire API fixes the projection:
 //
 //	HASH32_LOWER_HEX -> {type:string, format:trueopen-hash32,
-//	                     pattern:^[0-9a-f]{64}$, minLength:64, maxLength:64}
+//	                     pattern:^0x[0-9a-f]{64}$, minLength:66, maxLength:66}
 //	PROTOJSON_BASE64 -> {type:string, format:byte}
 //
 //
 // protoc-gen-openapiv2 knows nothing about shared.v1.rest_bytes_encoding,
 // so it renders every bytes field as `{type:string, format:byte}` - including
-// the Hash32 path variables that REST carries as 64 lowercase hex. Published
+// the Hash32 path variables that REST carries as 0x followed by 64 lowercase hex. Published
 // unaltered, the document would tell every client to Base64 a value the server
 // only accepts as hex. This step rewrites those nodes from the descriptor.
 //
@@ -44,8 +44,8 @@ import (
 // This contract projection constants.
 const (
 	hash32Format  = "trueopen-hash32"
-	hash32Pattern = "^[0-9a-f]{64}$"
-	hash32Length  = 64
+	hash32Pattern = "^0x[0-9a-f]{64}$"
+	hash32Length  = 66
 	base64Format  = "byte"
 )
 

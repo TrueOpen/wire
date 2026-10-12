@@ -77,7 +77,9 @@ its UTF-8 bytes.
 ## Signatures
 
 Protocol signatures use a compressed 33-byte secp256k1 public key and a compact
-64-byte `R||S` signature. Signature hex is lowercase without a prefix. `R` and
+64-byte `R||S` signature. In test vectors and in the canonical encoding rules here,
+signature hex is lowercase without a prefix; text APIs write the same value as `0x`
+followed by lowercase hex. `R` and
 `S` must be non-zero and in range, and `S` must be low-S. DER, uppercase hex,
 and 65-byte recoverable encodings reject.
 

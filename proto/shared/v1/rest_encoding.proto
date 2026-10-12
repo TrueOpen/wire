@@ -63,7 +63,7 @@ option go_package = "github.com/TrueOpen/node/x/shared/types";
 // OpenAPI projection, read from this same option by the
 // generator and by the runtime gateway, with no field-name override:
 //   HASH32_LOWER_HEX -> {type: string, format: trueopen-hash32,
-//                        pattern: ^[0-9a-f]{64}$, minLength: 64, maxLength: 64}
+//                        pattern: ^0x[0-9a-f]{64}$, minLength: 66, maxLength: 66}
 //   PROTOJSON_BASE64 -> {type: string, format: byte}
 // Request descriptions state the four accepted alphabet/padding combinations;
 // responses emit only the canonical padded form. Optional fields express absence
@@ -87,8 +87,10 @@ enum RESTBytesEncoding {
   // validation stays plain protobuf bytes and adds no length semantics.
   // REST_BYTES_ENCODING_PROTOJSON_BASE64 identifies the corresponding protocol value.
   REST_BYTES_ENCODING_PROTOJSON_BASE64 = 1;
-  // A raw 32-byte digest/ID. Output is exactly 64 lowercase hex characters with
-  // no `0x` prefix. Input accepts only that same form and is decoded to raw32
+  // A raw 32-byte digest/ID. Output is `0x` followed by exactly 64 lowercase hex
+  // characters, 66 characters in all. `LOWER` constrains the hex letters only; the
+  // enum name and number stay frozen. Input accepts only that same form (a bare
+  // 64-character hex string is rejected) and is decoded to raw32
   // before typed validation; a present value must be exactly 32 raw bytes.
   // REST_BYTES_ENCODING_HASH32_LOWER_HEX identifies the corresponding protocol value.
   REST_BYTES_ENCODING_HASH32_LOWER_HEX = 2;

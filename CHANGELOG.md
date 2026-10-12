@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+### Text form of Hash32 carries a `0x` prefix (breaking for REST and Nexus ingress clients)
+
+`REST_BYTES_ENCODING_HASH32_LOWER_HEX` and the string Hash32 fields of the Nexus
+ingress now use one spelling: `0x` followed by exactly 64 lowercase hex
+characters, 66 characters in all. Input accepts only that same form, so a bare
+64-character hex string is rejected where it used to be required. The model
+registration canonical JSON and the generation-parameter payloads already wrote
+`0x`; this removes the mixed convention between them and the REST projection.
+
+- `shared.v1.REST_BYTES_ENCODING_HASH32_LOWER_HEX`: output and input are
+  `0x` plus 64 lowercase hex. `LOWER` constrains the hex letters only; the enum
+  name and number are unchanged.
+- OpenAPI projection: `pattern: ^0x[0-9a-f]{64}$`, `minLength: 66`,
+  `maxLength: 66` (`tools/apply-rest-encoding`).
+- `nexus.v1` `session_id` and `task_id` strings, and the ingress format step, take
+  the `0x`-prefixed form; anything else is `NEXUS_INGRESS_MALFORMED` before
+  projection.
+- **Unchanged:** raw protobuf bytes, native gRPC, the Store and every hash or
+  signature preimage; Base64 for variable-length bytes; bech32 account addresses
+  (still no `0x`); canonical JSON payloads that are hashed (they keep their
+  current spelling, so no digest changes); NATS subjects and the proposer VRF
+  carrier; hex strings held in state; the hex in test vectors, which is a test
+  file encoding. There is no descriptor change and no digest changes, and no stored data is
+  affected; the REST shape and ingress fixtures are updated to the new spelling.
+- Clients that read or build REST paths, query strings or JSON Hash32 values, and
+  any Nexus or SDK caller that passes `session_id` or `task_id`, must move with
+  the node release that adopts this.
+
 ### EIP-712 domain chainId chosen by the signer; `evm_chain_id` removed (breaking)
 
 Ethereum wallets require the EIP-712 domain `chainId` to equal their active

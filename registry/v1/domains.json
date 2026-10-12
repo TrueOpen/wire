@@ -2048,7 +2048,7 @@
       "contract_section": "Public wire domain TRUEOPEN_SDK_BODY_ACK_OUTPUT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "session_id and task_id are Hash32, raw 32 bytes after decoding the transport lowercase hex; last_seq is u64_be. The deprecated output_id does not enter the preimage. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
+      "note": "session_id and task_id are Hash32, raw 32 bytes after decoding the transport 0x-prefixed lowercase hex; last_seq is u64_be. The deprecated output_id does not enter the preimage. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
     },
     {
       "domain": "TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1",
@@ -2454,7 +2454,7 @@
       "consumers": "TaskDataRequestAuthV1.body_digest for FetchTaskData",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
       "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_FETCH_BODY_V2",
-      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. A whole-object read must sign range absent and must not rewrite it as a zero offset and length; a present range needs length above zero with offset plus length neither overflowing nor exceeding the object.",
+      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as 0x-prefixed lowercase hex, but the preimage takes raw32. A whole-object read must sign range absent and must not rewrite it as a zero offset and length; a present range needs length above zero with offset plus length neither overflowing nor exceeding the object.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,
@@ -2531,7 +2531,7 @@
       "consumers": "TaskDataRequestAuthV1.body_digest for GetTaskDataMetadata",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
       "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_METADATA_BODY_V2",
-      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as lowercase hex, but the preimage takes raw32.",
+      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as 0x-prefixed lowercase hex, but the preimage takes raw32.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,
@@ -2580,7 +2580,7 @@
       "consumers": "TaskDataRequestAuthV1.body_digest for UploadTaskResultObject",
       "store": "not persisted on chain; bound into the StoreOnce row body_digest",
       "contract_section": "Public wire domain TRUEOPEN_TASK_DATA_UPLOAD_BODY_V2",
-      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as lowercase hex, but the preimage takes raw32. Only the header is signed; the chunks that follow must end up matching the signed content_hash and size_bytes exactly.",
+      "note": "canonical TaskDataObjectRefV1 is the required nested nine-field frame task_hash, session_id, task_id, object_kind, content_hash, evidence_producer_kind, verify_round, optional producer_operator, evidence_kind. Transport carries Hash32 as 0x-prefixed lowercase hex, but the preimage takes raw32. Only the header is signed; the chunks that follow must end up matching the signed content_hash and size_bytes exactly.",
       "event": "-",
       "query": "-",
       "registered_in_contract": true,

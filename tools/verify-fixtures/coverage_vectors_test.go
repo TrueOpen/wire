@@ -359,7 +359,7 @@ func TestDirectSignModeVectorStructure(t *testing.T) {
 // one of the two published encodings.
 func TestRESTJSONShapes(t *testing.T) {
 	doc := loadIntegratedFixture(t, "shared", "rest_json_shapes_v1.json")
-	hexPlaceholder := strings.Repeat("ab", 32)
+	hexPlaceholder := "0x" + strings.Repeat("ab", 32)
 	base64Placeholder := base64.StdEncoding.EncodeToString(bytes.Repeat([]byte{0xab}, 32))
 	var counts [2]int
 	var walk func(path string, value any)
@@ -383,7 +383,7 @@ func TestRESTJSONShapes(t *testing.T) {
 			case typed == base64Placeholder:
 				counts[1]++
 			case strings.Contains(typed, "abab") || strings.HasPrefix(typed, "0x"):
-				t.Fatalf("%s: bytes value %q is neither lowercase hex nor Base64", path, typed)
+				t.Fatalf("%s: bytes value %q is neither 0x-prefixed lowercase hex nor Base64", path, typed)
 			}
 		}
 	}

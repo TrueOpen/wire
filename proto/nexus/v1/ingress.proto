@@ -425,7 +425,7 @@ message SessionGrantV1 {
 // user equals the SignedOrder user (see SessionGrantV1).
 //
 // The verifier runs five steps in order and stops at the first failure:
-//   1. Format: session_id and task_id in 64-character lowercase hex, a 32-byte
+//   1. Format: session_id and task_id as 0x followed by 64 lowercase hex characters, a 32-byte
 //      request_nonce, expiry_height_or_time above zero, endpoint matching
 //      method, for OpenTask a chain-height expiry (below 10^12; a Unix
 //      millisecond value is rejected here) and the derived task_id and
@@ -480,8 +480,9 @@ message SDKRequestEnvelopeV2 {
   // The full procedure, /nexus.v1.IngressAPI/<Method>, whose <Method> must
   // equal method.
   string endpoint = 4;
-  // 64-character lowercase hex of the Hash32, without 0x. Any other spelling is
-  // rejected before projection.
+  // The Hash32 as 0x followed by 64 lowercase hex characters (66 in all). Any
+  // other spelling, including a bare 64-character hex string, is rejected before
+  // projection.
   string session_id = 5;
   // Same spelling as session_id. For OpenTask it must equal
   // TRUEOPEN_TASK_ID_V1(session_id, order_sequence).

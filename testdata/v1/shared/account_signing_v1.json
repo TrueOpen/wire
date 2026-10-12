@@ -517,24 +517,24 @@
     },
     {
       "base": "sdk_request_session",
-      "change": "the envelope session_id is the same Hash32 spelled in uppercase hex",
+      "change": "the envelope session_id is the same Hash32 spelled as 0x followed by uppercase hex",
       "error": "NEXUS_INGRESS_MALFORMED",
       "expect": "reject",
       "name": "session_id_uppercase_hex",
-      "reason": "session_id and task_id are decoded only from 64-character lowercase hex without 0x; any other spelling is rejected before projection, so no digest exists",
+      "reason": "session_id and task_id are decoded only from 0x followed by 64 lowercase hex characters; any other spelling is rejected before projection, so no digest exists",
       "transport": {
-        "session_id": "77625100BA4FAA1306AE6EAF5A872A661443AA94F87C5530C4B178614E3D62F7"
+        "session_id": "0x77625100BA4FAA1306AE6EAF5A872A661443AA94F87C5530C4B178614E3D62F7"
       }
     },
     {
       "base": "sdk_request_session",
-      "change": "the envelope task_id carries a 0x prefix",
+      "change": "the envelope task_id is the same Hash32 spelled as 64 bare lowercase hex characters without the 0x prefix",
       "error": "NEXUS_INGRESS_MALFORMED",
       "expect": "reject",
-      "name": "task_id_0x_prefixed",
-      "reason": "session_id and task_id are decoded only from 64-character lowercase hex without 0x; any other spelling is rejected before projection, so no digest exists",
+      "name": "task_id_bare_hex",
+      "reason": "session_id and task_id are decoded only from 0x followed by 64 lowercase hex characters; any other spelling is rejected before projection, so no digest exists",
       "transport": {
-        "task_id": "0xbce966ae829f212a35982bcd85aaea77d8893539afa04f32ea540c46ff8323b0"
+        "task_id": "bce966ae829f212a35982bcd85aaea77d8893539afa04f32ea540c46ff8323b0"
       }
     },
     {
@@ -638,7 +638,7 @@
       "sessionId": "77625100ba4faa1306ae6eaf5a872a661443aa94f87c5530c4b178614e3d62f7",
       "taskId": "bce966ae829f212a35982bcd85aaea77d8893539afa04f32ea540c46ff8323b0"
     },
-    "note": "OpenTask, signed by the user wallet directly. OpenTask may also be signed by a session key under a grant whose user is the order user (sdk_request_open_task_session). sessionGrantHash is 32 zero bytes because no grant is attached; the verifier derives it and never reads it from the request. expiryHeightOrTime below 10^12 is a chain height, which only OpenTask may use; OpenTask accepts only a chain height, and a Unix millisecond expiry is NEXUS_INGRESS_MALFORMED at the format step. The signature must recover to signer_address, which must equal the order user, and the recovered public key must equal the account's stored key. method is the bare method name and endpoint the full procedure /nexus.v1.IngressAPI/<Method>, whose <Method> must equal method. session_id and task_id travel as 64-character lowercase hex without 0x, are decoded strictly and enter as bytes32; any other spelling is rejected before projection. For OpenTask task_id must equal TRUEOPEN_TASK_ID_V1(session_id, order_sequence), here order sequence 7. requestNonce is exactly 32 bytes, and an expiry of 0 or below is rejected before projection. The user account must already hold its public key on chain (it has submitted MsgCreateSession). request_domain, signer_address, signature and the deprecated signer_pubkey are not typed fields. The replay_key column spells the NUL separators as \\x00. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. This OpenTask row expires at chain height 1010 and assumes current_height 1000; any height from 990 to 1010 accepts it, since an OpenTask height expiry must satisfy current_height <= expiry <= current_height + request_ttl_blocks. It is evaluated separately from the session rows, whose grant needs a height from 1100 to 1500.",
+    "note": "OpenTask, signed by the user wallet directly. OpenTask may also be signed by a session key under a grant whose user is the order user (sdk_request_open_task_session). sessionGrantHash is 32 zero bytes because no grant is attached; the verifier derives it and never reads it from the request. expiryHeightOrTime below 10^12 is a chain height, which only OpenTask may use; OpenTask accepts only a chain height, and a Unix millisecond expiry is NEXUS_INGRESS_MALFORMED at the format step. The signature must recover to signer_address, which must equal the order user, and the recovered public key must equal the account's stored key. method is the bare method name and endpoint the full procedure /nexus.v1.IngressAPI/<Method>, whose <Method> must equal method. session_id and task_id travel as 0x followed by 64 lowercase hex characters, are decoded strictly and enter as bytes32; any other spelling is rejected before projection. For OpenTask task_id must equal TRUEOPEN_TASK_ID_V1(session_id, order_sequence), here order sequence 7. requestNonce is exactly 32 bytes, and an expiry of 0 or below is rejected before projection. The user account must already hold its public key on chain (it has submitted MsgCreateSession). request_domain, signer_address, signature and the deprecated signer_pubkey are not typed fields. The replay_key column spells the NUL separators as \\x00. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. This OpenTask row expires at chain height 1010 and assumes current_height 1000; any height from 990 to 1010 accepts it, since an OpenTask height expiry must satisfy current_height <= expiry <= current_height + request_ttl_blocks. It is evaluated separately from the session rows, whose grant needs a height from 1100 to 1500.",
     "recovered_address": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
     "signature_65": "364239bc1efc6fdb0da22116ab2ca4fdf26dd4dae69b8aa35e75134523be52882421d12aebae10b3e24e232f1875d5338d39fcb8986389a9663569c875beca7e1c",
     "signature_chain_id": "424242",
