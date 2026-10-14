@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## v0.5.0
+
+**Reviewed breaking change, pre-genesis.** The EIP-712 domain `chainId` is chosen by the signer and carried as `signature_chain_id`, and `Phase0ParamsV1.evm_chain_id` is removed (wire#42); the text form of Hash32 in REST and the Nexus ingress becomes `0x` followed by 64 lowercase hex (wire#44). Node, Nexus, Cortex and the SDK must upgrade together; no digest, Store or preimage bytes change.
 
 ### Text form of Hash32 carries a `0x` prefix (breaking for REST and Nexus ingress clients)
 
