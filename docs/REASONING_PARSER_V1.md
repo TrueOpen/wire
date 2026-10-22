@@ -27,12 +27,15 @@ Output   : reasoning_content, remainder
            - remainder: everything after, handed to the tool-call parser if pinned,
              else it is content (text).
            - Semantic order fixed: [reasoning_content] then [content (incl. tool_calls)].
-Lead     : reasoning must be at the very start; any non-whitespace byte before the
-           start marker means "no reasoning this turn".
+Lead     : reasoning must be at the very start. If the start marker is in the committed
+           output, any non-whitespace byte before it means "no reasoning this turn". If
+           the parser spec declares the start marker injected into the prompt (absent
+           from committed output), reasoning leads from byte 0 to the close marker.
 Internal : tool/call-style markers inside reasoning_content are plain reasoning text --
            they never produce tool_calls and never execute.
-Unclosed : start marker, no close (e.g. max_tokens cut) -> everything from the start
-           marker to end is reasoning_content, content empty, tool parsing does not run.
+Unclosed : start marker (or byte 0, when the start marker is prompt-injected), no close
+           (e.g. max_tokens cut) -> everything from there to end is reasoning_content,
+           content empty, tool parsing does not run.
 Unpinned : unsupported (name, version), or manifest unfetchable / hash mismatch
            -> no reasoning; the whole committed output becomes content for the
            tool-call stage.
@@ -68,12 +71,10 @@ Both must yield the same `reasoning_content` = everything before `</think>`. Thi
 is why the span is defined by the `</think>` close marker, not by a required
 leading `<think>`.
 
-> **Interaction with the reasoning-must-lead rule.** That rule is written in terms
-> of a start marker (non-whitespace before the start marker means "no reasoning").
-> In the Qwen3.5+ mode there is no start marker in the committed output, so the rule
-> does not cleanly apply and the "reasoning leads from byte 0 until `</think>`" rule
-> governs. This likely needs a one-line clarification in the governing protocol spec
-> -- flagged in Open items.
+> **Interaction with the reasoning-must-lead rule.** A parser may declare its start
+> marker injected into the prompt (absent from the committed output); reasoning then
+> leads from byte 0 to the first `</think>`, and "reasoning must lead" is read as "leads
+> from byte 0". qwen3@1's Qwen3.5+ mode pins exactly that case; the invariant still holds.
 
 > **TBD before freeze**: exact whitespace trimming of reasoning_content and
 > remainder; whether "disabled thinking" (an empty `<think>\n\n</think>` prefix)
@@ -109,25 +110,29 @@ Each vector entry:
 | Negative | no markers | reasoning_content empty, content = whole input |
 | Negative | non-whitespace before `<think>` | no reasoning, whole input is content |
 | Negative | `<think>` unclosed (truncation) | all-from-start is reasoning_content, content empty, no tool parse |
-| Combination | tool-style marker inside reasoning | stays reasoning text, 0 tool_calls -- see Open item 0 |
+| Combination | tool-style marker inside reasoning (closed think) | stays reasoning text, 0 tool_calls |
+| Combination | `<tool_call>` inside an unclosed think block (no `</think>`) | all reasoning_content, 0 tool_calls, no tool parse |
 | Combination | reasoning + tool: `<think>...</think><tool_call>...</tool_call>` | reasoning_content + 1 tool_call, content empty |
 | Streaming | reasoning span split across frames | same final result |
 | Streaming | multi-byte char on `</think>` boundary | incremental-decode rule holds |
 
 ## Open items
 
-0. **Protocol clarifications needed** (found while verifying against vLLM's `qwen3`
-   reasoning parser). These are protocol decisions; **do not resolve them in this
-   wire doc** -- the vectors encode whichever the governing protocol spec chooses.
-   - The reasoning-must-lead rule assumes a start marker in the output. The Qwen3.5+
-     family emits only `</think>` (the start marker is in the prompt). The protocol
-     should state that when the start marker is absent, reasoning leads from byte 0
-     to `</think>`.
-   - Unclosed / internal-tool-marker rules vs real engine: vLLM's qwen3 parser treats
-     a `<tool_call>` seen inside an unclosed think block as an **implicit end of
-     reasoning** and parses the tool call. The current rules say the opposite (tool
-     markers inside reasoning stay as text; unclosed means all reasoning, no tool
-     parse). TrueOpen must pick one and freeze it.
+0. **Protocol clarifications** (found while verifying against vLLM's `qwen3`
+   reasoning parser). Both were protocol decisions, now **resolved in the governing
+   protocol spec** and frozen in the common contract above; recorded here so the vectors
+   trace to the decision.
+   - *Start marker absent (Qwen3.5+ emits only `</think>`)* -- **resolved**: when a
+     parser declares the start marker injected into the prompt, reasoning leads from
+     byte 0 to the first `</think>` (see the span definition and interaction note
+     above). The unclosed fallback matches (no close marker -> all reasoning); the
+     "disabled thinking" no-marker encoding is deferred to this parser spec (see TBD).
+   - *`<tool_call>` inside an unclosed think block* -- **resolved**: the strict reading
+     is frozen. The reasoning boundary is the close marker only; a `<tool_call>` inside
+     reasoning stays text and does not end reasoning; an unclosed think block is all
+     reasoning, no tool parse. Deliberate, safe-side divergence from vLLM's
+     implicit-end-of-reasoning behaviour -- a call not sealed by a normal `</think>` is
+     not executed; emitting one is engine/template malformation, not an SDK guess.
 1. Freeze `qwen3@1` markers/whitespace against the pinned engine; remove the TBD.
 2. Governance: `(qwen3, 1)` must be in `supported_reasoning_parsers` before a
    profile can pin it.
