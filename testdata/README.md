@@ -1,5 +1,14 @@
 # Wire Test Vectors
 
+`v1/task/session_key_authorization_v1.json` contains wallet and delegated
+signatures over the same order digest, registered-key requests with no
+SessionGrant, and admission/SET/CLEAR cases. It covers inclusive expiry,
+re-registration anchor isolation, rotation, cap boundaries, zero-cap unlimited
+mode, checked accumulation, rollback and accepted-task continuation. Amounts
+in these cases are exact decimal strings. The current registration limit and
+historical zero in update cases demonstrate that the limit is read from live
+parameters; they are fixture values, not network defaults.
+
 This directory stages language-neutral wire fixtures for Node, Nexus,
 Cortex, and SDK implementations.
 

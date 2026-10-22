@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### Registered session signing keys
+
+- Add owner-authorized session key registration and SET/CLEAR updates, five
+  StreamState fields, UpdateSessionKey RPC, and session_key_updated event 106.
+- Add SessionParamsV1 field 11, max_session_key_blocks. Registration/renewal
+  uses its current effective value; existing grants retain their expiry.
+- Keep SignedOrderV2, task/order IDs, and EIP-712 order/request domains intact.
+  First admission may recover to the registered key, subject to owner, expiry,
+  signed anchor-height and cumulative max_fee checks. Zero spend_cap is unlimited.
+  Already admitted tasks are not reauthorized against later grant changes.
+- **Commitment change:** TRUEOPEN_TASK_PARAMS_V1 now includes the additional
+  session parameter in field-number order. Pre-genesis commitments and vectors
+  from earlier releases are superseded for this domain when this change ships.
+  Existing order, request and SessionGrant preimages do not change.
+- Consumers must implement the new authorization semantics before enabling
+  delegated orders. The additive descriptor does not make an old verifier accept
+  a session-signed order. Deployment requires coordinated activation and
+  parameter initialization. Consumers must pin the published wire release.
+
 ## v0.5.0
 
 **Reviewed breaking change, pre-genesis.** The EIP-712 domain `chainId` is chosen by the signer and carried as `signature_chain_id`, and `Phase0ParamsV1.evm_chain_id` is removed (wire#42); the text form of Hash32 in REST and the Nexus ingress becomes `0x` followed by 64 lowercase hex (wire#44). Node, Nexus, Cortex and the SDK must upgrade together; no digest, Store or preimage bytes change.
