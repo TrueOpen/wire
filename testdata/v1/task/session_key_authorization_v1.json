@@ -121,7 +121,7 @@
     {
       "anchor_height": 990,
       "current_height": 1100,
-      "expected": "SIGNATURE_MISMATCH",
+      "expected": "ERR_SESSION_KEY_INVALID",
       "expected_spent": "1000000",
       "name": "cleared_key",
       "order": "delegated_order",
@@ -820,6 +820,314 @@
     "preimage_size_bytes": 268,
     "producer": "TaskDataMetadataBodyDigest"
   },
+  "registered_request_cases": [
+    {
+      "base": "registered_sdk_request",
+      "expected": "ACCEPT",
+      "name": "sdk_inclusive_expiry",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": true,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_sdk_request",
+      "expected": "SDK_AUTH_INVALID_SIGNATURE",
+      "name": "sdk_state_before_expiry_and_method",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1099,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": false,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "CLOSED"
+      }
+    },
+    {
+      "base": "registered_sdk_request",
+      "expected": "SDK_AUTH_INVALID_SIGNATURE",
+      "name": "sdk_owner_before_expiry",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1099,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": true,
+        "output_object": true,
+        "owner_matches": false,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_sdk_request",
+      "expected": "SDK_AUTH_INVALID_SIGNATURE",
+      "name": "sdk_key_before_method",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": false,
+        "local_task_found": true,
+        "method_allowed": false,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_sdk_request",
+      "expected": "SDK_AUTH_SESSION_GRANT_EXPIRED",
+      "name": "sdk_expiry_before_method",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1099,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": false,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_sdk_request",
+      "expected": "SDK_AUTH_SESSION_METHOD_NOT_ALLOWED",
+      "name": "sdk_method_after_valid_state",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": false,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_sdk_request",
+      "expected": "SDK_AUTH_INVALID_SIGNATURE",
+      "name": "sdk_absent_session",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": true,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": false,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_sdk_request",
+      "expected": "SDK_AUTH_INVALID_SIGNATURE",
+      "name": "sdk_unavailable_chain",
+      "state": {
+        "chain_available": false,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": true,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "ACCEPT",
+      "name": "data_inclusive_expiry",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": true,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "DATA_ACCESS_INVALID_SIGNATURE",
+      "name": "data_state_before_expiry_and_method",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1099,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": false,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "CLOSED"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "DATA_ACCESS_INVALID_SIGNATURE",
+      "name": "data_owner_before_expiry",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1099,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": true,
+        "output_object": true,
+        "owner_matches": false,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "DATA_ACCESS_INVALID_SIGNATURE",
+      "name": "data_key_before_method",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": false,
+        "local_task_found": true,
+        "method_allowed": false,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "DATA_ACCESS_SESSION_GRANT_EXPIRED",
+      "name": "data_expiry_before_method",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1099,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": false,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "DATA_ACCESS_SESSION_METHOD_NOT_ALLOWED",
+      "name": "data_method_after_valid_state",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": false,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "DATA_ACCESS_INVALID_SIGNATURE",
+      "name": "data_absent_session",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": true,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": false,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "DATA_ACCESS_INVALID_SIGNATURE",
+      "name": "data_unavailable_chain",
+      "state": {
+        "chain_available": false,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": true,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "DATA_ACCESS_INVALID_SIGNATURE",
+      "name": "data_missing_local_task",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1099,
+        "key_matches": true,
+        "local_task_found": false,
+        "method_allowed": true,
+        "output_object": true,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "base": "registered_data_request",
+      "expected": "DATA_ACCESS_SESSION_METHOD_NOT_ALLOWED",
+      "name": "data_input_object",
+      "state": {
+        "chain_available": true,
+        "current_height": 1100,
+        "expiry_height": 1100,
+        "key_matches": true,
+        "local_task_found": true,
+        "method_allowed": true,
+        "output_object": false,
+        "owner_matches": true,
+        "session_exists": true,
+        "status": "ACTIVE"
+      }
+    }
+  ],
   "registered_sdk_request": {
     "body_digest_source": "registered_open_task_body in this document",
     "contract": "SDK request typed-data signing (SDKRequestEnvelopeV2), wallet signed",

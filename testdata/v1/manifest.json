@@ -318,8 +318,15 @@
       "path": "task/session_key_authorization_v1.json",
       "origin": "wire",
       "contract_section": "Registered session keys: order and request signing, admission and mutation boundaries",
-      "bytes": 51774,
-      "sha256": "2f9f4a3c09ef8f391e5cfe820a7b40d86c1b5b48acc6342893160d4fe06eaad2"
+      "bytes": 60499,
+      "sha256": "570ba791fffc0ed3f5633f18223c185c82aaa2b28c88cf17bed91ba33f8e87be"
+    },
+    {
+      "path": "task/session_key_amino_v1.json",
+      "origin": "wire",
+      "contract_section": "Registered session key Cosmos Amino JSON and Web3 signing",
+      "bytes": 7471,
+      "sha256": "cc31a726291d86eb295303f14acaf5b35050e6126c948650171c170e38abe5cb"
     }
   ]
 }

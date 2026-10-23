@@ -7,7 +7,16 @@ re-registration anchor isolation, rotation, cap boundaries, zero-cap unlimited
 mode, checked accumulation, rollback and accepted-task continuation. Amounts
 in these cases are exact decimal strings. The current registration limit and
 historical zero in update cases demonstrate that the limit is read from live
-parameters; they are fixture values, not network defaults.
+parameters; they are fixture values, not network defaults. The registered request
+cases also pin state/key-before-expiry-before-method failure ordering, missing
+local Task lookup and OUTPUT-only Task Data access.
+
+`v1/task/session_key_amino_v1.json` pins registration signing bytes for creation,
+SET and boolean CLEAR: canonical Amino JSON, the complete Web3 typed graph,
+domain/hash/digest and a recoverable wallet signature. Byte fields in this
+signing projection are Base64, not the REST Hash32 form. CLEAR is `true`, not an
+empty struct; consumers must check the independent digests, not only that three
+actions produce different hashes.
 
 This directory stages language-neutral wire fixtures for Node, Nexus,
 Cortex, and SDK implementations.

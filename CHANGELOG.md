@@ -13,9 +13,14 @@
   signed anchor-height and cumulative max_fee checks. Zero spend_cap is unlimited.
   Already admitted tasks are not reauthorized against later grant changes.
 - **Commitment change:** TRUEOPEN_TASK_PARAMS_V1 now includes the additional
-  session parameter in field-number order. Pre-genesis commitments and vectors
-  from earlier releases are superseded for this domain when this change ships.
+  positive session parameter in field-number order. On retained-data networks,
+  historical omitted/zero-limit parameter bodies retain their old preimage and
+  commitment; consumers must retain that encoder for historical versions and
+  pre-activation replay. Do not recompute or overwrite old metadata using the
+  extended encoding. Coordinate the first new-rules height across validators.
   Existing order, request and SessionGrant preimages do not change.
+- Freeze registration Amino/Web3 signing vectors for CreateSession, SET and
+  boolean CLEAR, plus negative registered-request authorization ordering cases.
 - Consumers must implement the new authorization semantics before enabling
   delegated orders. The additive descriptor does not make an old verifier accept
   a session-signed order. Deployment requires coordinated activation and

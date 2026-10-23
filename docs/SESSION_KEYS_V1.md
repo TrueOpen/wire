@@ -48,6 +48,25 @@ neither lifecycle status nor activity/index positions. Registration emits event
 106 along with session_created; changed updates emit 106 after commit. A later
 transaction in the same block already observes the new authorization.
 
+## Wallet registration signing
+
+The canonical Legacy Amino message uses the declared `amino.name` and a flat
+value. CreateSession adds `session_key` only when a grant is present.
+UpdateSessionKey includes `signer_address`, `session_id`, and exactly one action:
+`set` is the grant object; `clear` is the boolean `true`. The unselected action
+is absent. Missing/both actions, null actions, `clear: false` and `clear: {}` are
+invalid Amino update forms. Native protobuf CLEAR remains ClearSessionKeyV1.
+
+In this signing projection, byte arrays (including session_id) are standard
+Base64, uint64 expiry is a decimal string, and spend_cap is the Amount object
+with canonical decimal atomic_units. These are Amino signing bytes; REST's
+Hash32 rendering is a different projection. Canonical sign documents sort JSON
+keys. Web3 signing uses the existing Cosmos Web3 transaction domain and Tx
+projection, with the selected action committed to the typed message. A boolean
+CLEAR avoids empty struct types with inconsistent wallet/library encodings.
+`task/session_key_amino_v1.json` freezes the complete creation/SET/CLEAR sign
+documents, typed graphs, domain separators, digests and wallet signatures.
+
 ## First order admission
 
 SignedOrderV2 retains its four fields and existing EIP-712 version 3 digest.
@@ -71,8 +90,9 @@ spent prevents new delegated admission; zero explicitly enables unlimited mode.
 
 Return `ERR_SESSION_KEY_INVALID` for a mismatched key or pre-registration
 anchor, `ERR_SESSION_KEY_EXPIRED` for expiry, and
-`ERR_SESSION_KEY_SPEND_CAP_EXCEEDED` for a cap failure. An absent registration
-uses the existing signature-mismatch rejection. Preserve these errors through
+`ERR_SESSION_KEY_SPEND_CAP_EXCEEDED` for a cap failure. A non-owner signer with
+no current registration also returns `ERR_SESSION_KEY_INVALID`, including after
+CLEAR. Preserve these errors through
 the ABCI result instead of wrapping them as generic assignment rejection.
 
 Authorization is an admission-time condition. Accepted tasks retain their

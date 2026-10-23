@@ -133,7 +133,7 @@ func TestSessionKeyOrderAdmissionVectors(t *testing.T) {
 			case signatureAddress == owner:
 				got = "ACCEPT_WALLET"
 			case row.State.Key == "":
-				got = "SIGNATURE_MISMATCH"
+				got = "ERR_SESSION_KEY_INVALID"
 			case signatureAddress != row.State.Key || row.Anchor < row.State.SetHeight:
 				got = "ERR_SESSION_KEY_INVALID"
 			case row.Height > row.State.Expiry:
@@ -238,5 +238,56 @@ func TestRegisteredRequestVectorsDoNotCarryGrant(t *testing.T) {
 				t.Fatal("registered data request must bind this order's OUTPUT object")
 			}
 		}
+	}
+}
+
+func TestRegisteredRequestAuthorizationOrderingVectors(t *testing.T) {
+	doc := sessionFixture(t)
+	rows := doc["registered_request_cases"].([]any)
+	if len(rows) != 18 {
+		t.Fatal("missing registered request authorization cases")
+	}
+	for _, raw := range rows {
+		var row struct {
+			Name     string `json:"name"`
+			Base     string `json:"base"`
+			Expected string `json:"expected"`
+			State    struct {
+				Chain  bool   `json:"chain_available"`
+				Exists bool   `json:"session_exists"`
+				Status string `json:"status"`
+				Owner  bool   `json:"owner_matches"`
+				Key    bool   `json:"key_matches"`
+				Height uint64 `json:"current_height"`
+				Expiry uint64 `json:"expiry_height"`
+				Method bool   `json:"method_allowed"`
+				Local  bool   `json:"local_task_found"`
+				Output bool   `json:"output_object"`
+			} `json:"state"`
+		}
+		decodeSessionRow(t, raw, &row)
+		t.Run(row.Name, func(t *testing.T) {
+			recovered := recoverSection(t, doc[row.Base].(map[string]any))
+			if recovered != doc["session_key"].(map[string]any)["address_bytes"] {
+				t.Fatal("base signature is not the registered key")
+			}
+			data := row.Base == "registered_data_request"
+			prefix := "SDK_AUTH_"
+			if data {
+				prefix = "DATA_ACCESS_"
+			}
+			got := "ACCEPT"
+			switch {
+			case !row.State.Chain || data && !row.State.Local || !row.State.Exists || row.State.Status == "CLOSED" || !row.State.Owner || !row.State.Key:
+				got = prefix + "INVALID_SIGNATURE"
+			case row.State.Height > row.State.Expiry:
+				got = prefix + "SESSION_GRANT_EXPIRED"
+			case !row.State.Method || data && !row.State.Output:
+				got = prefix + "SESSION_METHOD_NOT_ALLOWED"
+			}
+			if got != row.Expected {
+				t.Fatalf("got %s, want %s", got, row.Expected)
+			}
+		})
 	}
 }
