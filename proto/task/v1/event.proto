@@ -406,6 +406,20 @@ message TaskProtocolEventPayloadV1 {
     EventTaskGasReimbursementRecorded task_gas_reimbursement_recorded = 28;
     EventWorkerEvidenceAccepted worker_evidence_accepted = 29;
     EventVerifierHandraisesAccepted verifier_handraises_accepted = 34;
+    EventSessionKeyUpdated session_key_updated = 106;
     EventTaskParamsUpdated task_params_updated = 111;
   }
+}
+
+// EventSessionKeyUpdated is event code 106, emitted on registration or an
+// actual SET/CLEAR change, never NOOP. CLEAR omits the key and zeroes expiry,
+// cap and set_height; spent is preserved. This is session-scoped, not task-scoped.
+message EventSessionKeyUpdated {
+  bytes session_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  string owner = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  optional bytes session_key_or_empty = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+  uint64 expiry_height = 4;
+  shared.v1.Amount spend_cap = 5 [(gogoproto.nullable) = false];
+  shared.v1.Amount spent = 6 [(gogoproto.nullable) = false];
+  uint64 set_height = 7;
 }
