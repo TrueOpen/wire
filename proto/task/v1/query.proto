@@ -3,6 +3,7 @@ syntax = "proto3";
 package task.v1;
 
 import "google/api/annotations.proto";
+import "task/v1/query_dispatch.proto";
 import "task/v1/query_session.proto";
 import "task/v1/query_settlement_build.proto";
 import "task/v1/query_task.proto";
@@ -30,10 +31,6 @@ service Query {
   rpc TaskAssignment(QueryTaskAssignmentRequest) returns (QueryTaskAssignmentResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/assignment";
   }
-  // AssignmentRandomness returns the frozen assignment randomness of one task.
-  rpc AssignmentRandomness(QueryAssignmentRandomnessRequest) returns (QueryAssignmentRandomnessResponse) {
-    option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/assignment_randomness";
-  }
   // TaskBudget returns the authoritative per-task accounting row.
   rpc TaskBudget(QueryTaskBudgetRequest) returns (QueryTaskBudgetResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/budget";
@@ -55,9 +52,9 @@ service Query {
   rpc WorkerEvidence(QueryWorkerEvidenceRequest) returns (QueryWorkerEvidenceResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/worker_evidence/{worker_operator_address}/{seq}";
   }
-  // VerifierValueEvidence is registered but returns ERR_NOT_ACTIVATED.
+  // VerifierValueEvidence pages accepted compact receipts, ordered by position.
   rpc VerifierValueEvidence(QueryVerifierValueEvidenceRequest) returns (QueryVerifierValueEvidenceResponse) {
-    option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/verifier_value_evidence/{verify_round}/{target_operator_address}/{position}";
+    option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/verifier_value_evidence/{verify_round}/{target_operator_address}";
   }
   // VerifierCandidateWindow returns one round's frozen verifier window.
   rpc VerifierCandidateWindow(QueryVerifierCandidateWindowRequest) returns (QueryVerifierCandidateWindowResponse) {
@@ -136,6 +133,26 @@ service Query {
   // RoleActiveTasks lists active tasks for one worker or verifier.
   rpc RoleActiveTasks(QueryRoleActiveTasksRequest) returns (QueryRoleActiveTasksResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/role/{operator_address}/{duty}/active_tasks";
+  }
+
+  // DispatchRecord executes the DispatchRecord operation.
+  rpc DispatchRecord(QueryDispatchRecordRequest) returns (QueryDispatchRecordResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/dispatch_record";
+  }
+
+  // DispatchCompensationClaim executes the DispatchCompensationClaim operation.
+  rpc DispatchCompensationClaim(QueryDispatchCompensationClaimRequest) returns (QueryDispatchCompensationClaimResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/dispatch_compensation/{dispatch_ticket_hash}";
+  }
+
+  // DispatchWinnerIneligible executes the DispatchWinnerIneligible operation.
+  rpc DispatchWinnerIneligible(QueryDispatchWinnerIneligibleRequest) returns (QueryDispatchWinnerIneligibleResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/dispatch_ineligible/{dispatch_ticket_hash}";
+  }
+
+  // DispatchChallenge executes the DispatchChallenge operation.
+  rpc DispatchChallenge(QueryDispatchChallengeRequest) returns (QueryDispatchChallengeResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/dispatch_challenge/{challenge_id}";
   }
 }
 

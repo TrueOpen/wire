@@ -1,0 +1,459 @@
+{
+  "schema": "trueopen-wire-reviewed-breaking-v1",
+  "protocol_version": "v1.0.0",
+  "against": "v0.5.1",
+  "review": "https://github.com/TrueOpen/wire/pull/49 - proposed Phase 1 fresh-genesis contract and exact breaking declaration; peer approval is required before merge or release.",
+  "notes": [
+    "This file is the only thing that lets a buf breaking failure pass. It authorizes exactly the findings listed below, for exactly this protocol_version, against exactly this baseline.",
+    "tools/reviewed-breaking checks the set both ways: an undeclared finding fails the build, and a declared finding that no longer occurs fails it too, so the list cannot drift away from the code it describes.",
+    "Findings are identified by (path, type, message) and carry no line or column, because an unrelated edit above a deleted field would otherwise invalidate the declaration and turn regenerating it into a reflex.",
+    "After this release is tagged, the next one starts from a new baseline: delete this file, or replace it with a declaration naming its own version and review. Carrying it forward unchanged would grant an approval nobody asked for."
+  ],
+  "findings": [
+    {
+      "path": "",
+      "type": "FILE_NO_DELETE",
+      "message": "Previously present file \"bus/v1/envelope.proto\" was deleted."
+    },
+    {
+      "path": "",
+      "type": "FILE_NO_DELETE",
+      "message": "Previously present file \"bus/v1/nats_user_binding.proto\" was deleted."
+    },
+    {
+      "path": "",
+      "type": "FILE_NO_DELETE",
+      "message": "Previously present file \"bus/v1/payload.proto\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/common.proto",
+      "type": "ENUM_NO_DELETE",
+      "message": "Previously present enum \"FaultKind\" was deleted from file."
+    },
+    {
+      "path": "proto/hub/v1/event.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"4\" with name \"fault_kind\" on message \"EventFaultRecorded\" changed type from \"hub.v1.FaultKind\" to \"shared.v1.FaultKind\"."
+    },
+    {
+      "path": "proto/hub/v1/fault.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"5\" with name \"fault_class\" on message \"RoleFaultState\" changed type from \"hub.v1.FaultKind\" to \"shared.v1.FaultKind\"."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"2\" with name \"builders_per_task\" on message \"BuilderParamsV1\" was deleted."
+    },
+    {
+      "path": "proto/hub/v1/params.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"4\" with name \"assignment_builder_proposal_window_blocks\" on message \"BuilderParamsV1\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "ENUM_NO_DELETE",
+      "message": "Previously present enum \"AccessLevel\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"1\" with name \"output_id\" on message \"SubscribeOutputResponse\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"2\" with name \"session_id\" on message \"SubscribeOutputResponse\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"output_id\" on message \"AckOutputRequest\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"signature\" on message \"OpenTaskHeader\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"task_id\" on message \"SubscribeOutputResponse\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"4\" with name \"output_text\" on message \"SubscribeOutputResponse\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"5\" with name \"attempt\" on message \"OutputStreamHeaderV2\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"5\" with name \"output_hash\" on message \"SubscribeOutputResponse\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"6\" with name \"created_at\" on message \"SubscribeOutputResponse\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"7\" with name \"expires_at\" on message \"SubscribeOutputResponse\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"8\" with name \"signature_scheme\" on message \"OpenTaskHeader\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"ConfirmOpenTaskRequest\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"ConfirmOpenTaskResponse\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"CredentialV1\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"FetchOutputRefRequest\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"FetchOutputRefResponse\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"RefreshCredentialRequest\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"RefreshCredentialResponse\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"SDKRequestEnvelopeV2\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"SessionGrantV1\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"SubmitOrderRequest\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"SubmitOrderResponse\" was deleted from file."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "RPC_NO_DELETE",
+      "message": "Previously present RPC \"ConfirmOpenTask\" on service \"IngressAPI\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "RPC_NO_DELETE",
+      "message": "Previously present RPC \"FetchOutputRef\" on service \"IngressAPI\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "RPC_NO_DELETE",
+      "message": "Previously present RPC \"RefreshCredential\" on service \"IngressAPI\" was deleted."
+    },
+    {
+      "path": "proto/nexus/v1/ingress.proto",
+      "type": "RPC_NO_DELETE",
+      "message": "Previously present RPC \"SubmitOrder\" on service \"IngressAPI\" was deleted."
+    },
+    {
+      "path": "proto/shared/v1/event.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"10\" on enum \"ProtocolEventCodeV1\" was deleted."
+    },
+    {
+      "path": "proto/shared/v1/event.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"11\" on enum \"ProtocolEventCodeV1\" was deleted."
+    },
+    {
+      "path": "proto/shared/v1/event.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"22\" on enum \"ProtocolEventCodeV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "ENUM_NO_DELETE",
+      "message": "Previously present enum \"AssignmentFailureReason\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"1\" on enum \"TaskCandidateStage\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"1\" on enum \"TaskPhase\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"2\" on enum \"AssignmentStatus\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"2\" on enum \"TaskPhase\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"3\" on enum \"AssignmentStatus\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"4\" on enum \"AssignmentStatus\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"11\" with name \"winner_draw_digest\" on message \"TaskAssignmentState\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"2\" with name \"assign_accept_height\" on message \"TaskAssignmentState\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"2\" with name \"session_anchor_block_hash\" on message \"TaskBuilderSelectionState\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"assignment_randomness_height\" on message \"TaskAssignmentState\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"6\" with name \"assignment_fail_reason\" on message \"TaskAssignmentState\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"9\" with name \"assignment_candidate_set_hash\" on message \"TaskAssignmentState\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/assignment.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"AssignmentCandidateSetState\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/builder_evidence.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"2\" with name \"equivocation\" on message \"BuilderEvidenceV2\" changed type from \"task.v1.SignedEnvelopeEquivocationV2\" to \"task.v1.SignedMessageEquivocationV2\"."
+    },
+    {
+      "path": "proto/task/v1/builder_evidence.proto",
+      "type": "FIELD_SAME_TYPE",
+      "message": "Field \"3\" with name \"invalid_stage_submission\" on message \"BuilderEvidenceV2\" changed type from \"task.v1.SignedEnvelopeProtocolFaultV2\" to \"task.v1.SignedMessageProtocolFaultV2\"."
+    },
+    {
+      "path": "proto/task/v1/builder_evidence.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"SignedEnvelopeEquivocationV2\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/builder_evidence.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"SignedEnvelopeProtocolFaultV2\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/cleanup.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"16\" with name \"assignment_candidate_set_hash\" on message \"TaskTerminalSummaryState\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/deadline.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"9\" on enum \"DeadlineKindV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/event.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"10\" with name \"worker_handraises_accepted\" on message \"TaskProtocolEventPayloadV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/event.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"11\" with name \"worker_assignment_finalized\" on message \"TaskProtocolEventPayloadV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/event.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"22\" with name \"assignment_failed\" on message \"TaskProtocolEventPayloadV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/event.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"EventAssignmentFailed\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/event.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"EventWorkerAssignmentFinalized\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/event.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"EventWorkerHandraisesAccepted\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/genesis.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"22\" with name \"assignment_candidate_sets\" on message \"GenesisState\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/msg_assignment.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"23\" with name \"session_anchor_block_hash\" on message \"TaskOrderV3\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/msg_assignment.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"MsgSubmitWorkerHandraises\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/msg_assignment.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"MsgSubmitWorkerHandraisesResponse\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/msg_assignment.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"WorkerHandraiseScopeV1\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/msg_assignment.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"WorkerHandraiseV1\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/msg_session.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"ClearSessionKeyV1\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/msg_session.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"SessionKeyGrantV1\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/params.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"10\" with name \"anchor_freshness_window_blocks\" on message \"SessionParamsV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query.proto",
+      "type": "RPC_NO_DELETE",
+      "message": "Previously present RPC \"AssignmentRandomness\" on service \"Query\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"1\" with name \"evidence_digest\" on message \"QueryVerifierValueEvidenceResponse\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"11\" with name \"winner_draw_digest\" on message \"TaskAssignmentViewV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"2\" with name \"assign_accept_height\" on message \"TaskAssignmentViewV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"2\" with name \"fault_id\" on message \"QueryVerifierValueEvidenceResponse\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"2\" with name \"session_anchor_block_hash\" on message \"TaskBuilderSelectionViewV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"accepted_height\" on message \"QueryVerifierValueEvidenceResponse\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"3\" with name \"assignment_randomness_height\" on message \"TaskAssignmentViewV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"4\" with name \"position\" on message \"QueryVerifierValueEvidenceRequest\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"6\" with name \"assignment_fail_reason\" on message \"TaskAssignmentViewV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "FIELD_NO_DELETE",
+      "message": "Previously present field \"9\" with name \"assignment_candidate_set_hash\" on message \"TaskAssignmentViewV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"AssignmentRandomnessViewV1\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"QueryAssignmentRandomnessRequest\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/query_task.proto",
+      "type": "MESSAGE_NO_DELETE",
+      "message": "Previously present message \"QueryAssignmentRandomnessResponse\" was deleted from file."
+    },
+    {
+      "path": "proto/task/v1/settlement.proto",
+      "type": "ENUM_VALUE_NO_DELETE",
+      "message": "Previously present enum value \"1\" on enum \"TaskReimbursementKindV1\" was deleted."
+    },
+    {
+      "path": "proto/task/v1/tx.proto",
+      "type": "RPC_NO_DELETE",
+      "message": "Previously present RPC \"SubmitWorkerHandraises\" on service \"Msg\" was deleted."
+    }
+  ]
+}

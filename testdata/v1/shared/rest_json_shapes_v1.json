@@ -1,5 +1,4 @@
 {
-  "schema": "trueopen-rest-json-shapes-v1",
   "contract": "Node REST gateway JSON rendering",
   "notes": [
     "Bodies are rendered by the Node REST gateway: the Cosmos API server gateway marshaler (gogoproto JSONPb with OrigName and EmitDefaults) followed by the Node response encoder that applies shared.v1.rest_bytes_encoding. They are shapes, not chain data: populated bodies use placeholders (string \"s\", integer 1, the first declared non-zero enum value, and 32 bytes of ab for every bytes field).",
@@ -11,18 +10,10 @@
   ],
   "responses": [
     {
-      "name": "task_v1_querytaskresponse_active",
-      "route": "GET /TrueOpen/task/v1/task/{task_id}",
-      "message": "task.v1.QueryTaskResponse",
-      "variant": "active",
-      "note": "Every field populated with a placeholder.",
       "body": {
         "task": {
           "active": {
             "assignment": {
-              "assign_accept_height": "1",
-              "assignment_candidate_set_hash": "0xabababababababababababababababababababababababababababababababab",
-              "assignment_randomness_height": "1",
               "assignment_status": "ASSIGNMENT_STATUS_NONE",
               "candidate_pool_hash": "0xabababababababababababababababababababababababababababababababab",
               "candidate_pool_snapshot_id": "0xabababababababababababababababababababababababababababababababab",
@@ -60,7 +51,7 @@
               "session_id": "0xabababababababababababababababababababababababababababababababab",
               "settlement_status": "SETTLEMENT_STATUS_NONE",
               "task_id": "0xabababababababababababababababababababababababababababababababab",
-              "task_phase": "TASK_PHASE_WORKER_ASSIGNMENT_PENDING",
+              "task_phase": "TASK_PHASE_INFER_PENDING",
               "task_type": "TASK_TYPE_TEXT_GENERATION",
               "updated_height": "1",
               "user_address": "s",
@@ -121,18 +112,17 @@
             }
           }
         }
-      }
+      },
+      "message": "task.v1.QueryTaskResponse",
+      "name": "task_v1_querytaskresponse_active",
+      "note": "Every field populated with a placeholder.",
+      "route": "GET /TrueOpen/task/v1/task/{task_id}",
+      "variant": "active"
     },
     {
-      "name": "task_v1_querytaskresponse_terminal",
-      "route": "GET /TrueOpen/task/v1/task/{task_id}",
-      "message": "task.v1.QueryTaskResponse",
-      "variant": "terminal",
-      "note": "Every field populated with a placeholder.",
       "body": {
         "task": {
           "terminal": {
-            "assignment_candidate_set_hash": "0xabababababababababababababababababababababababababababababababab",
             "builder_set_hash": "0xabababababababababababababababababababababababababababababababab",
             "builder_set_id": "s",
             "builder_set_version": "1",
@@ -173,18 +163,18 @@
             "task_id": "0xabababababababababababababababababababababababababababababababab",
             "task_round_summary_hash": "0xabababababababababababababababababababababababababababababababab",
             "task_type": "TASK_TYPE_TEXT_GENERATION",
-            "terminal_phase": "TASK_PHASE_WORKER_ASSIGNMENT_PENDING",
+            "terminal_phase": "TASK_PHASE_SETTLED",
             "verdict": "TASK_VERDICT_PASS"
           }
         }
-      }
+      },
+      "message": "task.v1.QueryTaskResponse",
+      "name": "task_v1_querytaskresponse_terminal",
+      "note": "Every field populated with a placeholder.",
+      "route": "GET /TrueOpen/task/v1/task/{task_id}",
+      "variant": "terminal"
     },
     {
-      "name": "task_v1_querytaskresponse_active_zero",
-      "route": "GET /TrueOpen/task/v1/task/{task_id}",
-      "message": "task.v1.QueryTaskResponse",
-      "variant": "active",
-      "note": "Zero-valued core and unset optional sub-states: absent Hash32 fields are omitted, unset messages are null.",
       "body": {
         "task": {
           "active": {
@@ -215,13 +205,14 @@
             "round_summary": null
           }
         }
-      }
+      },
+      "message": "task.v1.QueryTaskResponse",
+      "name": "task_v1_querytaskresponse_active_zero",
+      "note": "Zero-valued core and unset optional sub-states: absent Hash32 fields are omitted, unset messages are null.",
+      "route": "GET /TrueOpen/task/v1/task/{task_id}",
+      "variant": "active"
     },
     {
-      "name": "hub_v1_queryprofileresponse",
-      "route": "GET /TrueOpen/hub/v1/profile/{model_id}/{profile_version}",
-      "message": "hub.v1.QueryProfileResponse",
-      "note": "Every field populated with a placeholder.",
       "body": {
         "profile": {
           "batch_verification": {
@@ -329,13 +320,13 @@
             "reject_union_js_p99_min": 1
           }
         }
-      }
+      },
+      "message": "hub.v1.QueryProfileResponse",
+      "name": "hub_v1_queryprofileresponse",
+      "note": "Every field populated with a placeholder.",
+      "route": "GET /TrueOpen/hub/v1/profile/{model_id}/{profile_version}"
     },
     {
-      "name": "hub_v1_queryprofileresponse_zero",
-      "route": "GET /TrueOpen/hub/v1/profile/{model_id}/{profile_version}",
-      "message": "hub.v1.QueryProfileResponse",
-      "note": "Zero-valued profile: absent Hash32 fields are omitted, 64-bit zeros are \"0\".",
       "body": {
         "profile": {
           "batch_verification": {
@@ -429,13 +420,13 @@
             "reject_union_js_p99_min": 0
           }
         }
-      }
+      },
+      "message": "hub.v1.QueryProfileResponse",
+      "name": "hub_v1_queryprofileresponse_zero",
+      "note": "Zero-valued profile: absent Hash32 fields are omitted, 64-bit zeros are \"0\".",
+      "route": "GET /TrueOpen/hub/v1/profile/{model_id}/{profile_version}"
     },
     {
-      "name": "hub_v1_queryhubparamsresponse_default",
-      "route": "GET /TrueOpen/hub/v1/params",
-      "message": "hub.v1.QueryHubParamsResponse",
-      "note": "The default hub parameters.",
       "body": {
         "meta": {
           "params_version": "0",
@@ -472,17 +463,15 @@
             "parameter_bucket_version_retention_blocks": "60480"
           },
           "builder": {
-            "assignment_builder_proposal_window_blocks": "100",
             "builder_fault_retention_blocks": "604800",
             "builder_set_cap": 15,
             "builder_set_header_retention_epochs": 30,
             "builder_set_retention_epochs": 30,
             "builder_set_update_lead_blocks": "100",
-            "builders_per_task": 3,
             "max_builder_fault_prune_items_per_block": 256,
             "max_builder_set_id_bytes": 128,
             "max_builder_set_prune_items_per_block": 32,
-            "open_verify_builder_proposal_window_blocks": "100",
+            "open_verify_builder_proposal_window_blocks": "5",
             "settlement_builder_grace_blocks": "2"
           },
           "candidate_pool": {
@@ -499,8 +488,8 @@
           },
           "epoch": {
             "delta_m_blocks": "100",
-            "delta_w_blocks": "100",
-            "epoch_length_blocks": "60480"
+            "delta_w_blocks": "5",
+            "epoch_length_blocks": "60480000"
           },
           "freeze": {
             "freeze_failure_index_retention_blocks": "604800",
@@ -530,7 +519,7 @@
             "supported_tool_call_parsers": []
           },
           "phase0": {
-            "business_denom": "uusdc",
+            "business_denom": "utrueopen",
             "consensus_bond_denom": "ubond",
             "epoch_block_reward": {
               "atomic_units": "0"
@@ -548,7 +537,7 @@
             "price_hard_max": "18446744073709551615",
             "price_hard_min": "1",
             "price_max_steps_per_block": 10,
-            "price_step_ppm": 10000
+            "price_step_ppm": 1000000
           },
           "query_event": {
             "max_endblock_visited_items_total": 10000,
@@ -566,7 +555,16 @@
             "min_epoch_sample": 30,
             "order_value_bucket_boundaries": [
               {
-                "atomic_units": "1"
+                "atomic_units": "1000000"
+              },
+              {
+                "atomic_units": "5000000"
+              },
+              {
+                "atomic_units": "10000000"
+              },
+              {
+                "atomic_units": "50000000"
               }
             ],
             "p30_bootstrap_order_value_floor": {
@@ -576,7 +574,7 @@
           },
           "schema_version": 2,
           "service": {
-            "jail_clear_normal_action_count": 1000,
+            "jail_clear_normal_action_count": 1,
             "max_open_unbonding_entries_per_operator": 16,
             "max_role_fault_prune_items_per_block": 256,
             "max_service_bond_effective_items_per_block": 1024,
@@ -613,9 +611,9 @@
             "max_daily_support_items_per_batch": 256,
             "max_model_support_deactivate_items_per_block": 32,
             "max_model_support_prune_items_per_block": 32,
-            "max_model_support_recheck_items_per_block": 32,
+            "max_model_support_recheck_items_per_block": 256,
             "max_support_expiry_items_per_block": 32,
-            "max_supported_models_per_operator": 64,
+            "max_supported_models_per_operator": 256,
             "model_support_row_retention_epochs": 30,
             "support_window_epochs": 2
           },
@@ -639,13 +637,13 @@
             }
           }
         }
-      }
+      },
+      "message": "hub.v1.QueryHubParamsResponse",
+      "name": "hub_v1_queryhubparamsresponse_default",
+      "note": "Phase 1 conformance example, not approved network defaults.",
+      "route": "GET /TrueOpen/hub/v1/params"
     },
     {
-      "name": "task_v1_querytaskparamsresponse_default",
-      "route": "GET /TrueOpen/task/v1/params",
-      "message": "task.v1.QueryTaskParamsResponse",
-      "note": "The default task parameters.",
       "body": {
         "meta": {
           "params_version": "0",
@@ -675,22 +673,66 @@
             "reveal_window_blocks": "10"
           },
           "cleanup": {
-            "max_epoch_task_summary_bytes": "65536",
-            "max_epoch_task_summary_items_per_block": 256,
-            "max_epoch_task_summary_support_candidates": 64,
+            "max_epoch_task_summary_bytes": "1048576",
+            "max_epoch_task_summary_items_per_block": 1024,
+            "max_epoch_task_summary_support_candidates": 1024,
             "max_task_cleanup_items_per_block": 1024,
             "max_task_failure_class_prune_items_per_block": 256,
             "max_task_terminal_summary_prune_items_per_block": 256,
             "task_terminal_summary_retention_blocks": "60480"
           },
           "deadlines": {
-            "collection_window_blocks": "40",
-            "commit_window_blocks": "20",
+            "collection_window_blocks": "100200",
+            "commit_window_blocks": "100000",
             "max_deadline_sweep_per_block": 1024,
-            "reveal_window_blocks": "10",
+            "reveal_window_blocks": "120",
             "self_rescue_margin_blocks": "10",
-            "settle_margin_blocks": "10",
-            "verify_open_deadline_blocks": "400"
+            "settle_margin_blocks": "20",
+            "verify_open_deadline_blocks": "150000"
+          },
+          "dispatch": {
+            "builder_compensation_account_min_balance": {
+              "atomic_units": "100"
+            },
+            "builder_max_inflight_per_session": 1,
+            "dispatch_challenge_gas_cap_by_kind": [
+              {
+                "gas_cap": "1",
+                "kind": 1
+              }
+            ],
+            "dispatch_challenge_response_blocks": "8",
+            "dispatch_challenge_window_blocks": "32",
+            "dispatch_compensation_claim_window_blocks": "64",
+            "dispatch_compensation_rebuttal_blocks": "8",
+            "dispatch_evidence_retention_blocks": "128",
+            "dispatch_fault_penalty_by_kind": [
+              {
+                "amount": {
+                  "atomic_units": "100"
+                },
+                "kind": 1
+              }
+            ],
+            "dispatch_record_retention_blocks": "128",
+            "max_dispatch_entries_per_record": 32,
+            "max_dispatch_record_bytes": "1048576",
+            "max_dispatch_roster_bytes": "1048576",
+            "max_pending_per_session": 1,
+            "max_prerecord_output_tokens": "1024",
+            "max_skips": 1,
+            "order_freshness_margin_blocks": "2",
+            "prefill_compensation_by_model_tier": [
+              {
+                "amount": {
+                  "atomic_units": "100"
+                },
+                "resource_tier": 1
+              }
+            ],
+            "record_deadline_blocks": "4",
+            "sticky_max_orders": 1,
+            "sticky_window_blocks": "1"
           },
           "evidence": {
             "encryption_activation_height": "0",
@@ -702,8 +744,8 @@
             "max_output_mmr_leaves": "65536",
             "max_supported_evidence_schema_versions": 16,
             "max_supported_leaf_ordering_versions": 16,
-            "max_verifier_value_evidence_bytes": "0",
-            "max_verifier_value_evidence_positions": 0,
+            "max_verifier_value_evidence_bytes": "262144",
+            "max_verifier_value_evidence_positions": 8,
             "max_worker_evidence_bytes_v1": "1048576",
             "min_output_stream_frame_bytes": 256,
             "verifier_value_evidence_window_blocks": "0"
@@ -739,16 +781,22 @@
           },
           "schema_version": 1,
           "session": {
-            "anchor_freshness_window_blocks": "10000",
             "cancel_order_min_gas": "50000",
+            "max_active_sessions_per_account": 1,
             "max_order_sequences_per_active_session": 4096,
             "max_session_history_prune_items_per_block": 256,
+            "max_session_key_blocks": "604800",
             "max_session_sweep_per_block": 1024,
             "max_session_terminal_summary_prune_items_per_block": 256,
-            "session_close_ttl_blocks": "60480",
+            "session_change_delay_blocks": "6",
+            "session_close_ttl_blocks": "400000",
             "session_idle_ttl_blocks": "100",
+            "session_min_prefund": {
+              "atomic_units": "100"
+            },
             "session_order_retention_blocks": "60480",
-            "session_terminal_summary_retention_blocks": "60480"
+            "session_terminal_summary_retention_blocks": "60480",
+            "session_withdraw_delay_blocks": "6"
           },
           "verification": {
             "builder_fault_slash_bps": 0,
@@ -769,13 +817,13 @@
             "worker_stake_weight_ppm": 300000
           }
         }
-      }
+      },
+      "message": "task.v1.QueryTaskParamsResponse",
+      "name": "task_v1_querytaskparamsresponse_default",
+      "note": "Phase 1 conformance example, not approved network defaults.",
+      "route": "GET /TrueOpen/task/v1/params"
     },
     {
-      "name": "hub_v1_querycortexnoderesponse",
-      "route": "GET /TrueOpen/hub/v1/cortex_node/{operator_address}",
-      "message": "hub.v1.QueryCortexNodeResponse",
-      "note": "Every field populated with a placeholder; current_service_pubkey is a Base64 bytes field.",
       "body": {
         "node": {
           "active_task_liability_count": 1,
@@ -791,13 +839,13 @@
           "service_key_status": "SERVICE_KEY_STATUS_ACTIVE",
           "updated_height": "1"
         }
-      }
+      },
+      "message": "hub.v1.QueryCortexNodeResponse",
+      "name": "hub_v1_querycortexnoderesponse",
+      "note": "Every field populated with a placeholder; current_service_pubkey is a Base64 bytes field.",
+      "route": "GET /TrueOpen/hub/v1/cortex_node/{operator_address}"
     },
     {
-      "name": "hub_v1_querycortexnoderesponse_zero",
-      "route": "GET /TrueOpen/hub/v1/cortex_node/{operator_address}",
-      "message": "hub.v1.QueryCortexNodeResponse",
-      "note": "Zero-valued node: an unset Base64 bytes field is \"\".",
       "body": {
         "node": {
           "active_task_liability_count": 0,
@@ -813,7 +861,12 @@
           "service_key_status": "SERVICE_KEY_STATUS_UNSPECIFIED",
           "updated_height": "0"
         }
-      }
+      },
+      "message": "hub.v1.QueryCortexNodeResponse",
+      "name": "hub_v1_querycortexnoderesponse_zero",
+      "note": "Zero-valued node: an unset Base64 bytes field is \"\".",
+      "route": "GET /TrueOpen/hub/v1/cortex_node/{operator_address}"
     }
-  ]
+  ],
+  "schema": "trueopen-rest-json-shapes-v1"
 }

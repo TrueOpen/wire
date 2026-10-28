@@ -8,24 +8,13 @@
 - Keep existing protobuf package names stable. Moving a symbol between packages
   is a reviewed breaking release, never an incidental change: see the
   reviewed-breaking rules below.
-- **Import direction, enforced.** `shared.v1` is a descriptor import leaf -
-  it imports Google and Cosmos primitive options and other `shared.v1`
-  files, and nothing else - and `task.v1` and `bus.v1` have zero direct
-  and zero transitive proto imports of `hub.v1`, with `hub.v1`
-  importing `shared.v1` only. This replaces the earlier rule that allowed
-  `task` to import `hub`: the module split deliberately superseded it,
-  because a cross-domain type parked in an owner package keeps the module split
-  from being real, and a Task-owned evidence message that reaches Bus payload
-  types through the Hub package closes a Task -> Bus -> Task import cycle in the
-  consumer.
-
-  This became true in v0.2.0, which moved fifteen shared symbols into
-  `shared.v1`. `tools/verify-import-boundaries` checks it in CI over the
-  transitive descriptor closure, so a new `hub.v1` import in a
-  `task.v1` or `bus.v1` file - or any non-`shared` import in a
-  `shared.v1` file - fails the `contract` job with the exact chain named,
-  including when the import is several files deep. Fix the direction rather than
-  the check: a symbol two owner packages need belongs in `shared.v1`.
+- **Import direction, enforced.** `shared.v1` is a descriptor import leaf.
+  Task must not import Hub or Nexus; Nexus may import Task, and neither Task
+  nor Nexus may reach Hub transitively. Cross-module facts belong in `shared.v1`.
+  `tools/verify-import-boundaries` enforces the complete closure in CI.
+- Canonical dispatch signing and proof code belongs in `dispatch/`. Consumers
+  and fixture tools reuse it. Update pinned metadata together with the schema
+  and run `tools/verify-dispatch-schema`; do not duplicate parsers or primitives.
 - A cross-domain type - one both an owner package and another owner package
   need - belongs in `shared.v1`. A type only one domain reads stays with
   that domain even if it used to live elsewhere.

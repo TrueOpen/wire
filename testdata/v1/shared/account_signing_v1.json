@@ -260,11 +260,11 @@
       "name": "sdk_request_session_signed_by_wrong_key",
       "reason": "the request signature does not recover to the grant sessionKey",
       "recovered_address": "c48b812bb43401392c037381aca934f4069c0517",
-      "signature_65": "ee70942f822682f4f3e0a0ff04d443f4bfd1257ccecff7f63bc2b220cc1263874f216162cb7bd49d9ade336099cfa194f87a330db0e8f244a3fe89775bbff5411c",
+      "signature_65": "3b3b9eeb20fa95d70c0a39c6da343a2fa238d1590d9b731b2bb1e43dc5d9750867fd04e65109de1839a6f917338f718b88d8f31bda3f1de9532b14ba12a321791b",
       "signed": {
         "signer": "wrong_key"
       },
-      "signing_digest": "d8eebff290536870935f2659e8e3efc319ca0bb2de28f4c3a55083dd5d629a0d"
+      "signing_digest": "10229bc2938f77b4ffd914ee97171c5f1c5020a52448ec45df98ce38557b5bda"
     },
     {
       "base": "session_grant",
@@ -287,15 +287,15 @@
       "expect": "reject",
       "name": "sdk_request_session_signed_without_grant_hash",
       "reason": "the verifier derives sessionGrantHash from the attached grant, so the rebuilt digest differs from the signed one",
-      "recovered_address": "80ab62ff4c60a7b13abd62cc66c0c6c5eee8ad0c",
-      "signature_65": "113f4e93c92131e15b07d078a03bc3fb9050b4da50f6b8aeb2192c0bd9d0c5ee07d7d062bc1d833f4fc44c26634f3e87f5b2cc381f66a94c255fae7edbad67f21c",
+      "recovered_address": "4609be1275c72dd4d363d068f63d1fec0db7a15e",
+      "signature_65": "c8e9381f6e364657434254937ba3e51e519a4110a27a935b2a7a96fc7ad49aab075aa11d9db5aec439bc5001f9d2142b9e6dc33fa790974361630f6a3e3ce4bf1b",
       "signed": {
         "message": {
           "sessionGrantHash": "0000000000000000000000000000000000000000000000000000000000000000"
         },
         "signer": "session_key"
       },
-      "signing_digest": "d8eebff290536870935f2659e8e3efc319ca0bb2de28f4c3a55083dd5d629a0d"
+      "signing_digest": "10229bc2938f77b4ffd914ee97171c5f1c5020a52448ec45df98ce38557b5bda"
     },
     {
       "base": "sdk_request",
@@ -321,7 +321,7 @@
       "expect": "reject",
       "name": "sdk_request_session_tampered_body_digest",
       "reason": "bodyDigest is signed; any body change moves the digest and the original signature recovers to another address",
-      "recovered_address": "45fb04e053064b18b33c9768363681815aab7e3c",
+      "recovered_address": "8968ba466d494880c25126535a22ac87d7ef038e",
       "signing_digest": "455bbfefd862968a56348e270facb71bcebf5fa9af3a9b53d4fd308ede015bf9",
       "verified": {
         "message": {
@@ -335,7 +335,7 @@
       "error": "SDK_AUTH_SESSION_GRANT_EXPIRED",
       "expect": "reject",
       "name": "session_grant_expired",
-      "reason": "current_height <= expiryHeight fails",
+      "reason": "current_height \u003c= expiryHeight fails",
       "verification_context": {
         "current_height": "1501",
         "max_session_grant_blocks": "400"
@@ -477,16 +477,16 @@
       "error": "NEXUS_INGRESS_MALFORMED",
       "expect": "reject",
       "name": "sdk_request_session_method_endpoint_mismatch",
-      "reason": "the signature is valid, but the <Method> of endpoint must equal method",
+      "reason": "the signature is valid, but the \u003cMethod\u003e of endpoint must equal method",
       "recovered_address": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
-      "signature_65": "6f9d876f003058cb0f74f08ff00ac542eb42fc08fa33a9f4c39d082eedbe84a04c26f9e0d2716d477951335c0adf534fbffae99aefb1f85a5ac507c2360f57391b",
+      "signature_65": "dfa3a9e53cf50f12bde1eb0494c23452f87eccca8ca41081227d972338685eaa255399abb0875b7f2c67e52e5aa5d708e5597b5b38a7a821de7d5334ae196a991b",
       "signed": {
         "message": {
           "endpoint": "/nexus.v1.IngressAPI/AckOutput"
         },
         "signer": "session_key"
       },
-      "signing_digest": "594c7332cbbe11749eab82d2c85512c50dfc9bff844935b5d9de65596fccef76",
+      "signing_digest": "09d60a8883711c9aeff77b5c08b0192cf1c51d0ffaf73e02fafcfc5430debb85",
       "verified": {
         "message": {
           "endpoint": "/nexus.v1.IngressAPI/AckOutput"
@@ -638,7 +638,7 @@
       "sessionId": "77625100ba4faa1306ae6eaf5a872a661443aa94f87c5530c4b178614e3d62f7",
       "taskId": "bce966ae829f212a35982bcd85aaea77d8893539afa04f32ea540c46ff8323b0"
     },
-    "note": "OpenTask, signed by the user wallet directly. OpenTask may also be signed by a session key under a grant whose user is the order user (sdk_request_open_task_session). sessionGrantHash is 32 zero bytes because no grant is attached; the verifier derives it and never reads it from the request. expiryHeightOrTime below 10^12 is a chain height, which only OpenTask may use; OpenTask accepts only a chain height, and a Unix millisecond expiry is NEXUS_INGRESS_MALFORMED at the format step. The signature must recover to signer_address, which must equal the order user, and the recovered public key must equal the account's stored key. method is the bare method name and endpoint the full procedure /nexus.v1.IngressAPI/<Method>, whose <Method> must equal method. session_id and task_id travel as 0x followed by 64 lowercase hex characters, are decoded strictly and enter as bytes32; any other spelling is rejected before projection. For OpenTask task_id must equal TRUEOPEN_TASK_ID_V1(session_id, order_sequence), here order sequence 7. requestNonce is exactly 32 bytes, and an expiry of 0 or below is rejected before projection. The user account must already hold its public key on chain (it has submitted MsgCreateSession). request_domain, signer_address, signature and the deprecated signer_pubkey are not typed fields. The replay_key column spells the NUL separators as \\x00. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. This OpenTask row expires at chain height 1010 and assumes current_height 1000; any height from 990 to 1010 accepts it, since an OpenTask height expiry must satisfy current_height <= expiry <= current_height + request_ttl_blocks. It is evaluated separately from the session rows, whose grant needs a height from 1100 to 1500.",
+    "note": "OpenTask, signed by the user wallet directly. OpenTask may also be signed by a session key under a grant whose user is the order user (sdk_request_open_task_session). sessionGrantHash is 32 zero bytes because no grant is attached; the verifier derives it and never reads it from the request. expiryHeightOrTime below 10^12 is a chain height, which only OpenTask may use; OpenTask accepts only a chain height, and a Unix millisecond expiry is NEXUS_INGRESS_MALFORMED at the format step. The signature must recover to signer_address, which must equal the order user, and the recovered public key must equal the account's stored key. method is the bare method name and endpoint the full procedure /nexus.v1.IngressAPI/\u003cMethod\u003e, whose \u003cMethod\u003e must equal method. session_id and task_id travel as 0x followed by 64 lowercase hex characters, are decoded strictly and enter as bytes32; any other spelling is rejected before projection. For OpenTask task_id must equal TRUEOPEN_TASK_ID_V1(session_id, order_sequence), here order sequence 7. requestNonce is exactly 32 bytes, and an expiry of 0 or below is rejected before projection. The user account must already hold its public key on chain (it has submitted MsgCreateSession). request_domain, signer_address, signature and the deprecated signer_pubkey are not typed fields. The replay_key column spells the NUL separators as \\x00. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. This OpenTask row expires at chain height 1010 and assumes current_height 1000; any height from 990 to 1010 accepts it, since an OpenTask height expiry must satisfy current_height \u003c= expiry \u003c= current_height + request_ttl_blocks. It is evaluated separately from the session rows, whose grant needs a height from 1100 to 1500.",
     "recovered_address": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
     "signature_65": "364239bc1efc6fdb0da22116ab2ca4fdf26dd4dae69b8aa35e75134523be52882421d12aebae10b3e24e232f1875d5338d39fcb8986389a9663569c875beca7e1c",
     "signature_chain_id": "424242",
@@ -677,7 +677,7 @@
       "sessionId": "77625100ba4faa1306ae6eaf5a872a661443aa94f87c5530c4b178614e3d62f7",
       "taskId": "bce966ae829f212a35982bcd85aaea77d8893539afa04f32ea540c46ff8323b0"
     },
-    "note": "OpenTask signed by the session key under the grant of session_grant. OpenTask is in the session-allowed set, and the grant user must also equal the SignedOrder user_address, otherwise SDK_AUTH_SESSION_GRANT_INVALID (open_task_session_grant_user_not_order_user). The order itself is still signed by the user wallet; a session key cannot forge or alter it. sessionGrantHash is hashStruct(SessionGrant) of session_grant, derived by the verifier. The signature must recover to sessionKey and is not compared with an account key. The body digest is the OpenTask body of sdk_request; requestNonce differs, so the replay key differs. This row expires at chain height 1110 and assumes current_height 1100, inside both the grant window (1100 to 1500) and the OpenTask window (current_height <= expiry <= current_height + request_ttl_blocks).",
+    "note": "OpenTask signed by the session key under the grant of session_grant. OpenTask is in the session-allowed set, and the grant user must also equal the SignedOrder user_address, otherwise SDK_AUTH_SESSION_GRANT_INVALID (open_task_session_grant_user_not_order_user). The order itself is still signed by the user wallet; a session key cannot forge or alter it. sessionGrantHash is hashStruct(SessionGrant) of session_grant, derived by the verifier. The signature must recover to sessionKey and is not compared with an account key. The body digest is the OpenTask body of sdk_request; requestNonce differs, so the replay key differs. This row expires at chain height 1110 and assumes current_height 1100, inside both the grant window (1100 to 1500) and the OpenTask window (current_height \u003c= expiry \u003c= current_height + request_ttl_blocks).",
     "recovered_address": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
     "session_grant_source": "session_grant",
     "signature_65": "e84e9d1f2333524e021e20640538313ddc7b37fc63dd4ba892d331ee9ea311bf6a2aa18e5ba53e6f565b9a6b8d6cff753dbcd51410afe1cac7e84c0e961dcaa31c",
@@ -705,9 +705,9 @@
       "signature_chain_id": "424242",
       "signer_address": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz"
     },
-    "hash_struct": "951a6726728cf9819b2310b0bad7bb744b01cbbb01fc5583a0ef5cac41287d8d",
+    "hash_struct": "f7fb1672026f6e4497e77e28310a94b80fd9de77cf895da7a95d16b7b73d8424",
     "message": {
-      "bodyDigest": "e319c6b85eeacab31efcaa60691628f0fbf232d6be43191b253d93c94e1d868a",
+      "bodyDigest": "33ef0af1efc035e77f8575d8c22d5f2054dda4b6a8cdbdaf0acb034e607d17f4",
       "chainId": "trueopen-golden-1",
       "endpoint": "/nexus.v1.IngressAPI/SubscribeOutput",
       "expiryHeightOrTime": "1790000000000",
@@ -720,10 +720,10 @@
     "note": "SubscribeOutput signed by the session key under the grant of session_grant. sessionGrantHash is that grant's hash_struct. The signature recovers to the grant's sessionKey, and is compared with it only; the grant carries the account check. signer_address stays the granting user and keys the replay record. expiryHeightOrTime of 10^12 or more is Unix milliseconds, the only form methods other than OpenTask accept. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. It assumes current_height 1200, inside the grant window of session_grant, and a verifier clock at or before the Unix-millisecond expiry 1790000000000. request_ttl_blocks does not apply: only an OpenTask expiry is a chain height.",
     "recovered_address": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
     "session_grant_source": "session_grant",
-    "signature_65": "b109ee8596a5d748fd94a640f44f35d2dca0826d0f2245ce507df5fab2d631467d331e3fc1625f6ae2172fe06bace1aaddb0b38f2de9a7de4c7511525a7682ad1c",
+    "signature_65": "1942d94836b65c585914dbdb6b9427fa257319725a8ef5fa95cd47832fbfa2ce7d7b01b6a40c014ce954db8388d7681fa789ceda9e8ace69888c56934ea30c9a1b",
     "signature_chain_id": "424242",
     "signer": "session_key",
-    "signing_digest": "d8eebff290536870935f2659e8e3efc319ca0bb2de28f4c3a55083dd5d629a0d",
+    "signing_digest": "10229bc2938f77b4ffd914ee97171c5f1c5020a52448ec45df98ce38557b5bda",
     "type_hash": "10322f9048e3c9b28f0a95d1acd80fd98e85eb78bbd308304e35a49eff5c57e8"
   },
   "session_grant": {
@@ -745,7 +745,7 @@
       "sessionKey": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
       "user": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz"
     },
-    "note": "Signed once by the user wallet under the SDK Request domain. sessionKey is the EIP-712 address of the session_key test key (a wallet JSON spells it 0x-prefixed); it is not an on-chain account. user_signature must recover to user, and user must be an existing account whose stored public key equals the recovered one. A request carrying this grant binds it through sessionGrantHash = hash_struct. verification_context is fixture material, not a network parameter: max_session_grant_blocks is a deployment value, and the rule is current_height <= expiryHeight <= current_height + max_session_grant_blocks with checked addition. There is no revocation; the grant is reusable until it expires and is not a replay record of its own. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. The grant (expiryHeight 1500) and the session rows built on it assume current_height 1200, as verification_context states: 1200 <= 1500 <= 1200 + 400. The grant-window rows in request_auth_negative_cases each state their own current_height with max_session_grant_blocks 400: 1501 and 1099 reject, 1100 and 1500 accept.",
+    "note": "Signed once by the user wallet under the SDK Request domain. sessionKey is the EIP-712 address of the session_key test key (a wallet JSON spells it 0x-prefixed); it is not an on-chain account. user_signature must recover to user, and user must be an existing account whose stored public key equals the recovered one. A request carrying this grant binds it through sessionGrantHash = hash_struct. verification_context is fixture material, not a network parameter: max_session_grant_blocks is a deployment value, and the rule is current_height \u003c= expiryHeight \u003c= current_height + max_session_grant_blocks with checked addition. There is no revocation; the grant is reusable until it expires and is not a replay record of its own. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. The grant (expiryHeight 1500) and the session rows built on it assume current_height 1200, as verification_context states: 1200 \u003c= 1500 \u003c= 1200 + 400. The grant-window rows in request_auth_negative_cases each state their own current_height with max_session_grant_blocks 400: 1501 and 1099 reject, 1100 and 1500 accept.",
     "recovered_address": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
     "signature_65": "3fb4748b2a73fee79c93b4101038e92b07593d467655bf69d50ae0096de790064c38ca6aab0ea314ea18e0dfe3ee4eb89184075790287e64d284291e0911b8c71b",
     "signature_chain_id": "424242",
@@ -801,7 +801,7 @@
       "serviceAuthorizationNonce": "0",
       "sessionGrantHash": "0000000000000000000000000000000000000000000000000000000000000000"
     },
-    "note": "The USER branch of TaskDataRequestAuthV1 under domain version 2. Typed fields 1-10 project auth fields 1-10 and sessionGrantHash is 32 zero bytes without a grant. requester_kind alone selects the verifier: USER signs this typed data and supplies exactly 65 bytes, CORTEX_SERVICE signs the TRUEOPEN_TASK_DATA_REQUEST_V1 H_FIELDS_V1 digest and supplies exactly 64. Neither length is sniffed and no caller pubkey is trusted. personal_sign, eth_sign and raw64 are rejected, a USER request carries serviceAuthorizationNonce 0, and domain version 1 is not accepted. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. It assumes current_height 1200, so expiryHeight 2000 is inside current_height <= expiry_height <= current_height + max_service_material_expiry_blocks.",
+    "note": "The USER branch of TaskDataRequestAuthV1 under domain version 2. Typed fields 1-10 project auth fields 1-10 and sessionGrantHash is 32 zero bytes without a grant. requester_kind alone selects the verifier: USER signs this typed data and supplies exactly 65 bytes, CORTEX_SERVICE signs the TRUEOPEN_TASK_DATA_REQUEST_V1 H_FIELDS_V1 digest and supplies exactly 64. Neither length is sniffed and no caller pubkey is trusted. personal_sign, eth_sign and raw64 are rejected, a USER request carries serviceAuthorizationNonce 0, and domain version 1 is not accepted. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. It assumes current_height 1200, so expiryHeight 2000 is inside current_height \u003c= expiry_height \u003c= current_height + max_service_material_expiry_blocks.",
     "recovered_address": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
     "signature_65": "e1ecc9d01de1339c8b69d1b073d0e745a8db9cb805d824b2a825865c684acbc3239a98126f41ffd91134829a0545d627c35f029309e47cab054e8cea5ece57531b",
     "signature_chain_id": "424242",
@@ -835,7 +835,7 @@
       "serviceAuthorizationNonce": "0",
       "sessionGrantHash": "86101b4118a0736de236e8f1c7b7ebdcbf7165b1dbeb0143e6125e8c2c3034bf"
     },
-    "note": "GetTaskDataMetadata of an OUTPUT object, signed by the session key under the grant of session_grant, which is signed in the SDK Request domain. The grant is checked as for an SDK request with requester_address in place of signer_address; the signature recovers to the grant's sessionKey. Only GetTaskDataMetadata and FetchTaskData of an OUTPUT object accept a grant. The grant is always signed under the SDK Request domain, never under this one. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. It assumes current_height 1200: the grant (expiryHeight 1500) is inside 1200 <= 1500 <= 1200 + 400, and the request (expiryHeight 2000) is inside current_height <= expiry_height <= current_height + max_service_material_expiry_blocks, which at height 1200 needs max_service_material_expiry_blocks of at least 800. request_ttl_blocks does not apply to Task data requests.",
+    "note": "GetTaskDataMetadata of an OUTPUT object, signed by the session key under the grant of session_grant, which is signed in the SDK Request domain. The grant is checked as for an SDK request with requester_address in place of signer_address; the signature recovers to the grant's sessionKey. Only GetTaskDataMetadata and FetchTaskData of an OUTPUT object accept a grant. The grant is always signed under the SDK Request domain, never under this one. Timing assumed by the expected results (fixture material, not network values): max_session_grant_blocks = 400, max_service_material_expiry_blocks = 604800 (the ServiceParamsV1 value in params_v1.json; any value of 800 or more gives the same results), request_ttl_blocks = 20. It assumes current_height 1200: the grant (expiryHeight 1500) is inside 1200 \u003c= 1500 \u003c= 1200 + 400, and the request (expiryHeight 2000) is inside current_height \u003c= expiry_height \u003c= current_height + max_service_material_expiry_blocks, which at height 1200 needs max_service_material_expiry_blocks of at least 800. request_ttl_blocks does not apply to Task data requests.",
     "recovered_address": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
     "session_grant_source": "session_grant",
     "signature_65": "699c72b83b37c90eaeba1faf915434bf24eb9e71800cd1d129d804c8bb11202d68d80b47ff32d98201a154d7145507abb586a2d36d0a9f8adb93d72ac6963ae81c",
@@ -904,6 +904,7 @@
       "user": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz"
     },
     "note": "Order domain version 3 binds a raw bytes32 model ID; earlier order domains have no fresh-genesis decoder.",
+    "recovered_address": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
     "signature_65": "0d33bde9a788bc10284508fcf7a332050b141e2e4743b090f137b9fd21abb5ab44286a59df3b9b2f01c109087f65637305be3ba24a7863af78dd69d41649f3851b",
     "signature_chain_id": "424242",
     "signing_digest": "3b35b22ee8da1c67009f834ea5270dbd356fd8d2a5598b4ea6b5ed0274d87367",

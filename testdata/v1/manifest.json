@@ -11,20 +11,6 @@
   ],
   "files": [
     {
-      "path": "bus/bus_envelope_v2_vectors.json",
-      "origin": "wire",
-      "contract_section": "Bus OpenVerify raw Hash32 and linked Builder evidence",
-      "bytes": 22983,
-      "sha256": "b154ac1340a7cf0abd86b2608fdee586b2972b8f1e3f1fba8d5e26904c11eefd"
-    },
-    {
-      "path": "bus/nats_user_binding_v1_vectors.json",
-      "origin": "wire",
-      "contract_section": "Public wire conformance vectors for bus/nats_user_binding_v1_vectors.json",
-      "bytes": 5303,
-      "sha256": "0da5ba4021166e4638789974a888ec2c9b810aa1af1393ab61859626e5f4ab8c"
-    },
-    {
       "path": "hub/bridge_vrf_v1.json",
       "origin": "wire",
       "contract_section": "Public wire conformance vectors for hub/bridge_vrf_v1.json",
@@ -32,11 +18,11 @@
       "sha256": "5e5cced8732106972a241207e3246e710ab90019396bc23eb82546d73eebdc98"
     },
     {
-        "path": "hub/candidate_pool_v1.json",
-        "origin": "wire",
-        "contract_section": "Public candidate pool binding and snapshot vectors",
-        "bytes": 13606,
-        "sha256": "9dc1daad5a8b2e1c3e68cc81bc035216fd403e30d9cbfdfdda750731f7cf7503"
+      "path": "hub/candidate_pool_v1.json",
+      "origin": "wire",
+      "contract_section": "Public candidate pool binding and snapshot vectors",
+      "bytes": 13606,
+      "sha256": "9dc1daad5a8b2e1c3e68cc81bc035216fd403e30d9cbfdfdda750731f7cf7503"
     },
     {
       "path": "hub/hub_domains_v1.json",
@@ -90,9 +76,9 @@
     {
       "path": "shared/account_signing_v1.json",
       "origin": "wire",
-      "contract_section": "Account, TaskOrderV3, SDK request, session grant and TaskDataRequest EIP-712 signatures",
-      "bytes": 62058,
-      "sha256": "5fb6b09a64a6201c0c61a61ee7aeef5e73c5d17a23b3d924ca3f1f36d6d42f9f"
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 62232,
+      "sha256": "ec9b9ffed9476aff7424891a7309003c60e85f76a256168d54f0da64fc85b808"
     },
     {
       "path": "shared/framing_v1.json",
@@ -110,23 +96,23 @@
     {
       "path": "shared/params_v1.json",
       "origin": "wire",
-      "contract_section": "Hub and Task parameter commitments and replay separation",
-      "bytes": 58898,
-      "sha256": "58147df091173ec6d05205b11a2da27728789d5e891308db9f68038e7639e525"
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 66624,
+      "sha256": "89e5b170cba9f47dd0e041868b6a0dab718d93ab56026cf02878c7bff08bb7ae"
     },
     {
-        "path": "shared/query_page_v1.json",
-        "origin": "wire",
-        "contract_section": "Raw Hash32 query selector and pagination commitments",
-        "bytes": 38796,
-        "sha256": "f7c22a66aced6c386407a6fbe2778dbc437d2f206ba480268e5f25861945e69e"
+      "path": "shared/query_page_v1.json",
+      "origin": "wire",
+      "contract_section": "Raw Hash32 query selector and pagination commitments",
+      "bytes": 38796,
+      "sha256": "f7c22a66aced6c386407a6fbe2778dbc437d2f206ba480268e5f25861945e69e"
     },
     {
       "path": "shared/rest_json_shapes_v1.json",
       "origin": "wire",
-      "contract_section": "Node REST gateway JSON rendering of query responses",
-      "bytes": 36962,
-      "sha256": "c150be0038adf420556e241695763dd89ab2ba727e51c68fb174f91074e97883"
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 38628,
+      "sha256": "c3c4467d3a434db5deba49842ab9e53a6b10f8c1737e6c74e96385f89635fca8"
     },
     {
       "path": "shared/shared_domains_v1.json",
@@ -149,6 +135,13 @@
       "sha256": "68a5c14659ba04c39bea24f6ceae16efd0332faf48a01108f470f09289607fc2"
     },
     {
+      "path": "task/dispatch_v1.json",
+      "origin": "wire",
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 112824,
+      "sha256": "8f8f97e0387de124a4d7efb79d897802a6da7564cece03e415a02c35420240b7"
+    },
+    {
       "path": "task/generation_params_ranges_v1.json",
       "origin": "wire",
       "contract_section": "DecodingParamsV1 value range boundaries",
@@ -165,9 +158,9 @@
     {
       "path": "task/infer_receipt_v3.json",
       "origin": "wire",
-      "contract_section": "Two-kind InferReceiptV3 signing digest",
-      "bytes": 10231,
-      "sha256": "bf54ff2ba92c23aa7b97be7ad7497e12b89bf49270d950b5018b1796e6c20b30"
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 10739,
+      "sha256": "d6c46c3fb7b426da1496907c1adc2ce711b6ce78af59cbf7469902211976d705"
     },
     {
       "path": "task/metric_leaf_v3.json",
@@ -197,26 +190,26 @@
       "bytes": 10933,
       "sha256": "7079830ae0e0f72a7167f4b509da5e4718d4e71bfc04ca59752ddadc0142a870"
     },
-      {
-        "path": "task/output_stream_header_v1.json",
-        "origin": "wire",
-        "contract_section": "Signed OutputStreamHeaderV2 plaintext declaration",
-        "bytes": 2660,
-        "sha256": "52cc794dab3d470737e27aba2578fc2983217fef1dcb1fb451215d9714e75553"
-      },
-      {
-        "path": "task/result_metric_v3.json",
+    {
+      "path": "task/output_stream_header_v1.json",
+      "origin": "wire",
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 2791,
+      "sha256": "d31839fb2aeb2c783af19c4b525f005875fc51b2c43534404e838531c46c1fd0"
+    },
+    {
+      "path": "task/result_metric_v3.json",
       "origin": "wire",
       "contract_section": "Integrated three-position metric root",
       "bytes": 22728,
       "sha256": "47a5219f313c5f1c6d53040eccb045d9e7f1e0e2978ebe37f54c79e1acada35d"
     },
     {
-        "path": "task/result_receipt_v3.json",
-        "origin": "wire",
-        "contract_section": "Result commitment V3, receipt V3 and reveal payload V2",
-        "bytes": 22740,
-        "sha256": "060465dcdce686a3577bf5513552b0e7310e6dd8a8c067f7341c67b58d797bc7"
+      "path": "task/result_receipt_v3.json",
+      "origin": "wire",
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 22740,
+      "sha256": "8dfa070e72c28dd64ffe026d69488ad64f4e9502f333ea74410b955f59d384f0"
     },
     {
       "path": "task/round_settlement_v1.json",
@@ -228,15 +221,30 @@
     {
       "path": "task/sdk_request_body_v1.json",
       "origin": "wire",
-      "contract_section": "User Ingress request body digests: the five TRUEOPEN_SDK_BODY_*_V1 domains",
-      "bytes": 22569,
-      "sha256": "016a07065b2e0154566f46da33380e3f57f853e90e3a95b0b9fa7d36581b1bef"
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 24557,
+      "sha256": "3a04bb6acfd361fdbc2e69f76cf6f1fb0c7f3df50431d32342f7c2691a0a733b"
     },
     {
-      "path": "task/task_builder_rank_v1.json",
-      "source_path": "x/task/types/testdata/task_builder_rank_v1.json",
-      "bytes": 5232,
-      "sha256": "c74af0d565b9b72dae29d38916aa14069a84f9bc5e1ec9f79e18a41fc6101bd0"
+      "path": "task/session_funding_amino_v1.json",
+      "origin": "wire",
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 10289,
+      "sha256": "f7fd0f8a32113617dd77f869c9d6da3b09cb4a626eac2ca5347fea54b9937daa"
+    },
+    {
+      "path": "task/session_key_amino_v1.json",
+      "origin": "wire",
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 8521,
+      "sha256": "ad8c4534beeb6d1c27480b383c6b994cd9f81653d6158980219289dea5d7a756"
+    },
+    {
+      "path": "task/session_key_authorization_v1.json",
+      "origin": "wire",
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 64504,
+      "sha256": "219f03bddbcd44878d5027a6bc48c464c535c7c175f616d2fa3215e49f3863ca"
     },
     {
       "path": "task/task_data_auth_v1.json",
@@ -254,30 +262,30 @@
     {
       "path": "task/task_domains_v1.json",
       "origin": "wire",
-      "contract_section": "Worker and Verifier handraise signing projections",
-      "bytes": 79172,
-      "sha256": "8d5ad9537adfdafd31a50ce4cc49c1586a43a20d3b16bbe1ebfaabee192b8c2d"
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 54237,
+      "sha256": "2f0bc77695bd171af7d26df06909e93b41efd0a58b69d790f830da1924982918"
     },
     {
       "path": "task/task_keeper_domains_v1.json",
       "origin": "wire",
-      "contract_section": "Task Keeper and epoch summary raw Hash32 commitments",
-      "bytes": 95052,
-      "sha256": "ae1526ada5dd4103ae6a78a5fc6b81b8eded0974eb529a02dfaae385301589b6"
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 86701,
+      "sha256": "ce3ffe8e3a74b5a29f02e993bc6d1eed50214816b00e48feec063cf5ffef9446"
     },
     {
       "path": "task/task_order_eip712_v1.json",
       "origin": "wire",
-      "contract_section": "TaskOrderV3 to order-domain EIP-712 digest",
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
       "bytes": 3915,
-      "sha256": "2b6d1401365bc16c8828ff71d34c5985cf157c5ca32698e4c418eacd54c91e99"
+      "sha256": "35afd154e941a38b5966576891c2e8241c33a2eef466fc78e837c02d687706d6"
     },
     {
       "path": "task/task_order_v3.json",
       "origin": "wire",
-      "contract_section": "TaskOrderV3 and order-opening commitments",
-      "bytes": 120504,
-      "sha256": "6ece307eb4885bc8de212f46976a01272ac99074e42f9c89542f5fd56ff0a2a2"
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 117090,
+      "sha256": "0228f816c5e26d0681a1e273ca6da41ce0ac0c0ada2437e8afae12c382b910c1"
     },
     {
       "path": "task/token_ids_v1.json",
@@ -285,6 +293,13 @@
       "contract_section": "Public wire conformance vectors for task/token_ids_v1.json",
       "bytes": 2252,
       "sha256": "b3ed73c676493888ffe347abf26ec01d50aefa105b372ec9f177236214aeda05"
+    },
+    {
+      "path": "task/value_evidence_v1.json",
+      "origin": "wire",
+      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
+      "bytes": 10342,
+      "sha256": "7446f33a2ec2a5af0a37f97afaa35af2eed56f8891bca3fd62ad9ba0312cdcd8"
     },
     {
       "path": "task/verifier_value_leaf_v1.json",
@@ -313,20 +328,6 @@
       "contract_section": "Worker value leaves and Merkle root",
       "bytes": 11787,
       "sha256": "4d98003fe3cee9bae3ca49dda1550821b45a2b7d6aaf4562b9ecfcf6bfbdcfaa"
-    },
-    {
-      "path": "task/session_key_authorization_v1.json",
-      "origin": "wire",
-      "contract_section": "Registered session keys: order and request signing, admission and mutation boundaries",
-      "bytes": 60499,
-      "sha256": "570ba791fffc0ed3f5633f18223c185c82aaa2b28c88cf17bed91ba33f8e87be"
-    },
-    {
-      "path": "task/session_key_amino_v1.json",
-      "origin": "wire",
-      "contract_section": "Registered session key Cosmos Amino JSON and Web3 signing",
-      "bytes": 7471,
-      "sha256": "cc31a726291d86eb295303f14acaf5b35050e6126c948650171c170e38abe5cb"
     }
   ]
 }

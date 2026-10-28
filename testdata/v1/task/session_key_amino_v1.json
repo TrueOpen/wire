@@ -1,7 +1,7 @@
 {
   "cases": [
     {
-      "canonical_amino_json": "{\"account_number\":\"7\",\"chain_id\":\"trueopen-golden-1\",\"fee\":{\"amount\":[{\"amount\":\"12345\",\"denom\":\"uusdc\"}],\"gas\":\"200000\"},\"memo\":\"\",\"msgs\":[{\"type\":\"trueopen/x/task/MsgCreateSession\",\"value\":{\"session_key\":{\"expiry_height\":\"200\",\"session_key\":\"AwMDAwMDAwMDAwMDAwMDAwMDAwM=\",\"spend_cap\":{\"atomic_units\":\"0\"}},\"signer_address\":\"trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz\"}}],\"sequence\":\"9\"}",
+      "canonical_amino_json": "{\"account_number\":\"7\",\"chain_id\":\"trueopen-golden-1\",\"fee\":{\"amount\":[{\"amount\":\"12345\",\"denom\":\"uusdc\"}],\"gas\":\"200000\"},\"memo\":\"\",\"msgs\":[{\"type\":\"trueopen/x/task/MsgCreateSession\",\"value\":{\"initial_builder\":\"trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz\",\"initial_deposit\":{\"atomic_units\":\"1000\"},\"session_key\":{\"expiry_height\":\"200\",\"session_key\":\"AwMDAwMDAwMDAwMDAwMDAwMDAwM=\",\"spend_cap\":{\"atomic_units\":\"0\"}},\"signer_address\":\"trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz\"}}],\"sequence\":\"9\"}",
       "domain": {
         "chain_id": "424242",
         "name": "Cosmos Web3",
@@ -10,8 +10,8 @@
         "version": "1.0.0"
       },
       "domain_separator": "9dda411ee733964ed5bf9c8f8ed7405d65711cf9ab24f0c73fedf4112d4d3d45",
-      "encode_type": "Tx(string account_number,string chain_id,Fee fee,string memo,string sequence,TypeMsgCreateSession msg0)Coin(string denom,string amount)Fee(Coin[] amount,string gas)TypeMsgCreateSession(TypeValue value,string type)TypeValue(string signer_address,TypeValueSessionKey session_key)TypeValueSessionKey(TypeValueSessionKeySpendCap spend_cap,string session_key,string expiry_height)TypeValueSessionKeySpendCap(string atomic_units)",
-      "hash_struct": "3d12cec005395d5d05feeacc8080399c3d0cfd6383ca909b2fea9b0a33d2d001",
+      "encode_type": "Tx(string account_number,string chain_id,Fee fee,string memo,string sequence,TypeMsgCreateSession msg0)Coin(string denom,string amount)Fee(Coin[] amount,string gas)TypeMsgCreateSession(TypeValue value,string type)TypeValue(string signer_address,TypeValueSessionKey session_key,TypeValueInitialDeposit initial_deposit,string initial_builder)TypeValueInitialDeposit(string atomic_units)TypeValueSessionKey(TypeValueSessionKeySpendCap spend_cap,string session_key,string expiry_height)TypeValueSessionKeySpendCap(string atomic_units)",
+      "hash_struct": "7f69ea8c9c086b821f8d8e9a95ae8f20a8c22675e83391dc1c1ea0e1e7e8f798",
       "message": {
         "account_number": "7",
         "chain_id": "trueopen-golden-1",
@@ -28,6 +28,10 @@
         "msg0": {
           "type": "trueopen/x/task/MsgCreateSession",
           "value": {
+            "initial_builder": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz",
+            "initial_deposit": {
+              "atomic_units": "1000"
+            },
             "session_key": {
               "expiry_height": "200",
               "session_key": "AwMDAwMDAwMDAwMDAwMDAwMDAwM=",
@@ -42,9 +46,19 @@
       },
       "name": "create",
       "recovered_address": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
-      "sha256": "b7e7948e99f9f475852c19a32ff109e7db36649889489bc481543ec9e6e7dd6c",
-      "signature_65": "dbe0c0328d81acd808efed34516a7dbb57863aea44d08583e6b34fc8e745cd10459fdbd673f23435580150cc094b7538a711f8b0c2fc9e586c45bcd9abb7494e1b",
-      "signing_digest": "27894ed4973766f60e73a5b7c2a1e640d2868efdde23388d31e33fd330f3f7fe"
+      "sha256": "4d822ea6980fd319bdeed3da4f44c314741da2dbfadb58c9e84f10afd1a5e838",
+      "signature_65": "810dbc583868c52c661d0413c2c90e6620d211b382e29569dcaaf8622ae143ab462f7bcb9c810e5902588b77bf5fb35746f6fb29ff367fbfd72daf65a8d5897c1c",
+      "signing_digest": "6fd1b46cea70995d1887e39f80ed40cec02a46e4e99c59487746d9529a2d3e66",
+      "type_graph": [
+        "Tx(string account_number,string chain_id,Fee fee,string memo,string sequence,TypeMsgCreateSession msg0)",
+        "Coin(string denom,string amount)",
+        "Fee(Coin[] amount,string gas)",
+        "TypeMsgCreateSession(TypeValue value,string type)",
+        "TypeValue(string signer_address,TypeValueSessionKey session_key,TypeValueInitialDeposit initial_deposit,string initial_builder)",
+        "TypeValueSessionKey(TypeValueSessionKeySpendCap spend_cap,string session_key,string expiry_height)",
+        "TypeValueSessionKeySpendCap(string atomic_units)",
+        "TypeValueInitialDeposit(string atomic_units)"
+      ]
     },
     {
       "canonical_amino_json": "{\"account_number\":\"7\",\"chain_id\":\"trueopen-golden-1\",\"fee\":{\"amount\":[{\"amount\":\"12345\",\"denom\":\"uusdc\"}],\"gas\":\"200000\"},\"memo\":\"\",\"msgs\":[{\"type\":\"trueopen/x/task/MsgUpdateSessionKey\",\"value\":{\"session_id\":\"BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=\",\"set\":{\"expiry_height\":\"200\",\"session_key\":\"AwMDAwMDAwMDAwMDAwMDAwMDAwM=\",\"spend_cap\":{\"atomic_units\":\"0\"}},\"signer_address\":\"trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz\"}}],\"sequence\":\"9\"}",

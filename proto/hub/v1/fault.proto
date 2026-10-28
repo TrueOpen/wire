@@ -21,7 +21,7 @@ message RoleFaultState {
   bytes task_id = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   string operator_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   shared.v1.Duty duty = 4;
-  FaultKind fault_class = 5;
+  shared.v1.FaultKind fault_class = 5;
   shared.v1.FailureClassificationSource classification_source = 6;
   bytes evidence_digest = 7 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint32 jail_delta = 8;

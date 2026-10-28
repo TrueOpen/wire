@@ -5,28 +5,6 @@
   "source_commit": "8b1dd7919a36519e001a946c341d7d980d18aa1f",
   "domains": [
     {
-      "domain": "TRUEOPEN_ASSIGNMENT_LEGAL_SET_V1",
-      "framing": "H_FIELDS_V1",
-      "fields": [
-        "chain_id",
-        "task_id",
-        "task_hash",
-        "candidate_pool_snapshot_id",
-        "candidate_pool_hash",
-        "union_bitmap_hash",
-        "candidate_count",
-        "repeated(canonical TaskCandidateFactState) in slot ascending"
-      ],
-      "producer": "Task Keeper at Worker proposal-window finalize",
-      "consumers": "Worker weighted draw, Builder/Cortex clients and auditors",
-      "store": "AssignmentCandidateSetState.assignment_candidate_set_hash and TaskAssignmentState.assignment_candidate_set_hash",
-      "event": "worker_assignment_finalized",
-      "query": "QueryTaskAssignment and QueryAssignmentRandomness",
-      "contract_section": "Public wire domain TRUEOPEN_ASSIGNMENT_LEGAL_SET_V1",
-      "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
-    },
-    {
       "domain": "TRUEOPEN_BATCH_RESULT_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -43,7 +21,7 @@
       "contract_section": "Public wire domain TRUEOPEN_BATCH_RESULT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The V1 batch_kind string set is closed to MODEL_SUPPORT, VERIFY_COMMIT, and VERIFY_RESULT. Unknown kinds are rejected before hashing."
+      "note": "The closed batch_kind set is MODEL_SUPPORT, VERIFY_COMMIT, VERIFY_RESULT and DISPATCH_RECORD. Only dispatch records support independently rejected items."
     },
     {
       "domain": "TRUEOPEN_BEACON_AGGREGATE_V1",
@@ -216,14 +194,16 @@
         {
           "key": "oneof_tag=2",
           "fields": [
-            "lower_bus_signing_digest",
-            "higher_bus_signing_digest"
+            "message_kind",
+            "lower_signing_digest",
+            "higher_signing_digest"
           ]
         },
         {
           "key": "oneof_tag=3",
           "fields": [
-            "bus_signing_digest",
+            "message_kind",
+            "signing_digest",
             "violation"
           ]
         },
@@ -250,7 +230,7 @@
       "contract_section": "Public wire domain TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The tags are the BuilderEvidenceV2 oneof field numbers: 2 equivocation, 3 invalid_stage_submission, 5 data_unavailable. Tag 4 is permanently reserved - the OBJECTIVE_MISSED_DUTY kind stays a Keeper-internal derivation and never becomes a public oneof branch again, so the old tag is never reused. The raw ECDSA signature is proof only and enters neither this digest nor the ordering: two valid low-S signatures over one bus_signing_digest must derive one evidence identity. For tag 2 the two raw32 signing digests are ordered by ascending lexicographic bytes, so one equivocation has one identity whichever envelope the submitter sent first."
+      "note": "Typed direct-stream actions replace transport envelopes. Raw signatures remain proof only and never enter evidence identity."
     },
     {
       "domain": "TRUEOPEN_BUILDER_EVIDENCE_ID_V2",
@@ -390,62 +370,6 @@
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
       "note": "target_address_raw is the canonical Bech32-decoded account address. An exact locator replay must compare this digest; BurnBondV1 carries no caller-selected amount."
-    },
-    {
-      "domain": "TRUEOPEN_BUS_ENVELOPE_V2",
-      "framing": "H_FIELDS_V1",
-      "fields": [
-        "schema_version",
-        "chain_id",
-        "subject",
-        "kind",
-        "sender_participant_type",
-        "sender_operator_address",
-        "service_authorization_nonce",
-        "message_id",
-        "nonce",
-        "issued_at_unix_ms",
-        "expires_at_unix_ms",
-        "payload_type",
-        "payload_digest"
-      ],
-      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
-      "supersedes": {
-        "domain": "TRUEOPEN_BUS_ENVELOPE_V1",
-        "registered": false,
-        "reason": "TRUEOPEN_BUS_ENVELOPE_V1 names the retired 20-field trueopen-cjson-v1 projection. It is retired outright because it never reached production activation, so it has no row here to link and never gained one: registering it now would publish a projection nothing is allowed to produce."
-      },
-      "producer": "Nexus or Cortex sender, signing with its current service key",
-      "consumers": "Nexus and Cortex live receivers; the Node Builder evidence proof-only verifier",
-      "store": "not persisted on chain; retained as the Bus replay-store tombstone digest and as the evidence content input",
-      "event": "-",
-      "query": "-",
-      "contract_section": "Public wire domain TRUEOPEN_BUS_ENVELOPE_V2",
-      "registered_in_contract": true,
-      "preimage_diverges_from_contract": false,
-      "note": "The projection is exactly bus.v1.BusEnvelopeV1 fields 1..12 plus field 14. Field 13 payload is bound only transitively through payload_digest, and field 15 service_signature cannot enter its own preimage. The V2 generation is not a schema bump of the protobuf message - that message is still named BusEnvelopeV1 - it is the signing domain, because one domain must never cover two different signed field sets."
-    },
-    {
-      "domain": "TRUEOPEN_BUS_PAYLOAD_V2",
-      "framing": "H_V1",
-      "fields": [
-        "payload: exact transmitted bus.v1.BusEnvelopeV1.payload bytes, canonicalization is identity"
-      ],
-      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
-      "supersedes": {
-        "domain": "TRUEOPEN_BUS_PAYLOAD_V1",
-        "registered": false,
-        "reason": "There was never a TRUEOPEN_BUS_PAYLOAD_V1 domain: the payload commitment it replaces was an unregistered bare SHA-256 over the payload bytes, retired together with BusEnvelope V1. The contract closes the bare-SHA-256 producer set at three values and forbids a fourth, so the commitment starts at V2 under a registered H_V1 domain rather than being back-registered as V1."
-      },
-      "producer": "Nexus or Cortex sender, over the bytes it publishes once and reuses on every retry",
-      "consumers": "Nexus and Cortex receivers, over the bytes they received before any decoding; the Node Builder evidence proof-only verifier",
-      "store": "bus.v1.BusEnvelopeV1.payload_digest, field 14",
-      "event": "-",
-      "query": "-",
-      "contract_section": "Public wire domain TRUEOPEN_BUS_PAYLOAD_V2",
-      "registered_in_contract": true,
-      "preimage_diverges_from_contract": false,
-      "note": "The H_V1 payload object is the opaque byte string itself, so canonicalization is the identity function: this commits to a transport publication, not to a semantic identity, and two semantically equal protobuf encodings of one payload are two different publications. No hop may re-marshal the payload to recompute the digest, and receivers compute it before decoding."
     },
     {
       "domain": "TRUEOPEN_CANDIDATE_ACTIVE_BITMAP_V1",
@@ -760,6 +684,334 @@
       "preimage_diverges_from_contract": false
     },
     {
+      "domain": "TRUEOPEN_DISPATCH_ACCEPT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "dispatch_ticket_hash",
+        "member",
+        "service_authorization_nonce"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_CHALLENGE_ID_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "challenge_kind",
+        "dispatch_round_or_zero",
+        "attempt_rank_or_zero",
+        "victim_operator_or_empty",
+        "builder_address_or_empty",
+        "dispatch_record_hash_or_zero32",
+        "challenger_address"
+      ],
+      "producer": "canonical wire implementation",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "operation primary or response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch identities and request bodies",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_INPUT_REQUEST_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_id",
+        "dispatch_ticket_hash",
+        "member",
+        "service_authorization_nonce"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_INPUT_RESPONSE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_id",
+        "dispatch_ticket_hash",
+        "input_hash",
+        "input_size_bytes",
+        "input",
+        "chunk_index",
+        "chunk_count"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_POOL_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "candidate_pool_snapshot_id",
+        "reference_height",
+        "model_id",
+        "profile_version",
+        "member_count",
+        "repeated(canonical weighted pool member)"
+      ],
+      "producer": "canonical wire implementation",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "operation primary or response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch identities and request bodies",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_RECORD_ENTRY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "entry_kind",
+        "task_id",
+        "task_hash",
+        "dispatch_record_hash",
+        "dispatch_accept_digest"
+      ],
+      "producer": "canonical wire implementation",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "operation primary or response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch identities and request bodies",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_RECORD_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "session_id",
+        "order_sequence",
+        "builder_address",
+        "reference_height",
+        "candidate_pool_snapshot_id",
+        "vrf_epoch",
+        "vrf_output",
+        "vrf_proof",
+        "randomness_scheme",
+        "bound_change_height",
+        "sticky_anchor_sequence",
+        "sticky_run_count",
+        "sticky_applied",
+        "rounds",
+        "dispatch_ticket_hash"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_REJECT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "dispatch_ticket_hash",
+        "member",
+        "service_authorization_nonce",
+        "reject_reason"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_RESULT_HEADER_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_id",
+        "winner_ticket",
+        "accept",
+        "record_status"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_REVOKE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_id",
+        "dispatch_ticket_hash",
+        "revoked_height"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_ROSTER_REQUEST_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_id",
+        "requester",
+        "nonce",
+        "expiry_height"
+      ],
+      "producer": "canonical wire implementation",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "operation primary or response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch identities and request bodies",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_ROSTER_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "task_id",
+        "reference_height",
+        "candidate_pool_snapshot_id",
+        "member_count",
+        "repeated(canonical roster member)"
+      ],
+      "producer": "canonical wire implementation",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "operation primary or response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch identities and request bodies",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_STREAM_BIND_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "builder_operator",
+        "cortex_operator",
+        "service_authorization_nonce",
+        "stream_nonce"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_TICKET_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "task_hash",
+        "session_id",
+        "order_sequence",
+        "builder_address",
+        "reference_height",
+        "candidate_pool_snapshot_id",
+        "vrf_epoch",
+        "vrf_output",
+        "vrf_proof",
+        "randomness_scheme",
+        "roster_hash",
+        "handraise_root_digest",
+        "dispatch_round",
+        "rank",
+        "target",
+        "accept_deadline_ms",
+        "input_hash",
+        "bound_change_height",
+        "sticky_anchor_sequence",
+        "sticky_run_count",
+        "sticky_applied"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_DISPATCH_VRF_INPUT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "epoch",
+        "epoch_seed",
+        "session_id",
+        "order_sequence"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
       "domain": "TRUEOPEN_EPOCH_TASK_SUMMARY_FOLD_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -1038,6 +1290,59 @@
       "note": "source_revision is an audit field outside this preimage, so rebuilding the same membership reproduces the same pool_hash. expires_height is exclusive."
     },
     {
+      "domain": "TRUEOPEN_HANDRAISE_MERKLE_V1",
+      "framing": "MERKLE_ROOT_V1",
+      "fields": [
+        "standing-digest-ordered admission leaf digests"
+      ],
+      "producer": "Builder handraise-root producer",
+      "consumers": "Cortex and objective omission proof verifier",
+      "store": "SignedHandraiseRootV1.root",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Canonical direct-dispatch handraise Merkle tree",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_HANDRAISE_ROOT_LEAF_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "standing_handraise_digest",
+        "admitted",
+        "admit_reject_reason",
+        "builder_measured_rtt_ms_or_zero"
+      ],
+      "producer": "canonical wire implementation",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "operation primary or response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch identities and request bodies",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_HANDRAISE_ROOT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "builder_address",
+        "root_height",
+        "root_version",
+        "leaf_count",
+        "root"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
       "domain": "TRUEOPEN_HUB_PARAMS_V2",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -1098,7 +1403,8 @@
         "output_key_commitment",
         "worker_token_key_commitment",
         "worker_value_key_commitment",
-        "ciphertext_output_root"
+        "ciphertext_output_root",
+        "dispatch_ticket_hash"
       ],
       "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
@@ -1221,7 +1527,9 @@
         "registered": false,
         "reason": "The earlier manifest domain was not registered in this repository; V4 adds source and parser projection fields plus two-level evidence and encryption reservations."
       },
-      "fields": ["canonical_json_v1(ModelProfileManifestV4)"],
+      "fields": [
+        "canonical_json_v1(ModelProfileManifestV4)"
+      ],
       "producer": "model registrant SDK",
       "consumers": "Hub registration and model-serving clients",
       "store": "ProfileState.manifest_hash",
@@ -1254,29 +1562,6 @@
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_NATS_USER_BINDING_V1",
-      "framing": "H_FIELDS_V1",
-      "fields": [
-        "schema_version",
-        "chain_id",
-        "participant_type",
-        "operator_address",
-        "service_authorization_nonce",
-        "nats_user_pubkey",
-        "issued_at_unix_ms"
-      ],
-      "registration_review": "https://github.com/TrueOpen/wire/pull/14",
-      "producer": "Cortex, signing with its current service key over a locally generated NATS user key",
-      "consumers": "the NATS auth callout service run beside NATS by the NATS operator; Cortex re-verifies its own declaration before presenting it",
-      "store": "not persisted on chain; carried in the NATS CONNECT auth_token as bus.v1.NatsUserBindingV1 and held by Cortex for reuse until the service key binding changes",
-      "event": "-",
-      "query": "QueryCurrentServiceKey and QueryCortexNode supply the verification inputs; the domain itself has no query",
-      "contract_section": "Public wire domain TRUEOPEN_NATS_USER_BINDING_V1",
-      "registered_in_contract": true,
-      "preimage_diverges_from_contract": false,
-      "note": "The projection is bus.v1.NatsUserBindingV1 fields 1..7; field 8 service_signature cannot enter its own preimage. nats_user_pubkey is framed as the UTF-8 text of the nkey public key, not its decoded 32 bytes, so the preimage and the byte-for-byte comparison with the NATS CONNECT nkey field agree. The declaration has no expiry: the verifier requires an ACTIVE current service key binding at the carried service_authorization_nonce before checking the signature, so rotation or revocation invalidates every binding that key signed. Possession of the NATS user key is proven separately by the NATS-standard ed25519 nonce signature, which is NATS's own contract and not a registered domain."
-    },
-    {
       "domain": "TRUEOPEN_OPEN_VERIFY_PROPOSAL_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -1301,6 +1586,29 @@
       "preimage_diverges_from_contract": false
     },
     {
+      "domain": "TRUEOPEN_OPEN_VERIFY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_id",
+        "task_hash",
+        "model_id",
+        "profile_version",
+        "infer_receipt_hash",
+        "output_hash",
+        "worker_operator_address",
+        "verify_round",
+        "binding"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
       "domain": "TRUEOPEN_ORDER_OPENING_V2",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -1321,7 +1629,6 @@
         "deadline_policy",
         "timeout_bucket_version",
         "session_anchor_height",
-        "session_anchor_block_hash",
         "builder_set_id",
         "builder_set_hash"
       ],
@@ -1330,7 +1637,7 @@
       "store": "TaskCoreState.accepted_order_opening_hash",
       "query": "QueryTask",
       "contract_section": "Public wire domain TRUEOPEN_ORDER_OPENING_V2",
-      "note": "The light projection of the 25-field order: it drops schema_version and the four amounts, and replaces the nested generation_params with generation_params_digest. deadline_policy stays byte-identical to the order frame. No signature bytes or signature digest enters this preimage, and Phase 0 exposes no public challenge opening Msg for it.",
+      "note": "The light projection of the 27-field order: it drops schema_version and the four amounts, and replaces the nested generation_params with generation_params_digest. deadline_policy stays byte-identical to the order frame. No signature bytes or signature digest enters this preimage, and The contract exposes no public challenge opening Msg for it.",
       "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_ORDER_OPENING_V1",
@@ -1428,7 +1735,7 @@
       "fields": [
         "chain_id",
         "task_hash",
-        "attempt",
+        "dispatch_ticket_hash",
         "stream_instance",
         "user_recipient_pubkey",
         "output_key_commitment",
@@ -1532,7 +1839,9 @@
     {
       "domain": "TRUEOPEN_PREFILL_VERIFIER_TOPK_V1",
       "framing": "H_FIELDS_V1",
-      "fields": ["repeated(token_id, logprob_fp_1e6) in rank ascending"],
+      "fields": [
+        "repeated(token_id, logprob_fp_1e6) in rank ascending"
+      ],
       "producer": "selected Verifier",
       "consumers": "TRUEOPEN_PREFILL_VERIFIER_VALUE_LEAF_V1",
       "store": "not persisted separately",
@@ -1545,7 +1854,9 @@
     {
       "domain": "TRUEOPEN_PREFILL_VERIFIER_VALUE_LEAF_V1",
       "framing": "H_FIELDS_V1",
-      "fields": ["canonical leaf frame: chain_id, task_id, task_hash, verify_round, verifier_operator_address, output_position, emitted_token_id, verifier_logprob_fp_1e6, verifier_rank, verifier_topk_set_hash, missing_flag, finite_flag"],
+      "fields": [
+        "canonical leaf frame: chain_id, task_id, task_hash, verify_round, verifier_operator_address, output_position, emitted_token_id, verifier_logprob_fp_1e6, verifier_rank, verifier_topk_set_hash, missing_flag, finite_flag"
+      ],
       "producer": "selected Verifier",
       "consumers": "TRUEOPEN_PREFILL_VERIFIER_VALUE_ROOT_V1",
       "store": "not persisted separately",
@@ -1558,7 +1869,9 @@
     {
       "domain": "TRUEOPEN_PREFILL_VERIFIER_VALUE_ROOT_V1",
       "framing": "MERKLE_ROOT_V1",
-      "fields": ["Verifier value leaf hashes in contiguous output_position order"],
+      "fields": [
+        "Verifier value leaf hashes in contiguous output_position order"
+      ],
       "producer": "selected Verifier",
       "consumers": "TRUEOPEN_RESULT_COMMITMENT_V3 and ResultReceiptV3",
       "store": "ResultReceiptState.verifier_value_root",
@@ -1571,7 +1884,9 @@
     {
       "domain": "TRUEOPEN_PREFILL_WORKER_VALUE_LEAF_V1",
       "framing": "H_FIELDS_V1",
-      "fields": ["canonical leaf frame: chain_id, task_id, task_hash, worker_operator_address, position, token_id, worker_logprob_fp_1e6, worker_rank, topk_entries, missing_flag, finite_flag"],
+      "fields": [
+        "canonical leaf frame: chain_id, task_id, task_hash, worker_operator_address, position, token_id, worker_logprob_fp_1e6, worker_rank, topk_entries, missing_flag, finite_flag"
+      ],
       "producer": "selected Worker and Cortex",
       "consumers": "TRUEOPEN_PREFILL_WORKER_VALUE_ROOT_V1",
       "store": "not persisted separately",
@@ -1584,7 +1899,9 @@
     {
       "domain": "TRUEOPEN_PREFILL_WORKER_VALUE_ROOT_V1",
       "framing": "MERKLE_ROOT_V1",
-      "fields": ["Worker value leaf hashes in contiguous output_position order"],
+      "fields": [
+        "Worker value leaf hashes in contiguous output_position order"
+      ],
       "producer": "selected Worker and Cortex",
       "consumers": "TRUEOPEN_WORKER_VALUE_COMMITMENT_V3",
       "store": "EvidenceCommitmentV1.evidence_hash_or_root",
@@ -1716,6 +2033,24 @@
       "note": "The ten selector variants match the paginated request descriptors, QueryPageSelectorSchemaV1, and the published golden vectors. Each variant binds its RPC-specific selector fields in the listed order."
     },
     {
+      "domain": "TRUEOPEN_RECORD_RESULT_NOTICE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "dispatch_ticket_hash",
+        "status",
+        "reject_code",
+        "recorded_height"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
       "domain": "TRUEOPEN_REPLACE_BUILDER_SET_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -1734,7 +2069,7 @@
       "event": "60 builder_set_updated, whose payload does not carry the digest",
       "query": "QueryBuilderSet",
       "contract_section": "Public wire domain TRUEOPEN_REPLACE_BUILDER_SET_V1",
-      "note": "Not a Tx Msg: it is only invoked by an accepted x/gov typed action. members ascend strictly and uniquely by address codec raw bytes with builders_per_task at most count at most builder_set_cap, effective_height is at least accepted_height plus builder_set_update_lead_blocks, and at most one pending replacement exists per height. An identical action is a noop while a conflicting expected version or hash is rejected.",
+      "note": "Not a Tx Msg: it is only invoked by an accepted x/gov typed action. members ascend strictly and uniquely by address codec raw bytes with 1 <= count <= builder_set_cap, effective_height is at least accepted_height plus builder_set_update_lead_blocks, and at most one pending replacement exists per height. An identical action is a noop while a conflicting expected version or hash is rejected.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -2051,6 +2386,22 @@
       "note": "session_id and task_id are Hash32, raw 32 bytes after decoding the transport 0x-prefixed lowercase hex; last_seq is u64_be. The deprecated output_id does not enter the preimage. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
     },
     {
+      "domain": "TRUEOPEN_SDK_BODY_GET_DISPATCH_ROSTER_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "session_id",
+        "task_id"
+      ],
+      "producer": "canonical wire implementation",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "operation primary or response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch identities and request bodies",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
       "domain": "TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -2111,12 +2462,32 @@
       "note": "local_evidence_digest is bytes on the transport: empty is OPTIONAL_V1 absent, exactly 32 bytes is present, and any other length is rejected before hashing. challenge_kind is bound although V1 does not act on it. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
     },
     {
+      "domain": "TRUEOPEN_SDK_BODY_RESUME_OUTPUT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "session_id",
+        "task_id",
+        "optional resume_after_seq",
+        "optional dispatch_ticket_hash"
+      ],
+      "producer": "canonical wire implementation",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "operation primary or response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch identities and request bodies",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Both optional fields follow OPTIONAL_V1 presence: absent differs from present zero. The attempt hash is raw32 when present. The method-specific domain prevents SubscribeOutput/ResumeOutput replay."
+    },
+    {
       "domain": "TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
         "session_id",
         "task_id",
-        "optional resume_after_seq"
+        "optional resume_after_seq",
+        "optional dispatch_ticket_hash"
       ],
       "producer": "User SDK, signed by the user wallet or by a session key under a SessionGrant",
       "consumers": "SDKRequestEnvelopeV2.body_digest, which is the bodyDigest of the EIP-712 SDKRequest, for SubscribeOutput; recomputed by the Task Builder Ingress",
@@ -2126,7 +2497,7 @@
       "contract_section": "Public wire domain TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "resume_after_seq follows transport presence: unset is OPTIONAL_V1 absent and a set 0 is present 0. The field shapes equal those of TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1, so only the domain separates the two. Off-chain request authentication only: no chain activation height, and the SDK and the Builder Ingress move to it together."
+      "note": "Both optional fields follow OPTIONAL_V1 presence: absent differs from present zero. The attempt hash is raw32 when present. The method-specific domain prevents SubscribeOutput/ResumeOutput replay."
     },
     {
       "domain": "TRUEOPEN_SELECTED_TASK_BUILDERS_V1",
@@ -2139,14 +2510,14 @@
         "repeated(builder_operator_address) in frozen selection order"
       ],
       "producer": "Task Keeper at Task Builder selection",
-      "consumers": "stage duty checks, cleanup, auditors",
+      "consumers": "stage duty, settlement and evidence auditors",
       "store": "TaskBuilderSelectionState.selected_task_builders_hash",
       "event": "task builders selected event",
-      "query": "QueryTaskBuilders (registered by the unblock round in query.proto)",
+      "query": "QueryTaskBuilderSelection",
       "contract_section": "Public wire domain TRUEOPEN_SELECTED_TASK_BUILDERS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "selected_task_builders is a scalar Address REPEATED_V1 field in the frozen selection order; its inner count is the authoritative list length."
+      "note": "All locked BuilderSet snapshot members, with dispatch Builder first and others in cyclic snapshot order; scalar Address REPEATED_V1 carries its authoritative count."
     },
     {
       "domain": "TRUEOPEN_SELECTED_VERIFIERS_V1",
@@ -2387,6 +2758,30 @@
       "preimage_diverges_from_contract": false
     },
     {
+      "domain": "TRUEOPEN_STANDING_HANDRAISE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "builder_address",
+        "member",
+        "profiles",
+        "free_slot_count",
+        "issued_height",
+        "expiry_height",
+        "handraise_nonce",
+        "service_authorization_nonce"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
       "domain": "TRUEOPEN_SUPPORT_MODELS_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -2403,39 +2798,24 @@
       "preimage_diverges_from_contract": false
     },
     {
-      "domain": "TRUEOPEN_TASK_BUILDERS_V1",
+      "domain": "TRUEOPEN_TAKEOVER_ENTRY_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
         "chain_id",
-        "task_id",
-        "builder_set_hash",
-        "session_anchor_block_hash"
+        "session_id",
+        "order_sequence",
+        "task_hash",
+        "candidate_operator",
+        "bound_change_height_at_registration"
       ],
-      "producer": "TaskBuilderSeed",
-      "consumers": "Task Builder selection",
-      "store": "TaskBuilderSelectionState",
-      "event": "none",
-      "query": "QueryTaskBuilders",
-      "contract_section": "Public wire domain TRUEOPEN_TASK_BUILDERS_V1",
+      "producer": "canonical wire implementation",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "operation primary or response only",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch identities and request bodies",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
-    },
-    {
-      "domain": "TRUEOPEN_TASK_BUILDER_RANK_V1",
-      "framing": "H_FIELDS_V1",
-      "fields": [
-        "task_builder_seed",
-        "builder_operator_address"
-      ],
-      "producer": "task/types.TaskBuilderRank",
-      "consumers": "Node Task Builder selection, Builder and SDK",
-      "store": "not persisted; selected result commits through TRUEOPEN_SELECTED_TASK_BUILDERS_V1",
-      "event": "none",
-      "query": "QueryTaskBuilders after admission",
-      "contract_section": "Public wire domain TRUEOPEN_TASK_BUILDER_RANK_V1",
-      "registered_in_contract": true,
-      "preimage_diverges_from_contract": false,
-      "note": "Raw rank bytes sort ascending with canonical address as tie-break; the selected result is committed separately by TRUEOPEN_SELECTED_TASK_BUILDERS_V1."
     },
     {
       "domain": "TRUEOPEN_TASK_DATA_FETCH_BODY_V2",
@@ -2644,7 +3024,6 @@
         "deadline_policy",
         "timeout_bucket_version",
         "session_anchor_height",
-        "session_anchor_block_hash",
         "builder_set_id",
         "builder_set_hash",
         "payload_mode",
@@ -2656,7 +3035,7 @@
       "store": "TaskCoreState.accepted_task_hash, written atomically when the first valid proposal is accepted",
       "query": "QueryTask returns the authoritative accepted_task_hash",
       "contract_section": "Public wire domain TRUEOPEN_TASK_ORDER_V3",
-      "note": "Exactly 28 top-level fields. Amount values and the deadline/generation messages retain their nested canonical frames. The raw Hash32 model ID and plaintext payload mode enter the V3 task hash; encryption slots are zero or empty before activation.",
+      "note": "Exactly 27 top-level fields. Amount values and the deadline/generation messages retain their nested canonical frames. The raw Hash32 model ID and plaintext payload mode enter the V3 task hash; encryption slots are zero or empty before activation.",
       "registration_review": "https://github.com/TrueOpen/wire/pull/14",
       "supersedes": {
         "domain": "TRUEOPEN_TASK_ORDER_V2",
@@ -2767,7 +3146,7 @@
         "repeated(segment_index, segment_bitmap_bytes) in segment_index ascending"
       ],
       "producer": "Task Keeper when a Builder stage proposal is accepted / at stage finalize",
-      "consumers": "verifier_legal_set_hash, assignment_candidate_set_hash, finalize, event",
+      "consumers": "Verifier legal-set construction, finalize and events only; Worker union is retired",
       "store": "TaskStageHandraiseUnionState.union_bitmap_hash AND AssignmentCandidateSetState.union_bitmap_hash",
       "event": "stage finalize event payload",
       "query": "TaskStageViewV1",
@@ -2787,34 +3166,44 @@
         "task_hash",
         "terminal_phase",
         "verdict",
+        "failure_class",
+        "settlement_status",
         "finality_status",
+        "effective_verify_round",
         "model_id",
         "profile_version",
         "task_type",
         "candidate_pool_snapshot_id",
         "candidate_pool_hash",
-        "assignment_candidate_set_hash",
+        "dispatch_record_hash",
         "candidate_pool_ref_released",
         "winner_worker",
-        "selected_verifiers_hash",
+        "round1_selected_verifiers_hash_or_zero32",
+        "round2_selected_verifiers_hash_or_zero32",
+        "builder_set_version",
         "builder_set_id",
         "builder_set_hash",
         "selected_task_builders_hash",
         "profile_execution_snapshot_hash",
         "generation_params_digest",
+        "infer_receipt_ref_or_zero32",
+        "generated_token_count",
         "settlement_id",
         "settlement_facts_cutoff_height",
         "settlement_height",
+        "task_finality_height",
         "settlement_facts_hash",
-        "task_evidence_root",
-        "challenge_summary_hash",
+        "settlement_plan_hash",
+        "settlement_bill_hash_or_zero32",
+        "task_round_summary_hash",
+        "round1_facts_hash_or_zero32",
+        "round2_facts_hash_or_zero32",
+        "round2_outcome_or_unspecified",
+        "round_effect_root",
+        "round2_funding_resolution_hash_or_zero32",
         "fault_summary_hash",
-        "task_economic_effect_root",
         "created_height",
-        "finality_height",
-        "compacted_height",
-        "failure_class",
-        "support_candidate"
+        "compacted_height"
       ],
       "producer": "Task cleanup runner",
       "consumers": "Task terminal query and epoch summary runner",
@@ -2824,7 +3213,7 @@
       "contract_section": "Public wire domain TRUEOPEN_TASK_TERMINAL_SUMMARY_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "Active bounded terminal summary projection registered by this contract."
+      "note": "Fresh-genesis terminal projection retains dispatch_record_hash. winner_worker is OPTIONAL_V1; absent round2_outcome projects UNSPECIFIED."
     },
     {
       "domain": "TRUEOPEN_TREASURY_SPEND_V1",
@@ -2938,6 +3327,30 @@
       "preimage_diverges_from_contract": false
     },
     {
+      "domain": "TRUEOPEN_VERIFIER_ASSIGNMENT_NOTIFY_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_id",
+        "task_hash",
+        "verify_round",
+        "verifiers",
+        "output_hash",
+        "open_verify_height",
+        "commit_deadline_height",
+        "reveal_deadline_height",
+        "verify_deadline_height",
+        "binding"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
       "domain": "TRUEOPEN_VERIFIER_FINALIZE_CURSOR_FOLD_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -2997,7 +3410,7 @@
       "contract_section": "Public wire domain TRUEOPEN_VERIFIER_HANDRAISE_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "Same framing rules as TRUEOPEN_WORKER_HANDRAISE_V1; duty is always DUTY_VERIFIER. verify_round is uint32_be, never decimal text."
+      "note": "VerifierHandraiseV1 is task- and round-scoped. No Worker handraise contract remains."
     },
     {
       "domain": "TRUEOPEN_VERIFIER_LEGAL_SET_V1",
@@ -3043,6 +3456,29 @@
       "note": "The first framed element is the ASCII literal VERIFIER_RESULT_REVEAL_V2, distinct from the outer H_V1 domain. The payload includes verifier_value_root and the plaintext zero32 reservation but no verdict or duplicate Worker commitment; the Keeper derives authority-owned fields.",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
+    },
+    {
+      "domain": "TRUEOPEN_VERIFIER_VALUE_EVIDENCE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "verify_round",
+        "target_operator_address",
+        "evidence_kind",
+        "position_count",
+        "repeated(position, worker_value_leaf_hash, verifier_value_leaf_hash_or_zero32, metric_leaf_hash_or_zero32)"
+      ],
+      "producer": "Task bounded value-evidence verifier after authority and commitment checks",
+      "consumers": "Role fault identity, compact receipt and audit",
+      "store": "VerifierValueEvidenceReceiptState.evidence_digest",
+      "event": "30 verifier_value_evidence_accepted",
+      "query": "QueryVerifierValueEvidence",
+      "contract_section": "Bounded committed-value contradictions in docs/PHASE1_CONTRACT.md",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "Active leaf schemas use leaf_version 1. Merkle paths, opening and submitter are proof only; WORKER_VALUES_INVALID fills both non-Worker hashes with zero32."
     },
     {
       "domain": "TRUEOPEN_VERIFIER_WINDOW_RANK_V1",
@@ -3121,6 +3557,26 @@
       "preimage_diverges_from_contract": false
     },
     {
+      "domain": "TRUEOPEN_VERIFY_RESULT_SUBMITTED_NOTICE_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "task_id",
+        "task_hash",
+        "verify_round",
+        "commit_key",
+        "operator_address",
+        "service_authorization_nonce"
+      ],
+      "producer": "current registered service key or canonical verifier",
+      "consumers": "Node, Nexus, Cortex and SDK",
+      "store": "canonical digest only where the operation is accepted",
+      "event": "-",
+      "query": "-",
+      "contract_section": "Direct dispatch signing contract",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false
+    },
+    {
       "domain": "TRUEOPEN_VERIFY_ROUND_FACTS_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
@@ -3190,96 +3646,37 @@
       "framing": "H_FIELDS_V1",
       "fields": [
         "chain_id",
-        "purpose",
-        "task_id",
-        "legal_set_hash",
-        "randomness_height",
-        "randomness_beacon",
-        "counter"
+        "purpose"
       ],
       "producer": "Task Keeper (bounded rejection sampling for Worker winner and Verifier selection)",
       "consumers": "auditors recomputing the selection from frozen facts",
-      "store": "not persisted; the accepted counter lands in winner_draw_digest / selected_verifiers_hash",
+      "store": "Verifier selected-set commitment; dispatch order is independently reconstructible",
       "event": "-",
-      "query": "QueryAssignmentRandomness (inputs, not the intermediate draws)",
+      "query": "QueryDispatchRecord / QueryVerifierAssignment",
       "contract_section": "Public wire domain TRUEOPEN_WEIGHTED_DRAW_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "counter is uint64 big-endian, never decimal text. purpose is WORKER_ASSIGNMENT (legal_set_hash = assignment_candidate_set_hash) or VERIFIER_SELECTION (legal_set_hash = verifier_legal_set_hash). Candidate base order is fixed slot ascending. At most max_weighted_draw_attempts_per_selection attempts; exhaustion is an invariant error that keeps the task pending, and a missing beacon keeps it pending while still consuming this block's visited budget. Falling back to modulo, address order or a local RNG is forbidden."
-    },
-    {
-      "domain": "TRUEOPEN_WINNER_DRAW_V1",
-      "framing": "H_FIELDS_V1",
-      "fields": [
-        "chain_id",
-        "task_id",
-        "assignment_candidate_set_hash",
-        "assignment_randomness_height",
-        "beacon_randomness",
-        "accepted_draw_counter",
-        "winner_slot",
-        "winner_slot_version",
-        "winner_worker"
-      ],
-      "producer": "Task Keeper at winner finalize",
-      "consumers": "auditors, QueryTaskAssignment, QueryAssignmentRandomness",
-      "store": "TaskAssignmentState.winner_draw_digest",
-      "event": "worker assigned event",
-      "query": "TaskAssignmentViewV1 field 11, AssignmentRandomnessViewV1 field 7",
-      "contract_section": "Public wire domain TRUEOPEN_WINNER_DRAW_V1",
-      "registered_in_contract": true,
-      "preimage_diverges_from_contract": false,
-      "note": "This is an audit commitment over the draw's inputs and result; it never participates in the selection itself. accepted_draw_counter is uint32 big-endian and is the counter of the accepted attempt only. It replaces the unregistered TRUEOPEN_WINNER_RANK_V1 / WinnerRankSeedHash, which derived a second seed/rank hash that this contract forbids."
-    },
-    {
-      "domain": "TRUEOPEN_WORKER_HANDRAISE_V1",
-      "framing": "H_FIELDS_V1",
-      "fields": [
-        "schema_version",
-        "chain_id",
-        "task_id",
-        "task_hash",
-        "model_id",
-        "profile_version",
-        "FieldFrameV1(member: candidate_pool_snapshot_id, slot, slot_version, operator_address)",
-        "duty",
-        "service_authorization_nonce",
-        "expiry_height",
-        "recipient_pubkey"
-      ],
-      "producer": "Cortex current service key; carried inside a Builder Worker proposal",
-      "consumers": "Builder, Task Keeper (stage union OR, proposal digest input)",
-      "store": "not persisted; only the handraise_signing_digest enters the proposal digest and replay key",
-      "event": "-",
-      "query": "TaskStageViewV1 (union, not the raw handraise)",
-      "contract_section": "Public wire domain TRUEOPEN_WORKER_HANDRAISE_V1",
-      "registered_in_contract": true,
-      "preimage_diverges_from_contract": false,
-      "note": "The contract pins `schema_version: uint32 = 1` literally. duty is always DUTY_WORKER and is framed as uint32_be (the contract's enum rule). member is a required nested message, so it recursively frames its four fields in ascending schema field-number order with no domain prefix; operator_address inside it is also address codec bytes. The handraise carries candidate_pool_snapshot_id only - never an asserted pool hash copy. recipient_pubkey is a reserved bytes field: Phase 0 requires it empty, but its length-prefixed frame - eight zero bytes - is still part of the preimage."
-    },
-    {
-      "domain": "TRUEOPEN_WORKER_PROPOSAL_V1",
-      "framing": "H_FIELDS_V1",
-      "fields": [
-        "chain_id",
-        "task_id",
-        "task_hash",
-        "stage",
-        "candidate_pool_snapshot_id",
-        "candidate_pool_hash",
-        "proposer_operator_or_empty",
-        "data_ready_attestation_or_empty",
-        "handraise_count",
-        "repeated(handraise_signing_digest) in slot ascending"
-      ],
-      "producer": "Builder and Task Keeper recomputation for OPEN_TASK proposals",
-      "consumers": "Task Keeper proposal acceptance and exact replay checks",
-      "store": "BuilderStageProposalState.proposal_digest",
-      "event": "worker_handraises_accepted",
-      "query": "Task stage proposal receipts",
-      "contract_section": "Public wire domain TRUEOPEN_WORKER_PROPOSAL_V1",
-      "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "note": "WORKER_DISPATCH uses the independently reduced Builder VRF output, which already binds chain, epoch, session and order sequence. The full qualified pool supplies weights; task content, pool commitments and rosters do not reseed it. VERIFIER_SELECTION retains its beacon-based projection. All arithmetic is checked uint64, with bounded rejection sampling.",
+      "discriminator": "purpose",
+      "variants": [
+        {
+          "key": "purpose=VERIFIER_SELECTION",
+          "fields": [
+            "task_id",
+            "legal_set_hash",
+            "randomness_height",
+            "randomness_beacon",
+            "counter"
+          ]
+        },
+        {
+          "key": "purpose=WORKER_DISPATCH",
+          "fields": [
+            "vrf_output",
+            "counter"
+          ]
+        }
+      ]
     },
     {
       "domain": "TRUEOPEN_WORKER_TOKEN_COMMITMENT_V1",

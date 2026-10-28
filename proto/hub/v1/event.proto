@@ -6,6 +6,7 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "hub/v1/bridge.proto";
 import "hub/v1/common.proto";
+import "hub/v1/dispatch.proto";
 import "hub/v1/emergency_freeze.proto";
 import "hub/v1/model_profile_state.proto";
 import "hub/v1/reward.proto";
@@ -86,6 +87,8 @@ message ProtocolEventPayloadV1 {
     EventBridgeLimitsScheduled bridge_limits_scheduled = 125;
     EventBridgeLimitsActivated bridge_limits_activated = 126;
     EventBridgeSignerRotated bridge_signer_rotated = 127;
+    EventBuilderCompensationFunded builder_compensation_funded = 143;
+    EventBuilderVrfKeyRegistered builder_vrf_key_registered = 144;
   }
 }
 
@@ -245,7 +248,7 @@ message EventFaultRecorded {
   shared.v1.Duty duty = 1;
   string operator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   bytes fault_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  FaultKind fault_kind = 4;
+  shared.v1.FaultKind fault_kind = 4;
   optional bytes session_id_or_empty = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   optional bytes task_id_or_empty = 6 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }

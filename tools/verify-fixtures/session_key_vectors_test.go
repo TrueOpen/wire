@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"math"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -17,14 +18,23 @@ import (
 // explicit fixture preconditions. Real signatures must still recover to the
 // key selected by each row; a changed typed message cannot pass as a key switch.
 type sessionKeyState struct {
-	Status       string `json:"status"`
-	Owner        string `json:"owner"`
-	Key          string `json:"key"`
-	Expiry       uint64 `json:"expiry"`
-	SetHeight    uint64 `json:"set_height"`
-	Cap          string `json:"cap"`
-	Spent        string `json:"spent"`
-	NextSequence uint64 `json:"next_sequence"`
+	Status       string             `json:"status"`
+	Owner        string             `json:"owner"`
+	Key          string             `json:"key"`
+	Expiry       uint64             `json:"expiry"`
+	SetHeight    uint64             `json:"set_height"`
+	Cap          string             `json:"cap"`
+	Spent        string             `json:"spent"`
+	NextSequence uint64             `json:"next_sequence"`
+	Pending      *sessionKeyPending `json:"pending,omitempty"`
+}
+
+type sessionKeyPending struct {
+	Kind            string `json:"kind"`
+	EffectiveHeight uint64 `json:"effective_height"`
+	Key             string `json:"key,omitempty"`
+	Expiry          uint64 `json:"expiry,omitempty"`
+	Cap             string `json:"cap,omitempty"`
 }
 
 func sessionFixture(t *testing.T) map[string]any {
@@ -163,6 +173,7 @@ func TestSessionKeyUpdateVectors(t *testing.T) {
 			Name      string          `json:"name"`
 			Height    uint64          `json:"current_height"`
 			MaxBlocks uint64          `json:"current_max_blocks"`
+			Delay     uint64          `json:"session_change_delay_blocks"`
 			Signer    string          `json:"signer"`
 			Action    string          `json:"action"`
 			State     sessionKeyState `json:"state"`
@@ -179,20 +190,29 @@ func TestSessionKeyUpdateVectors(t *testing.T) {
 			next := row.State
 			got := "APPLIED"
 			key, err := hex.DecodeString(row.Grant.Key)
+			delayed := row.Action == "clear"
+			if row.Action == "set" && row.State.Pending == nil {
+				delayed = row.Grant.Key != row.State.Key || row.Grant.Expiry < row.State.Expiry || sessionAmount(row.Grant.Cap) != 0 && (sessionAmount(row.State.Cap) == 0 || sessionAmount(row.Grant.Cap) < sessionAmount(row.State.Cap))
+			}
+			base := row.Height
+			if delayed && row.Delay <= math.MaxUint64-base {
+				base += row.Delay
+			}
 			switch {
 			case row.State.Status == "CLOSED":
 				got = "SESSION_CLOSED"
 			case row.Signer != row.State.Owner:
 				got = "UNAUTHORIZED"
+			case row.State.Pending != nil:
+				got = "ERR_SESSION_CHANGE_PENDING"
 			case row.Action != "set" && row.Action != "clear":
 				got = "ACTION_REQUIRED"
 			case row.Action == "clear":
-				next.Key = ""
-				next.Expiry = 0
-				next.Cap = "0"
-				next.SetHeight = 0
-			case err != nil || len(key) != 20 || bytes.Equal(key, make([]byte, 20)) || row.Grant.Key == row.State.Owner || row.MaxBlocks == 0 || row.MaxBlocks > math.MaxUint64-row.Height || row.Grant.Expiry <= row.Height || row.Grant.Expiry > row.Height+row.MaxBlocks:
+				next.Pending = &sessionKeyPending{Kind: "clear", EffectiveHeight: base}
+			case err != nil || len(key) != 20 || bytes.Equal(key, make([]byte, 20)) || row.Grant.Key == row.State.Owner || row.MaxBlocks == 0 || row.MaxBlocks > math.MaxUint64-base || row.Grant.Expiry <= base || row.Grant.Expiry > base+row.MaxBlocks:
 				got = "ERR_SESSION_KEY_INVALID"
+			case delayed:
+				next.Pending = &sessionKeyPending{Kind: "set", EffectiveHeight: base, Key: row.Grant.Key, Expiry: row.Grant.Expiry, Cap: row.Grant.Cap}
 			default:
 				if next.Key != row.Grant.Key {
 					next.SetHeight = row.Height
@@ -201,10 +221,10 @@ func TestSessionKeyUpdateVectors(t *testing.T) {
 				next.Expiry = row.Grant.Expiry
 				next.Cap = row.Grant.Cap
 			}
-			if got == "APPLIED" && next == row.State {
+			if got == "APPLIED" && reflect.DeepEqual(next, row.State) {
 				got = "NOOP"
 			}
-			if got != row.Expected || next != row.ExpectedState {
+			if got != row.Expected || !reflect.DeepEqual(next, row.ExpectedState) {
 				t.Fatalf("got %s %+v, want %s %+v", got, next, row.Expected, row.ExpectedState)
 			}
 		})

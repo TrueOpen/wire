@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased - Phase 1 (breaking, fresh genesis)
+
+- Replace per-task Worker handraise admission and NATS/BusEnvelope with signed
+  direct dispatch, immutable full-pool VRF order, sticky context and independently
+  admitted dispatch/takeover entries. Reserve removed fields and event values.
+- Add session prefunding, owner deposits, delayed withdrawal/CLOSE, delayed key
+  restrictions/cancellation and two-step Builder takeover. Orders freeze funds
+  only from the session ledger; settlement and refunds return to that ledger.
+- Add compensation funding, rebuttable claims, winner-ineligibility facts,
+  objective dispatch challenges, retained states, Genesis, queries and events.
+  Freeze snapshot inputs for profile-specific historical weight reconstruction.
+- Extend VRF registration to Builder identities; retain Validator beacon isolation.
+  Add ticket-bound receipts/output/resume, typed streams and strict evidence
+  verification. Activate bounded verifier value evidence; joint opening stays inactive.
+- Reuse canonical signature/tree primitives through `dispatch`; retire `bus`.
+- Revise preimages in place for fresh genesis: `TRUEOPEN_TASK_ORDER_V3` (27 fields),
+  `TRUEOPEN_ORDER_OPENING_V2` (19 fields), `TRUEOPEN_INFER_RECEIPT_V3`,
+  `TRUEOPEN_OUTPUT_STREAM_HEADER_V1`, `TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1`,
+  `TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2`, `TRUEOPEN_WEIGHTED_DRAW_V1` (dispatch),
+  `TRUEOPEN_HUB_PARAMS_V2`, `TRUEOPEN_TASK_PARAMS_V1` and
+  `TRUEOPEN_TASK_TERMINAL_SUMMARY_V1`. No old decoder is retained.
+- Consumers must pin one reviewed release and start a new genesis. See
+  [contract and acceptance requirements](docs/PHASE1_CONTRACT.md). This candidate
+  does not assign a release tag or claim Node/localnet acceptance.
+
 ## v0.5.1
 
 ### Registered session signing keys

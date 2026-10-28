@@ -59,3 +59,13 @@ Python's default `int`, or a JavaScript parser with a BigInt reviver. The
 values stay numbers because existing decoders read them as numbers; changing
 them to strings would break those decoders. `task/order_economics_v1.json`,
 whose amounts routinely exceed 2^53, writes every amount as a decimal string.
+
+## Phase 1 byte conformance
+
+`v1/task/dispatch_v1.json` includes independent signing projections, real low-S
+signatures and ELL2 proof, full-pool weighted ordering, operation isolation,
+challenge scopes and exact typed Builder evidence linked to content/evidence/fault
+IDs. `value_evidence_v1.json` pins both bounded opening payloads and digest
+projections. `session_funding_amino_v1.json` freezes funding/withdrawal wallet
+signatures, including boolean CLOSE. These establish bytes, not Task admission:
+consumer authority, escrow and complete localnet acceptance remain required.
