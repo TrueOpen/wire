@@ -138,6 +138,17 @@ does not replace Keeper Task authority, stage, admissibility or finality checks.
 
 ## Consumer acceptance requirements
 
+ChatCompletionOutputUsage.cached_prompt_tokens reports the input tokens served
+from the prefix cache for one request. It uses int32, like the existing usage
+counts, and must be between zero and prompt_tokens inclusive. Prompt and total
+counts already include these tokens. Adapters map it to the OpenAI-compatible
+usage.prompt_tokens_details.cached_tokens field; cache writes are excluded.
+Zero means no cache reads were reported. This is consumer telemetry, never an
+input to signatures, receipts, commitments or on-chain accounting. Cortex and
+gateway adapters must populate/forward it from engine usage in streaming and
+non-streaming responses. The cortex.v1 package remains withheld as declared in
+release/packages.json; adding this field does not freeze that whole package.
+
 Wire checks establish schema and byte conformance, not a running blockchain.
 Before genesis, Node must implement atomic per-entry admission, deterministic
 bounded EndBlock queues, bank/escrow conservation, current-key authorization,

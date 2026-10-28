@@ -87,4 +87,10 @@ message ChatCompletionOutputUsage {
   int32 prompt_tokens = 1;
   int32 completion_tokens = 2;
   int32 total_tokens = 3;
+  // Input tokens served from the prefix cache for this request, included in
+  // prompt_tokens rather than added to it. Maps to OpenAI-compatible usage's
+  // prompt_tokens_details.cached_tokens; excludes cache writes. Must satisfy
+  // 0 <= cached_prompt_tokens <= prompt_tokens. Zero means no cache reads were
+  // reported. Reporting only: never enters commitments or on-chain billing.
+  int32 cached_prompt_tokens = 4;
 }

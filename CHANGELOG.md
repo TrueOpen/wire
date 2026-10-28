@@ -2,6 +2,10 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Add `cortex.v1.ChatCompletionOutputUsage.cached_prompt_tokens` (field 4,
+  int32) for prefix-cache reads, mapped to `prompt_tokens_details.cached_tokens`.
+  It is a reported subset of prompt_tokens and changes no on-chain accounting.
+  This additive field does not change the withheld status of cortex.v1.
 - Replace per-task Worker handraise admission and NATS/BusEnvelope with signed
   direct dispatch, immutable full-pool VRF order, sticky context and independently
   admitted dispatch/takeover entries. Reserve removed fields and event values.
