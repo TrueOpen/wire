@@ -27,7 +27,7 @@ type SignedMessageV1 struct {
 	Signature     []byte
 }
 
-// BuilderMessageBindingV1 is the signed current-binding identity, projected
+// BuilderMessageBindingV1 is the signed key-generation identity, projected
 // from the common metadata of the business message itself.
 type BuilderMessageBindingV1 struct {
 	ChainID                   string
@@ -133,30 +133,15 @@ type VerifiedBuilderEvidenceV2 struct {
 	ContentDigest   [32]byte
 }
 
-// ProofKeyStatus distinguishes a current live binding from a current revoked
-// proof-only binding. A rotated historical key is never an acceptable result.
-type ProofKeyStatus uint8
-
-const (
-	ProofKeyActive ProofKeyStatus = iota + 1
-	ProofKeyRevoked
-)
-
-// ProofKeyBinding is the current Builder key returned by the state adapter.
-type ProofKeyBinding struct {
-	PublicKey          []byte
-	AuthorizationNonce uint64
-	Status             ProofKeyStatus
-}
-
 // EvidenceVerifyOptions supplies chain authority without generated imports.
 type EvidenceVerifyOptions struct {
-	ChainID                 string
-	LookupCurrentBuilderKey func(operator string) (ProofKeyBinding, error)
+	ChainID        string
+	Height         uint64
+	LookupProofKey func(ServiceProofSigner) (ProofKeyBinding, error)
 }
 
 // VerifyBuilderEvidenceV2 is the sole generated-code-free evidence verifier.
-// A revoked current key is proof-only and never authorizes a live action.
+// Revoked and retained keys are proof-only and never authorize a live action.
 func VerifyBuilderEvidenceV2(raw []byte, opts EvidenceVerifyOptions) (VerifiedBuilderEvidenceV2, error) {
 	var result VerifiedBuilderEvidenceV2
 	if opts.ChainID == "" {
@@ -213,17 +198,11 @@ func VerifyBuilderEvidenceV2(raw []byte, opts EvidenceVerifyOptions) (VerifiedBu
 	if e != nil {
 		return result, e
 	}
-	if a.Binding.ChainID != opts.ChainID || opts.LookupCurrentBuilderKey == nil {
+	if a.Binding.ChainID != opts.ChainID {
 		return result, fmt.Errorf("%w: chain or key authority unavailable", ErrEvidence)
 	}
-	key, e := opts.LookupCurrentBuilderKey(a.Binding.BuilderAddress)
+	key, e := verifyServiceProofSignature(ServiceProofSigner{ParticipantType: ProofParticipantBuilder, OperatorAddress: a.Binding.BuilderAddress, ServiceAuthorizationNonce: a.Binding.ServiceAuthorizationNonce}, a.SigningDigest, a.Signature, ProofKeyOptions{Height: opts.Height, LookupProofKey: opts.LookupProofKey})
 	if e != nil {
-		return result, e
-	}
-	if key.AuthorizationNonce != a.Binding.ServiceAuthorizationNonce || key.Status != ProofKeyActive && key.Status != ProofKeyRevoked {
-		return result, fmt.Errorf("%w: stale proof binding", ErrEvidence)
-	}
-	if e = VerifyDigestSignature(key.PublicKey, a.SigningDigest[:], a.Signature); e != nil {
 		return result, e
 	}
 	result.MessageA = &a

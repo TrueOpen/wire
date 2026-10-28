@@ -140,8 +140,8 @@ func TestTypedEvidenceUsesCurrentProofBindingWithoutLiveState(t *testing.T) {
 	branch = append(branch, wireBytes(2, a)...)
 	branch = append(branch, wireBytes(3, b)...)
 	proof := append([]byte{8, 2}, wireBytes(2, branch)...)
-	opts := EvidenceVerifyOptions{ChainID: "trueopen-phase1-vector-1", LookupCurrentBuilderKey: func(operator string) (ProofKeyBinding, error) {
-		return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), AuthorizationNonce: 1, Status: ProofKeyRevoked}, nil
+	opts := EvidenceVerifyOptions{ChainID: "trueopen-phase1-vector-1", LookupProofKey: func(signer ServiceProofSigner) (ProofKeyBinding, error) {
+		return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyRevoked}, nil
 	}}
 	verified, err := VerifyBuilderEvidenceV2(proof, opts)
 	if err != nil {
@@ -174,10 +174,22 @@ func TestTypedEvidenceUsesCurrentProofBindingWithoutLiveState(t *testing.T) {
 		t.Fatal("cross-chain proof accepted")
 	}
 	rotated := opts
-	rotated.LookupCurrentBuilderKey = func(string) (ProofKeyBinding, error) {
-		return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), AuthorizationNonce: 2, Status: ProofKeyActive}, nil
+	rotated.LookupProofKey = func(ServiceProofSigner) (ProofKeyBinding, error) {
+		return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 2, Status: ProofKeyActive}, nil
 	}
 	if _, err = VerifyBuilderEvidenceV2(proof, rotated); err == nil {
 		t.Fatal("rotated historical proof binding accepted")
+	}
+	retained := opts
+	retained.Height = 120
+	retained.LookupProofKey = func(ServiceProofSigner) (ProofKeyBinding, error) {
+		return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyRetained, RetiredHeight: 100, ProofExpiryHeight: 178}, nil
+	}
+	if _, err = VerifyBuilderEvidenceV2(proof, retained); err != nil {
+		t.Fatal("retained Builder proof was lost after rotation", err)
+	}
+	retained.Height = 179
+	if _, err = VerifyBuilderEvidenceV2(proof, retained); err == nil {
+		t.Fatal("expired retained Builder proof accepted")
 	}
 }

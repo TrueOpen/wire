@@ -115,6 +115,13 @@
       "sha256": "c3c4467d3a434db5deba49842ab9e53a6b10f8c1737e6c74e96385f89635fca8"
     },
     {
+      "path": "shared/service_key_proof_v1.json",
+      "origin": "wire",
+      "contract_section": "Generation-bound dispatch proofs and attempt-bound output signatures; docs/PHASE1_CONTRACT.md",
+      "bytes": 1647,
+      "sha256": "bb2e531bbec42cf70e7a140992a6b237d541301d83ee910111bc7ccb5936b473"
+    },
+    {
       "path": "shared/shared_domains_v1.json",
       "source_path": "x/shared/types/testdata/shared_domains_v1.json",
       "bytes": 3558,
@@ -137,9 +144,9 @@
     {
       "path": "task/dispatch_v1.json",
       "origin": "wire",
-      "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 112824,
-      "sha256": "8f8f97e0387de124a4d7efb79d897802a6da7564cece03e415a02c35420240b7"
+      "contract_section": "Generation-bound dispatch proofs and attempt-bound output signatures; docs/PHASE1_CONTRACT.md",
+      "bytes": 113470,
+      "sha256": "327187f9c770d20f074e68d3edb8e98f3e62eee1b8bf3650e487dd64e7f046e7"
     },
     {
       "path": "task/generation_params_ranges_v1.json",
@@ -179,16 +186,16 @@
     {
       "path": "task/output_chunk_equivocation_v1.json",
       "origin": "wire",
-      "contract_section": "Public wire conformance vectors for task/output_chunk_equivocation_v1.json",
-      "bytes": 5690,
-      "sha256": "d77905afa01a6628a97ebdd93e422c74ce49614408f4a15dc528fd2b2ec0210e"
+      "contract_section": "Generation-bound dispatch proofs and attempt-bound output signatures; docs/PHASE1_CONTRACT.md",
+      "bytes": 9577,
+      "sha256": "dbae9a780cb3455031000e2f5bfdf149f9ec4dcbfbab5b87b2c1609049c549a3"
     },
     {
       "path": "task/output_mmr_v1.json",
       "origin": "wire",
-      "contract_section": "Public wire conformance vectors for task/output_mmr_v1.json",
-      "bytes": 10933,
-      "sha256": "7079830ae0e0f72a7167f4b509da5e4718d4e71bfc04ca59752ddadc0142a870"
+      "contract_section": "Generation-bound dispatch proofs and attempt-bound output signatures; docs/PHASE1_CONTRACT.md",
+      "bytes": 12299,
+      "sha256": "6a07150fbde8d5b2deb1f847041e6f3f1cf7376e3913eef29e09dde14b761c90"
     },
     {
       "path": "task/output_stream_header_v1.json",

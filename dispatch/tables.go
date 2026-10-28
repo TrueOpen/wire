@@ -217,6 +217,7 @@ var protoTables = map[string]messageSpec{
 		18: {name: "rounds", kind: kindMessage, message: "task.v1.DispatchRoundV1", repeated: true},
 		19: {name: "dispatch_ticket_hash", kind: kindBytes, hash: true},
 		20: {name: "builder_service_signature", kind: kindBytes},
+		21: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"task.v1.DispatchRejectV1": {
 		1: {name: "schema_version", kind: kindVarint, bits: 32},
@@ -273,6 +274,7 @@ var protoTables = map[string]messageSpec{
 		23: {name: "sticky_run_count", kind: kindVarint, bits: 32},
 		24: {name: "sticky_applied", kind: kindVarint, boolean: true},
 		25: {name: "builder_service_signature", kind: kindBytes},
+		26: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"task.v1.DispatchVrfInputV1": {
 		1: {name: "chain_id", kind: kindString},
@@ -311,6 +313,7 @@ var protoTables = map[string]messageSpec{
 		5: {name: "leaf_count", kind: kindVarint, bits: 32},
 		6: {name: "root", kind: kindBytes, hash: true},
 		7: {name: "builder_service_signature", kind: kindBytes},
+		8: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"task.v1.SignedMessageEquivocationV2": {
 		1: {name: "message_kind", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true}},

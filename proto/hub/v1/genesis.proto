@@ -147,4 +147,5 @@ message GenesisState {
 
   repeated BuilderCompensationAccountState builder_compensation_accounts = 106 [(gogoproto.nullable) = false];
   repeated DispatchFaultState dispatch_faults = 107 [(gogoproto.nullable) = false];
+  repeated ServiceKeyProofState service_key_proofs = 108 [(gogoproto.nullable) = false];
 }

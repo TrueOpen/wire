@@ -123,8 +123,9 @@ There is no compensation-account withdrawal message in Phase 1.
 Four recorded-task challenges use retained records. Double dispatch can be
 proved from a signed record before admission. Each challenge kind has its own
 scope/deduplication key, gas cap and bounded response. Reject proofs use current
-service bindings; Cortex must drain through the challenge, response and rebuttal
-windows before rotating. Preserve record/winner exclusion facts until claim
+or retained service proof keys selected by their signed authorization nonce;
+honesty does not depend on a Worker's voluntary drain before rotation.
+Preserve record/winner exclusion facts until claim
 windows close and all pending claims finish. Pruned records must never be
 interpreted as unrecorded tasks. Parameter updates must not reopen pruned claims.
 
@@ -132,9 +133,44 @@ Builder objective evidence retains exact serialized typed business messages and
 uses strict decoding before any generated decoder discards unknown/duplicate
 fields. Only OPEN_VERIFY and VERIFIER_ASSIGNMENT_NOTIFY are active signed
 message kinds. Their shared signed binding supplies chain, stable Builder and
-authorization nonce. The current revoked key may prove an old fact; it may not
-authorize live traffic. Rotated historical keys fail closed. Proof verification
+authorization nonce. Current revoked and retained rotated keys may prove old
+facts within their admissibility windows; neither authorizes live traffic. Proof verification
 does not replace Keeper Task authority, stage, admissibility or finality checks.
+
+Output Chunk and Fin signing projections bind dispatch_ticket_hash in addition
+to chain and task hash. Every frame's ticket must match its stream header.
+Worker output-equivocation evidence reconstructs the ticket from the accepted
+InferReceiptV3, never from a caller's attempt copy. An old attempt's genuine frame
+cannot incriminate a later attempt by the same Worker on the same signed order.
+
+SignedHandraiseRootV1, DispatchTicketV1 and DispatchRecordV1 include the Builder
+service_authorization_nonce in their signing projections. Record and winning
+ticket nonces agree; DispatchRecordState freezes it. First admission requires
+the current ACTIVE binding. Compensation claims/rebuttals, skip responses,
+handraise-root and double-dispatch challenges, and Builder message evidence
+resolve proofs by (participant_type, operator, signed nonce), including Cortex
+accept/reject proofs. Never substitute the newest key or admit new work with a
+retained key. Shared proof verification lives in dispatch/, as do roster, pool
+and challenge identity commitments; consumers do not reimplement their fields.
+
+Rotation atomically copies the replaced binding into ServiceKeyProofState before
+installing the next current key. Proof expiry is frozen, inclusive, at no less
+than rotation_height + max(1, order_freshness_margin_blocks) + record_deadline_blocks +
+max(dispatch_compensation_claim_window_blocks + dispatch_compensation_rebuttal_blocks,
+dispatch_challenge_window_blocks + dispatch_challenge_response_blocks), using
+checked arithmetic. This covers unrecorded signed material that creates no Task
+liability/responsibility. Existing online-responsibility rotation guards remain.
+The one-block future-order tolerance must be covered even with zero backward freshness.
+Do not prune a key still required by an unresolved admissible claim/challenge.
+Governance must extend retained rows before activating longer windows and cannot
+reopen pruned generations. Missing required authority is an invariant failure,
+never affirmative evidence of fault against the honest proof presenter.
+
+Hub Genesis exports retained proof rows in role/operator/nonce order, validating
+positive nonces below the current generation, canonical addresses, compressed
+pubkeys and retirement/expiry bounds. Rebuild the prune index at expiry + 1;
+bounded cleanup consumes the global visited budget and cross-checks references.
+Store validated address bytes privately; the public Genesis remains Bech32.
 
 ## Consumer acceptance requirements
 

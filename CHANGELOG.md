@@ -2,6 +2,13 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Bind Chunk/Fin signatures to dispatch_ticket_hash and rebuild Worker evidence
+  from the accepted receipt's attempt. An old generation of the same order
+  cannot falsely prove equivocation by an honest Worker.
+- Sign the Builder authorization nonce in tickets, records and handraise roots.
+  Retain rotated service keys for bounded proof-only verification by role,
+  operator and nonce, with Hub Genesis recovery; live authority stays current-only.
+  Reuse shared roster/pool/challenge commitments and generation-aware proof checks.
 - Add `cortex.v1.ChatCompletionOutputUsage.cached_prompt_tokens` (field 4,
   int32) for prefix-cache reads, mapped to `prompt_tokens_details.cached_tokens`.
   It is a reported subset of prompt_tokens and changes no on-chain accounting.
@@ -22,6 +29,9 @@
 - Revise preimages in place for fresh genesis: `TRUEOPEN_TASK_ORDER_V3` (27 fields),
   `TRUEOPEN_ORDER_OPENING_V2` (19 fields), `TRUEOPEN_INFER_RECEIPT_V3`,
   `TRUEOPEN_OUTPUT_STREAM_HEADER_V1`, `TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1`,
+  `TRUEOPEN_OUTPUT_CHUNK_V1`, `TRUEOPEN_OUTPUT_FIN_V1`,
+  `TRUEOPEN_HANDRAISE_ROOT_V1`, `TRUEOPEN_DISPATCH_TICKET_V1`,
+  `TRUEOPEN_DISPATCH_RECORD_V1`,
   `TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2`, `TRUEOPEN_WEIGHTED_DRAW_V1` (dispatch),
   `TRUEOPEN_HUB_PARAMS_V2`, `TRUEOPEN_TASK_PARAMS_V1` and
   `TRUEOPEN_TASK_TERMINAL_SUMMARY_V1`. No old decoder is retained.

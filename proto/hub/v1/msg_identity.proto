@@ -13,6 +13,8 @@ import "shared/v1/rest_encoding.proto";
 option go_package = "github.com/TrueOpen/node/x/hub/types";
 
 // MsgRotateServiceKey replaces the current service key binding of one stable operator (10.0c1).
+// Atomically retain the replaced generation as ServiceKeyProofState before
+// installing the new current key. Retained keys verify old facts only.
 message MsgRotateServiceKey {
   option (cosmos.msg.v1.signer) = "operator_address";
   option (amino.name) = "trueopen/x/hub/MsgRotateServiceKey";

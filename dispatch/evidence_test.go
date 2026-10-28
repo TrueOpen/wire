@@ -79,8 +79,8 @@ func TestEvidenceReferenceAndActiveStageBranch(t *testing.T) {
 		branch := append([]byte{8, 1}, wireBytes(2, hexBytes(t, row.Protobuf))...)
 		branch = append(branch, 24, 2)
 		proof := append([]byte{8, 2}, wireBytes(3, branch)...)
-		opts := EvidenceVerifyOptions{ChainID: "trueopen-phase1-vector-1", LookupCurrentBuilderKey: func(string) (ProofKeyBinding, error) {
-			return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), AuthorizationNonce: 1, Status: ProofKeyActive}, nil
+		opts := EvidenceVerifyOptions{ChainID: "trueopen-phase1-vector-1", LookupProofKey: func(ServiceProofSigner) (ProofKeyBinding, error) {
+			return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyActive}, nil
 		}}
 		got, err = VerifyBuilderEvidenceV2(proof, opts)
 		if err != nil || got.Violation != 2 {

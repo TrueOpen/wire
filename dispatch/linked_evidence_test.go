@@ -36,11 +36,11 @@ func TestPublishedLinkedBuilderEvidence(t *testing.T) {
 		t.Run(row.Name, func(t *testing.T) {
 			got, err := VerifyBuilderEvidenceV2(hexBytes(t, row.Bytes), EvidenceVerifyOptions{
 				ChainID: row.Chain,
-				LookupCurrentBuilderKey: func(operator string) (ProofKeyBinding, error) {
-					if operator != row.Operator {
+				LookupProofKey: func(signer ServiceProofSigner) (ProofKeyBinding, error) {
+					if signer.OperatorAddress != row.Operator {
 						t.Fatal("lookup used another operator")
 					}
-					return ProofKeyBinding{PublicKey: hexBytes(t, row.Key), AuthorizationNonce: row.Nonce, Status: ProofKeyActive}, nil
+					return ProofKeyBinding{PublicKey: hexBytes(t, row.Key), ServiceAuthorizationNonce: row.Nonce, Status: ProofKeyActive}, nil
 				},
 			})
 			if err != nil {

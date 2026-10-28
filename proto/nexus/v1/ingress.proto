@@ -603,6 +603,10 @@ message OutputChunkV1 {
   bytes attachment_signature = 6;
 
   uint64 generated_token_count = 7;
+  // Must equal the stream header's ticket. The Worker signs
+  // H_FIELDS_V1("TRUEOPEN_OUTPUT_CHUNK_V1", chain_id, task_hash,
+  // dispatch_ticket_hash, seq, mmr_root). Attempts of one order cannot mix.
+  bytes dispatch_ticket_hash = 8 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 //
@@ -612,6 +616,10 @@ message OutputFinV1 {
   bytes output_mmr_root = 2;
   task.v1.FinishReasonV1 finish_reason = 3;
   bytes worker_signature = 4;
+  // Must equal the stream header and accepted receipt's ticket. The Worker signs
+  // H_FIELDS_V1("TRUEOPEN_OUTPUT_FIN_V1", chain_id, task_hash,
+  // dispatch_ticket_hash, final_seq, output_mmr_root, finish_reason).
+  bytes dispatch_ticket_hash = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 // UploadTaskOutputStreamRequest defines the UploadTaskOutputStreamRequest wire type.

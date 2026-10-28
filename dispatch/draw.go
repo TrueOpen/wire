@@ -17,7 +17,7 @@ type WeightedMember struct {
 // rejection sampling. Randomness already binds the chain, epoch, session and
 // order sequence. Task content and availability rosters never reseed the draw.
 func DrawOrder(chainID string, randomness [32]byte, pool []WeightedMember, maxAttempts uint32) ([]uint32, error) {
-	if maxAttempts == 0 || len(pool) == 0 || len(pool) > 1_000_000 {
+	if maxAttempts == 0 || len(pool) == 0 || len(pool) > maxPoolMembers {
 		return nil, fmt.Errorf("invalid draw limits")
 	}
 	remaining := append([]WeightedMember(nil), pool...)

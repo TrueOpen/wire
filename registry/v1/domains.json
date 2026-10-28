@@ -829,7 +829,8 @@
         "sticky_run_count",
         "sticky_applied",
         "rounds",
-        "dispatch_ticket_hash"
+        "dispatch_ticket_hash",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -838,7 +839,8 @@
       "query": "-",
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "preimage_diverges_from_contract": false,
+      "note": " The signed nonce selects a retained proof-only key by (BUILDER, operator, nonce); live admission still requires the current ACTIVE binding."
     },
     {
       "domain": "TRUEOPEN_DISPATCH_REJECT_V1",
@@ -981,7 +983,8 @@
         "bound_change_height",
         "sticky_anchor_sequence",
         "sticky_run_count",
-        "sticky_applied"
+        "sticky_applied",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -990,7 +993,8 @@
       "query": "-",
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "preimage_diverges_from_contract": false,
+      "note": " The signed nonce selects a retained proof-only key by (BUILDER, operator, nonce); live admission still requires the current ACTIVE binding."
     },
     {
       "domain": "TRUEOPEN_DISPATCH_VRF_INPUT_V1",
@@ -1331,7 +1335,8 @@
         "root_height",
         "root_version",
         "leaf_count",
-        "root"
+        "root",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -1340,7 +1345,8 @@
       "query": "-",
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "preimage_diverges_from_contract": false,
+      "note": " The signed nonce selects a retained proof-only key by (BUILDER, operator, nonce); live admission still requires the current ACTIVE binding."
     },
     {
       "domain": "TRUEOPEN_HUB_PARAMS_V2",
@@ -1677,6 +1683,7 @@
       "fields": [
         "chain_id",
         "task_hash",
+        "dispatch_ticket_hash",
         "seq",
         "mmr_root"
       ],
@@ -1689,7 +1696,7 @@
       "contract_section": "Public wire domain TRUEOPEN_OUTPUT_CHUNK_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "mmr_root is the prefix root of the first seq + 1 leaves, so a frame signature commits to the whole prefix. seq is u64_be and mmr_root is raw32, never hex text. The accepted InferReceiptV3 binds the final MMR root. Vectors: testdata/v1/task/output_mmr_v1.json."
+      "note": "Every signature binds the dispatch_ticket_hash from the stream header. Objective Worker evidence reconstructs it from the accepted InferReceiptV3, so a frame of another attempt cannot prove equivocation. mmr_root is the prefix root of the first seq + 1 leaves, so a frame signature commits to the whole prefix. seq is u64_be and mmr_root is raw32, never hex text. The accepted InferReceiptV3 binds the final MMR root. Vectors: testdata/v1/task/output_mmr_v1.json."
     },
     {
       "domain": "TRUEOPEN_OUTPUT_FIN_V1",
@@ -1697,6 +1704,7 @@
       "fields": [
         "chain_id",
         "task_hash",
+        "dispatch_ticket_hash",
         "uint64_be(final_seq)",
         "output_mmr_root",
         "uint32_be(finish_reason)"
@@ -1710,7 +1718,7 @@
       "contract_section": "testdata/v1/task/output_mmr_v1.json",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "finish_reason is the FinishReasonV1 enum number encoded as uint32_be. The closed set is EOS_TOKEN, STOP_SEQUENCE, MAX_OUTPUT_TOKENS, MAX_OUTPUT_DURATION, USER_STOP and STOP_TOKEN (1..6); UNSPECIFIED and unknown values fail closed before digest verification. A user stop produces a USER_STOP Fin -- a receipt implies a Fin -- and only a Worker's own failure or abandonment, which produces no receipt either, produces none. USER_STOP and MAX_OUTPUT_DURATION are Worker assertions: neither the stop signal nor elapsed wall-clock time is in any commitment, so no consumer can contradict them. The output_mmr_root is raw32 and worker_signature is excluded from its own preimage. Vectors: testdata/v1/task/output_mmr_v1.json."
+      "note": "Every signature binds the dispatch_ticket_hash from the stream header. Objective Worker evidence reconstructs it from the accepted InferReceiptV3, so a frame of another attempt cannot prove equivocation. finish_reason is the FinishReasonV1 enum number encoded as uint32_be. The closed set is EOS_TOKEN, STOP_SEQUENCE, MAX_OUTPUT_TOKENS, MAX_OUTPUT_DURATION, USER_STOP and STOP_TOKEN (1..6); UNSPECIFIED and unknown values fail closed before digest verification. A user stop produces a USER_STOP Fin -- a receipt implies a Fin -- and only a Worker's own failure or abandonment, which produces no receipt either, produces none. USER_STOP and MAX_OUTPUT_DURATION are Worker assertions: neither the stop signal nor elapsed wall-clock time is in any commitment, so no consumer can contradict them. The output_mmr_root is raw32 and worker_signature is excluded from its own preimage. Vectors: testdata/v1/task/output_mmr_v1.json."
     },
     {
       "domain": "TRUEOPEN_OUTPUT_MMR_V1",

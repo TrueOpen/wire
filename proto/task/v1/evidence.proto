@@ -118,6 +118,8 @@ message OutputMMRPeakProofV1 {
 
 // OutputChunkEquivocationV1 proves that a valid Worker-signed streamed prefix
 // conflicts with the final MMR root bound by an accepted InferReceiptV3.
+// Rebuild the chunk digest with that receipt's dispatch_ticket_hash, never a
+// caller-selected attempt. A genuine frame from another attempt proves no fault.
 // OutputChunkEquivocationV1 defines the OutputChunkEquivocationV1 wire type.
 message OutputChunkEquivocationV1 {
   bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
