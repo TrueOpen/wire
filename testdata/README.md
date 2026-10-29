@@ -1,5 +1,17 @@
 # Wire Test Vectors
 
+`v1/task/builder_sync_v1.json` publishes typed replication signing vectors:
+all five item branches, independent output progress, optional Fin/output,
+canonical oneof tags and equivalent protobuf encodings with reversed fields
+and explicit defaults. The low-S service signatures and canonical preimages
+were independently computed in Python. Chain/group admission and prior durable
+state are explicit consumer preconditions. The fixture also illustrates the
+originating-role parity of keepalive probes and unchanged echo values.
+
+`v1/task/dispatch_v1.json` includes three signed input chunks, numbered 0, 1, 2,
+that reconstruct `abcdef`. Every chunk commits the same whole-input size/hash
+and count. A chunk's own byte length is not the whole-input size.
+
 `v1/task/session_key_authorization_v1.json` contains wallet and delegated
 signatures over the same order digest, registered-key requests with no
 SessionGrant, and admission/SET/CLEAR cases. It covers inclusive expiry,

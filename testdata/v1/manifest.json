@@ -135,6 +135,13 @@
       "sha256": "e773b87a90eaddc044f6f90f41e8ffc2c1d4a4fe28515d072b9bc8239abcbbeb"
     },
     {
+      "path": "task/builder_sync_v1.json",
+      "origin": "wire",
+      "contract_section": "Typed Builder replication, canonical oneof signing and current-key transport vectors",
+      "bytes": 175766,
+      "sha256": "f34a561d90d1c835025042bc057ef879f86182b7c4b842a13f4f03c64b1f7fef"
+    },
+    {
       "path": "task/canonical_json_v1.json",
       "origin": "wire",
       "contract_section": "Canonical JSON evidence and generation-parameter digests",
@@ -145,8 +152,8 @@
       "path": "task/dispatch_v1.json",
       "origin": "wire",
       "contract_section": "Generation-bound dispatch proofs and attempt-bound output signatures; docs/PHASE1_CONTRACT.md",
-      "bytes": 129298,
-      "sha256": "20e06a30943f8e151493a5bec801eac7a72c6e5e64117af80fba11523ee851e7"
+      "bytes": 134491,
+      "sha256": "9cee28b77303084da654c3ae66e6ee1d6f64fefaf614f99454b1fa6b9e632ace"
     },
     {
       "path": "task/generation_params_ranges_v1.json",

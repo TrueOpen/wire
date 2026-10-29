@@ -123,6 +123,37 @@ takeover identity includes the candidate operator and binding generation.
 
 ## Compensation, evidence and retention
 
+`nexus.v1.BuilderSyncService.Sync` replicates round, input chunk, attempt, record
+and admitted order items using existing typed business messages. The sender signs
+`H_FIELDS_V1("TRUEOPEN_NEXUS_BUILDER_SYNC_V1", chain_id, raw20(sender), canonical batch)`;
+the batch also binds receiver, Session/order and immutable BuilderSet. Repeated
+items preserve order, oneof tags are proto field numbers, and optionals preserve
+presence. Nested business signatures remain payload. Protobuf field ordering and
+explicit defaults do not change the digest. Requests are at most 1 MiB, with at
+most 128 items and 128 output chunks; receivers durably acknowledge consecutive
+items and the Worker's independent output sequence. Orders and winner output
+replicas become available only after chain admission. Receiver membership,
+accepted authority, business proofs and durable replay/conflict checks remain
+consumer obligations; a valid transport signature does not assert those facts.
+Validate raw request bytes before generated decoding can discard unknown or
+duplicate fields. The shared verifier accepts raw bytes for this reason.
+
+Sync transport uses the current ACTIVE Builder key. Drain materials needing the
+old current proof key before cutover, subject to the existing safe-activation and
+response-window guards. After activation, reject old transport signatures and
+re-sign retransmission batches with the new current key. Retained authenticated
+or chain-accepted facts remain facts about the stable operator; do not verify
+old business signatures with a new key or introduce service-key history.
+
+Dispatch input chunks start at index 0 with positive count. Size/hash/count must
+agree across chunks; reassemble in index order and verify whole-input size and
+SHA-256 before use. `GetTaskEventsResponse` reports the Nexus lifecycle code set
+documented on its schema, separate from Node protocol events. Its typed detail
+carries takeover destinations/heights, recording Builder/task and dispatch
+rejection facts for recovery without resending an order. New keepalive probes
+use odd values from Builder and even values from Cortex; echoes retain the peer's
+value, including its parity.
+
 Claims are keyed by ticket hash. A recorded winner cannot claim, and winner
 ineligibility markers exclude failures attributable to the Worker. Claims check
 the Builder proof, acceptance and order hash without reconstructing historical

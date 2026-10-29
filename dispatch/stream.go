@@ -13,6 +13,12 @@ const StreamSchemaVersion = 1
 
 func validateStreamShape(name string, fields decoded) error {
 	switch name {
+	case "nexus.v1.DispatchInputResponseV1":
+		index, count, total := scalarAt(fields, 6), scalarAt(fields, 7), scalarAt(fields, 4)
+		chunk := uint64(len(bytesAt(fields, 5)))
+		if count == 0 || index >= count || chunk > total || count == 1 && chunk != total || count > 1 && (chunk == 0 || count > total) {
+			return fmt.Errorf("%w: input chunk index/count or whole-input size", ErrDecode)
+		}
 	case "nexus.v1.DispatchStreamBindingV1":
 		if len(fields[1]) != 1 || fields[1][0].varint != StreamSchemaVersion || len(fields[6]) != 1 || len(fields[6][0].bytes) != StreamNonceSize {
 			return fmt.Errorf("%w: stream binding requires schema 1 and a raw32 nonce", ErrDecode)

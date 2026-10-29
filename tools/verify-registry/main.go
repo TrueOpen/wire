@@ -27,6 +27,7 @@ var (
 const nodeRegistryRepository = "https://github.com/TrueOpen/node"
 
 var phase0RequiredDomains = []string{
+	"TRUEOPEN_NEXUS_BUILDER_SYNC_V1",
 	"TRUEOPEN_DISPATCH_ACCEPT_V1",
 	"TRUEOPEN_DISPATCH_CHALLENGE_ID_V1",
 	"TRUEOPEN_DISPATCH_INPUT_REQUEST_V1",

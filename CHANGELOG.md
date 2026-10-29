@@ -2,6 +2,12 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Freeze typed Builder-to-Builder replication in `nexus.v1`, with receiver-scoped
+  canonical batch signatures, explicit oneof tags, current-key transport checks
+  and independently computed signing/reserialization vectors.
+- Define zero-based input chunks with consistent whole-input examples, complete
+  Nexus lifecycle event codes and recovery details, and separate simultaneous
+  keepalive probes by originating role.
 - Complete omission proof inputs with the signed bound-root preimage when a
   newer root is used. Freeze first-upheld challenge identity for dispatch faults
   and compensation-first accounting before the independent Treasury penalty.

@@ -24,17 +24,21 @@ type publishedVector struct {
 
 func published(t *testing.T) []publishedVector {
 	t.Helper()
-	raw, err := os.ReadFile(filepath.Join("..", "testdata", "v1", "task", "dispatch_v1.json"))
-	if err != nil {
-		t.Fatal(err)
+	var vectors []publishedVector
+	for _, name := range []string{"dispatch_v1.json", "builder_sync_v1.json"} {
+		raw, err := os.ReadFile(filepath.Join("..", "testdata", "v1", "task", name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		var doc struct {
+			Vectors []publishedVector `json:"vectors"`
+		}
+		if err := json.Unmarshal(raw, &doc); err != nil {
+			t.Fatal(err)
+		}
+		vectors = append(vectors, doc.Vectors...)
 	}
-	var doc struct {
-		Vectors []publishedVector `json:"vectors"`
-	}
-	if err = json.Unmarshal(raw, &doc); err != nil {
-		t.Fatal(err)
-	}
-	return doc.Vectors
+	return vectors
 }
 
 func hexBytes(t *testing.T, s string) []byte {

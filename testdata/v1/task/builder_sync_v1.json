@@ -1,0 +1,2720 @@
+{
+  "chain_id": "trueopen-phase1-vector-1",
+  "keepalive_probes": {
+    "builder_echo_of_cortex": 1000,
+    "builder_new_probe": 1001,
+    "cortex_echo_of_builder": 1001,
+    "cortex_new_probe": 1000,
+    "note": "Echoes preserve the peer value; only locally originated probes use role parity."
+  },
+  "notes": [
+    "Canonical projections, protobuf encoding and RFC6979 low-S signatures were independently computed in Python.",
+    "The test-only service key is 0x01 repeated 32 times. It is not a network identity.",
+    "These are transport signing vectors. Immutable group membership, wallet/order admission and durable prior state remain consumer preconditions.",
+    "full_batch covers all five oneof variants, consecutive input ranges, an outstanding/accepted ticket transition, admitted order and two winner frames with Fin.",
+    "fin_only assumes the receiver durably holds the admitted order and both chunks; round_only has no output.",
+    "Reordered fields and explicit defaults in equivalent_protobuf_hex have identical canonical signing digests. Nested business signatures are preserved.",
+    "unfinished_record assumes prior round/input state and has only a timeout with ZERO32 winner ticket. It is valid sync/rebuttal material, never a completed admission record."
+  ],
+  "receiver_operator_address": "trueopen1qgpqyqszqgpqyqszqgpqyqszqgpqyqszp6kz3c",
+  "schema": "trueopen-builder-sync-v1",
+  "sender_operator_address": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz",
+  "vectors": [
+    {
+      "digest_hex": "3a104e5663a486b1cc54168b9baff66ce17115eb0fde87c8dd9cf42ab591117c",
+      "domain": "TRUEOPEN_NEXUS_BUILDER_SYNC_V1",
+      "equivalent_protobuf_hex": "1240c4027fe115c0d0c4747969ae7298ca983936410479ecccc03b1d9c7eeee4d14977dbb8f09f8759cb912dee2df2777e6b6d9295fda89665419e8140f82eb40df30a922a529c082a8a012a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a2240baa93d5515591a4d8cfc0df2581c0a275b69c66742e49c3d6ca285de5f9506f60c77c672e57a1c46003c5374e3ad931e9c926833205e3d9fc7ee4469450bb61c180112206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa7708012295014220a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a380132002a0022400db99d9769b140f37610cd7fc8ad4360ffafdf6f13a39feec15cbb764bbe365a01102c59ce38f17e5e223c7d4c80fd9fe05e8348fdd7b5350070c0f56efafae91a2043563e7c76e0b5a63993b14b15d8d3db5be6a111e81e89532b426748997596ff120548656c6c6f08002292014220a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a380232002a002240262be9360e8371cec3424a1ad62b8a4f5a4bde711e604203575cb5de0e0909f02e0f4384fbccb4697ff8d95e651070caaba7f8cbf6c152132c5306401eb02ca21a206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa7712022c2008011a20bc86b589493863307f81b76ae52bc19c62eda85f49434daf962be132360bc172129b04ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6ab80101b00101a80101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721980101920157222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180110010a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a8801008001007a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a72203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f768016204010101015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e550014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a40013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a30012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad2220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101218747275656f70656e2d7068617365312d766563746f722d3108010a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a4ade0312d9034a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a406d3ab5013a40f9b028bc754a0d219dae80465b2e3ed47441735146962464252b67bb567e310c7ff58764e6909e8c789d90b9a11b8b466ec5bf54b6cc7a97bd92b5ee58b617b8322034e24171d240cab61ec9fcc4ff388d8737919fec23d86acd03c9dc7b3b7e8010280120011801122f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a0a18747275656f70656e2d7068617365312d766563746f722d3132203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f72a8101223920c0843d1a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a100108011a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10010a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10200018011220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3690a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b1008014a6b1a673203616263280022186170706c69636174696f6e2f6f637465742d73747265616d18061220bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47210a20f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36908024a6b1a673203646566280322186170706c69636174696f6e2f6f637465742d73747265616d18061220bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47210a20f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36908034aa70422a204180010010a9b04ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6ab80101b00101a80101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721980101920157222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180110010a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a8801008001007a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a72203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f768016204010101015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e550014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a40013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a30012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad2220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101218747275656f70656e2d7068617365312d766563746f722d31080108044ac90622c406329f024240e2e0a0af899fcfb137908b99b2b5a859c93d4b3f067c07b01ef1933dce22719e6ff49f394569850d200c15c5a814174dbad7c7fb3565c108ce4f5bc8fb928fc138013257222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180110010a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a2a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a2220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101218747275656f70656e2d7068617365312d766563746f722d310801180110010a9b04ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6ab80101b00101a80101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721980101920157222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180110010a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a8801008001007a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a72203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f768016204010101015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e550014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a40013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a30012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad2220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101218747275656f70656e2d7068617365312d766563746f722d31080108054aed042ae8040ae504a20140e7462ae8d4102ecb2a1ae1175d9b1177135cd151a88fadca97cc5a98812a297b763e01aa03b3eb04a3470e3f1ff5161612908c652d2b65c59dba3a0d1aa8b9a09a0120a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a9201ec0122a30130002a20000000000000000000000000000000000000000000000000000000000000000020011a57222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180110010a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10000a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a1a203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f71220b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a08008801008001017801700168016204010101015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e550014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a40013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a30012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad2220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101218747275656f70656e2d7068617365312d766563746f722d31080108064a870b32820b12a6072a40d5536fecca12b71ad3848919fc40dc186a6f9b10e5a61621fbea35a738200a05371dbe84def2f3512ced7e7449ebc6a08aa0b45da84ef8f2a048f9cb72830a2220021a9f024240e2e0a0af899fcfb137908b99b2b5a859c93d4b3f067c07b01ef1933dce22719e6ff49f394569850d200c15c5a814174dbad7c7fb3565c108ce4f5bc8fb928fc138013257222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180110010a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a2a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a2220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101218747275656f70656e2d7068617365312d766563746f722d310801129b04ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6ab80101b00101a80101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721980101920157222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180110010a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a8801008001007a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a72203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f768016204010101015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e550014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a40013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a30012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad2220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101218747275656f70656e2d7068617365312d766563746f722d3108010a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100ad60320b2f2191a41f43e801249e8c77a1f136a3b6a498c2e563a1a06588c1d35f29157a81206179267b08c4639f3f5c7fe4f7fc2e4b258761f3d01f0cf13c69e81c0bd398003c6d11b12066569703731320a8403e20100da01200000000000000000000000000000000000000000000000000000000000000000d00101ca01204444444444444444444444444444444444444444444444444444444444444444c201023132b0016da80109a2010208029801d00f90016d8a01050a033235308201030a01307a080a0631353030303072090a07343030303030306a3d2232500b50dc014a043c2f733e4a0453544f5040908b40387d3086feffffffffffffff0128edbf9104202818f0fd3910bc05080118b0ea0110800208016004580350064a20bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47214002380132205555555555555555555555555555555555555555555555555555555555555555280122205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad1a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a1218747275656f70656e2d7068617365312d766563746f722d3108030807422044444444444444444444444444444444444444444444444444444444444444443a02313230012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad222f747275656f70656e31716770717971737a716770717971737a716770717971737a716770717971737a70366b7a33631a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a1218747275656f70656e2d7068617365312d766563746f722d310801",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+          "name": "sender_operator_address",
+          "type": "address"
+        },
+        {
+          "fields": [
+            {
+              "name": "schema_version",
+              "type": "uint32",
+              "value": 1
+            },
+            {
+              "name": "chain_id",
+              "type": "string",
+              "utf8": "trueopen-phase1-vector-1"
+            },
+            {
+              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+              "name": "sender_operator_address",
+              "type": "address"
+            },
+            {
+              "hex": "0202020202020202020202020202020202020202",
+              "name": "receiver_operator_address",
+              "type": "address"
+            },
+            {
+              "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+              "name": "session_id",
+              "type": "bytes"
+            },
+            {
+              "name": "order_sequence",
+              "type": "uint64",
+              "value": 1
+            },
+            {
+              "name": "builder_set_id",
+              "type": "string",
+              "utf8": "12"
+            },
+            {
+              "hex": "4444444444444444444444444444444444444444444444444444444444444444",
+              "name": "builder_set_hash",
+              "type": "bytes"
+            },
+            {
+              "fields": [
+                {
+                  "name": "count",
+                  "type": "uint32",
+                  "value": 7
+                },
+                {
+                  "fields": [
+                    {
+                      "name": "sequence",
+                      "type": "uint64",
+                      "value": 1
+                    },
+                    {
+                      "field_number": 2,
+                      "fields": [
+                        {
+                          "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                          "name": "task_id",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                          "name": "task_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "vrf_epoch",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "name": "dispatch_round",
+                          "type": "uint32",
+                          "value": 0
+                        },
+                        {
+                          "fields": [
+                            {
+                              "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                              "name": "task_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "reference_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                              "name": "candidate_pool_snapshot_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "fields": [
+                                {
+                                  "name": "count",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "slot",
+                                      "type": "uint32",
+                                      "value": 1
+                                    },
+                                    {
+                                      "name": "slot_version",
+                                      "type": "uint64",
+                                      "value": 1
+                                    },
+                                    {
+                                      "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                      "name": "operator_address",
+                                      "type": "address"
+                                    },
+                                    {
+                                      "name": "candidate_weight",
+                                      "type": "uint64",
+                                      "value": 1000000
+                                    }
+                                  ],
+                                  "name": "members",
+                                  "type": "frame"
+                                }
+                              ],
+                              "name": "members",
+                              "type": "frame"
+                            }
+                          ],
+                          "name": "roster",
+                          "type": "frame"
+                        },
+                        {
+                          "hex": "3ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7",
+                          "name": "roster_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "fields": [
+                            {
+                              "name": "chain_id",
+                              "type": "string",
+                              "utf8": "trueopen-phase1-vector-1"
+                            },
+                            {
+                              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                              "name": "builder_address",
+                              "type": "address"
+                            },
+                            {
+                              "name": "root_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "root_version",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "leaf_count",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "hex": "34e24171d240cab61ec9fcc4ff388d8737919fec23d86acd03c9dc7b3b7e8010",
+                              "name": "root",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "f9b028bc754a0d219dae80465b2e3ed47441735146962464252b67bb567e310c7ff58764e6909e8c789d90b9a11b8b466ec5bf54b6cc7a97bd92b5ee58b617b8",
+                              "name": "builder_service_signature",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "handraise_root",
+                          "type": "frame"
+                        },
+                        {
+                          "name": "earliest_submit_height",
+                          "type": "uint64",
+                          "value": 109
+                        },
+                        {
+                          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                          "name": "user_address",
+                          "type": "address"
+                        }
+                      ],
+                      "name": "round",
+                      "type": "oneof"
+                    }
+                  ],
+                  "name": "items",
+                  "type": "frame"
+                },
+                {
+                  "fields": [
+                    {
+                      "name": "sequence",
+                      "type": "uint64",
+                      "value": 2
+                    },
+                    {
+                      "field_number": 3,
+                      "fields": [
+                        {
+                          "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                          "name": "task_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+                          "name": "input_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "input_size_bytes",
+                          "type": "uint64",
+                          "value": 6
+                        },
+                        {
+                          "name": "media_type",
+                          "type": "string",
+                          "utf8": "application/octet-stream"
+                        },
+                        {
+                          "name": "offset",
+                          "type": "uint64",
+                          "value": 0
+                        },
+                        {
+                          "hex": "616263",
+                          "name": "data",
+                          "type": "bytes"
+                        }
+                      ],
+                      "name": "input_chunk",
+                      "type": "oneof"
+                    }
+                  ],
+                  "name": "items",
+                  "type": "frame"
+                },
+                {
+                  "fields": [
+                    {
+                      "name": "sequence",
+                      "type": "uint64",
+                      "value": 3
+                    },
+                    {
+                      "field_number": 3,
+                      "fields": [
+                        {
+                          "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                          "name": "task_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+                          "name": "input_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "input_size_bytes",
+                          "type": "uint64",
+                          "value": 6
+                        },
+                        {
+                          "name": "media_type",
+                          "type": "string",
+                          "utf8": "application/octet-stream"
+                        },
+                        {
+                          "name": "offset",
+                          "type": "uint64",
+                          "value": 3
+                        },
+                        {
+                          "hex": "646566",
+                          "name": "data",
+                          "type": "bytes"
+                        }
+                      ],
+                      "name": "input_chunk",
+                      "type": "oneof"
+                    }
+                  ],
+                  "name": "items",
+                  "type": "frame"
+                },
+                {
+                  "fields": [
+                    {
+                      "name": "sequence",
+                      "type": "uint64",
+                      "value": 4
+                    },
+                    {
+                      "field_number": 4,
+                      "fields": [
+                        {
+                          "fields": [
+                            {
+                              "name": "schema_version",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "name": "chain_id",
+                              "type": "string",
+                              "utf8": "trueopen-phase1-vector-1"
+                            },
+                            {
+                              "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                              "name": "task_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                              "name": "task_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+                              "name": "session_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "order_sequence",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                              "name": "builder_address",
+                              "type": "address"
+                            },
+                            {
+                              "name": "reference_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                              "name": "candidate_pool_snapshot_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "vrf_epoch",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "0e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5",
+                              "name": "vrf_output",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "01010101",
+                              "name": "vrf_proof",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "randomness_scheme",
+                              "type": "enum",
+                              "value": 1
+                            },
+                            {
+                              "hex": "3ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7",
+                              "name": "roster_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a",
+                              "name": "handraise_root_digest",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "dispatch_round",
+                              "type": "uint32",
+                              "value": 0
+                            },
+                            {
+                              "name": "rank",
+                              "type": "uint32",
+                              "value": 0
+                            },
+                            {
+                              "fields": [
+                                {
+                                  "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                                  "name": "candidate_pool_snapshot_id",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "slot",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "name": "slot_version",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                  "name": "operator_address",
+                                  "type": "address"
+                                }
+                              ],
+                              "name": "target",
+                              "type": "frame"
+                            },
+                            {
+                              "name": "accept_deadline_ms",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+                              "name": "input_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "bound_change_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "sticky_anchor_sequence",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "sticky_run_count",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "hex": "276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a",
+                              "name": "builder_service_signature",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "ticket",
+                          "type": "frame"
+                        },
+                        {
+                          "bool": true,
+                          "name": "sent",
+                          "type": "bool"
+                        },
+                        {
+                          "name": "outcome",
+                          "type": "enum",
+                          "value": 0
+                        },
+                        {
+                          "name": "reject",
+                          "present": false,
+                          "type": "optional"
+                        },
+                        {
+                          "name": "late_accept",
+                          "present": false,
+                          "type": "optional"
+                        },
+                        {
+                          "name": "accept",
+                          "present": false,
+                          "type": "optional"
+                        }
+                      ],
+                      "name": "attempt",
+                      "type": "oneof"
+                    }
+                  ],
+                  "name": "items",
+                  "type": "frame"
+                },
+                {
+                  "fields": [
+                    {
+                      "name": "sequence",
+                      "type": "uint64",
+                      "value": 5
+                    },
+                    {
+                      "field_number": 4,
+                      "fields": [
+                        {
+                          "fields": [
+                            {
+                              "name": "schema_version",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "name": "chain_id",
+                              "type": "string",
+                              "utf8": "trueopen-phase1-vector-1"
+                            },
+                            {
+                              "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                              "name": "task_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                              "name": "task_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+                              "name": "session_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "order_sequence",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                              "name": "builder_address",
+                              "type": "address"
+                            },
+                            {
+                              "name": "reference_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                              "name": "candidate_pool_snapshot_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "vrf_epoch",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "0e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5",
+                              "name": "vrf_output",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "01010101",
+                              "name": "vrf_proof",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "randomness_scheme",
+                              "type": "enum",
+                              "value": 1
+                            },
+                            {
+                              "hex": "3ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7",
+                              "name": "roster_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a",
+                              "name": "handraise_root_digest",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "dispatch_round",
+                              "type": "uint32",
+                              "value": 0
+                            },
+                            {
+                              "name": "rank",
+                              "type": "uint32",
+                              "value": 0
+                            },
+                            {
+                              "fields": [
+                                {
+                                  "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                                  "name": "candidate_pool_snapshot_id",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "slot",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "name": "slot_version",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                  "name": "operator_address",
+                                  "type": "address"
+                                }
+                              ],
+                              "name": "target",
+                              "type": "frame"
+                            },
+                            {
+                              "name": "accept_deadline_ms",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+                              "name": "input_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "bound_change_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "sticky_anchor_sequence",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "sticky_run_count",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "hex": "276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a",
+                              "name": "builder_service_signature",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "ticket",
+                          "type": "frame"
+                        },
+                        {
+                          "bool": true,
+                          "name": "sent",
+                          "type": "bool"
+                        },
+                        {
+                          "name": "outcome",
+                          "type": "enum",
+                          "value": 1
+                        },
+                        {
+                          "name": "reject",
+                          "present": false,
+                          "type": "optional"
+                        },
+                        {
+                          "name": "late_accept",
+                          "present": false,
+                          "type": "optional"
+                        },
+                        {
+                          "fields": [
+                            {
+                              "fields": [
+                                {
+                                  "name": "schema_version",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "name": "chain_id",
+                                  "type": "string",
+                                  "utf8": "trueopen-phase1-vector-1"
+                                },
+                                {
+                                  "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                                  "name": "task_id",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                                  "name": "task_hash",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                                  "name": "dispatch_ticket_hash",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                                      "name": "candidate_pool_snapshot_id",
+                                      "type": "bytes"
+                                    },
+                                    {
+                                      "name": "slot",
+                                      "type": "uint32",
+                                      "value": 1
+                                    },
+                                    {
+                                      "name": "slot_version",
+                                      "type": "uint64",
+                                      "value": 1
+                                    },
+                                    {
+                                      "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                      "name": "operator_address",
+                                      "type": "address"
+                                    }
+                                  ],
+                                  "name": "member",
+                                  "type": "frame"
+                                },
+                                {
+                                  "name": "service_authorization_nonce",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "e2e0a0af899fcfb137908b99b2b5a859c93d4b3f067c07b01ef1933dce22719e6ff49f394569850d200c15c5a814174dbad7c7fb3565c108ce4f5bc8fb928fc1",
+                                  "name": "service_signature",
+                                  "type": "bytes"
+                                }
+                              ],
+                              "name": "accept",
+                              "type": "frame"
+                            }
+                          ],
+                          "name": "accept",
+                          "present": true,
+                          "type": "optional"
+                        }
+                      ],
+                      "name": "attempt",
+                      "type": "oneof"
+                    }
+                  ],
+                  "name": "items",
+                  "type": "frame"
+                },
+                {
+                  "fields": [
+                    {
+                      "name": "sequence",
+                      "type": "uint64",
+                      "value": 6
+                    },
+                    {
+                      "field_number": 5,
+                      "fields": [
+                        {
+                          "fields": [
+                            {
+                              "name": "schema_version",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "name": "chain_id",
+                              "type": "string",
+                              "utf8": "trueopen-phase1-vector-1"
+                            },
+                            {
+                              "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                              "name": "task_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                              "name": "task_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+                              "name": "session_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "order_sequence",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                              "name": "builder_address",
+                              "type": "address"
+                            },
+                            {
+                              "name": "reference_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                              "name": "candidate_pool_snapshot_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "vrf_epoch",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "0e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5",
+                              "name": "vrf_output",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "01010101",
+                              "name": "vrf_proof",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "randomness_scheme",
+                              "type": "enum",
+                              "value": 1
+                            },
+                            {
+                              "name": "bound_change_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "sticky_anchor_sequence",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "sticky_run_count",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "bool": false,
+                              "name": "sticky_applied",
+                              "type": "bool"
+                            },
+                            {
+                              "fields": [
+                                {
+                                  "name": "count",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "dispatch_round",
+                                      "type": "uint32",
+                                      "value": 0
+                                    },
+                                    {
+                                      "hex": "b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a",
+                                      "name": "handraise_root_digest",
+                                      "type": "bytes"
+                                    },
+                                    {
+                                      "hex": "3ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7",
+                                      "name": "roster_hash",
+                                      "type": "bytes"
+                                    },
+                                    {
+                                      "fields": [
+                                        {
+                                          "name": "count",
+                                          "type": "uint32",
+                                          "value": 1
+                                        },
+                                        {
+                                          "fields": [
+                                            {
+                                              "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                                              "name": "dispatch_ticket_hash",
+                                              "type": "bytes"
+                                            },
+                                            {
+                                              "name": "rank",
+                                              "type": "uint32",
+                                              "value": 0
+                                            },
+                                            {
+                                              "fields": [
+                                                {
+                                                  "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                                                  "name": "candidate_pool_snapshot_id",
+                                                  "type": "bytes"
+                                                },
+                                                {
+                                                  "name": "slot",
+                                                  "type": "uint32",
+                                                  "value": 1
+                                                },
+                                                {
+                                                  "name": "slot_version",
+                                                  "type": "uint64",
+                                                  "value": 1
+                                                },
+                                                {
+                                                  "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                                  "name": "operator_address",
+                                                  "type": "address"
+                                                }
+                                              ],
+                                              "name": "member",
+                                              "type": "frame"
+                                            },
+                                            {
+                                              "name": "outcome",
+                                              "type": "enum",
+                                              "value": 1
+                                            },
+                                            {
+                                              "hex": "0000000000000000000000000000000000000000000000000000000000000000",
+                                              "name": "reject_digest_or_zero32",
+                                              "type": "bytes"
+                                            },
+                                            {
+                                              "name": "timeout_tier_or_zero",
+                                              "type": "uint32",
+                                              "value": 0
+                                            }
+                                          ],
+                                          "name": "attempts",
+                                          "type": "frame"
+                                        }
+                                      ],
+                                      "name": "attempts",
+                                      "type": "frame"
+                                    }
+                                  ],
+                                  "name": "rounds",
+                                  "type": "frame"
+                                }
+                              ],
+                              "name": "rounds",
+                              "type": "frame"
+                            },
+                            {
+                              "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                              "name": "dispatch_ticket_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "e7462ae8d4102ecb2a1ae1175d9b1177135cd151a88fadca97cc5a98812a297b763e01aa03b3eb04a3470e3f1ff5161612908c652d2b65c59dba3a0d1aa8b9a0",
+                              "name": "builder_service_signature",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "record",
+                          "type": "frame"
+                        }
+                      ],
+                      "name": "record",
+                      "type": "oneof"
+                    }
+                  ],
+                  "name": "items",
+                  "type": "frame"
+                },
+                {
+                  "fields": [
+                    {
+                      "name": "sequence",
+                      "type": "uint64",
+                      "value": 7
+                    },
+                    {
+                      "field_number": 6,
+                      "fields": [
+                        {
+                          "fields": [
+                            {
+                              "fields": [
+                                {
+                                  "name": "schema_version",
+                                  "type": "uint32",
+                                  "value": 3
+                                },
+                                {
+                                  "name": "chain_id",
+                                  "type": "string",
+                                  "utf8": "trueopen-phase1-vector-1"
+                                },
+                                {
+                                  "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                  "name": "user_address",
+                                  "type": "address"
+                                },
+                                {
+                                  "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+                                  "name": "session_id",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "order_sequence",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "5555555555555555555555555555555555555555555555555555555555555555",
+                                  "name": "model_id",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "profile_version",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "name": "task_type",
+                                  "type": "enum",
+                                  "value": 2
+                                },
+                                {
+                                  "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+                                  "name": "input_hash",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "input_size_bytes",
+                                  "type": "uint64",
+                                  "value": 6
+                                },
+                                {
+                                  "name": "input_bucket",
+                                  "type": "uint32",
+                                  "value": 3
+                                },
+                                {
+                                  "name": "output_budget_bucket",
+                                  "type": "uint32",
+                                  "value": 4
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "generation_params_schema_version",
+                                      "type": "uint32",
+                                      "value": 1
+                                    },
+                                    {
+                                      "name": "max_output_tokens",
+                                      "type": "uint64",
+                                      "value": 256
+                                    },
+                                    {
+                                      "name": "max_output_duration",
+                                      "type": "uint64",
+                                      "value": 30000
+                                    },
+                                    {
+                                      "fields": [
+                                        {
+                                          "bool": true,
+                                          "name": "sampling_enabled",
+                                          "type": "bool"
+                                        },
+                                        {
+                                          "name": "temperature_milli",
+                                          "type": "uint32",
+                                          "value": 700
+                                        },
+                                        {
+                                          "name": "top_p_ppm",
+                                          "type": "uint32",
+                                          "value": 950000
+                                        },
+                                        {
+                                          "name": "top_k",
+                                          "type": "uint32",
+                                          "value": 40
+                                        },
+                                        {
+                                          "name": "seed",
+                                          "type": "uint64",
+                                          "value": 8675309
+                                        },
+                                        {
+                                          "name": "presence_penalty_milli",
+                                          "type": "int32",
+                                          "value": -250
+                                        },
+                                        {
+                                          "name": "frequency_penalty_milli",
+                                          "type": "int32",
+                                          "value": 125
+                                        },
+                                        {
+                                          "name": "repetition_penalty_ppm",
+                                          "type": "uint32",
+                                          "value": 1050000
+                                        },
+                                        {
+                                          "fields": [
+                                            {
+                                              "name": "count",
+                                              "type": "uint32",
+                                              "value": 2
+                                            },
+                                            {
+                                              "name": "stop_sequences",
+                                              "type": "string",
+                                              "utf8": "</s>"
+                                            },
+                                            {
+                                              "name": "stop_sequences",
+                                              "type": "string",
+                                              "utf8": "STOP"
+                                            }
+                                          ],
+                                          "name": "stop_sequences",
+                                          "type": "frame"
+                                        },
+                                        {
+                                          "fields": [
+                                            {
+                                              "name": "count",
+                                              "type": "uint32",
+                                              "value": 2
+                                            },
+                                            {
+                                              "name": "stop_token_ids",
+                                              "type": "uint32",
+                                              "value": 11
+                                            },
+                                            {
+                                              "name": "stop_token_ids",
+                                              "type": "uint32",
+                                              "value": 220
+                                            }
+                                          ],
+                                          "name": "stop_token_ids",
+                                          "type": "frame"
+                                        }
+                                      ],
+                                      "name": "decoding_params",
+                                      "type": "frame"
+                                    }
+                                  ],
+                                  "name": "generation_params",
+                                  "type": "frame"
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "atomic_units",
+                                      "type": "string",
+                                      "utf8": "4000000"
+                                    }
+                                  ],
+                                  "name": "price_bid",
+                                  "type": "frame"
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "atomic_units",
+                                      "type": "string",
+                                      "utf8": "150000"
+                                    }
+                                  ],
+                                  "name": "max_fee",
+                                  "type": "frame"
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "atomic_units",
+                                      "type": "string",
+                                      "utf8": "0"
+                                    }
+                                  ],
+                                  "name": "assignment_priority_fee",
+                                  "type": "frame"
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "atomic_units",
+                                      "type": "string",
+                                      "utf8": "250"
+                                    }
+                                  ],
+                                  "name": "tx_fee_reserve",
+                                  "type": "frame"
+                                },
+                                {
+                                  "name": "earliest_submit_height",
+                                  "type": "uint64",
+                                  "value": 109
+                                },
+                                {
+                                  "name": "order_expire_height",
+                                  "type": "uint64",
+                                  "value": 2000
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "latency_class",
+                                      "type": "enum",
+                                      "value": 2
+                                    }
+                                  ],
+                                  "name": "deadline_policy",
+                                  "type": "frame"
+                                },
+                                {
+                                  "name": "timeout_bucket_version",
+                                  "type": "uint64",
+                                  "value": 9
+                                },
+                                {
+                                  "name": "session_anchor_height",
+                                  "type": "uint64",
+                                  "value": 109
+                                },
+                                {
+                                  "name": "builder_set_id",
+                                  "type": "string",
+                                  "utf8": "12"
+                                },
+                                {
+                                  "hex": "4444444444444444444444444444444444444444444444444444444444444444",
+                                  "name": "builder_set_hash",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "payload_mode",
+                                  "type": "enum",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "0000000000000000000000000000000000000000000000000000000000000000",
+                                  "name": "input_key_commitment",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "hex": "",
+                                  "name": "user_recipient_pubkey",
+                                  "type": "bytes"
+                                }
+                              ],
+                              "name": "order",
+                              "type": "frame"
+                            },
+                            {
+                              "name": "signature_scheme",
+                              "type": "string",
+                              "utf8": "eip712"
+                            },
+                            {
+                              "hex": "f43e801249e8c77a1f136a3b6a498c2e563a1a06588c1d35f29157a81206179267b08c4639f3f5c7fe4f7fc2e4b258761f3d01f0cf13c69e81c0bd398003c6d11b",
+                              "name": "user_signature",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "signature_chain_id",
+                              "type": "uint64",
+                              "value": 424242
+                            }
+                          ],
+                          "name": "signed_order",
+                          "type": "frame"
+                        },
+                        {
+                          "fields": [
+                            {
+                              "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                              "name": "task_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "fields": [
+                                {
+                                  "name": "schema_version",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "name": "chain_id",
+                                  "type": "string",
+                                  "utf8": "trueopen-phase1-vector-1"
+                                },
+                                {
+                                  "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                                  "name": "task_id",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                                  "name": "task_hash",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+                                  "name": "session_id",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "order_sequence",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                  "name": "builder_address",
+                                  "type": "address"
+                                },
+                                {
+                                  "name": "reference_height",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                                  "name": "candidate_pool_snapshot_id",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "vrf_epoch",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "0e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5",
+                                  "name": "vrf_output",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "hex": "01010101",
+                                  "name": "vrf_proof",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "randomness_scheme",
+                                  "type": "enum",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "3ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7",
+                                  "name": "roster_hash",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "hex": "b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a",
+                                  "name": "handraise_root_digest",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "dispatch_round",
+                                  "type": "uint32",
+                                  "value": 0
+                                },
+                                {
+                                  "name": "rank",
+                                  "type": "uint32",
+                                  "value": 0
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                                      "name": "candidate_pool_snapshot_id",
+                                      "type": "bytes"
+                                    },
+                                    {
+                                      "name": "slot",
+                                      "type": "uint32",
+                                      "value": 1
+                                    },
+                                    {
+                                      "name": "slot_version",
+                                      "type": "uint64",
+                                      "value": 1
+                                    },
+                                    {
+                                      "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                      "name": "operator_address",
+                                      "type": "address"
+                                    }
+                                  ],
+                                  "name": "target",
+                                  "type": "frame"
+                                },
+                                {
+                                  "name": "accept_deadline_ms",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+                                  "name": "input_hash",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "name": "bound_change_height",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "name": "sticky_anchor_sequence",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "name": "sticky_run_count",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a",
+                                  "name": "builder_service_signature",
+                                  "type": "bytes"
+                                }
+                              ],
+                              "name": "winner_ticket",
+                              "type": "frame"
+                            },
+                            {
+                              "fields": [
+                                {
+                                  "name": "schema_version",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "name": "chain_id",
+                                  "type": "string",
+                                  "utf8": "trueopen-phase1-vector-1"
+                                },
+                                {
+                                  "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                                  "name": "task_id",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                                  "name": "task_hash",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                                  "name": "dispatch_ticket_hash",
+                                  "type": "bytes"
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                                      "name": "candidate_pool_snapshot_id",
+                                      "type": "bytes"
+                                    },
+                                    {
+                                      "name": "slot",
+                                      "type": "uint32",
+                                      "value": 1
+                                    },
+                                    {
+                                      "name": "slot_version",
+                                      "type": "uint64",
+                                      "value": 1
+                                    },
+                                    {
+                                      "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                      "name": "operator_address",
+                                      "type": "address"
+                                    }
+                                  ],
+                                  "name": "member",
+                                  "type": "frame"
+                                },
+                                {
+                                  "name": "service_authorization_nonce",
+                                  "type": "uint64",
+                                  "value": 1
+                                },
+                                {
+                                  "hex": "e2e0a0af899fcfb137908b99b2b5a859c93d4b3f067c07b01ef1933dce22719e6ff49f394569850d200c15c5a814174dbad7c7fb3565c108ce4f5bc8fb928fc1",
+                                  "name": "service_signature",
+                                  "type": "bytes"
+                                }
+                              ],
+                              "name": "accept",
+                              "type": "frame"
+                            },
+                            {
+                              "name": "record_status",
+                              "type": "enum",
+                              "value": 2
+                            },
+                            {
+                              "hex": "d5536fecca12b71ad3848919fc40dc186a6f9b10e5a61621fbea35a738200a05371dbe84def2f3512ced7e7449ebc6a08aa0b45da84ef8f2a048f9cb72830a22",
+                              "name": "builder_service_signature",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "result_header",
+                          "type": "frame"
+                        }
+                      ],
+                      "name": "order",
+                      "type": "oneof"
+                    }
+                  ],
+                  "name": "items",
+                  "type": "frame"
+                }
+              ],
+              "name": "items",
+              "type": "frame"
+            },
+            {
+              "fields": [
+                {
+                  "fields": [
+                    {
+                      "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                      "name": "dispatch_ticket_hash",
+                      "type": "bytes"
+                    },
+                    {
+                      "fields": [
+                        {
+                          "name": "schema_version",
+                          "type": "uint32",
+                          "value": 1
+                        },
+                        {
+                          "name": "chain_id",
+                          "type": "string",
+                          "utf8": "trueopen-phase1-vector-1"
+                        },
+                        {
+                          "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                          "name": "task_id",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                          "name": "task_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+                          "name": "session_id",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "order_sequence",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                          "name": "builder_address",
+                          "type": "address"
+                        },
+                        {
+                          "name": "reference_height",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                          "name": "candidate_pool_snapshot_id",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "vrf_epoch",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "hex": "0e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5",
+                          "name": "vrf_output",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "01010101",
+                          "name": "vrf_proof",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "randomness_scheme",
+                          "type": "enum",
+                          "value": 1
+                        },
+                        {
+                          "hex": "3ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7",
+                          "name": "roster_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a",
+                          "name": "handraise_root_digest",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "dispatch_round",
+                          "type": "uint32",
+                          "value": 0
+                        },
+                        {
+                          "name": "rank",
+                          "type": "uint32",
+                          "value": 0
+                        },
+                        {
+                          "fields": [
+                            {
+                              "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                              "name": "candidate_pool_snapshot_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "slot",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "name": "slot_version",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                              "name": "operator_address",
+                              "type": "address"
+                            }
+                          ],
+                          "name": "target",
+                          "type": "frame"
+                        },
+                        {
+                          "name": "accept_deadline_ms",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+                          "name": "input_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "bound_change_height",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "name": "sticky_anchor_sequence",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "name": "sticky_run_count",
+                          "type": "uint32",
+                          "value": 1
+                        },
+                        {
+                          "hex": "276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a",
+                          "name": "builder_service_signature",
+                          "type": "bytes"
+                        }
+                      ],
+                      "name": "winner_ticket",
+                      "type": "frame"
+                    },
+                    {
+                      "hex": "bc86b589493863307f81b76ae52bc19c62eda85f49434daf962be132360bc172",
+                      "name": "dispatch_accept_digest",
+                      "type": "bytes"
+                    },
+                    {
+                      "fields": [
+                        {
+                          "name": "count",
+                          "type": "uint32",
+                          "value": 2
+                        },
+                        {
+                          "fields": [
+                            {
+                              "name": "seq",
+                              "type": "uint64",
+                              "value": 0
+                            },
+                            {
+                              "hex": "48656c6c6f",
+                              "name": "text",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "43563e7c76e0b5a63993b14b15d8d3db5be6a111e81e89532b426748997596ff",
+                              "name": "mmr_root",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "0db99d9769b140f37610cd7fc8ad4360ffafdf6f13a39feec15cbb764bbe365a01102c59ce38f17e5e223c7d4c80fd9fe05e8348fdd7b5350070c0f56efafae9",
+                              "name": "worker_signature",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "",
+                              "name": "attachment",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "",
+                              "name": "attachment_signature",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "cumulative_generated_tokens",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                              "name": "dispatch_ticket_hash",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "chunks",
+                          "type": "frame"
+                        },
+                        {
+                          "fields": [
+                            {
+                              "name": "seq",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "2c20",
+                              "name": "text",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "6dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa77",
+                              "name": "mmr_root",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "262be9360e8371cec3424a1ad62b8a4f5a4bde711e604203575cb5de0e0909f02e0f4384fbccb4697ff8d95e651070caaba7f8cbf6c152132c5306401eb02ca2",
+                              "name": "worker_signature",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "",
+                              "name": "attachment",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "",
+                              "name": "attachment_signature",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "cumulative_generated_tokens",
+                              "type": "uint64",
+                              "value": 2
+                            },
+                            {
+                              "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                              "name": "dispatch_ticket_hash",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "chunks",
+                          "type": "frame"
+                        }
+                      ],
+                      "name": "chunks",
+                      "type": "frame"
+                    },
+                    {
+                      "fields": [
+                        {
+                          "fields": [
+                            {
+                              "name": "final_seq",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "6dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa77",
+                              "name": "output_mmr_root",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "finish_reason",
+                              "type": "enum",
+                              "value": 1
+                            },
+                            {
+                              "hex": "baa93d5515591a4d8cfc0df2581c0a275b69c66742e49c3d6ca285de5f9506f60c77c672e57a1c46003c5374e3ad931e9c926833205e3d9fc7ee4469450bb61c",
+                              "name": "worker_signature",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                              "name": "dispatch_ticket_hash",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "fin",
+                          "type": "frame"
+                        }
+                      ],
+                      "name": "fin",
+                      "present": true,
+                      "type": "optional"
+                    }
+                  ],
+                  "name": "output",
+                  "type": "frame"
+                }
+              ],
+              "name": "output",
+              "present": true,
+              "type": "optional"
+            }
+          ],
+          "name": "batch",
+          "type": "frame"
+        }
+      ],
+      "message_name": "nexus.v1.SyncRequest",
+      "name": "builder_sync_full_batch",
+      "preimage_hex": "000000000000001e545255454f50454e5f4e455855535f4255494c4445525f53594e435f56310000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f10000000000001ea10000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f10000000000000014020202020202020202020202020202020202020200000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad00000000000000080000000000000001000000000000000231320000000000000020444444444444444444444444444444444444444444444444444444444444444400000000000017fe0000000000000004000000070000000000000288000000000000000800000000000000010000000000000270000000020000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3690000000000000008000000000000000100000000000000040000000000000000000000c40000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b1000000000000000080000000000000001000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a000000000000005c00000000000000040000000100000000000000480000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000f424000000000000000203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f700000000000000d80000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f10000000000000008000000000000000100000000000000080000000000000001000000000000000400000001000000000000002034e24171d240cab61ec9fcc4ff388d8737919fec23d86acd03c9dc7b3b7e80100000000000000040f9b028bc754a0d219dae80465b2e3ed47441735146962464252b67bb567e310c7ff58764e6909e8c789d90b9a11b8b466ec5bf54b6cc7a97bd92b5ee58b617b80000000000000008000000000000006d00000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000b700000000000000080000000000000002000000000000009f000000030000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3690000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47210000000000000008000000000000000600000000000000186170706c69636174696f6e2f6f637465742d73747265616d00000000000000080000000000000000000000000000000361626300000000000000b700000000000000080000000000000003000000000000009f000000030000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3690000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47210000000000000008000000000000000600000000000000186170706c69636174696f6e2f6f637465742d73747265616d00000000000000080000000000000003000000000000000364656600000000000003280000000000000008000000000000000400000000000003100000000400000000000002d40000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d310000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36900000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad0000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000080000000000000001000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000008000000000000000100000000000000200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e500000000000000040101010100000000000000040000000100000000000000203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f70000000000000020b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a0000000000000004000000000000000000000004000000000000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000000010000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c472100000000000000080000000000000001000000000000000800000000000000010000000000000004000000010000000000000040276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a000000000000000101000000000000000400000000000000000000000100000000000000000100000000000000000100000000000000049400000000000000080000000000000005000000000000047c0000000400000000000002d40000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d310000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36900000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad0000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000080000000000000001000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000008000000000000000100000000000000200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e500000000000000040101010100000000000000040000000100000000000000203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f70000000000000020b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a0000000000000004000000000000000000000004000000000000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000000010000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c472100000000000000080000000000000001000000000000000800000000000000010000000000000004000000010000000000000040276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a000000000000000101000000000000000400000001000000000000000100000000000000000100000000000000016d0100000000000001640000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d310000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3690000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a0000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000000010000000000000040e2e0a0af899fcfb137908b99b2b5a859c93d4b3f067c07b01ef1933dce22719e6ff49f394569850d200c15c5a814174dbad7c7fb3565c108ce4f5bc8fb928fc1000000000000039100000000000000080000000000000006000000000000037900000005000000000000036d0000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d310000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36900000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad0000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000080000000000000001000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000008000000000000000100000000000000200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e50000000000000004010101010000000000000004000000010000000000000008000000000000000100000000000000080000000000000001000000000000000400000001000000000000000100000000000000016800000000000000040000000100000000000001540000000000000004000000000000000000000020b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a00000000000000203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f700000000000000f000000000000000040000000100000000000000dc0000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a0000000000000004000000000000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000400000001000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a0000000000000040e7462ae8d4102ecb2a1ae1175d9b1177135cd151a88fadca97cc5a98812a297b763e01aa03b3eb04a3470e3f1ff5161612908c652d2b65c59dba3a0d1aa8b9a0000000000000087700000000000000080000000000000007000000000000085f00000006000000000000038700000000000003180000000000000004000000030000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad00000000000000080000000000000001000000000000002055555555555555555555555555555555555555555555555555555555555555550000000000000004000000010000000000000004000000020000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47210000000000000008000000000000000600000000000000040000000300000000000000040000000400000000000000ed000000000000000400000001000000000000000800000000000001000000000000000008000000000000753000000000000000b90000000000000001010000000000000004000002bc0000000000000004000e7ef000000000000000040000002800000000000000080000000000845fed0000000000000004ffffff0600000000000000040000007d000000000000000400100590000000000000002400000000000000040000000200000000000000043c2f733e000000000000000453544f50000000000000002400000000000000040000000200000000000000040000000b0000000000000004000000dc000000000000000f000000000000000734303030303030000000000000000e00000000000000063135303030300000000000000009000000000000000130000000000000000b00000000000000033235300000000000000008000000000000006d000000000000000800000000000007d0000000000000000c000000000000000400000002000000000000000800000000000000090000000000000008000000000000006d000000000000000231320000000000000020444444444444444444444444444444444444444444444444444444444444444400000000000000040000000100000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000066569703731320000000000000041f43e801249e8c77a1f136a3b6a498c2e563a1a06588c1d35f29157a81206179267b08c4639f3f5c7fe4f7fc2e4b258761f3d01f0cf13c69e81c0bd398003c6d11b0000000000000008000000000006793200000000000004c40000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b1000000000000002d40000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d310000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36900000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad0000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000080000000000000001000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000008000000000000000100000000000000200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e500000000000000040101010100000000000000040000000100000000000000203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f70000000000000020b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a0000000000000004000000000000000000000004000000000000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000000010000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c472100000000000000080000000000000001000000000000000800000000000000010000000000000004000000010000000000000040276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a00000000000001640000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d310000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3690000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a0000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000000010000000000000040e2e0a0af899fcfb137908b99b2b5a859c93d4b3f067c07b01ef1933dce22719e6ff49f394569850d200c15c5a814174dbad7c7fb3565c108ce4f5bc8fb928fc10000000000000004000000020000000000000040d5536fecca12b71ad3848919fc40dc186a6f9b10e5a61621fbea35a738200a05371dbe84def2f3512ced7e7449ebc6a08aa0b45da84ef8f2a048f9cb72830a2200000000000005c50100000000000005bc0000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a00000000000002d40000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d310000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36900000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad0000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000080000000000000001000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000008000000000000000100000000000000200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e500000000000000040101010100000000000000040000000100000000000000203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f70000000000000020b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a0000000000000004000000000000000000000004000000000000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000000010000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c472100000000000000080000000000000001000000000000000800000000000000010000000000000004000000010000000000000040276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a0000000000000020bc86b589493863307f81b76ae52bc19c62eda85f49434daf962be132360bc17200000000000001c300000000000000040000000200000000000000d500000000000000080000000000000000000000000000000548656c6c6f000000000000002043563e7c76e0b5a63993b14b15d8d3db5be6a111e81e89532b426748997596ff00000000000000400db99d9769b140f37610cd7fc8ad4360ffafdf6f13a39feec15cbb764bbe365a01102c59ce38f17e5e223c7d4c80fd9fe05e8348fdd7b5350070c0f56efafae900000000000000000000000000000000000000000000000800000000000000010000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a00000000000000d20000000000000008000000000000000100000000000000022c2000000000000000206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa770000000000000040262be9360e8371cec3424a1ad62b8a4f5a4bde711e604203575cb5de0e0909f02e0f4384fbccb4697ff8d95e651070caaba7f8cbf6c152132c5306401eb02ca200000000000000000000000000000000000000000000000800000000000000020000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a00000000000000bd0100000000000000b40000000000000008000000000000000100000000000000206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa770000000000000004000000010000000000000040baa93d5515591a4d8cfc0df2581c0a275b69c66742e49c3d6ca285de5f9506f60c77c672e57a1c46003c5374e3ad931e9c926833205e3d9fc7ee4469450bb61c0000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+      "protobuf_hex": "0ade2908011218747275656f70656e2d7068617365312d766563746f722d311a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a222f747275656f70656e31716770717971737a716770717971737a716770717971737a716770717971737a70366b7a33632a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a023132422044444444444444444444444444444444444444444444444444444444444444444adc03080112d7030a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36918012a81010a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b1010011a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a2239080110011a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a20c0843d32203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f73ab5010a18747275656f70656e2d7068617365312d766563746f722d31122f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180120012801322034e24171d240cab61ec9fcc4ff388d8737919fec23d86acd03c9dc7b3b7e80103a40f9b028bc754a0d219dae80465b2e3ed47441735146962464252b67bb567e310c7ff58764e6909e8c789d90b9a11b8b466ec5bf54b6cc7a97bd92b5ee58b617b8406d4a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a4a6908021a650a20f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691220bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721180622186170706c69636174696f6e2f6f637465742d73747265616d32036162634a6b08031a670a20f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691220bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721180622186170706c69636174696f6e2f6f637465742d73747265616d280332036465664a9f040804229a040a950408011218747275656f70656e2d7068617365312d766563746f722d311a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b102220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3692a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a40014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a50015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5620401010101680172203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f77a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a9201570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a980101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721a80101b00101b80101ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a10014ac306080522be060a950408011218747275656f70656e2d7068617365312d766563746f722d311a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b102220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3692a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a40014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a50015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5620401010101680172203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f77a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a9201570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a980101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721a80101b00101b80101ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a10011801329f0208011218747275656f70656e2d7068617365312d766563746f722d311a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b102220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3692a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a32570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a38014240e2e0a0af899fcfb137908b99b2b5a859c93d4b3f067c07b01ef1933dce22719e6ff49f394569850d200c15c5a814174dbad7c7fb3565c108ce4f5bc8fb928fc14ae40408062adf040adc0408011218747275656f70656e2d7068617365312d766563746f722d311a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b102220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3692a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a40014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a50015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e56204010101016801700178018001019201e6011220b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a1a203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7229f010a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a1a570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a20012a2000000000000000000000000000000000000000000000000000000000000000009a0120a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6aa20140e7462ae8d4102ecb2a1ae1175d9b1177135cd151a88fadca97cc5a98812a297b763e01aa03b3eb04a3470e3f1ff5161612908c652d2b65c59dba3a0d1aa8b9a04afe0a080732f90a0ad3030a810308031218747275656f70656e2d7068617365312d766563746f722d311a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a22205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad280132205555555555555555555555555555555555555555555555555555555555555555380140024a20bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47215006580360046a3d080110800218b0ea012232080110bc0518f0fd39202828edbf91043086feffffffffffffff01387d40908b404a043c2f733e4a0453544f50500b50dc0172090a07343030303030307a080a063135303030308201030a01308a01050a0332353090016d9801d00fa201020802a80109b0016dc201023132ca01204444444444444444444444444444444444444444444444444444444444444444d00101da0120000000000000000000000000000000000000000000000000000000000000000012066569703731321a41f43e801249e8c77a1f136a3b6a498c2e563a1a06588c1d35f29157a81206179267b08c4639f3f5c7fe4f7fc2e4b258761f3d01f0cf13c69e81c0bd398003c6d11b20b2f21912a0070a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b1012950408011218747275656f70656e2d7068617365312d766563746f722d311a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b102220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3692a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a40014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a50015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5620401010101680172203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f77a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a9201570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a980101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721a80101b00101b80101ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a1a9f0208011218747275656f70656e2d7068617365312d766563746f722d311a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b102220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3692a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a32570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a38014240e2e0a0af899fcfb137908b99b2b5a859c93d4b3f067c07b01ef1933dce22719e6ff49f394569850d200c15c5a814174dbad7c7fb3565c108ce4f5bc8fb928fc120022a40d5536fecca12b71ad3848919fc40dc186a6f9b10e5a61621fbea35a738200a05371dbe84def2f3512ced7e7449ebc6a08aa0b45da84ef8f2a048f9cb72830a22528c080a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a12950408011218747275656f70656e2d7068617365312d766563746f722d311a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b102220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3692a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a40014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a50015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5620401010101680172203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f77a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a9201570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a980101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721a80101b00101b80101ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a1a20bc86b589493863307f81b76ae52bc19c62eda85f49434daf962be132360bc172228f01120548656c6c6f1a2043563e7c76e0b5a63993b14b15d8d3db5be6a111e81e89532b426748997596ff22400db99d9769b140f37610cd7fc8ad4360ffafdf6f13a39feec15cbb764bbe365a01102c59ce38f17e5e223c7d4c80fd9fe05e8348fdd7b5350070c0f56efafae938014220a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a228e01080112022c201a206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa772240262be9360e8371cec3424a1ad62b8a4f5a4bde711e604203575cb5de0e0909f02e0f4384fbccb4697ff8d95e651070caaba7f8cbf6c152132c5306401eb02ca238024220a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a2a8a01080112206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa7718012240baa93d5515591a4d8cfc0df2581c0a275b69c66742e49c3d6ca285de5f9506f60c77c672e57a1c46003c5374e3ad931e9c926833205e3d9fc7ee4469450bb61c2a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a1240c4027fe115c0d0c4747969ae7298ca983936410479ecccc03b1d9c7eeee4d14977dbb8f09f8759cb912dee2df2777e6b6d9295fda89665419e8140f82eb40df3",
+      "public_key_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+      "signature_hex": "c4027fe115c0d0c4747969ae7298ca983936410479ecccc03b1d9c7eeee4d14977dbb8f09f8759cb912dee2df2777e6b6d9295fda89665419e8140f82eb40df3"
+    },
+    {
+      "digest_hex": "3bfdee6967eb1eee9a8c2ecf7258d61ce7c20d05fdbe1127a6265689f30b4cd8",
+      "domain": "TRUEOPEN_NEXUS_BUILDER_SYNC_V1",
+      "equivalent_protobuf_hex": "12407fa47394c1d745c18a57f17d7b3dce5e94a4ada48e5804ae2b5e22f876aa54152a18b15dbd0a7eb91d34e3659cdeb02024a80c688a2114abb31d9c0e8f69c7520aba0752ef052a8a012a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a2240baa93d5515591a4d8cfc0df2581c0a275b69c66742e49c3d6ca285de5f9506f60c77c672e57a1c46003c5374e3ad931e9c926833205e3d9fc7ee4469450bb61c180112206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa7708011a20bc86b589493863307f81b76ae52bc19c62eda85f49434daf962be132360bc172129b04ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6ab80101b00101a80101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721980101920157222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180110010a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a8801008001007a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a72203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f768016204010101015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e550014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a40013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a30012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad2220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101218747275656f70656e2d7068617365312d766563746f722d3108010a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a422044444444444444444444444444444444444444444444444444444444444444443a02313230012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad222f747275656f70656e31716770717971737a716770717971737a716770717971737a716770717971737a70366b7a33631a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a1218747275656f70656e2d7068617365312d766563746f722d310801",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+          "name": "sender_operator_address",
+          "type": "address"
+        },
+        {
+          "fields": [
+            {
+              "name": "schema_version",
+              "type": "uint32",
+              "value": 1
+            },
+            {
+              "name": "chain_id",
+              "type": "string",
+              "utf8": "trueopen-phase1-vector-1"
+            },
+            {
+              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+              "name": "sender_operator_address",
+              "type": "address"
+            },
+            {
+              "hex": "0202020202020202020202020202020202020202",
+              "name": "receiver_operator_address",
+              "type": "address"
+            },
+            {
+              "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+              "name": "session_id",
+              "type": "bytes"
+            },
+            {
+              "name": "order_sequence",
+              "type": "uint64",
+              "value": 1
+            },
+            {
+              "name": "builder_set_id",
+              "type": "string",
+              "utf8": "12"
+            },
+            {
+              "hex": "4444444444444444444444444444444444444444444444444444444444444444",
+              "name": "builder_set_hash",
+              "type": "bytes"
+            },
+            {
+              "fields": [
+                {
+                  "name": "count",
+                  "type": "uint32",
+                  "value": 0
+                }
+              ],
+              "name": "items",
+              "type": "frame"
+            },
+            {
+              "fields": [
+                {
+                  "fields": [
+                    {
+                      "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                      "name": "dispatch_ticket_hash",
+                      "type": "bytes"
+                    },
+                    {
+                      "fields": [
+                        {
+                          "name": "schema_version",
+                          "type": "uint32",
+                          "value": 1
+                        },
+                        {
+                          "name": "chain_id",
+                          "type": "string",
+                          "utf8": "trueopen-phase1-vector-1"
+                        },
+                        {
+                          "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                          "name": "task_id",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                          "name": "task_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+                          "name": "session_id",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "order_sequence",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                          "name": "builder_address",
+                          "type": "address"
+                        },
+                        {
+                          "name": "reference_height",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                          "name": "candidate_pool_snapshot_id",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "vrf_epoch",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "hex": "0e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5",
+                          "name": "vrf_output",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "01010101",
+                          "name": "vrf_proof",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "randomness_scheme",
+                          "type": "enum",
+                          "value": 1
+                        },
+                        {
+                          "hex": "3ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7",
+                          "name": "roster_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a",
+                          "name": "handraise_root_digest",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "dispatch_round",
+                          "type": "uint32",
+                          "value": 0
+                        },
+                        {
+                          "name": "rank",
+                          "type": "uint32",
+                          "value": 0
+                        },
+                        {
+                          "fields": [
+                            {
+                              "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                              "name": "candidate_pool_snapshot_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "slot",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "name": "slot_version",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                              "name": "operator_address",
+                              "type": "address"
+                            }
+                          ],
+                          "name": "target",
+                          "type": "frame"
+                        },
+                        {
+                          "name": "accept_deadline_ms",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+                          "name": "input_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "bound_change_height",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "name": "sticky_anchor_sequence",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "name": "sticky_run_count",
+                          "type": "uint32",
+                          "value": 1
+                        },
+                        {
+                          "hex": "276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a",
+                          "name": "builder_service_signature",
+                          "type": "bytes"
+                        }
+                      ],
+                      "name": "winner_ticket",
+                      "type": "frame"
+                    },
+                    {
+                      "hex": "bc86b589493863307f81b76ae52bc19c62eda85f49434daf962be132360bc172",
+                      "name": "dispatch_accept_digest",
+                      "type": "bytes"
+                    },
+                    {
+                      "fields": [
+                        {
+                          "name": "count",
+                          "type": "uint32",
+                          "value": 0
+                        }
+                      ],
+                      "name": "chunks",
+                      "type": "frame"
+                    },
+                    {
+                      "fields": [
+                        {
+                          "fields": [
+                            {
+                              "name": "final_seq",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "6dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa77",
+                              "name": "output_mmr_root",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "finish_reason",
+                              "type": "enum",
+                              "value": 1
+                            },
+                            {
+                              "hex": "baa93d5515591a4d8cfc0df2581c0a275b69c66742e49c3d6ca285de5f9506f60c77c672e57a1c46003c5374e3ad931e9c926833205e3d9fc7ee4469450bb61c",
+                              "name": "worker_signature",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                              "name": "dispatch_ticket_hash",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "fin",
+                          "type": "frame"
+                        }
+                      ],
+                      "name": "fin",
+                      "present": true,
+                      "type": "optional"
+                    }
+                  ],
+                  "name": "output",
+                  "type": "frame"
+                }
+              ],
+              "name": "output",
+              "present": true,
+              "type": "optional"
+            }
+          ],
+          "name": "batch",
+          "type": "frame"
+        }
+      ],
+      "message_name": "nexus.v1.SyncRequest",
+      "name": "builder_sync_fin_only",
+      "preimage_hex": "000000000000001e545255454f50454e5f4e455855535f4255494c4445525f53594e435f56310000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000004f80000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f10000000000000014020202020202020202020202020202020202020200000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad000000000000000800000000000000010000000000000002313200000000000000204444444444444444444444444444444444444444444444444444444444444444000000000000000c000000000000000400000000000000000000040e0100000000000004050000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a00000000000002d40000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d310000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36900000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad0000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000080000000000000001000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000008000000000000000100000000000000200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e500000000000000040101010100000000000000040000000100000000000000203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f70000000000000020b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a0000000000000004000000000000000000000004000000000000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000000010000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c472100000000000000080000000000000001000000000000000800000000000000010000000000000004000000010000000000000040276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a0000000000000020bc86b589493863307f81b76ae52bc19c62eda85f49434daf962be132360bc172000000000000000c00000000000000040000000000000000000000bd0100000000000000b40000000000000008000000000000000100000000000000206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa770000000000000004000000010000000000000040baa93d5515591a4d8cfc0df2581c0a275b69c66742e49c3d6ca285de5f9506f60c77c672e57a1c46003c5374e3ad931e9c926833205e3d9fc7ee4469450bb61c0000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+      "protobuf_hex": "0ab40708011218747275656f70656e2d7068617365312d766563746f722d311a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a222f747275656f70656e31716770717971737a716770717971737a716770717971737a716770717971737a70366b7a33632a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a0231324220444444444444444444444444444444444444444444444444444444444444444452e9050a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a12950408011218747275656f70656e2d7068617365312d766563746f722d311a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b102220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3692a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a40014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a50015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5620401010101680172203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f77a20b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a9201570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a980101a20120bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721a80101b00101b80101ca0140276c7dc6278cc4208fce452eaa0478586358b5e350c838f30411e7cd59058f9d5a8964079e2b523f158c2d071196c6cc9c71832bd9a32d507da4148acb024a6a1a20bc86b589493863307f81b76ae52bc19c62eda85f49434daf962be132360bc1722a8a01080112206dfe72f925fdb0a408ad83b1339199d7a5cac40a0d79a0515cf167a858e5fa7718012240baa93d5515591a4d8cfc0df2581c0a275b69c66742e49c3d6ca285de5f9506f60c77c672e57a1c46003c5374e3ad931e9c926833205e3d9fc7ee4469450bb61c2a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a12407fa47394c1d745c18a57f17d7b3dce5e94a4ada48e5804ae2b5e22f876aa54152a18b15dbd0a7eb91d34e3659cdeb02024a80c688a2114abb31d9c0e8f69c752",
+      "public_key_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+      "signature_hex": "7fa47394c1d745c18a57f17d7b3dce5e94a4ada48e5804ae2b5e22f876aa54152a18b15dbd0a7eb91d34e3659cdeb02024a80c688a2114abb31d9c0e8f69c752"
+    },
+    {
+      "digest_hex": "9720bfedfd811c787825705bbd8be4b4e10d2c16867c4081563cd685939d433b",
+      "domain": "TRUEOPEN_NEXUS_BUILDER_SYNC_V1",
+      "equivalent_protobuf_hex": "1240117c73605b3805d0954d7bd1e4cb966289c6ee79e4d9a22f711e6a41da40119e07203a0a2ec09174f7413eb55cb2b4e97be04cf5a1d8a42d28171e9ddb672d210aa9054ade0312d9034a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a406d3ab5013a40f9b028bc754a0d219dae80465b2e3ed47441735146962464252b67bb567e310c7ff58764e6909e8c789d90b9a11b8b466ec5bf54b6cc7a97bd92b5ee58b617b8322034e24171d240cab61ec9fcc4ff388d8737919fec23d86acd03c9dc7b3b7e8010280120011801122f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a0a18747275656f70656e2d7068617365312d766563746f722d3132203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f72a8101223920c0843d1a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a100108011a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10010a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10200018011220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3690a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100801422044444444444444444444444444444444444444444444444444444444444444443a02313230012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad222f747275656f70656e31716770717971737a716770717971737a716770717971737a716770717971737a70366b7a33631a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a1218747275656f70656e2d7068617365312d766563746f722d310801",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+          "name": "sender_operator_address",
+          "type": "address"
+        },
+        {
+          "fields": [
+            {
+              "name": "schema_version",
+              "type": "uint32",
+              "value": 1
+            },
+            {
+              "name": "chain_id",
+              "type": "string",
+              "utf8": "trueopen-phase1-vector-1"
+            },
+            {
+              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+              "name": "sender_operator_address",
+              "type": "address"
+            },
+            {
+              "hex": "0202020202020202020202020202020202020202",
+              "name": "receiver_operator_address",
+              "type": "address"
+            },
+            {
+              "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+              "name": "session_id",
+              "type": "bytes"
+            },
+            {
+              "name": "order_sequence",
+              "type": "uint64",
+              "value": 1
+            },
+            {
+              "name": "builder_set_id",
+              "type": "string",
+              "utf8": "12"
+            },
+            {
+              "hex": "4444444444444444444444444444444444444444444444444444444444444444",
+              "name": "builder_set_hash",
+              "type": "bytes"
+            },
+            {
+              "fields": [
+                {
+                  "name": "count",
+                  "type": "uint32",
+                  "value": 1
+                },
+                {
+                  "fields": [
+                    {
+                      "name": "sequence",
+                      "type": "uint64",
+                      "value": 1
+                    },
+                    {
+                      "field_number": 2,
+                      "fields": [
+                        {
+                          "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                          "name": "task_id",
+                          "type": "bytes"
+                        },
+                        {
+                          "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                          "name": "task_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "name": "vrf_epoch",
+                          "type": "uint64",
+                          "value": 1
+                        },
+                        {
+                          "name": "dispatch_round",
+                          "type": "uint32",
+                          "value": 0
+                        },
+                        {
+                          "fields": [
+                            {
+                              "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                              "name": "task_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "reference_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                              "name": "candidate_pool_snapshot_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "fields": [
+                                {
+                                  "name": "count",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "slot",
+                                      "type": "uint32",
+                                      "value": 1
+                                    },
+                                    {
+                                      "name": "slot_version",
+                                      "type": "uint64",
+                                      "value": 1
+                                    },
+                                    {
+                                      "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                      "name": "operator_address",
+                                      "type": "address"
+                                    },
+                                    {
+                                      "name": "candidate_weight",
+                                      "type": "uint64",
+                                      "value": 1000000
+                                    }
+                                  ],
+                                  "name": "members",
+                                  "type": "frame"
+                                }
+                              ],
+                              "name": "members",
+                              "type": "frame"
+                            }
+                          ],
+                          "name": "roster",
+                          "type": "frame"
+                        },
+                        {
+                          "hex": "3ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7",
+                          "name": "roster_hash",
+                          "type": "bytes"
+                        },
+                        {
+                          "fields": [
+                            {
+                              "name": "chain_id",
+                              "type": "string",
+                              "utf8": "trueopen-phase1-vector-1"
+                            },
+                            {
+                              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                              "name": "builder_address",
+                              "type": "address"
+                            },
+                            {
+                              "name": "root_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "root_version",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "leaf_count",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "hex": "34e24171d240cab61ec9fcc4ff388d8737919fec23d86acd03c9dc7b3b7e8010",
+                              "name": "root",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "f9b028bc754a0d219dae80465b2e3ed47441735146962464252b67bb567e310c7ff58764e6909e8c789d90b9a11b8b466ec5bf54b6cc7a97bd92b5ee58b617b8",
+                              "name": "builder_service_signature",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "handraise_root",
+                          "type": "frame"
+                        },
+                        {
+                          "name": "earliest_submit_height",
+                          "type": "uint64",
+                          "value": 109
+                        },
+                        {
+                          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                          "name": "user_address",
+                          "type": "address"
+                        }
+                      ],
+                      "name": "round",
+                      "type": "oneof"
+                    }
+                  ],
+                  "name": "items",
+                  "type": "frame"
+                }
+              ],
+              "name": "items",
+              "type": "frame"
+            },
+            {
+              "name": "output",
+              "present": false,
+              "type": "optional"
+            }
+          ],
+          "name": "batch",
+          "type": "frame"
+        }
+      ],
+      "message_name": "nexus.v1.SyncRequest",
+      "name": "builder_sync_round_only",
+      "preimage_hex": "000000000000001e545255454f50454e5f4e455855535f4255494c4445525f53594e435f56310000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000037b0000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f10000000000000014020202020202020202020202020202020202020200000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad000000000000000800000000000000010000000000000002313200000000000000204444444444444444444444444444444444444444444444444444444444444444000000000000029c0000000000000004000000010000000000000288000000000000000800000000000000010000000000000270000000020000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3690000000000000008000000000000000100000000000000040000000000000000000000c40000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b1000000000000000080000000000000001000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a000000000000005c00000000000000040000000100000000000000480000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000800000000000f424000000000000000203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f700000000000000d80000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f10000000000000008000000000000000100000000000000080000000000000001000000000000000400000001000000000000002034e24171d240cab61ec9fcc4ff388d8737919fec23d86acd03c9dc7b3b7e80100000000000000040f9b028bc754a0d219dae80465b2e3ed47441735146962464252b67bb567e310c7ff58764e6909e8c789d90b9a11b8b466ec5bf54b6cc7a97bd92b5ee58b617b80000000000000008000000000000006d00000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000100",
+      "protobuf_hex": "0aa70508011218747275656f70656e2d7068617365312d766563746f722d311a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a222f747275656f70656e31716770717971737a716770717971737a716770717971737a716770717971737a70366b7a33632a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a023132422044444444444444444444444444444444444444444444444444444444444444444adc03080112d7030a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36918012a81010a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b1010011a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a2239080110011a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a20c0843d32203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f73ab5010a18747275656f70656e2d7068617365312d766563746f722d31122f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180120012801322034e24171d240cab61ec9fcc4ff388d8737919fec23d86acd03c9dc7b3b7e80103a40f9b028bc754a0d219dae80465b2e3ed47441735146962464252b67bb567e310c7ff58764e6909e8c789d90b9a11b8b466ec5bf54b6cc7a97bd92b5ee58b617b8406d4a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a1240117c73605b3805d0954d7bd1e4cb966289c6ee79e4d9a22f711e6a41da40119e07203a0a2ec09174f7413eb55cb2b4e97be04cf5a1d8a42d28171e9ddb672d21",
+      "public_key_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+      "signature_hex": "117c73605b3805d0954d7bd1e4cb966289c6ee79e4d9a22f711e6a41da40119e07203a0a2ec09174f7413eb55cb2b4e97be04cf5a1d8a42d28171e9ddb672d21"
+    },
+    {
+      "digest_hex": "eb5a5abcd8abae5e3fe386eb52b42f2128b953e15294b34c0b99b2a87b1451a1",
+      "domain": "TRUEOPEN_NEXUS_BUILDER_SYNC_V1",
+      "equivalent_protobuf_hex": "1240d69a53ce14b96456a06a26988a46df1d4fd6510fe5b1e2afb8ff82e8139883b7792d2c2f190b861d3b36d45185f1d18044e2b5d6c9cf902fa2a2dc64ed8727630ab8064aed042ae8040ae504a20140e32c703c18294fe08c9b0ded291829c4841f370122c2df86f3047b0656f39da0586b9f37261201d02f65981ec84daa36ef57d98f5caab554a7e2ad865466a2c19a012000000000000000000000000000000000000000000000000000000000000000009201ec0122a30130012a20000000000000000000000000000000000000000000000000000000000000000020031a57222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a180110010a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10000a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a1a203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f71220b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a08008801008001017801700168016204010101015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e550014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a40013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a30012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad2220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3691a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b101218747275656f70656e2d7068617365312d766563746f722d3108010808422044444444444444444444444444444444444444444444444444444444444444443a02313230012a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad222f747275656f70656e31716770717971737a716770717971737a716770717971737a716770717971737a70366b7a33631a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a1218747275656f70656e2d7068617365312d766563746f722d310801",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+          "name": "sender_operator_address",
+          "type": "address"
+        },
+        {
+          "fields": [
+            {
+              "name": "schema_version",
+              "type": "uint32",
+              "value": 1
+            },
+            {
+              "name": "chain_id",
+              "type": "string",
+              "utf8": "trueopen-phase1-vector-1"
+            },
+            {
+              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+              "name": "sender_operator_address",
+              "type": "address"
+            },
+            {
+              "hex": "0202020202020202020202020202020202020202",
+              "name": "receiver_operator_address",
+              "type": "address"
+            },
+            {
+              "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+              "name": "session_id",
+              "type": "bytes"
+            },
+            {
+              "name": "order_sequence",
+              "type": "uint64",
+              "value": 1
+            },
+            {
+              "name": "builder_set_id",
+              "type": "string",
+              "utf8": "12"
+            },
+            {
+              "hex": "4444444444444444444444444444444444444444444444444444444444444444",
+              "name": "builder_set_hash",
+              "type": "bytes"
+            },
+            {
+              "fields": [
+                {
+                  "name": "count",
+                  "type": "uint32",
+                  "value": 1
+                },
+                {
+                  "fields": [
+                    {
+                      "name": "sequence",
+                      "type": "uint64",
+                      "value": 8
+                    },
+                    {
+                      "field_number": 5,
+                      "fields": [
+                        {
+                          "fields": [
+                            {
+                              "name": "schema_version",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "name": "chain_id",
+                              "type": "string",
+                              "utf8": "trueopen-phase1-vector-1"
+                            },
+                            {
+                              "hex": "ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b10",
+                              "name": "task_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac369",
+                              "name": "task_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "5c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad",
+                              "name": "session_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "order_sequence",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                              "name": "builder_address",
+                              "type": "address"
+                            },
+                            {
+                              "name": "reference_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                              "name": "candidate_pool_snapshot_id",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "vrf_epoch",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "hex": "0e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e5",
+                              "name": "vrf_output",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "01010101",
+                              "name": "vrf_proof",
+                              "type": "bytes"
+                            },
+                            {
+                              "name": "randomness_scheme",
+                              "type": "enum",
+                              "value": 1
+                            },
+                            {
+                              "name": "bound_change_height",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "sticky_anchor_sequence",
+                              "type": "uint64",
+                              "value": 1
+                            },
+                            {
+                              "name": "sticky_run_count",
+                              "type": "uint32",
+                              "value": 1
+                            },
+                            {
+                              "bool": false,
+                              "name": "sticky_applied",
+                              "type": "bool"
+                            },
+                            {
+                              "fields": [
+                                {
+                                  "name": "count",
+                                  "type": "uint32",
+                                  "value": 1
+                                },
+                                {
+                                  "fields": [
+                                    {
+                                      "name": "dispatch_round",
+                                      "type": "uint32",
+                                      "value": 0
+                                    },
+                                    {
+                                      "hex": "b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a",
+                                      "name": "handraise_root_digest",
+                                      "type": "bytes"
+                                    },
+                                    {
+                                      "hex": "3ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f7",
+                                      "name": "roster_hash",
+                                      "type": "bytes"
+                                    },
+                                    {
+                                      "fields": [
+                                        {
+                                          "name": "count",
+                                          "type": "uint32",
+                                          "value": 1
+                                        },
+                                        {
+                                          "fields": [
+                                            {
+                                              "hex": "a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a",
+                                              "name": "dispatch_ticket_hash",
+                                              "type": "bytes"
+                                            },
+                                            {
+                                              "name": "rank",
+                                              "type": "uint32",
+                                              "value": 0
+                                            },
+                                            {
+                                              "fields": [
+                                                {
+                                                  "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+                                                  "name": "candidate_pool_snapshot_id",
+                                                  "type": "bytes"
+                                                },
+                                                {
+                                                  "name": "slot",
+                                                  "type": "uint32",
+                                                  "value": 1
+                                                },
+                                                {
+                                                  "name": "slot_version",
+                                                  "type": "uint64",
+                                                  "value": 1
+                                                },
+                                                {
+                                                  "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+                                                  "name": "operator_address",
+                                                  "type": "address"
+                                                }
+                                              ],
+                                              "name": "member",
+                                              "type": "frame"
+                                            },
+                                            {
+                                              "name": "outcome",
+                                              "type": "enum",
+                                              "value": 3
+                                            },
+                                            {
+                                              "hex": "0000000000000000000000000000000000000000000000000000000000000000",
+                                              "name": "reject_digest_or_zero32",
+                                              "type": "bytes"
+                                            },
+                                            {
+                                              "name": "timeout_tier_or_zero",
+                                              "type": "uint32",
+                                              "value": 1
+                                            }
+                                          ],
+                                          "name": "attempts",
+                                          "type": "frame"
+                                        }
+                                      ],
+                                      "name": "attempts",
+                                      "type": "frame"
+                                    }
+                                  ],
+                                  "name": "rounds",
+                                  "type": "frame"
+                                }
+                              ],
+                              "name": "rounds",
+                              "type": "frame"
+                            },
+                            {
+                              "hex": "0000000000000000000000000000000000000000000000000000000000000000",
+                              "name": "dispatch_ticket_hash",
+                              "type": "bytes"
+                            },
+                            {
+                              "hex": "e32c703c18294fe08c9b0ded291829c4841f370122c2df86f3047b0656f39da0586b9f37261201d02f65981ec84daa36ef57d98f5caab554a7e2ad865466a2c1",
+                              "name": "builder_service_signature",
+                              "type": "bytes"
+                            }
+                          ],
+                          "name": "record",
+                          "type": "frame"
+                        }
+                      ],
+                      "name": "record",
+                      "type": "oneof"
+                    }
+                  ],
+                  "name": "items",
+                  "type": "frame"
+                }
+              ],
+              "name": "items",
+              "type": "frame"
+            },
+            {
+              "name": "output",
+              "present": false,
+              "type": "optional"
+            }
+          ],
+          "name": "batch",
+          "type": "frame"
+        }
+      ],
+      "message_name": "nexus.v1.SyncRequest",
+      "name": "builder_sync_unfinished_record",
+      "preimage_hex": "000000000000001e545255454f50454e5f4e455855535f4255494c4445525f53594e435f56310000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000004840000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f10000000000000014020202020202020202020202020202020202020200000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad00000000000000080000000000000001000000000000000231320000000000000020444444444444444444444444444444444444444444444444444444444444444400000000000003a5000000000000000400000001000000000000039100000000000000080000000000000008000000000000037900000005000000000000036d0000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d310000000000000020ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b100000000000000020f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac36900000000000000205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad0000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000080000000000000001000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000008000000000000000100000000000000200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e50000000000000004010101010000000000000004000000010000000000000008000000000000000100000000000000080000000000000001000000000000000400000001000000000000000100000000000000016800000000000000040000000100000000000001540000000000000004000000000000000000000020b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a00000000000000203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f700000000000000f000000000000000040000000100000000000000dc0000000000000020a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a0000000000000004000000000000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000040000000300000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000400000001000000000000002000000000000000000000000000000000000000000000000000000000000000000000000000000040e32c703c18294fe08c9b0ded291829c4841f370122c2df86f3047b0656f39da0586b9f37261201d02f65981ec84daa36ef57d98f5caab554a7e2ad865466a2c1000000000000000100",
+      "protobuf_hex": "0ab10608011218747275656f70656e2d7068617365312d766563746f722d311a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a222f747275656f70656e31716770717971737a716770717971737a716770717971737a716770717971737a70366b7a33632a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a023132422044444444444444444444444444444444444444444444444444444444444444444ae60408082ae1040ade0408011218747275656f70656e2d7068617365312d766563746f722d311a20ec3c398d6e4a56af1b928645a84b2033480f97fa0bba0d0f4f71ad7b9edd0b102220f2d0570d8e44a0b5b598fb2c39c2ac1884a75558073c7c33f64edfa482eac3692a205c3a09bf22e12411b6af48dfe0b85c2d9d1181cd391e089574c8cf3ca1e5e4ad30013a2f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a40014a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a50015a200e6797a38ee44b389ab2ae6ec9f51ce733f6a877817a8c4a14c8d69aed7608e56204010101016801700178018001019201e8011220b01297c79b67d9e6fd49528107d043bc2f1cbc42ab0d9ac41a7ae5192f55f67a1a203ae4147540aa95cfa082c3e12798dbfabf3f866a9030048d829dc8f8226048f722a1010a20a93e93499523a5094a70b2a2c8a1b1a36619fcfc2704bf318cfcd4de8fd1fd6a1a570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a20032a20000000000000000000000000000000000000000000000000000000000000000030019a01200000000000000000000000000000000000000000000000000000000000000000a20140e32c703c18294fe08c9b0ded291829c4841f370122c2df86f3047b0656f39da0586b9f37261201d02f65981ec84daa36ef57d98f5caab554a7e2ad865466a2c11240d69a53ce14b96456a06a26988a46df1d4fd6510fe5b1e2afb8ff82e8139883b7792d2c2f190b861d3b36d45185f1d18044e2b5d6c9cf902fa2a2dc64ed872763",
+      "public_key_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+      "signature_hex": "d69a53ce14b96456a06a26988a46df1d4fd6510fe5b1e2afb8ff82e8139883b7792d2c2f190b861d3b36d45185f1d18044e2b5d6c9cf902fa2a2dc64ed872763"
+    }
+  ]
+}

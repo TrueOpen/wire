@@ -200,6 +200,9 @@ func decode(name string, raw []byte, depth int) (decoded, error) {
 	if err := validateStreamShape(name, out); err != nil {
 		return nil, err
 	}
+	if err := validateBuilderSyncShape(name, out); err != nil {
+		return nil, err
+	}
 	return out, nil
 }
 
@@ -317,6 +320,12 @@ func canonicalFields(name string, raw []byte, excluded map[string]bool, depth in
 		if e != nil {
 			return nil, e
 		}
+		if field.oneof > 0 {
+			if field.kind != kindMessage {
+				part = FieldFrame(part)
+			}
+			part = append(Uint32(uint32(n)), part...)
+		}
 		fields = append(fields, part)
 	}
 	return fields, nil
@@ -328,6 +337,25 @@ func SigningPreimage(name string, raw []byte) ([]byte, error) {
 	domain, ok := signingDomains[name]
 	if !ok {
 		return nil, fmt.Errorf("unregistered signing message %s", name)
+	}
+	if name == "nexus.v1.SyncRequest" {
+		request, err := decode(name, raw, 0)
+		if err != nil {
+			return nil, err
+		}
+		batch, err := decode("nexus.v1.BuilderSyncBatchV1", bytesAt(request, 1), 1)
+		if err != nil {
+			return nil, err
+		}
+		sender, err := AddressBytes(string(bytesAt(batch, 3)))
+		if err != nil {
+			return nil, err
+		}
+		fields, err := canonicalFields("nexus.v1.BuilderSyncBatchV1", bytesAt(request, 1), nil, 1)
+		if err != nil {
+			return nil, err
+		}
+		return FieldFrame([]byte(domain), bytesAt(batch, 2), sender, FieldFrame(fields...)), nil
 	}
 	excluded := map[string]bool{"service_signature": true, "builder_service_signature": true}
 	if name == "nexus.v1.DispatchStreamBindingV1" {

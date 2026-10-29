@@ -5,6 +5,96 @@ var dispatchRejectCodes = map[uint64]bool{0: true, 1: true, 2: true, 3: true, 4:
 // Pinned field metadata for the generated-code-free canonical verifier.
 // The descriptor conformance check validates this table against the source.
 var protoTables = map[string]messageSpec{
+	"nexus.v1.BuilderSyncAttemptV1": {
+		1: {name: "ticket", kind: kindMessage, message: "task.v1.DispatchTicketV1"},
+		2: {name: "sent", kind: kindVarint, boolean: true},
+		3: {name: "outcome", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true, 4: true, 5: true}},
+		4: {name: "reject", kind: kindMessage, message: "task.v1.DispatchRejectV1", optional: true},
+		5: {name: "late_accept", kind: kindMessage, message: "task.v1.DispatchAcceptV1", optional: true},
+		6: {name: "accept", kind: kindMessage, message: "task.v1.DispatchAcceptV1", optional: true},
+	},
+	"nexus.v1.BuilderSyncBatchV1": {
+		1:  {name: "schema_version", kind: kindVarint, bits: 32},
+		2:  {name: "chain_id", kind: kindString},
+		3:  {name: "sender_operator_address", kind: kindString, address: true},
+		4:  {name: "receiver_operator_address", kind: kindString, address: true},
+		5:  {name: "session_id", kind: kindBytes, hash: true},
+		6:  {name: "order_sequence", kind: kindVarint},
+		7:  {name: "builder_set_id", kind: kindString},
+		8:  {name: "builder_set_hash", kind: kindBytes, hash: true},
+		9:  {name: "items", kind: kindMessage, message: "nexus.v1.BuilderSyncItemV1", repeated: true},
+		10: {name: "output", kind: kindMessage, message: "nexus.v1.BuilderSyncOutputV1", optional: true},
+	},
+	"nexus.v1.BuilderSyncInputChunkV1": {
+		1: {name: "task_hash", kind: kindBytes, hash: true},
+		2: {name: "input_hash", kind: kindBytes, hash: true},
+		3: {name: "input_size_bytes", kind: kindVarint},
+		4: {name: "media_type", kind: kindString},
+		5: {name: "offset", kind: kindVarint},
+		6: {name: "data", kind: kindBytes},
+	},
+	"nexus.v1.BuilderSyncItemV1": {
+		1: {name: "sequence", kind: kindVarint},
+		2: {name: "round", kind: kindMessage, message: "nexus.v1.BuilderSyncRoundV1", oneof: 1},
+		3: {name: "input_chunk", kind: kindMessage, message: "nexus.v1.BuilderSyncInputChunkV1", oneof: 1},
+		4: {name: "attempt", kind: kindMessage, message: "nexus.v1.BuilderSyncAttemptV1", oneof: 1},
+		5: {name: "record", kind: kindMessage, message: "nexus.v1.BuilderSyncRecordV1", oneof: 1},
+		6: {name: "order", kind: kindMessage, message: "nexus.v1.BuilderSyncOrderV1", oneof: 1},
+	},
+	"nexus.v1.BuilderSyncOrderV1": {
+		1: {name: "signed_order", kind: kindMessage, message: "task.v1.SignedOrderV2"},
+		2: {name: "result_header", kind: kindMessage, message: "nexus.v1.DispatchResultHeaderV1"},
+	},
+	"nexus.v1.BuilderSyncOutputV1": {
+		1: {name: "dispatch_ticket_hash", kind: kindBytes, hash: true},
+		2: {name: "winner_ticket", kind: kindMessage, message: "task.v1.DispatchTicketV1"},
+		3: {name: "dispatch_accept_digest", kind: kindBytes, hash: true},
+		4: {name: "chunks", kind: kindMessage, message: "nexus.v1.OutputChunkV1", repeated: true},
+		5: {name: "fin", kind: kindMessage, message: "nexus.v1.OutputFinV1", optional: true},
+	},
+	"nexus.v1.BuilderSyncRecordV1": {
+		1: {name: "record", kind: kindMessage, message: "task.v1.DispatchRecordV1"},
+	},
+	"nexus.v1.BuilderSyncRoundV1": {
+		1: {name: "task_id", kind: kindBytes, hash: true},
+		2: {name: "task_hash", kind: kindBytes, hash: true},
+		3: {name: "vrf_epoch", kind: kindVarint},
+		4: {name: "dispatch_round", kind: kindVarint, bits: 32},
+		5: {name: "roster", kind: kindMessage, message: "task.v1.DispatchRosterV1"},
+		6: {name: "roster_hash", kind: kindBytes, hash: true},
+		7: {name: "handraise_root", kind: kindMessage, message: "task.v1.SignedHandraiseRootV1"},
+		8: {name: "earliest_submit_height", kind: kindVarint},
+		9: {name: "user_address", kind: kindString, address: true},
+	},
+	"nexus.v1.OutputChunkV1": {
+		1: {name: "seq", kind: kindVarint},
+		2: {name: "text", kind: kindBytes},
+		3: {name: "mmr_root", kind: kindBytes},
+		4: {name: "worker_signature", kind: kindBytes},
+		5: {name: "attachment", kind: kindBytes},
+		6: {name: "attachment_signature", kind: kindBytes},
+		7: {name: "cumulative_generated_tokens", kind: kindVarint},
+		8: {name: "dispatch_ticket_hash", kind: kindBytes, hash: true},
+	},
+	"nexus.v1.OutputFinV1": {
+		1: {name: "final_seq", kind: kindVarint},
+		2: {name: "output_mmr_root", kind: kindBytes},
+		3: {name: "finish_reason", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true}},
+		4: {name: "worker_signature", kind: kindBytes},
+		5: {name: "dispatch_ticket_hash", kind: kindBytes, hash: true},
+	},
+	"nexus.v1.SyncRequest": {
+		1: {name: "batch", kind: kindMessage, message: "nexus.v1.BuilderSyncBatchV1"},
+		2: {name: "sender_signature", kind: kindBytes},
+	},
+	"nexus.v1.SyncResponse": {
+		1: {name: "applied_through", kind: kindVarint},
+		2: {name: "output_received", kind: kindVarint, boolean: true},
+		3: {name: "output_last_seq", kind: kindVarint},
+		4: {name: "output_sealed", kind: kindVarint, boolean: true},
+		5: {name: "refused", kind: kindString},
+		6: {name: "output_not_held", kind: kindVarint, boolean: true},
+	},
 	"nexus.v1.BuilderMessageBindingV1": {
 		1: {name: "chain_id", kind: kindString},
 		2: {name: "builder_address", kind: kindString, address: true},
@@ -429,6 +519,7 @@ var protoTables = map[string]messageSpec{
 }
 
 var signingDomains = map[string]string{
+	"nexus.v1.SyncRequest":                   "TRUEOPEN_NEXUS_BUILDER_SYNC_V1",
 	"nexus.v1.DispatchInputRequestV1":        "TRUEOPEN_DISPATCH_INPUT_REQUEST_V1",
 	"nexus.v1.DispatchInputResponseV1":       "TRUEOPEN_DISPATCH_INPUT_RESPONSE_V1",
 	"nexus.v1.DispatchResultHeaderV1":        "TRUEOPEN_DISPATCH_RESULT_HEADER_V1",

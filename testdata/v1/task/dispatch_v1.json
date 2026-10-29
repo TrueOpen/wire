@@ -96,7 +96,7 @@
     },
     {
       "contract_section": "Direct dispatch canonical signing projections",
-      "digest_hex": "30b1f041e47d637bfaf04ffef9d60318508dcbb1dcb208fe7643f3352737e7e1",
+      "digest_hex": "d222346c661c556beb25400d890ed662dc614e25c533c73bf4d1b081c824d877",
       "domain": "TRUEOPEN_DISPATCH_INPUT_RESPONSE_V1",
       "fields": [
         {
@@ -110,17 +110,66 @@
           "type": "bytes"
         },
         {
-          "hex": "167ad2bdbb7e761b2e31aeca07f3c478f4eebc0301dbb57aeaeca8b9cf0cd6c0",
+          "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
           "name": "input_hash",
           "type": "bytes"
         },
         {
           "name": "input_size_bytes",
           "type": "uint64",
-          "value": 1
+          "value": 6
         },
         {
-          "hex": "01010101",
+          "hex": "6162",
+          "name": "input",
+          "type": "bytes"
+        },
+        {
+          "name": "chunk_index",
+          "type": "uint32",
+          "value": 0
+        },
+        {
+          "name": "chunk_count",
+          "type": "uint32",
+          "value": 3
+        }
+      ],
+      "message_name": "nexus.v1.DispatchInputResponseV1",
+      "name": "nexus_v1_dispatchinputresponsev1",
+      "preimage_hex": "0000000000000023545255454f50454e5f44495350415443485f494e5055545f524553504f4e53455f5631000000000000002014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf0000000000000020db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca70000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47210000000000000008000000000000000600000000000000026162000000000000000400000000000000000000000400000003",
+      "protobuf_hex": "0a2014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf1220db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca71a20bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c472120062a0261623803424066e0032042fb1a9948a8194f7eb7d31932d872901f2d84bb87e27758935dcda544235eef46b21d67a575b29e7d1835679b147609a5f6eb5030e32bdbb6d67fa8",
+      "public_key_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+      "signature_field": 8,
+      "signature_hex": "66e0032042fb1a9948a8194f7eb7d31932d872901f2d84bb87e27758935dcda544235eef46b21d67a575b29e7d1835679b147609a5f6eb5030e32bdbb6d67fa8"
+    },
+    {
+      "contract_section": "Direct dispatch canonical signing projections",
+      "digest_hex": "40dae2570acbc9dc7be0c080d7df168d3a5c2d801198e6b4a0319adabe7b8721",
+      "domain": "TRUEOPEN_DISPATCH_INPUT_RESPONSE_V1",
+      "fields": [
+        {
+          "hex": "14bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf",
+          "name": "task_id",
+          "type": "bytes"
+        },
+        {
+          "hex": "db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca7",
+          "name": "dispatch_ticket_hash",
+          "type": "bytes"
+        },
+        {
+          "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+          "name": "input_hash",
+          "type": "bytes"
+        },
+        {
+          "name": "input_size_bytes",
+          "type": "uint64",
+          "value": 6
+        },
+        {
+          "hex": "6364",
           "name": "input",
           "type": "bytes"
         },
@@ -132,16 +181,65 @@
         {
           "name": "chunk_count",
           "type": "uint32",
-          "value": 1
+          "value": 3
         }
       ],
       "message_name": "nexus.v1.DispatchInputResponseV1",
-      "name": "nexus_v1_dispatchinputresponsev1",
-      "preimage_hex": "0000000000000023545255454f50454e5f44495350415443485f494e5055545f524553504f4e53455f5631000000000000002014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf0000000000000020db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca70000000000000020167ad2bdbb7e761b2e31aeca07f3c478f4eebc0301dbb57aeaeca8b9cf0cd6c000000000000000080000000000000001000000000000000401010101000000000000000400000001000000000000000400000001",
-      "protobuf_hex": "0a2014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf1220db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca71a20167ad2bdbb7e761b2e31aeca07f3c478f4eebc0301dbb57aeaeca8b9cf0cd6c020012a040101010130013801424080ce0792afb959026f52d9cabf771b8af371f531a3e62f246097a5cf4a5dff7b5bd69c7ed623ef0b2b50ca13089029e8515fc3e0d2ee5d3de39d7323a2abafcf",
+      "name": "nexus_v1_dispatchinputresponsev1_chunk_1",
+      "preimage_hex": "0000000000000023545255454f50454e5f44495350415443485f494e5055545f524553504f4e53455f5631000000000000002014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf0000000000000020db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca70000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47210000000000000008000000000000000600000000000000026364000000000000000400000001000000000000000400000003",
+      "protobuf_hex": "0a2014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf1220db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca71a20bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c472120062a0263643001380342407f3586fbc13a366f754b9fc23d1f8ae0a0c71a5caef3f04d8b8b2a02332bbe9b2afb1aff42afd4a3ec32765929daf242995fe1d507054461bdff6d871f6ad424",
       "public_key_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
       "signature_field": 8,
-      "signature_hex": "80ce0792afb959026f52d9cabf771b8af371f531a3e62f246097a5cf4a5dff7b5bd69c7ed623ef0b2b50ca13089029e8515fc3e0d2ee5d3de39d7323a2abafcf"
+      "signature_hex": "7f3586fbc13a366f754b9fc23d1f8ae0a0c71a5caef3f04d8b8b2a02332bbe9b2afb1aff42afd4a3ec32765929daf242995fe1d507054461bdff6d871f6ad424"
+    },
+    {
+      "contract_section": "Direct dispatch canonical signing projections",
+      "digest_hex": "2188cacb03f86a2a796d3978dd37d101745dbc01e268cbef023b33448b4b252b",
+      "domain": "TRUEOPEN_DISPATCH_INPUT_RESPONSE_V1",
+      "fields": [
+        {
+          "hex": "14bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf",
+          "name": "task_id",
+          "type": "bytes"
+        },
+        {
+          "hex": "db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca7",
+          "name": "dispatch_ticket_hash",
+          "type": "bytes"
+        },
+        {
+          "hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+          "name": "input_hash",
+          "type": "bytes"
+        },
+        {
+          "name": "input_size_bytes",
+          "type": "uint64",
+          "value": 6
+        },
+        {
+          "hex": "6566",
+          "name": "input",
+          "type": "bytes"
+        },
+        {
+          "name": "chunk_index",
+          "type": "uint32",
+          "value": 2
+        },
+        {
+          "name": "chunk_count",
+          "type": "uint32",
+          "value": 3
+        }
+      ],
+      "message_name": "nexus.v1.DispatchInputResponseV1",
+      "name": "nexus_v1_dispatchinputresponsev1_chunk_2",
+      "preimage_hex": "0000000000000023545255454f50454e5f44495350415443485f494e5055545f524553504f4e53455f5631000000000000002014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf0000000000000020db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca70000000000000020bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c47210000000000000008000000000000000600000000000000026566000000000000000400000002000000000000000400000003",
+      "protobuf_hex": "0a2014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf1220db4e5f784bb9eab970bd438c870569b93159586ae394915cc8aa6c700aeeaca71a20bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c472120062a026566300238034240ec8e62582422936a791d79aa7af74cb1e4381901bbff37b1ff8da144d951ca0b5c3c46216d83e1896dc281bb2d3d164165cd9e033bd7aa69dbbc37d6865c6078",
+      "public_key_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+      "signature_field": 8,
+      "signature_hex": "ec8e62582422936a791d79aa7af74cb1e4381901bbff37b1ff8da144d951ca0b5c3c46216d83e1896dc281bb2d3d164165cd9e033bd7aa69dbbc37d6865c6078"
     },
     {
       "contract_section": "Direct dispatch canonical signing projections",
@@ -2882,5 +2980,21 @@
       "takeover_entry_vector": "takeover_entry_candidate_a",
       "response_protobuf_hex": "0a2612204e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d180320190a26080112202e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc608838618011220b1022a3a1494dcf508fbf70e6471f2f49cfeef84c53e9228d8bd97f6176a39a2"
     }
-  ]
+  ],
+  "input_chunk_assembly": {
+    "chunk_count": 3,
+    "indexes": [
+      0,
+      1,
+      2
+    ],
+    "input_hash_hex": "bef57ec7f53a6d40beb640a780a639c83bc29ac8a9816f1fc6c5c6dcd93c4721",
+    "input_size_bytes": 6,
+    "input_utf8": "abcdef",
+    "vector_names": [
+      "nexus_v1_dispatchinputresponsev1",
+      "nexus_v1_dispatchinputresponsev1_chunk_1",
+      "nexus_v1_dispatchinputresponsev1_chunk_2"
+    ]
+  }
 }

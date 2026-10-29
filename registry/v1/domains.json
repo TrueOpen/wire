@@ -1547,6 +1547,24 @@
       "preimage_diverges_from_contract": false
     },
     {
+      "domain": "TRUEOPEN_NEXUS_BUILDER_SYNC_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "chain_id",
+        "sender_operator_address",
+        "batch"
+      ],
+      "producer": "dispatch.SigningDigest for nexus.v1.SyncRequest",
+      "consumers": "Task Builder replicas verify the current live sender and receiver-scoped canonical batch",
+      "store": "local durable replication progress only; no on-chain authority",
+      "event": "none",
+      "query": "none",
+      "contract_section": "BuilderSyncService.Sync canonical batch authentication",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "sender_operator_address is raw20. batch is the typed canonical BuilderSyncBatchV1 with REPEATED_V1 items, ONEOF_V1 proto tags and OPTIONAL_V1 presence. Nested business signatures remain payload; outer sender_signature is excluded. Raw protobuf serialization is never the preimage."
+    },
+    {
       "domain": "TRUEOPEN_OPEN_VERIFY_PROPOSAL_V1",
       "framing": "H_FIELDS_V1",
       "fields": [
