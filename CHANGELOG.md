@@ -2,6 +2,11 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Preserve frozen Task/Session parameter versions in Genesis, including historical
+  bodies and non-current bindings, with derived reference counts and bounded
+  retirement after the epoch policy lookup window.
+- Publish exact preimages for the active data-unavailable Builder evidence variant
+  and Worker dispatch draw, linked to their production digest functions.
 - Register pagination selectors and cross-chain/cross-RPC vectors for the two
   Builder dispatch recovery queries and bounded value-evidence query. Check
   every paginated Query against its descriptor, registry and both vector domains.

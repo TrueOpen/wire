@@ -2794,6 +2794,150 @@
       ],
       "name": "dispatch_batch_independent_rejection",
       "preimage_hex": "0000000000000018545255454f50454e5f42415443485f524553554c545f56310000000000000018747275656f70656e2d7068617365312d766563746f722d31000000000000000f44495350415443485f5245434f52440000000000000004000000020000000000000084000000000000000400000002000000000000003400000000000000204e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d000000000000000400000003000000000000003400000000000000202e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386000000000000000400000001"
+    },
+    {
+      "contract_section": "Active canonical dispatch and Builder evidence identity variants",
+      "digest_hex": "9741895de76e64848cfcb899c864a431b68357a04e270ea6aa82c3786a8451e3",
+      "domain": "TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2",
+      "fields": [
+        {
+          "name": "schema_version",
+          "type": "uint32",
+          "value": 2
+        },
+        {
+          "name": "oneof_tag",
+          "type": "uint32",
+          "value": 5
+        },
+        {
+          "hex": "3333333333333333333333333333333333333333333333333333333333333333",
+          "name": "task_id",
+          "type": "bytes"
+        },
+        {
+          "name": "verify_round",
+          "type": "uint32",
+          "value": 1
+        },
+        {
+          "bech32": "trueopen1pu8q6rqtpgysspcxq5zqxqspqzsm9s7589fuc8",
+          "hex": "0f0e0d0c0b0a09080706050403020100a1b2c3d4",
+          "name": "builder_operator",
+          "type": "address"
+        }
+      ],
+      "framing": "H_FIELDS_V1",
+      "name": "builder_content_tag_5",
+      "preimage_hex": "0000000000000024545255454f50454e5f4255494c4445525f45564944454e43455f434f4e54454e545f56320000000000000004000000020000000000000004000000050000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000040000000100000000000000140f0e0d0c0b0a09080706050403020100a1b2c3d4",
+      "producer": "DataUnavailableDigest",
+      "variant": "oneof_tag=5"
+    },
+    {
+      "contract_section": "Active canonical dispatch and Builder evidence identity variants",
+      "digest_hex": "e6303deec5f0599507c5d307c3354c3116114d9bc166ad80df877d6c47ec5bef",
+      "domain": "TRUEOPEN_BUILDER_EVIDENCE_ID_V2",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "bech32": "trueopen1pu8q6rqtpgysspcxq5zqxqspqzsm9s7589fuc8",
+          "hex": "0f0e0d0c0b0a09080706050403020100a1b2c3d4",
+          "name": "builder_operator",
+          "type": "address"
+        },
+        {
+          "name": "evidence_kind",
+          "type": "enum",
+          "value": 4
+        },
+        {
+          "hex": "3333333333333333333333333333333333333333333333333333333333333333",
+          "name": "scope_id",
+          "type": "bytes"
+        },
+        {
+          "hex": "9741895de76e64848cfcb899c864a431b68357a04e270ea6aa82c3786a8451e3",
+          "name": "canonical_evidence_digest",
+          "type": "bytes"
+        }
+      ],
+      "framing": "H_FIELDS_V1",
+      "name": "builder_evidence_id_tag_5",
+      "preimage_hex": "000000000000001f545255454f50454e5f4255494c4445525f45564944454e43455f49445f56320000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000140f0e0d0c0b0a09080706050403020100a1b2c3d40000000000000004000000040000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000209741895de76e64848cfcb899c864a431b68357a04e270ea6aa82c3786a8451e3",
+      "producer": "EvidenceID"
+    },
+    {
+      "contract_section": "Active canonical dispatch and Builder evidence identity variants",
+      "digest_hex": "72c8459b6456b8171386a7693d52757a6fd30132538cc6e39190bb3aaaca35fe",
+      "domain": "TRUEOPEN_BUILDER_FAULT_V2",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "bech32": "trueopen1pu8q6rqtpgysspcxq5zqxqspqzsm9s7589fuc8",
+          "hex": "0f0e0d0c0b0a09080706050403020100a1b2c3d4",
+          "name": "builder_operator",
+          "type": "address"
+        },
+        {
+          "name": "evidence_kind",
+          "type": "enum",
+          "value": 4
+        },
+        {
+          "hex": "3333333333333333333333333333333333333333333333333333333333333333",
+          "name": "scope_id",
+          "type": "bytes"
+        },
+        {
+          "hex": "9741895de76e64848cfcb899c864a431b68357a04e270ea6aa82c3786a8451e3",
+          "name": "canonical_evidence_digest",
+          "type": "bytes"
+        }
+      ],
+      "framing": "H_FIELDS_V1",
+      "name": "builder_fault_id_tag_5",
+      "preimage_hex": "0000000000000019545255454f50454e5f4255494c4445525f4641554c545f56320000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000140f0e0d0c0b0a09080706050403020100a1b2c3d40000000000000004000000040000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000209741895de76e64848cfcb899c864a431b68357a04e270ea6aa82c3786a8451e3",
+      "producer": "FaultID"
+    },
+    {
+      "contract_section": "Active canonical dispatch and Builder evidence identity variants",
+      "digest_hex": "81aa47d9609416ffc3dba3ff5139d44d61136df86e0728c3e53c2d4689f8366e",
+      "domain": "TRUEOPEN_WEIGHTED_DRAW_V1",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "utf8": "WORKER_DISPATCH"
+        },
+        {
+          "hex": "8888888888888888888888888888888888888888888888888888888888888888",
+          "name": "vrf_output",
+          "type": "bytes"
+        },
+        {
+          "name": "counter",
+          "type": "uint64",
+          "value": 0
+        }
+      ],
+      "framing": "H_FIELDS_V1",
+      "name": "weighted_draw_worker_dispatch_v1",
+      "preimage_hex": "0000000000000019545255454f50454e5f57454947485445445f445241575f56310000000000000018747275656f70656e2d7068617365312d766563746f722d31000000000000000f574f524b45525f44495350415443480000000000000020888888888888888888888888888888888888888888888888888888888888888800000000000000080000000000000000",
+      "producer": "DrawOrder",
+      "variant": "purpose=WORKER_DISPATCH"
     }
   ],
   "vrf": {

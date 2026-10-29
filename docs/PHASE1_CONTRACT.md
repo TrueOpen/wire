@@ -19,6 +19,7 @@ This document describes the candidate contract; it is not a release announcement
 | Direct transport | `nexus/v1/dispatch.proto`, `ingress.proto`: typed duplex stream, stream binding/cursors, input retrieval, notices, output resume and complete rosters |
 | Output and receipts | `InferReceiptV3`, `OutputStreamHeaderV2`, subscriptions/resume: one `dispatch_ticket_hash` identifies the attempt throughout delivery |
 | Lifecycle and recovery | Task/Hub Genesis, queries and events include the new primary facts; consumers rebuild derived indexes rather than trust imported copies |
+| Governed parameter recovery | Task Genesis retains superseded parameter bodies and non-current Task/Session version overrides; refcounts and height/prune indexes are derived |
 | Verification | Bounded verifier value-contradiction payloads, strict decode/digest, compact receipts, paginated query and event 30 are active at genesis; joint random-position opening remains inactive |
 
 Each activated epoch snapshot header freezes `worker_stake_weight_ppm` and
@@ -30,6 +31,20 @@ that saved policy with the same snapshot's member/profile facts, never current
 Task parameters. Genesis and retained expired/pruned activated headers preserve
 the policy. The existing pool hash commits membership; these scoring facts do
 not change its registered preimage.
+
+Task Genesis fields 90–92 preserve parameter-version behavior after governance:
+`TaskParamsHistoryState` retains version/body/update/supersession heights, and two
+lists share `ParamsVersionBindingState` for non-current Task and Session overrides.
+An omitted object uses the imported current version. Reject duplicate or unknown
+objects, current-version overrides, missing historical bodies and invalid heights;
+rebuild complete private bindings, checked refcounts and both historical indexes.
+The current body is stored once. A historical version with no object references
+still survives through its supersession epoch, so a delayed first activation can
+resolve the policy effective at its exact epoch reference height. Same-height
+updates select the highest version. Retirement after that floor is bounded by
+the existing visited/serialized/global budgets; referenced versions survive until
+their last object retires. No fallback may reinterpret an old object using current
+parameters, and explicit live-parameter exceptions keep their existing behavior.
 
 The old NATS/BusEnvelope package, per-task Worker handraise union, Worker
 assignment beacon, Builder ranking and selection anchor are retired. Verifier

@@ -34,7 +34,7 @@ func DrawOrder(chainID string, randomness [32]byte, pool []WeightedMember, maxAt
 		var target uint64
 		accepted := false
 		for attempt := uint32(0); attempt < maxAttempts; attempt++ {
-			digest := HashFields("TRUEOPEN_WEIGHTED_DRAW_V1", []byte(chainID), []byte("WORKER_DISPATCH"), randomness[:], Uint64(counter))
+			digest := dispatchDrawDigest(chainID, randomness, counter)
 			if counter == math.MaxUint64 {
 				return nil, fmt.Errorf("draw counter overflow")
 			}
@@ -63,4 +63,8 @@ func DrawOrder(chainID string, randomness [32]byte, pool []WeightedMember, maxAt
 		}
 	}
 	return out, nil
+}
+
+func dispatchDrawDigest(chainID string, randomness [32]byte, counter uint64) [32]byte {
+	return HashFields("TRUEOPEN_WEIGHTED_DRAW_V1", []byte(chainID), []byte("WORKER_DISPATCH"), randomness[:], Uint64(counter))
 }
