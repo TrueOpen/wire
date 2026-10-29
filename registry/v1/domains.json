@@ -2008,6 +2008,18 @@
           ]
         },
         {
+          "key": "/task.v1.Query/DispatchChallengesByBuilder",
+          "fields": [
+            "builder_address"
+          ]
+        },
+        {
+          "key": "/task.v1.Query/DispatchCompensationClaimsByBuilder",
+          "fields": [
+            "builder_address"
+          ]
+        },
+        {
           "key": "/task.v1.Query/RoleActiveTasks",
           "fields": [
             "operator_address",
@@ -2025,6 +2037,14 @@
           "fields": [
             "task_id"
           ]
+        },
+        {
+          "key": "/task.v1.Query/VerifierValueEvidence",
+          "fields": [
+            "task_id",
+            "verify_round",
+            "target_operator_address"
+          ]
         }
       ],
       "producer": "QueryPageDigestsV1",
@@ -2035,7 +2055,7 @@
       "contract_section": "Public wire domain TRUEOPEN_QUERY_SELECTOR_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "The ten selector variants match the paginated request descriptors, QueryPageSelectorSchemaV1, and the published golden vectors. Each variant binds its RPC-specific selector fields in the listed order."
+      "note": "Selector variants match all paginated request descriptors and the published golden vectors. Each variant binds its RPC-specific selector fields in field-number order."
     },
     {
       "domain": "TRUEOPEN_RECORD_RESULT_NOTICE_V1",

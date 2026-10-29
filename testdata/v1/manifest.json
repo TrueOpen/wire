@@ -103,9 +103,9 @@
     {
       "path": "shared/query_page_v1.json",
       "origin": "wire",
-      "contract_section": "Raw Hash32 query selector and pagination commitments",
-      "bytes": 38796,
-      "sha256": "f7c22a66aced6c386407a6fbe2778dbc437d2f206ba480268e5f25861945e69e"
+      "contract_section": "Height-pinned pagination scope for every active Hub and Task Query RPC",
+      "bytes": 50749,
+      "sha256": "94f5d0de712989d84e8ff70767c9215010a00f3e5cccd73471c8298208318a4a"
     },
     {
       "path": "shared/rest_json_shapes_v1.json",

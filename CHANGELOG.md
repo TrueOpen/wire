@@ -2,6 +2,9 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Register pagination selectors and cross-chain/cross-RPC vectors for the two
+  Builder dispatch recovery queries and bounded value-evidence query. Check
+  every paginated Query against its descriptor, registry and both vector domains.
 - Freeze typed Builder-to-Builder replication in `nexus.v1`, with receiver-scoped
   canonical batch signatures, explicit oneof tags, current-key transport checks
   and independently computed signing/reserialization vectors.
