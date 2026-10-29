@@ -70,9 +70,14 @@ func ValidateDescriptorImage(data []byte) error {
 			}
 		}
 	}
-	for name := range protoTables {
+	for name, spec := range protoTables {
 		if !found[name] {
 			return fmt.Errorf("missing pinned message %s", name)
+		}
+		for _, field := range spec {
+			if (field.name == "service_signature" || field.name == "builder_service_signature") && signingDomains[name] == "" {
+				return fmt.Errorf("signed message %s has no signing domain", name)
+			}
 		}
 	}
 	return nil

@@ -2,6 +2,15 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Add height-pinned Builder queries for open dispatch challenges and compensation
+  claims, and freeze the event targets needed to discover and defend them.
+- Define the verified epoch-start beacon source and epoch-zero dispatch boundary,
+  snapshot eligibility projections, stream nonce/cursor/keepalive semantics and
+  dispatch batch result identities. Publish linked derivation and result vectors.
+- Register VerifierHandraiseV1 in the shared signing implementation, add its real
+  signature vector, and expose pending service rotation as an admission-leaf reason.
+  Remove the retired pool_hash fixture field and clarify VRF audit-query scope.
+
 - Generate gogo equality for dispatch parameters and their nested policy entries,
   so the existing TaskParamsV1 equality method compiles in Go consumers.
 - Bind Chunk/Fin signatures to dispatch_ticket_hash and rebuild Worker evidence

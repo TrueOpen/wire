@@ -216,7 +216,92 @@ persisted verifier_value_evidence_window_closed_height before round finalization
 its close index rebuilds when close is present and closed is absent. Double-dispatch
 windows use the signed record's bound_change_height, never mutable session state.
 
-## Consumer acceptance requirements
+## Event routing and gap recovery
+
+`EventTarget` is routing metadata, not permission to sign or read evidence. The
+following targets are mandatory even when an event has no `session_id`. They
+are derived in the event's committed state, deduplicated and ordered by role
+number then raw20 address. Existing Task-party targets may be added as well.
+
+| Codes | Required target |
+| --- | --- |
+| Task 132, 133, 134 (compensation claimed/paid/rebutted) | `BUILDER` at the claim's `builder_address`, `WORKER` at its `worker_operator_address` |
+| Task 135, 136 (challenge opened/resolved) | `BUILDER` from `DispatchChallengeState.builder_address`, `OPERATOR` from its `challenger_address`; resolve the primary rather than infer the Builder from the challenger or task owner |
+| Task 137 (dispatch fault) | `BUILDER` at the fault's Builder, plus `WORKER` when a compensated Worker is present |
+| Hub 143, 144 (compensation funding / Builder VRF registration) | `BUILDER` at the named Builder |
+| Hub 145 (service-key rotation registered) | `OPERATOR` at the affected operator, plus `BUILDER` targets for every member of the current BuilderSet; a rotating Builder also targets itself as `BUILDER` even when outside that set |
+
+In particular, a pending Cortex announcement must reach the dispatching Builders;
+labelling the Cortex operator's address as a `BUILDER` is not equivalent. Task
+codes route through the Task role stream; Hub codes route through the protocol
+stream. Clients use both streams. A global protocol subscription is also possible
+but does not replace the mandatory targets. Events are hints: preflight and chain
+admission still enforce the current/pending identity.
+
+`DispatchChallengesByBuilder` and `DispatchCompensationClaimsByBuilder` recover
+open items after a gap of any length. Both reuse shared height-pinned keyset
+pagination and caps. Walk the two Builder-prefixed open indexes, never all
+historical rows. Maintain indexes atomically with primary creation/terminal
+transition/deletion; rebuild them from primary statuses on Genesis import and
+check both directions. A terminal transition removes its open index immediately.
+An overdue primary remains in the response until its handler actually closes it.
+
+To recover, read every page at height H and resume event observation from H,
+deduplicating by the business primary key. Restart from a fresh height if pinned
+state is unavailable. Replay depth is a node deployment setting, never the sole
+way to discover a legal claim/challenge or a prerequisite for mounting a defense.
+
+## Dispatch source and transport rules
+
+`E = earliest_submit_height / epoch_length_blocks`, without a genesis offset;
+`reference_height = E * epoch_length_blocks`. `epoch_seed` is the raw R_h of that
+height's committed verified beacon. Missing/unverified/placeholder sources fail
+closed; no current-block, first-available-block, ZERO32 or genesis-hash substitute
+exists. Epoch zero has no height-zero beacon, so dispatch starts only after the
+epoch-one start beacon commits. Session funding and registration may bootstrap
+before that. `ResolveEpochSeed` checks the common source/height projection;
+consumers supply verified status from chain authority and use the existing
+`DispatchVrfInputV1` signing projection. The fixture links source height/R_h,
+epoch seed and the exact alpha used by its real ECVRF proof.
+
+For a selected model/profile, `weight_inputs.profiles[]` is the authoritative
+profile-specific source. Top-level `profile_support_fresh` and
+`min_stake_snapshot` are projections of the matching entry; `candidate_weight`
+uses that entry and the frozen member-level bond/performance/jail/exit inputs.
+The member-wide `inference_capable` is only a summary and cannot grant capability
+for a different profile. An absent matching profile is not eligible. Query,
+pool construction and challenge recomputation must share this decision and
+never fall back to live state. An in-pool member missing weight inputs is an
+invalid snapshot. The current `VrfKey` Query intentionally has no by-epoch/history
+RPC; auditors retain registration/cutover history or use archival state, and
+cannot substitute a current key for an old ticket's key.
+
+Stream bindings use schema version 1 and a fresh random 32-byte Cortex nonce.
+Each direction has its own contiguous business cursors 1, 2, ... . Binding, ack
+and keepalive frames carry cursor 0 and consume no business cursor. Ack 0 means
+nothing acknowledged; an ack cannot cross a gap or exceed what was sent. Every
+frame echoes the authenticated nonce; reconnect starts a new binding and nonce,
+with business cursor 1. Do not resign or alter retained business messages.
+Before processing business frames, authenticate the binding. Cursor overflow
+requires reconnect, never wraparound.
+
+A local keepalive has at most one outstanding probe, with values increasing per
+direction. A received value equal to that outstanding probe is its echo: consume
+it without replying. Otherwise echo the peer probe once; discard repeated peer
+probe values. This rule also applies when both peers probe at once. Probe timing
+and liveness thresholds remain deployment settings. The strict decoder enforces
+nonce width, binding version, control/business cursor separation and binding-frame
+nonce consistency; cross-frame authentication, ack bounds and liveness require
+the consumer's stream state.
+
+For `MsgRecordDispatch`, `BatchItemResultV1.object_id` is the dispatch entry digest
+or takeover entry digest for that input, including NOOP. It is not the record or
+ticket hash. `item_index` identifies input position. `batch_kind` is
+`DISPATCH_RECORD`; the result digest uses input order and each `(object_id,status)`
+pair. The published batch fixture derives these IDs from the real signed record
+and accept plus a takeover entry; it does not claim funded admission by Node.
+
+## Consumer validation
 
 ChatCompletionOutputUsage.cached_prompt_tokens reports the input tokens served
 from the prefix cache for one request. It uses int32, like the existing usage

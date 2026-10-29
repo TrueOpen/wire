@@ -145,8 +145,8 @@
       "path": "task/dispatch_v1.json",
       "origin": "wire",
       "contract_section": "Generation-bound dispatch proofs and attempt-bound output signatures; docs/PHASE1_CONTRACT.md",
-      "bytes": 111198,
-      "sha256": "9e9da05ad154407dc2351e6dac39f2279758d8d58d76be4c9788df161ff61d4f"
+      "bytes": 129298,
+      "sha256": "20e06a30943f8e151493a5bec801eac7a72c6e5e64117af80fba11523ee851e7"
     },
     {
       "path": "task/generation_params_ranges_v1.json",

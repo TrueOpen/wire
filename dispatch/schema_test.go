@@ -23,6 +23,13 @@ func TestDescriptorGuardRejectsSemanticDrift(t *testing.T) {
 	if err := ValidateDescriptorImage([]byte(fragment)); err != nil {
 		t.Fatal(err)
 	}
+	domain := signingDomains["nexus.v1.DispatchStreamBindingV1"]
+	t.Cleanup(func() { signingDomains["nexus.v1.DispatchStreamBindingV1"] = domain })
+	delete(signingDomains, "nexus.v1.DispatchStreamBindingV1")
+	if err := ValidateDescriptorImage([]byte(fragment)); err == nil {
+		t.Fatal("signed message without a signing domain passed the descriptor gate")
+	}
+	signingDomains["nexus.v1.DispatchStreamBindingV1"] = domain
 	for _, mutation := range []struct {
 		field int
 		key   string

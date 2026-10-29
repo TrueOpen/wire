@@ -108,6 +108,8 @@ func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions)
 		role, memberField, nonceField, signatureField = ProofParticipantCortex, 6, 7, 8
 	case "task.v1.DispatchRejectV1":
 		role, memberField, nonceField, signatureField = ProofParticipantCortex, 6, 7, 9
+	case "task.v1.VerifierHandraiseV1":
+		role, memberField, nonceField, signatureField = ProofParticipantCortex, 9, 11, 13
 	default:
 		return fmt.Errorf("unsupported dispatch proof %s", name)
 	}

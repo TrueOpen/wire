@@ -1,5 +1,7 @@
 package dispatch
 
+var dispatchRejectCodes = map[uint64]bool{0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: true, 12: true, 13: true, 14: true, 15: true, 16: true, 17: true, 18: true, 19: true, 20: true, 21: true, 22: true, 23: true, 24: true, 25: true, 26: true, 27: true, 28: true, 29: true, 30: true, 31: true, 32: true, 33: true, 34: true, 35: true, 36: true, 37: true}
+
 // Pinned field metadata for the generated-code-free canonical verifier.
 // The descriptor conformance check validates this table against the source.
 var protoTables = map[string]messageSpec{
@@ -101,7 +103,7 @@ var protoTables = map[string]messageSpec{
 	"nexus.v1.RecordResultNoticeV1": {
 		1: {name: "dispatch_ticket_hash", kind: kindBytes, hash: true},
 		2: {name: "status", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true}},
-		3: {name: "reject_code", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: true, 12: true, 13: true, 14: true, 15: true, 16: true, 17: true, 18: true, 19: true, 20: true, 21: true, 22: true, 23: true, 24: true, 25: true, 26: true, 27: true, 28: true, 29: true, 30: true, 31: true, 32: true, 33: true, 34: true, 35: true, 36: true, 37: true}},
+		3: {name: "reject_code", kind: kindVarint, bits: 32, enum: dispatchRejectCodes},
 		4: {name: "recorded_height", kind: kindVarint},
 		5: {name: "builder_service_signature", kind: kindBytes},
 	},
@@ -135,6 +137,16 @@ var protoTables = map[string]messageSpec{
 	},
 	"shared.v1.Amount": {
 		1: {name: "atomic_units", kind: kindString},
+	},
+	"task.v1.BatchItemResultV1": {
+		1: {name: "item_index", kind: kindVarint, bits: 32},
+		2: {name: "object_id", kind: kindBytes, hash: true},
+		3: {name: "status", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true}},
+		4: {name: "reject_code", kind: kindVarint, bits: 32, enum: dispatchRejectCodes},
+	},
+	"task.v1.MsgRecordDispatchResponse": {
+		1: {name: "results", kind: kindMessage, message: "task.v1.BatchItemResultV1", repeated: true},
+		2: {name: "batch_digest", kind: kindBytes, hash: true},
 	},
 	"task.v1.BuilderEvidenceV2": {
 		1: {name: "schema_version", kind: kindVarint, bits: 32},
@@ -298,7 +310,7 @@ var protoTables = map[string]messageSpec{
 	"task.v1.HandraiseRootLeafV1": {
 		1: {name: "handraise", kind: kindMessage, message: "task.v1.StandingHandraiseV1"},
 		2: {name: "admitted", kind: kindVarint, boolean: true},
-		3: {name: "admit_reject_reason", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true, 4: true}},
+		3: {name: "admit_reject_reason", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true, 4: true, 5: true}},
 		4: {name: "builder_measured_rtt_ms", kind: kindVarint},
 	},
 	"task.v1.SelectedVerifierV1": {
@@ -434,4 +446,5 @@ var signingDomains = map[string]string{
 	"task.v1.DispatchVrfInputV1":             "TRUEOPEN_DISPATCH_VRF_INPUT_V1",
 	"task.v1.SignedHandraiseRootV1":          "TRUEOPEN_HANDRAISE_ROOT_V1",
 	"task.v1.StandingHandraiseV1":            "TRUEOPEN_STANDING_HANDRAISE_V1",
+	"task.v1.VerifierHandraiseV1":            "TRUEOPEN_VERIFIER_HANDRAISE_V1",
 }

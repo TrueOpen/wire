@@ -154,6 +154,16 @@ service Query {
   rpc DispatchChallenge(QueryDispatchChallengeRequest) returns (QueryDispatchChallengeResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/dispatch_challenge/{challenge_id}";
   }
+
+  // DispatchChallengesByBuilder pages open challenges against one Builder.
+  rpc DispatchChallengesByBuilder(QueryDispatchChallengesByBuilderRequest) returns (QueryDispatchChallengesByBuilderResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/builder/{builder_address}/dispatch_challenges";
+  }
+
+  // DispatchCompensationClaimsByBuilder pages claims pending that Builder's rebuttal.
+  rpc DispatchCompensationClaimsByBuilder(QueryDispatchCompensationClaimsByBuilderRequest) returns (QueryDispatchCompensationClaimsByBuilderResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/builder/{builder_address}/dispatch_compensation_claims";
+  }
 }
 
 // Fresh Phase 0 has no settlement preview, challenge-id, proof, opening, or

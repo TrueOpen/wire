@@ -94,7 +94,6 @@ func TestPublishedFullPoolOrder(t *testing.T) {
 		Order struct {
 			ChainID    string           `json:"chain_id"`
 			TaskID     string           `json:"task_id"`
-			PoolHash   string           `json:"pool_hash"`
 			Height     uint64           `json:"reference_height"`
 			Randomness string           `json:"randomness"`
 			Members    []WeightedMember `json:"members"`

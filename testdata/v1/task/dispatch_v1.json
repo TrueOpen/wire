@@ -2327,6 +2327,375 @@
       ],
       "name": "builder_fault_id_tag_3",
       "preimage_hex": "0000000000000019545255454f50454e5f4255494c4445525f4641554c545f56320000000000000018747275656f70656e2d7068617365312d766563746f722d3100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f1000000000000000400000002000000000000002014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf000000000000002078e4218db7d6cb8abe408b4296f6afd8eff148a0c2df402a63d34a314338e7b6"
+    },
+    {
+      "contract_section": "Phase 1 consumer conformance",
+      "digest_hex": "70b92f7d293526f265ada450161a1d973460df2b4d05dfea416851203ee9095b",
+      "domain": "TRUEOPEN_VERIFIER_HANDRAISE_V1",
+      "fields": [
+        {
+          "name": "schema_version",
+          "type": "uint32",
+          "value": 1
+        },
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "hex": "14bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf",
+          "name": "task_id",
+          "type": "bytes"
+        },
+        {
+          "name": "verify_round",
+          "type": "uint32",
+          "value": 1
+        },
+        {
+          "hex": "556037c4501ae28884b6ae09ec7e81b4aec00a9209d486c081e74b428f60d408",
+          "name": "infer_receipt_hash",
+          "type": "bytes"
+        },
+        {
+          "hex": "22431a3e6a3d357d8e410b6389401d2f6bab54bfc3d9bf434080d67dbfe24ead",
+          "name": "output_hash",
+          "type": "bytes"
+        },
+        {
+          "hex": "b18f96c5c38fa33364fcd4252edfeeb85f131eff5838936c4193af467f58a4b5",
+          "name": "model_id",
+          "type": "bytes"
+        },
+        {
+          "name": "profile_version",
+          "type": "uint32",
+          "value": 1
+        },
+        {
+          "fields": [
+            {
+              "hex": "68f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a",
+              "name": "candidate_pool_snapshot_id",
+              "type": "bytes"
+            },
+            {
+              "name": "slot",
+              "type": "uint32",
+              "value": 1
+            },
+            {
+              "name": "slot_version",
+              "type": "uint64",
+              "value": 1
+            },
+            {
+              "bech32": "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz",
+              "hex": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+              "name": "operator_address",
+              "type": "address"
+            }
+          ],
+          "name": "member",
+          "type": "frame"
+        },
+        {
+          "name": "duty",
+          "type": "enum",
+          "value": 2
+        },
+        {
+          "name": "service_authorization_nonce",
+          "type": "uint64",
+          "value": 1
+        },
+        {
+          "name": "expiry_height",
+          "type": "uint64",
+          "value": 2000
+        },
+        {
+          "hex": "",
+          "name": "recipient_pubkey",
+          "type": "bytes"
+        }
+      ],
+      "message_name": "task.v1.VerifierHandraiseV1",
+      "name": "task_v1_verifierhandraisev1",
+      "preimage_hex": "000000000000001e545255454f50454e5f56455249464945525f48414e4452414953455f56310000000000000004000000010000000000000018747275656f70656e2d7068617365312d766563746f722d31000000000000002014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf0000000000000004000000010000000000000020556037c4501ae28884b6ae09ec7e81b4aec00a9209d486c081e74b428f60d408000000000000002022431a3e6a3d357d8e410b6389401d2f6bab54bfc3d9bf434080d67dbfe24ead0000000000000020b18f96c5c38fa33364fcd4252edfeeb85f131eff5838936c4193af467f58a4b50000000000000004000000010000000000000060000000000000002068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a0000000000000004000000010000000000000008000000000000000100000000000000141a642f0e3c3af545e7acbd38b07251b3990914f100000000000000040000000200000000000000080000000000000001000000000000000800000000000007d00000000000000000",
+      "protobuf_hex": "08011218747275656f70656e2d7068617365312d766563746f722d311a2014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf20012a20556037c4501ae28884b6ae09ec7e81b4aec00a9209d486c081e74b428f60d408322022431a3e6a3d357d8e410b6389401d2f6bab54bfc3d9bf434080d67dbfe24ead3a20b18f96c5c38fa33364fcd4252edfeeb85f131eff5838936c4193af467f58a4b540014a570a2068f89adb3e96f536e4f34e8d2145381c18ffe6841d5c7a90fe372a194bed070a10011801222f747275656f70656e3172666a7a3772337538743635746561766835757471756a336b7776736a39383370336a636c7a5002580160d00f6a40c6f1af186304559665f9012fe9f1642643b2705cbeb3555d7c724746636204ff1f62b9a0f12dd3eadc5194f47aa4cec88d2f9eabf7a4ffa3c02cefaa3e401117",
+      "public_key_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+      "signature_hex": "c6f1af186304559665f9012fe9f1642643b2705cbeb3555d7c724746636204ff1f62b9a0f12dd3eadc5194f47aa4cec88d2f9eabf7a4ffa3c02cefaa3e401117"
+    },
+    {
+      "contract_section": "Phase 1 consumer conformance",
+      "digest_hex": "9a16b8cff901962ff091adffb0b51effd38bc5498a82e8940df6d0dc387a9098",
+      "domain": "TRUEOPEN_HANDRAISE_ROOT_LEAF_V1",
+      "fields": [
+        {
+          "hex": "da0d21711112304209a53320316dad0e63f50c62c98efcf1c19fce58ed9cc690",
+          "name": "standing_handraise_digest",
+          "type": "bytes"
+        },
+        {
+          "bool": false,
+          "name": "admitted",
+          "type": "bool"
+        },
+        {
+          "name": "admit_reject_reason",
+          "type": "enum",
+          "value": 5
+        },
+        {
+          "name": "builder_measured_rtt_ms_or_zero",
+          "type": "uint64",
+          "value": 0
+        }
+      ],
+      "name": "handraise_root_leaf_pending_rotation",
+      "preimage_hex": "000000000000001f545255454f50454e5f48414e4452414953455f524f4f545f4c4541465f56310000000000000020da0d21711112304209a53320316dad0e63f50c62c98efcf1c19fce58ed9cc69000000000000000010000000000000000040000000500000000000000080000000000000000"
+    },
+    {
+      "contract_section": "Phase 1 consumer conformance",
+      "digest_hex": "4e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d",
+      "domain": "TRUEOPEN_DISPATCH_RECORD_ENTRY_V1",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "name": "entry_kind",
+          "type": "enum",
+          "value": 1
+        },
+        {
+          "hex": "14bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf",
+          "name": "task_id",
+          "type": "bytes"
+        },
+        {
+          "hex": "33f1a382569171e2074fd3d53de747784a756544636a87be94ed84e711434976",
+          "name": "task_hash",
+          "type": "bytes"
+        },
+        {
+          "hex": "9c9be77729199e1037e47e1adb9a0ac5720d775ae7e36320ddf6394a1ac8f2dc",
+          "name": "dispatch_record_hash",
+          "type": "bytes"
+        },
+        {
+          "hex": "390314d1894596c473fbbdbae753366a8f75ed1775cf24bff565a425f83e2ed2",
+          "name": "dispatch_accept_digest",
+          "type": "bytes"
+        }
+      ],
+      "name": "dispatch_entry_linked_record_accept",
+      "preimage_hex": "0000000000000021545255454f50454e5f44495350415443485f5245434f52445f454e5452595f56310000000000000018747275656f70656e2d7068617365312d766563746f722d31000000000000000400000001000000000000002014bc7aeea995cfb037517220d0e981df255def7318b07ac0cba6ad82e3ac7ccf000000000000002033f1a382569171e2074fd3d53de747784a756544636a87be94ed84e71143497600000000000000209c9be77729199e1037e47e1adb9a0ac5720d775ae7e36320ddf6394a1ac8f2dc0000000000000020390314d1894596c473fbbdbae753366a8f75ed1775cf24bff565a425f83e2ed2"
+    },
+    {
+      "contract_section": "Phase 1 consumer conformance",
+      "digest_hex": "bf2df2e339be8b9046084e3f490c8eddffc24d8f49fce84864b154d9628c05c0",
+      "domain": "TRUEOPEN_BATCH_RESULT_V1",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "name": "batch_kind",
+          "type": "string",
+          "utf8": "DISPATCH_RECORD"
+        },
+        {
+          "name": "item_count",
+          "type": "uint32",
+          "value": 2
+        },
+        {
+          "fields": [
+            {
+              "name": "element_count",
+              "type": "uint32",
+              "value": 2
+            },
+            {
+              "fields": [
+                {
+                  "hex": "4e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d",
+                  "name": "object_id",
+                  "type": "bytes"
+                },
+                {
+                  "name": "status",
+                  "type": "enum",
+                  "value": 1
+                }
+              ],
+              "name": "item",
+              "type": "frame"
+            },
+            {
+              "fields": [
+                {
+                  "hex": "2e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386",
+                  "name": "object_id",
+                  "type": "bytes"
+                },
+                {
+                  "name": "status",
+                  "type": "enum",
+                  "value": 2
+                }
+              ],
+              "name": "item",
+              "type": "frame"
+            }
+          ],
+          "name": "items",
+          "type": "frame"
+        }
+      ],
+      "name": "dispatch_batch_mixed_applied_noop",
+      "preimage_hex": "0000000000000018545255454f50454e5f42415443485f524553554c545f56310000000000000018747275656f70656e2d7068617365312d766563746f722d31000000000000000f44495350415443485f5245434f52440000000000000004000000020000000000000084000000000000000400000002000000000000003400000000000000204e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d000000000000000400000001000000000000003400000000000000202e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386000000000000000400000002"
+    },
+    {
+      "contract_section": "Phase 1 consumer conformance",
+      "digest_hex": "75117c41ccd9ed88ee7ca7b913c777b7e387378b6f574ed561b42e1a358044f4",
+      "domain": "TRUEOPEN_BATCH_RESULT_V1",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "name": "batch_kind",
+          "type": "string",
+          "utf8": "DISPATCH_RECORD"
+        },
+        {
+          "name": "item_count",
+          "type": "uint32",
+          "value": 2
+        },
+        {
+          "fields": [
+            {
+              "name": "element_count",
+              "type": "uint32",
+              "value": 2
+            },
+            {
+              "fields": [
+                {
+                  "hex": "4e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d",
+                  "name": "object_id",
+                  "type": "bytes"
+                },
+                {
+                  "name": "status",
+                  "type": "enum",
+                  "value": 2
+                }
+              ],
+              "name": "item",
+              "type": "frame"
+            },
+            {
+              "fields": [
+                {
+                  "hex": "2e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386",
+                  "name": "object_id",
+                  "type": "bytes"
+                },
+                {
+                  "name": "status",
+                  "type": "enum",
+                  "value": 2
+                }
+              ],
+              "name": "item",
+              "type": "frame"
+            }
+          ],
+          "name": "items",
+          "type": "frame"
+        }
+      ],
+      "name": "dispatch_batch_exact_replay",
+      "preimage_hex": "0000000000000018545255454f50454e5f42415443485f524553554c545f56310000000000000018747275656f70656e2d7068617365312d766563746f722d31000000000000000f44495350415443485f5245434f52440000000000000004000000020000000000000084000000000000000400000002000000000000003400000000000000204e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d000000000000000400000002000000000000003400000000000000202e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386000000000000000400000002"
+    },
+    {
+      "contract_section": "Phase 1 consumer conformance",
+      "digest_hex": "b1022a3a1494dcf508fbf70e6471f2f49cfeef84c53e9228d8bd97f6176a39a2",
+      "domain": "TRUEOPEN_BATCH_RESULT_V1",
+      "fields": [
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-phase1-vector-1"
+        },
+        {
+          "name": "batch_kind",
+          "type": "string",
+          "utf8": "DISPATCH_RECORD"
+        },
+        {
+          "name": "item_count",
+          "type": "uint32",
+          "value": 2
+        },
+        {
+          "fields": [
+            {
+              "name": "element_count",
+              "type": "uint32",
+              "value": 2
+            },
+            {
+              "fields": [
+                {
+                  "hex": "4e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d",
+                  "name": "object_id",
+                  "type": "bytes"
+                },
+                {
+                  "name": "status",
+                  "type": "enum",
+                  "value": 3
+                }
+              ],
+              "name": "item",
+              "type": "frame"
+            },
+            {
+              "fields": [
+                {
+                  "hex": "2e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386",
+                  "name": "object_id",
+                  "type": "bytes"
+                },
+                {
+                  "name": "status",
+                  "type": "enum",
+                  "value": 1
+                }
+              ],
+              "name": "item",
+              "type": "frame"
+            }
+          ],
+          "name": "items",
+          "type": "frame"
+        }
+      ],
+      "name": "dispatch_batch_independent_rejection",
+      "preimage_hex": "0000000000000018545255454f50454e5f42415443485f524553554c545f56310000000000000018747275656f70656e2d7068617365312d766563746f722d31000000000000000f44495350415443485f5245434f52440000000000000004000000020000000000000084000000000000000400000002000000000000003400000000000000204e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d000000000000000400000003000000000000003400000000000000202e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386000000000000000400000001"
     }
   ],
   "vrf": {
@@ -2360,7 +2729,6 @@
       3,
       1
     ],
-    "pool_hash": "882ec1741c89b5cc3b56e22c92840d5a35c5998cdbcc04002052f128317d48d0",
     "randomness": "8888888888888888888888888888888888888888888888888888888888888888",
     "reference_height": 100,
     "task_id": "3333333333333333333333333333333333333333333333333333333333333333"
@@ -2429,5 +2797,90 @@
         ]
       }
     ]
-  }
+  },
+  "epoch_seed_derivation": {
+    "alpha_hex": "b6c101e08579bf00a0b2ee31c3375cead347463bc3d323f5317ef5a35d9add50",
+    "alpha_vector": "task_v1_dispatchvrfinputv1",
+    "beacon_height": 100,
+    "beacon_randomness_hex": "d8a9084fc12bdc5f546cf024ab60de36a9ba0876d07e5d9d754cc13a4e9b998d",
+    "beacon_verified": true,
+    "earliest_submit_height": 109,
+    "epoch": 1,
+    "epoch_length_blocks": 100,
+    "epoch_seed_hex": "d8a9084fc12bdc5f546cf024ab60de36a9ba0876d07e5d9d754cc13a4e9b998d",
+    "epoch_start_height": 100,
+    "note": "The fixture supplies a committed verified beacon R_h as the source precondition; it is not a fabricated height-zero or fallback seed.",
+    "vrf_proof_hex": "8643cd2095f34cbfe3d17b239c734c6f5049cc9ecd97d3c49611ead32984d012463ca6ffe3d414cf3cc512cd25056cd87ff39501cdd6fb9e35763b29112ad33f3a792636487a09480b9730566b85b305"
+  },
+  "batch_results": [
+    {
+      "accept_vector": "task_v1_dispatchacceptv1",
+      "batch_digest_hex": "bf2df2e339be8b9046084e3f490c8eddffc24d8f49fce84864b154d9628c05c0",
+      "dispatch_entry_vector": "dispatch_entry_linked_record_accept",
+      "name": "dispatch_batch_mixed_applied_noop",
+      "record_vector": "task_v1_dispatchrecordv1",
+      "results": [
+        {
+          "item_index": 0,
+          "object_id_hex": "4e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d",
+          "status": 1,
+          "reject_code": 0
+        },
+        {
+          "item_index": 1,
+          "object_id_hex": "2e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386",
+          "status": 2,
+          "reject_code": 0
+        }
+      ],
+      "takeover_entry_vector": "takeover_entry_candidate_a",
+      "response_protobuf_hex": "0a2412204e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d18010a26080112202e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc608838618021220bf2df2e339be8b9046084e3f490c8eddffc24d8f49fce84864b154d9628c05c0"
+    },
+    {
+      "accept_vector": "task_v1_dispatchacceptv1",
+      "batch_digest_hex": "75117c41ccd9ed88ee7ca7b913c777b7e387378b6f574ed561b42e1a358044f4",
+      "dispatch_entry_vector": "dispatch_entry_linked_record_accept",
+      "name": "dispatch_batch_exact_replay",
+      "record_vector": "task_v1_dispatchrecordv1",
+      "results": [
+        {
+          "item_index": 0,
+          "object_id_hex": "4e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d",
+          "status": 2,
+          "reject_code": 0
+        },
+        {
+          "item_index": 1,
+          "object_id_hex": "2e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386",
+          "status": 2,
+          "reject_code": 0
+        }
+      ],
+      "takeover_entry_vector": "takeover_entry_candidate_a",
+      "response_protobuf_hex": "0a2412204e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d18020a26080112202e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc60883861802122075117c41ccd9ed88ee7ca7b913c777b7e387378b6f574ed561b42e1a358044f4"
+    },
+    {
+      "accept_vector": "task_v1_dispatchacceptv1",
+      "batch_digest_hex": "b1022a3a1494dcf508fbf70e6471f2f49cfeef84c53e9228d8bd97f6176a39a2",
+      "dispatch_entry_vector": "dispatch_entry_linked_record_accept",
+      "name": "dispatch_batch_independent_rejection",
+      "record_vector": "task_v1_dispatchrecordv1",
+      "results": [
+        {
+          "item_index": 0,
+          "object_id_hex": "4e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d",
+          "status": 3,
+          "reject_code": 25
+        },
+        {
+          "item_index": 1,
+          "object_id_hex": "2e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc6088386",
+          "status": 1,
+          "reject_code": 0
+        }
+      ],
+      "takeover_entry_vector": "takeover_entry_candidate_a",
+      "response_protobuf_hex": "0a2612204e01c90de112729c095528551c0395744c5c0d0f8fb08682dc6f0c7438df809d180320190a26080112202e928a2b21c30b256cfa22257f7238c7be4e2eb8e45ff68e4023011dc608838618011220b1022a3a1494dcf508fbf70e6471f2f49cfeef84c53e9228d8bd97f6176a39a2"
+    }
+  ]
 }

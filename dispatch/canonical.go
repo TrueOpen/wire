@@ -197,6 +197,9 @@ func decode(name string, raw []byte, depth int) (decoded, error) {
 		}
 		out[number] = append(out[number], v)
 	}
+	if err := validateStreamShape(name, out); err != nil {
+		return nil, err
+	}
 	return out, nil
 }
 

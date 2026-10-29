@@ -8,6 +8,9 @@ import (
 
 const handraiseMerkleDomain = "TRUEOPEN_HANDRAISE_MERKLE_V1"
 
+// AdmitRejectServiceKeyRotationPending is the closed pending-duty reason.
+const AdmitRejectServiceKeyRotationPending uint32 = 5
+
 func treeHash(parts ...[]byte) []byte {
 	hash := sha256.New()
 	for _, part := range parts {
@@ -52,7 +55,7 @@ func MerkleRootV1(domain string, leaves [][]byte) []byte { return merkleFold(dom
 
 // HandraiseLeafDigest commits one explicit admission decision.
 func HandraiseLeafDigest(standing [32]byte, admitted bool, reason uint32, rtt uint64) ([32]byte, error) {
-	if admitted && (reason != 1 || rtt != 0) || !admitted && (reason < 2 || reason > 4 || reason == 2 && rtt == 0 || reason != 2 && rtt != 0) {
+	if admitted && (reason != 1 || rtt != 0) || !admitted && (reason < 2 || reason > AdmitRejectServiceKeyRotationPending || reason == 2 && rtt == 0 || reason != 2 && rtt != 0) {
 		return [32]byte{}, fmt.Errorf("invalid handraise admission decision")
 	}
 	flag := byte(0)
