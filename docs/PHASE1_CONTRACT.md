@@ -130,6 +130,24 @@ user/session-key authorization. Payment follows a rebuttal window; penalties
 and compensation are capped by the Builder account balance and create no debt.
 There is no compensation-account withdrawal message in Phase 1.
 
+An upheld dispatch fault uses the first upheld challenge_id in its objective
+scope as fault_id. The scope excludes the challenger, so a second reporter
+cannot collect or penalize again. Rebuild the private upheld-scope index from
+challenge primaries; it does not introduce a public hash domain. In one atomic
+fault application, pay any entitled omission victim first, capped at worker_max
+and the account balance, then pay the independently configured penalty from
+the remaining balance to Treasury. Count the actual compensation in total_paid
+and actual penalty in total_penalized. Fault compensated_amount and penalty_amount
+record those actual payments; fault unfilled_amount is only the penalty shortfall.
+
+An omission proof using a newer signed handraise_root must also supply
+bound_handraise_root, the signed preimage of the round's committed root. Verify
+both against the same chain/Builder, require the bound preimage's digest to match
+the retained commitment, then compare (root_height, root_version) lexicographically.
+The newer root height must not exceed the retained earliest_submit_height. When
+the evidence root itself matches the commitment, the bound preimage is optional;
+if supplied, it must still match. A digest alone cannot establish root freshness.
+
 Four recorded-task challenges use retained records. Double dispatch can be
 proved from a signed record before admission. Each challenge kind has its own
 scope/deduplication key, gas cap and bounded response. Reject proofs use the current service proof key and match its signed nonce;

@@ -2,6 +2,9 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Complete omission proof inputs with the signed bound-root preimage when a
+  newer root is used. Freeze first-upheld challenge identity for dispatch faults
+  and compensation-first accounting before the independent Treasury penalty.
 - Freeze the governable Worker stake/performance coefficients once per activated
   epoch snapshot header. Historical member queries, challenges and Genesis use
   the saved policy rather than current Task parameters.
