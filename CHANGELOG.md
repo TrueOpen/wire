@@ -2,6 +2,8 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Generate gogo equality for dispatch parameters and their nested policy entries,
+  so the existing TaskParamsV1 equality method compiles in Go consumers.
 - Bind Chunk/Fin signatures to dispatch_ticket_hash and rebuild Worker evidence
   from the accepted receipt's attempt. An old generation of the same order
   cannot falsely prove equivocation by an honest Worker.

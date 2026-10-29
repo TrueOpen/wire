@@ -216,6 +216,8 @@ message ChallengeParamsV1 {
 
 // DispatchParamsV1 defines the canonical DispatchParamsV1 fields.
 message DispatchParamsV1 {
+  option (gogoproto.equal) = true;
+
   uint64 record_deadline_blocks = 1;
   uint32 max_dispatch_entries_per_record = 2;
   uint64 max_dispatch_record_bytes = 3;
@@ -242,16 +244,22 @@ message DispatchParamsV1 {
 
 // PrefillCompensationV1 defines the canonical PrefillCompensationV1 fields.
 message PrefillCompensationV1 {
+  option (gogoproto.equal) = true;
+
   uint32 resource_tier = 1;
   shared.v1.Amount amount = 2 [(gogoproto.nullable) = false];
 }
 // DispatchFaultPenaltyV1 defines the canonical DispatchFaultPenaltyV1 fields.
 message DispatchFaultPenaltyV1 {
+  option (gogoproto.equal) = true;
+
   shared.v1.DispatchChallengeKindV1 kind = 1;
   shared.v1.Amount amount = 2 [(gogoproto.nullable) = false];
 }
 // DispatchChallengeGasCapV1 defines the canonical DispatchChallengeGasCapV1 fields.
 message DispatchChallengeGasCapV1 {
+  option (gogoproto.equal) = true;
+
   shared.v1.DispatchChallengeKindV1 kind = 1;
   uint64 gas_cap = 2;
 }
