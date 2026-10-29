@@ -734,7 +734,8 @@
         "task_id",
         "dispatch_ticket_hash",
         "member",
-        "service_authorization_nonce"
+        "service_authorization_nonce",
+        "dispatch_accept_digest"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -763,27 +764,6 @@
       "event": "-",
       "query": "-",
       "contract_section": "Direct dispatch signing contract",
-      "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
-    },
-    {
-      "domain": "TRUEOPEN_DISPATCH_POOL_V1",
-      "framing": "H_FIELDS_V1",
-      "fields": [
-        "chain_id",
-        "candidate_pool_snapshot_id",
-        "reference_height",
-        "model_id",
-        "profile_version",
-        "member_count",
-        "repeated(canonical weighted pool member)"
-      ],
-      "producer": "canonical wire implementation",
-      "consumers": "Node, Nexus, Cortex and SDK",
-      "store": "operation primary or response only",
-      "event": "-",
-      "query": "-",
-      "contract_section": "Direct dispatch identities and request bodies",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false
     },
@@ -829,8 +809,7 @@
         "sticky_run_count",
         "sticky_applied",
         "rounds",
-        "dispatch_ticket_hash",
-        "service_authorization_nonce"
+        "dispatch_ticket_hash"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -888,7 +867,8 @@
       "fields": [
         "task_id",
         "dispatch_ticket_hash",
-        "revoked_height"
+        "revoked_height",
+        "reason"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -906,7 +886,9 @@
         "task_id",
         "requester",
         "nonce",
-        "expiry_height"
+        "expiry_height",
+        "chain_id",
+        "builder_operator"
       ],
       "producer": "canonical wire implementation",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -982,9 +964,7 @@
         "input_hash",
         "bound_change_height",
         "sticky_anchor_sequence",
-        "sticky_run_count",
-        "sticky_applied",
-        "service_authorization_nonce"
+        "sticky_run_count"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -1335,8 +1315,7 @@
         "root_height",
         "root_version",
         "leaf_count",
-        "root",
-        "service_authorization_nonce"
+        "root"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",

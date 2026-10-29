@@ -41,15 +41,6 @@ func RosterDigest(chainID string, taskID [32]byte, referenceHeight uint64, snaps
 	return HashFields("TRUEOPEN_DISPATCH_ROSTER_V1", []byte(chainID), taskID[:], Uint64(referenceHeight), snapshotID[:], Uint32(uint32(len(members))), frame), nil
 }
 
-// PoolDigest commits the entire profile-qualified, slot-ordered candidate pool.
-func PoolDigest(chainID string, snapshotID [32]byte, referenceHeight uint64, modelID [32]byte, profileVersion uint32, members []RosterMember) ([32]byte, error) {
-	frame, err := memberCommitment(members)
-	if err != nil {
-		return [32]byte{}, err
-	}
-	return HashFields("TRUEOPEN_DISPATCH_POOL_V1", []byte(chainID), snapshotID[:], Uint64(referenceHeight), modelID[:], Uint32(profileVersion), Uint32(uint32(len(members))), frame), nil
-}
-
 // ChallengeScope is the closed scope projection of one objective dispatch challenge.
 // Optional identities use empty strings; unused hashes are fixed zero32.
 type ChallengeScope struct {

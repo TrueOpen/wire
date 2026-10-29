@@ -1845,6 +1845,112 @@
         }
       },
       "session_change_delay_blocks": 6
+    },
+    {
+      "action": "set",
+      "current_height": 1100,
+      "current_max_blocks": 100,
+      "expected": "APPLIED",
+      "expected_state": {
+        "cap": "0",
+        "expiry": 1100,
+        "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
+        "next_sequence": 7,
+        "owner": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+        "set_height": 980,
+        "spent": "1000000",
+        "status": "ACTIVE",
+        "pending": {
+          "kind": "set",
+          "effective_height": 1106,
+          "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
+          "expiry": 1200,
+          "cap": "1150000"
+        }
+      },
+      "grant": {
+        "cap": "1150000",
+        "expiry": 1200,
+        "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70"
+      },
+      "historical_max_blocks": 0,
+      "name": "unlimited_to_finite_cap_is_delayed",
+      "signer": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+      "state": {
+        "cap": "0",
+        "expiry": 1100,
+        "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
+        "next_sequence": 7,
+        "owner": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+        "set_height": 980,
+        "spent": "1000000",
+        "status": "ACTIVE"
+      },
+      "session_change_delay_blocks": 6,
+      "expected_effective_height": 1106,
+      "expected_effective_state": {
+        "cap": "1150000",
+        "expiry": 1200,
+        "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
+        "next_sequence": 7,
+        "owner": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+        "set_height": 980,
+        "spent": "1000000",
+        "status": "ACTIVE"
+      }
+    },
+    {
+      "action": "set",
+      "current_height": 1100,
+      "current_max_blocks": 100,
+      "expected": "APPLIED",
+      "expected_state": {
+        "cap": "1150000",
+        "expiry": 1200,
+        "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
+        "next_sequence": 7,
+        "owner": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+        "set_height": 980,
+        "spent": "1000000",
+        "status": "ACTIVE",
+        "pending": {
+          "kind": "set",
+          "effective_height": 1106,
+          "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
+          "expiry": 1150,
+          "cap": "1150000"
+        }
+      },
+      "grant": {
+        "cap": "1150000",
+        "expiry": 1150,
+        "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70"
+      },
+      "historical_max_blocks": 0,
+      "name": "same_key_shorter_expiry_is_delayed",
+      "signer": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+      "state": {
+        "cap": "1150000",
+        "expiry": 1200,
+        "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
+        "next_sequence": 7,
+        "owner": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+        "set_height": 980,
+        "spent": "1000000",
+        "status": "ACTIVE"
+      },
+      "session_change_delay_blocks": 6,
+      "expected_effective_height": 1106,
+      "expected_effective_state": {
+        "cap": "1150000",
+        "expiry": 1150,
+        "key": "3325a78425f17a7e487eb5666b2bfd93abb06c70",
+        "next_sequence": 7,
+        "owner": "1a642f0e3c3af545e7acbd38b07251b3990914f1",
+        "set_height": 980,
+        "spent": "1000000",
+        "status": "ACTIVE"
+      }
     }
   ],
   "wallet_order": {

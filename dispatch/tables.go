@@ -14,6 +14,7 @@ var protoTables = map[string]messageSpec{
 		3: {name: "member", kind: kindMessage, message: "task.v1.CandidateMemberRefV1"},
 		4: {name: "service_authorization_nonce", kind: kindVarint},
 		5: {name: "service_signature", kind: kindBytes},
+		6: {name: "dispatch_accept_digest", kind: kindBytes, hash: true},
 	},
 	"nexus.v1.DispatchInputResponseV1": {
 		1: {name: "task_id", kind: kindBytes, hash: true},
@@ -41,6 +42,7 @@ var protoTables = map[string]messageSpec{
 		2: {name: "dispatch_ticket_hash", kind: kindBytes, hash: true},
 		3: {name: "revoked_height", kind: kindVarint},
 		4: {name: "builder_service_signature", kind: kindBytes},
+		5: {name: "reason", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true}},
 	},
 	"nexus.v1.DispatchRosterRequestV1": {
 		1: {name: "task_id", kind: kindBytes, hash: true},
@@ -48,6 +50,8 @@ var protoTables = map[string]messageSpec{
 		3: {name: "nonce", kind: kindVarint},
 		4: {name: "expiry_height", kind: kindVarint},
 		5: {name: "service_signature", kind: kindBytes},
+		6: {name: "chain_id", kind: kindString},
+		7: {name: "builder_operator", kind: kindString, address: true},
 	},
 	"nexus.v1.DispatchStreamBindingV1": {
 		1: {name: "schema_version", kind: kindVarint, bits: 32},
@@ -97,7 +101,7 @@ var protoTables = map[string]messageSpec{
 	"nexus.v1.RecordResultNoticeV1": {
 		1: {name: "dispatch_ticket_hash", kind: kindBytes, hash: true},
 		2: {name: "status", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true}},
-		3: {name: "reject_code", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: true, 12: true, 13: true, 14: true, 15: true, 16: true, 17: true, 18: true, 19: true, 20: true, 21: true, 22: true, 23: true, 24: true, 25: true, 26: true, 27: true}},
+		3: {name: "reject_code", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true, 10: true, 11: true, 12: true, 13: true, 14: true, 15: true, 16: true, 17: true, 18: true, 19: true, 20: true, 21: true, 22: true, 23: true, 24: true, 25: true, 26: true, 27: true, 28: true, 29: true, 30: true, 31: true, 32: true, 33: true, 34: true, 35: true, 36: true, 37: true}},
 		4: {name: "recorded_height", kind: kindVarint},
 		5: {name: "builder_service_signature", kind: kindBytes},
 	},
@@ -217,7 +221,6 @@ var protoTables = map[string]messageSpec{
 		18: {name: "rounds", kind: kindMessage, message: "task.v1.DispatchRoundV1", repeated: true},
 		19: {name: "dispatch_ticket_hash", kind: kindBytes, hash: true},
 		20: {name: "builder_service_signature", kind: kindBytes},
-		21: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"task.v1.DispatchRejectV1": {
 		1: {name: "schema_version", kind: kindVarint, bits: 32},
@@ -272,9 +275,7 @@ var protoTables = map[string]messageSpec{
 		21: {name: "bound_change_height", kind: kindVarint},
 		22: {name: "sticky_anchor_sequence", kind: kindVarint},
 		23: {name: "sticky_run_count", kind: kindVarint, bits: 32},
-		24: {name: "sticky_applied", kind: kindVarint, boolean: true},
 		25: {name: "builder_service_signature", kind: kindBytes},
-		26: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"task.v1.DispatchVrfInputV1": {
 		1: {name: "chain_id", kind: kindString},
@@ -313,7 +314,6 @@ var protoTables = map[string]messageSpec{
 		5: {name: "leaf_count", kind: kindVarint, bits: 32},
 		6: {name: "root", kind: kindBytes, hash: true},
 		7: {name: "builder_service_signature", kind: kindBytes},
-		8: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"task.v1.SignedMessageEquivocationV2": {
 		1: {name: "message_kind", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true}},

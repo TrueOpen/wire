@@ -97,8 +97,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 66624,
-      "sha256": "89e5b170cba9f47dd0e041868b6a0dab718d93ab56026cf02878c7bff08bb7ae"
+      "bytes": 66819,
+      "sha256": "2841e5b0ac68d3d2901ac962ca2e3db8018a53072c538c5b9027490030194574"
     },
     {
       "path": "shared/query_page_v1.json",
@@ -111,15 +111,15 @@
       "path": "shared/rest_json_shapes_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 38628,
-      "sha256": "c3c4467d3a434db5deba49842ab9e53a6b10f8c1737e6c74e96385f89635fca8"
+      "bytes": 38686,
+      "sha256": "a457e8e5ad8cb80678c4f6dfcafe39da901d2d7271f9817e437cb892998d803c"
     },
     {
-      "path": "shared/service_key_proof_v1.json",
+      "path": "shared/service_key_rotation_v1.json",
       "origin": "wire",
-      "contract_section": "Generation-bound dispatch proofs and attempt-bound output signatures; docs/PHASE1_CONTRACT.md",
-      "bytes": 1647,
-      "sha256": "bb2e531bbec42cf70e7a140992a6b237d541301d83ee910111bc7ccb5936b473"
+      "contract_section": "Delayed service-key rotation, inclusive cutoffs and safe epoch activation",
+      "bytes": 2633,
+      "sha256": "2116de3e5981a4697b5ce493a4dd165cf9773e2eb25f5262c9195f1e69303dd8"
     },
     {
       "path": "shared/shared_domains_v1.json",
@@ -145,8 +145,8 @@
       "path": "task/dispatch_v1.json",
       "origin": "wire",
       "contract_section": "Generation-bound dispatch proofs and attempt-bound output signatures; docs/PHASE1_CONTRACT.md",
-      "bytes": 113470,
-      "sha256": "327187f9c770d20f074e68d3edb8e98f3e62eee1b8bf3650e487dd64e7f046e7"
+      "bytes": 111198,
+      "sha256": "9e9da05ad154407dc2351e6dac39f2279758d8d58d76be4c9788df161ff61d4f"
     },
     {
       "path": "task/generation_params_ranges_v1.json",
@@ -201,8 +201,8 @@
       "path": "task/output_stream_header_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 2791,
-      "sha256": "d31839fb2aeb2c783af19c4b525f005875fc51b2c43534404e838531c46c1fd0"
+      "bytes": 2877,
+      "sha256": "6a0cd2676c8048da7512e5d3e70591685b3dcadaa85d2075c370475b4999345a"
     },
     {
       "path": "task/result_metric_v3.json",
@@ -250,8 +250,8 @@
       "path": "task/session_key_authorization_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 64504,
-      "sha256": "219f03bddbcd44878d5027a6bc48c464c535c7c175f616d2fa3215e49f3863ca"
+      "bytes": 67774,
+      "sha256": "1a584780e22870ea0848d579a547f3cc33844140cf83a74a6c133bef50d6836b"
     },
     {
       "path": "task/task_data_auth_v1.json",

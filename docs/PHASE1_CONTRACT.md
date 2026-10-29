@@ -122,8 +122,8 @@ There is no compensation-account withdrawal message in Phase 1.
 
 Four recorded-task challenges use retained records. Double dispatch can be
 proved from a signed record before admission. Each challenge kind has its own
-scope/deduplication key, gas cap and bounded response. Reject proofs use current
-or retained service proof keys selected by their signed authorization nonce;
+scope/deduplication key, gas cap and bounded response. Reject proofs use the current service proof key and match its signed nonce;
+registration leaves that binding unchanged throughout its evidence windows;
 honesty does not depend on a Worker's voluntary drain before rotation.
 Preserve record/winner exclusion facts until claim
 windows close and all pending claims finish. Pruned records must never be
@@ -133,8 +133,8 @@ Builder objective evidence retains exact serialized typed business messages and
 uses strict decoding before any generated decoder discards unknown/duplicate
 fields. Only OPEN_VERIFY and VERIFIER_ASSIGNMENT_NOTIFY are active signed
 message kinds. Their shared signed binding supplies chain, stable Builder and
-authorization nonce. Current revoked and retained rotated keys may prove old
-facts within their admissibility windows; neither authorizes live traffic. Proof verification
+authorization nonce. A revoked current key may prove old facts within its admissibility windows;
+it never authorizes live traffic. Pending keys cannot verify or authorize work. Proof verification
 does not replace Keeper Task authority, stage, admissibility or finality checks.
 
 Output Chunk and Fin signing projections bind dispatch_ticket_hash in addition
@@ -143,34 +143,78 @@ Worker output-equivocation evidence reconstructs the ticket from the accepted
 InferReceiptV3, never from a caller's attempt copy. An old attempt's genuine frame
 cannot incriminate a later attempt by the same Worker on the same signed order.
 
-SignedHandraiseRootV1, DispatchTicketV1 and DispatchRecordV1 include the Builder
-service_authorization_nonce in their signing projections. Record and winning
-ticket nonces agree; DispatchRecordState freezes it. First admission requires
-the current ACTIVE binding. Compensation claims/rebuttals, skip responses,
-handraise-root and double-dispatch challenges, and Builder message evidence
-resolve proofs by (participant_type, operator, signed nonce), including Cortex
-accept/reject proofs. Never substitute the newest key or admit new work with a
-retained key. Shared proof verification lives in dispatch/, as do roster, pool
-and challenge identity commitments; consumers do not reimplement their fields.
+SignedHandraiseRootV1, DispatchTicketV1 and DispatchRecordV1 use the current
+Builder key without an added Builder nonce. Ticket promotion is not a second
+fact: sticky_applied exists only on the record and remains true if the promoted
+Worker rejects and another Worker wins. Existing Cortex accept/reject nonces
+and typed BuilderMessageBinding nonces remain signed and match current authority.
+Shared proof verification, roster commitments and challenge identities live in
+dispatch/. The unused extra dispatch-pool commitment is removed.
 
-Rotation atomically copies the replaced binding into ServiceKeyProofState before
-installing the next current key. Proof expiry is frozen, inclusive, at no less
-than rotation_height + max(1, order_freshness_margin_blocks) + record_deadline_blocks +
-max(dispatch_compensation_claim_window_blocks + dispatch_compensation_rebuttal_blocks,
-dispatch_challenge_window_blocks + dispatch_challenge_response_blocks), using
-checked arithmetic. This covers unrecorded signed material that creates no Task
-liability/responsibility. Existing online-responsibility rotation guards remain.
-The one-block future-order tolerance must be covered even with zero backward freshness.
-Do not prune a key still required by an unresolved admissible claim/challenge.
-Governance must extend retained rows before activating longer windows and cannot
-reopen pruned generations. Missing required authority is an invariant failure,
-never affirmative evidence of fault against the honest proof presenter.
+## Delayed key cutover
 
-Hub Genesis exports retained proof rows in role/operator/nonce order, validating
-positive nonces below the current generation, canonical addresses, compressed
-pubkeys and retirement/expiry bounds. Rebuild the prune index at expiry + 1;
-bounded cleanup consumes the global visited budget and cross-checks references.
-Store validated address bytes privately; the public Genesis remains Bech32.
+MsgRotateServiceKey registers one PendingServiceKeyRotationState per role/operator.
+The old address/key/nonce stay current. The proposed next key has no live or proof
+permissions before activation. Registration reserves its address and emits event
+145; the existing rotated event is emitted only at actual activation. The current
+key query and registration response expose the pending primary.
+
+The inclusive old-dispatch cutoff is registration_height + 1 + the protocol hard
+limit for record_deadline_blocks + max(claim_window_hard_limit + rebuttal_hard_limit,
+challenge_window_hard_limit + response_hard_limit), with checked arithmetic. Use
+protocol clamps rather than mutable governance values. ServiceKeyRotationSchedule
+rounds strictly beyond this cutoff to an epoch start. Process activation in the
+preceding block's EndBlock so all consumers see the committed binding at the epoch
+start. A still-open old Task material window or insufficient global budget postpones
+activation by whole epochs. Never shorten an old proof window to force a switch.
+Governance cannot reopen a closed old-material batch; increasing protocol hard
+limits is a separately reviewed upgrade. These hard limits require the same
+pre-release calibration as the existing dispatch parameters; fixtures are examples.
+
+Pending Cortex operators leave new Worker/Verifier duty admission. Pending Builders
+stop new tickets/roots, new session bindings and new takeover bindings; bound
+sessions hand over through the existing takeover path. Old-material admission and
+proof windows use the ticket/record's own anchors and the frozen cutoff, never a
+later live session binding. Accepted facts and ongoing group duties stay owned by
+the stable operator. A pending Builder can continue on-chain group work with its
+current key. Its already-frozen old Task material contexts retain the old nonce;
+new Task Builder evidence contexts reserve the pending next nonce and cannot
+accept old-nonce offline messages. Other available group members coordinate those
+new offline contexts until activation. Same-block transaction ordering is read
+from the frozen responsibility row, not inferred from Task creation height.
+
+Activation's old-material count includes BUS_OBJECTIVE_EVIDENCE,
+WORKER_OUTPUT_EVIDENCE and CHALLENGE_VERIFIER, not the pure operator duties
+OPEN_VERIFY_BUILDER/SETTLE_BUILDER or reserved future-generation contexts. Rebuild
+this derived count from existing responsibility primaries; no Task-wide scan is
+allowed. Cortex liability/stage guards and admissible old responses also gate
+activation. Proof-key lookup remains current-only. No retired service-key primary,
+history prune index or governance history-expansion scan exists.
+
+Emergency revoke stops live permission immediately, cancels pending replacement
+and its address reservation, and keeps the current revoked proof identity until
+its material windows close. Unactivated future-nonce Builder responsibility rows
+are operator markers only, authorize no signatures and follow Task cleanup.
+Builder VRF rotation uses the same hard-limit waiting and an epoch-only cutover,
+while retaining its existing independent VRF audit history. It does not use the
+service-material counter. Validator and first-registration next-epoch behavior
+is unchanged. All of these are consumer execution requirements, not a claim that
+Node implements them yet.
+
+Hub Genesis exports pending rotations, validates their current/next nonce and
+frozen heights, and rebuilds activation/address indexes and material counts. Public
+addresses remain canonical Bech32 strings; private keys/values store validated raw20
+addresses and raw33 public keys. Do not copy public DTOs as private storage codecs.
+
+Roster request signatures bind chain_id and the target builder_operator. Input
+requests bind dispatch_accept_digest as well as the ticket. Revoke reasons are
+closed to pre-acceptance RBF. Chunk cumulative_generated_tokens is non-decreasing
+within an attempt and is used only for the pre-record forwarding cap. Public
+per-entry rejection codes include all order-validation failures and duplicate
+challenge scopes. Verifier value-evidence closure uses deadline kind 14 and a
+persisted verifier_value_evidence_window_closed_height before round finalization;
+its close index rebuilds when close is present and closed is absent. Double-dispatch
+windows use the signed record's bound_change_height, never mutable session state.
 
 ## Consumer acceptance requirements
 

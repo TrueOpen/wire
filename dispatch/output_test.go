@@ -2,6 +2,7 @@ package dispatch
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"os"
@@ -10,6 +11,61 @@ import (
 
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
+
+func TestPublishedOutputStreamHeaderSignature(t *testing.T) {
+	raw, err := os.ReadFile(filepath.Join("..", "testdata", "v1", "task", "output_stream_header_v1.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Vectors []struct {
+			Fields    []projectionField `json:"fields"`
+			Domain    string            `json:"domain"`
+			Digest    string            `json:"digest_hex"`
+			Preimage  string            `json:"preimage_hex"`
+			Size      int               `json:"preimage_size_bytes"`
+			Key       string            `json:"service_pubkey_compressed_hex"`
+			Signature string            `json:"signature_raw64_hex"`
+		} `json:"vectors"`
+	}
+	if err := json.Unmarshal(raw, &doc); err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.Vectors) != 1 {
+		t.Fatal("missing stream-header signature vector")
+	}
+	for _, row := range doc.Vectors {
+		get := func(name string) projectionField { return selectedField(t, row.Fields, name) }
+		chain := []byte(get("chain_id").UTF8)
+		task := hexBytes(t, get("task_hash").Hex)
+		ticket := hexBytes(t, get("dispatch_ticket_hash").Hex)
+		instance := Uint32(uint32(fieldUint(t, get("stream_instance"))))
+		recipient := hexBytes(t, get("user_recipient_pubkey").Hex)
+		outputKey := hexBytes(t, get("output_key_commitment").Hex)
+		keyPackage := hexBytes(t, get("key_package_hash").Hex)
+		preimage := FieldFrame([]byte(row.Domain), chain, task, ticket, instance, recipient, outputKey, keyPackage)
+		if !bytes.Equal(preimage, hexBytes(t, row.Preimage)) || len(preimage) != row.Size {
+			t.Fatal("stream-header preimage or size is stale")
+		}
+		digest := sha256.Sum256(preimage)
+		if !bytes.Equal(digest[:], hexBytes(t, row.Digest)) {
+			t.Fatal("stream-header digest is stale")
+		}
+		key, signature := hexBytes(t, row.Key), hexBytes(t, row.Signature)
+		if err := VerifyDigestSignature(key, digest[:], signature); err != nil {
+			t.Fatal("stream-header raw64 signature is stale", err)
+		}
+		legacy := HashFields(row.Domain, chain, task, Uint32(0), instance, recipient, outputKey, keyPackage)
+		if VerifyDigestSignature(key, legacy[:], signature) == nil {
+			t.Fatal("signature still authenticates the retired attempt-zero projection")
+		}
+		ticket[0] ^= 1
+		other := HashFields(row.Domain, chain, task, ticket, instance, recipient, outputKey, keyPackage)
+		if VerifyDigestSignature(key, other[:], signature) == nil {
+			t.Fatal("signature does not bind its dispatch ticket")
+		}
+	}
+}
 
 func array32(t *testing.T, value string) (out [32]byte) {
 	t.Helper()

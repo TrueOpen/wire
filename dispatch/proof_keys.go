@@ -3,7 +3,6 @@ package dispatch
 import (
 	"errors"
 	"fmt"
-	"math"
 )
 
 // Service proof selectors use the service identity domains, never VRF identities.
@@ -16,7 +15,8 @@ const (
 // signature. Missing required chain facts must not be converted into guilt.
 var ErrProofKeyUnavailable = errors.New("dispatch: proof key unavailable")
 
-// ServiceProofSigner names exactly one registered key generation and role.
+// ServiceProofSigner selects a current binding. Zero nonce is permitted only
+// for Builder dispatch messages that carry no nonce; signed nonces must match.
 type ServiceProofSigner struct {
 	ParticipantType           int32
 	OperatorAddress           string
@@ -29,29 +29,25 @@ type ProofKeyStatus uint8
 const (
 	ProofKeyActive ProofKeyStatus = iota + 1
 	ProofKeyRevoked
-	ProofKeyRetained
 )
 
 // ProofKeyBinding is resolved by role/operator/nonce from authoritative state.
-// Retained keys additionally require the frozen retirement and expiry heights.
+// Waiting rotation keeps this binding current; retired generations are unavailable.
 type ProofKeyBinding struct {
 	PublicKey                 []byte
 	ServiceAuthorizationNonce uint64
 	Status                    ProofKeyStatus
-	RetiredHeight             uint64
-	ProofExpiryHeight         uint64
 }
 
-// ProofKeyOptions supplies chain height and generation-specific key resolution.
+// ProofKeyOptions supplies current binding resolution from authoritative state.
 // It must never be used to authorize live streams, orders or transactions.
 type ProofKeyOptions struct {
-	Height         uint64
 	LookupProofKey func(ServiceProofSigner) (ProofKeyBinding, error)
 }
 
 func resolveProofKey(signer ServiceProofSigner, opts ProofKeyOptions) (ProofKeyBinding, error) {
 	var empty ProofKeyBinding
-	if signer.ParticipantType != ProofParticipantCortex && signer.ParticipantType != ProofParticipantBuilder || signer.ServiceAuthorizationNonce == 0 {
+	if signer.ParticipantType != ProofParticipantCortex && signer.ParticipantType != ProofParticipantBuilder || (signer.ServiceAuthorizationNonce == 0 && signer.ParticipantType != ProofParticipantBuilder) {
 		return empty, fmt.Errorf("%w: invalid role or nonce", ErrProofKeyUnavailable)
 	}
 	if _, err := AddressBytes(signer.OperatorAddress); err != nil {
@@ -64,23 +60,19 @@ func resolveProofKey(signer ServiceProofSigner, opts ProofKeyOptions) (ProofKeyB
 	if err != nil {
 		return empty, fmt.Errorf("%w: %w", ErrProofKeyUnavailable, err)
 	}
-	if key.ServiceAuthorizationNonce != signer.ServiceAuthorizationNonce {
+	if key.ServiceAuthorizationNonce == 0 || signer.ServiceAuthorizationNonce != 0 && key.ServiceAuthorizationNonce != signer.ServiceAuthorizationNonce {
 		return empty, fmt.Errorf("%w: generation mismatch", ErrProofKeyUnavailable)
 	}
 	switch key.Status {
 	case ProofKeyActive, ProofKeyRevoked:
-	case ProofKeyRetained:
-		if key.RetiredHeight == 0 || key.ProofExpiryHeight < key.RetiredHeight || opts.Height < key.RetiredHeight || opts.Height > key.ProofExpiryHeight {
-			return empty, fmt.Errorf("%w: retained generation outside proof window", ErrProofKeyUnavailable)
-		}
 	default:
 		return empty, fmt.Errorf("%w: ineligible binding", ErrProofKeyUnavailable)
 	}
 	return key, nil
 }
 
-// VerifyServiceProofSignature verifies a generation-bound fact even after key
-// rotation. Callers must separately validate the fact's scope and admission
+// VerifyServiceProofSignature verifies a fact with the still-current proof key.
+// Callers must separately validate the fact's scope and admission
 // window; successful cryptography never authorizes a new live submission.
 func VerifyServiceProofSignature(signer ServiceProofSigner, digest [32]byte, signature []byte, opts ProofKeyOptions) error {
 	_, err := verifyServiceProofSignature(signer, digest, signature, opts)
@@ -99,19 +91,19 @@ func verifyServiceProofSignature(signer ServiceProofSigner, digest [32]byte, sig
 }
 
 // VerifyDispatchProof resolves the signer from the exact signed dispatch
-// material, never from a caller-supplied role or nonce copy. It is proof-only;
-// admission and live traffic still require the current ACTIVE binding.
+// material. Waiting rotation preserves the current key until its windows close;
+// admission and live traffic additionally enforce ACTIVE and pending-duty gates.
 func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions) error {
 	role := ProofParticipantBuilder
 	var operatorField, nonceField, signatureField uint32
 	memberField := uint32(0)
 	switch name {
 	case "task.v1.SignedHandraiseRootV1":
-		operatorField, nonceField, signatureField = 2, 8, 7
+		operatorField, nonceField, signatureField = 2, 0, 7
 	case "task.v1.DispatchTicketV1":
-		operatorField, nonceField, signatureField = 7, 26, 25
+		operatorField, nonceField, signatureField = 7, 0, 25
 	case "task.v1.DispatchRecordV1":
-		operatorField, nonceField, signatureField = 7, 21, 20
+		operatorField, nonceField, signatureField = 7, 0, 20
 	case "task.v1.DispatchAcceptV1":
 		role, memberField, nonceField, signatureField = ProofParticipantCortex, 6, 7, 8
 	case "task.v1.DispatchRejectV1":
@@ -146,55 +138,4 @@ func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions)
 		return err
 	}
 	return VerifyServiceProofSignature(ServiceProofSigner{role, operator, scalarAt(d, nonceField)}, digest, bytesAt(d, signatureField), opts)
-}
-
-// ProofRetentionWindows reuses effective dispatch parameters at key retirement.
-// No additional retention parameter or independent clock is introduced.
-type ProofRetentionWindows struct {
-	OrderFreshnessMarginBlocks            uint64
-	RecordDeadlineBlocks                  uint64
-	DispatchCompensationClaimWindowBlocks uint64
-	DispatchCompensationRebuttalBlocks    uint64
-	DispatchChallengeWindowBlocks         uint64
-	DispatchChallengeResponseBlocks       uint64
-}
-
-// ProofKeyExpiryHeight returns the inclusive minimum safe proof retention end:
-// retirement + max(1,freshness) + record deadline + max(claim+rebuttal, challenge+response).
-// The one-block future-order tolerance remains even when backward freshness is zero.
-// Governance must extend retained rows before extending admissibility windows.
-func ProofKeyExpiryHeight(retiredHeight uint64, windows ProofRetentionWindows) (uint64, error) {
-	add := func(a, b uint64) (uint64, error) {
-		if a > math.MaxUint64-b {
-			return 0, fmt.Errorf("proof retention height overflow")
-		}
-		return a + b, nil
-	}
-	claim, err := add(windows.DispatchCompensationClaimWindowBlocks, windows.DispatchCompensationRebuttalBlocks)
-	if err != nil {
-		return 0, err
-	}
-	challenge, err := add(windows.DispatchChallengeWindowBlocks, windows.DispatchChallengeResponseBlocks)
-	if err != nil {
-		return 0, err
-	}
-	if challenge > claim {
-		claim = challenge
-	}
-	end := retiredHeight
-	lead := windows.OrderFreshnessMarginBlocks
-	if lead < 1 {
-		lead = 1
-	}
-	for _, interval := range []uint64{lead, windows.RecordDeadlineBlocks, claim} {
-		end, err = add(end, interval)
-		if err != nil {
-			return 0, err
-		}
-	}
-	// The rebuildable prune index needs end+1 to be representable.
-	if retiredHeight == 0 || windows.RecordDeadlineBlocks == 0 || end == math.MaxUint64 {
-		return 0, fmt.Errorf("invalid proof retention bounds")
-	}
-	return end, nil
 }

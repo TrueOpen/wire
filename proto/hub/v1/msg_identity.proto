@@ -12,9 +12,9 @@ import "shared/v1/rest_encoding.proto";
 
 option go_package = "github.com/TrueOpen/node/x/hub/types";
 
-// MsgRotateServiceKey replaces the current service key binding of one stable operator (10.0c1).
-// Atomically retain the replaced generation as ServiceKeyProofState before
-// installing the new current key. Retained keys verify old facts only.
+// MsgRotateServiceKey registers one operator-authorized pending replacement.
+// Current address/key/nonce stay unchanged until safe epoch activation. Pending
+// participants stop new dispatch exposure; old-key material windows must close.
 message MsgRotateServiceKey {
   option (cosmos.msg.v1.signer) = "operator_address";
   option (amino.name) = "trueopen/x/hub/MsgRotateServiceKey";
@@ -25,12 +25,13 @@ message MsgRotateServiceKey {
   string operator_address = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgRotateServiceKeyResponse returns the new service address and authorization nonce.
+// MsgRotateServiceKeyResponse returns the proposed binding, not live permission.
 message MsgRotateServiceKeyResponse {
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string new_service_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   uint64 new_nonce = 3;
   shared.v1.MutationStatusV1 status = 4;
+  PendingServiceKeyRotationState pending_rotation = 5 [(gogoproto.nullable) = false];
 }
 
 // MsgRevokeServiceKey immediately revokes the current service key binding (9.6a).

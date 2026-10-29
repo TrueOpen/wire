@@ -732,7 +732,8 @@
             ],
             "record_deadline_blocks": "4",
             "sticky_max_orders": 1,
-            "sticky_window_blocks": "1"
+            "sticky_window_blocks": "1",
+            "worker_dispatch_contradiction_slash_bps": 1
           },
           "evidence": {
             "encryption_activation_height": "0",

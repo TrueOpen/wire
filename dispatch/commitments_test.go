@@ -60,7 +60,7 @@ func fieldAddress(t *testing.T, f projectionField) string {
 	return address
 }
 
-func TestPublishedPoolRosterAndAllChallengeScopes(t *testing.T) {
+func TestPublishedRosterAndAllChallengeScopes(t *testing.T) {
 	raw, err := os.ReadFile(filepath.Join("..", "testdata", "v1", "task", "dispatch_v1.json"))
 	if err != nil {
 		t.Fatal(err)
@@ -78,7 +78,7 @@ func TestPublishedPoolRosterAndAllChallengeScopes(t *testing.T) {
 	}
 	covered := map[string]int{}
 	for _, row := range doc.Vectors {
-		if row.Domain != "TRUEOPEN_DISPATCH_POOL_V1" && row.Domain != "TRUEOPEN_DISPATCH_ROSTER_V1" && row.Domain != "TRUEOPEN_DISPATCH_CHALLENGE_ID_V1" {
+		if row.Domain != "TRUEOPEN_DISPATCH_ROSTER_V1" && row.Domain != "TRUEOPEN_DISPATCH_CHALLENGE_ID_V1" {
 			continue
 		}
 		t.Run(row.Name, func(t *testing.T) {
@@ -105,11 +105,7 @@ func TestPublishedPoolRosterAndAllChallengeScopes(t *testing.T) {
 				if fieldUint(t, list[0]) != uint64(len(members)) {
 					t.Fatal("fixture member count mismatch")
 				}
-				if row.Domain == "TRUEOPEN_DISPATCH_POOL_V1" {
-					digest, err = PoolDigest(chain, array32(t, get("candidate_pool_snapshot_id").Hex), fieldUint(t, get("reference_height")), array32(t, get("model_id").Hex), uint32(fieldUint(t, get("profile_version"))), members)
-				} else {
-					digest, err = RosterDigest(chain, array32(t, get("task_id").Hex), fieldUint(t, get("reference_height")), array32(t, get("candidate_pool_snapshot_id").Hex), members)
-				}
+				digest, err = RosterDigest(chain, array32(t, get("task_id").Hex), fieldUint(t, get("reference_height")), array32(t, get("candidate_pool_snapshot_id").Hex), members)
 			}
 			if err != nil || hex.EncodeToString(digest[:]) != row.Digest {
 				t.Fatal("shared commitment differs from independent vector", err)
@@ -117,7 +113,7 @@ func TestPublishedPoolRosterAndAllChallengeScopes(t *testing.T) {
 			covered[row.Domain]++
 		})
 	}
-	if covered["TRUEOPEN_DISPATCH_POOL_V1"] != 1 || covered["TRUEOPEN_DISPATCH_ROSTER_V1"] != 1 || covered["TRUEOPEN_DISPATCH_CHALLENGE_ID_V1"] != 5 {
+	if covered["TRUEOPEN_DISPATCH_ROSTER_V1"] != 1 || covered["TRUEOPEN_DISPATCH_CHALLENGE_ID_V1"] != 5 {
 		t.Fatal("missing commitment/scope vector")
 	}
 }
@@ -128,9 +124,7 @@ func TestMemberCommitmentsRejectAmbiguousSets(t *testing.T) {
 		if _, err := RosterDigest("chain", [32]byte{}, 1, [32]byte{}, members); err == nil {
 			t.Fatal("noncanonical member set admitted")
 		}
-		if _, err := PoolDigest("chain", [32]byte{}, 1, [32]byte{}, 1, members); err == nil {
-			t.Fatal("noncanonical pool admitted")
-		}
+
 	}
 	for _, scope := range []ChallengeScope{{Kind: 0, ChallengerAddress: a}, {Kind: 1, ChallengerAddress: a}, {Kind: 5, ChallengerAddress: a, BuilderAddress: b}, {Kind: 3, DispatchRound: 1, ChallengerAddress: a}, {Kind: 4, AttemptRank: 1, ChallengerAddress: a}, {Kind: 2, ChallengerAddress: "invalid"}} {
 		if _, err := ChallengeID("chain", scope); err == nil {

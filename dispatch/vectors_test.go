@@ -180,16 +180,11 @@ func TestTypedEvidenceUsesCurrentProofBindingWithoutLiveState(t *testing.T) {
 	if _, err = VerifyBuilderEvidenceV2(proof, rotated); err == nil {
 		t.Fatal("rotated historical proof binding accepted")
 	}
-	retained := opts
-	retained.Height = 120
-	retained.LookupProofKey = func(ServiceProofSigner) (ProofKeyBinding, error) {
-		return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyRetained, RetiredHeight: 100, ProofExpiryHeight: 178}, nil
+	revoked := opts
+	revoked.LookupProofKey = func(ServiceProofSigner) (ProofKeyBinding, error) {
+		return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyRevoked}, nil
 	}
-	if _, err = VerifyBuilderEvidenceV2(proof, retained); err != nil {
-		t.Fatal("retained Builder proof was lost after rotation", err)
-	}
-	retained.Height = 179
-	if _, err = VerifyBuilderEvidenceV2(proof, retained); err == nil {
-		t.Fatal("expired retained Builder proof accepted")
+	if _, err = VerifyBuilderEvidenceV2(proof, revoked); err != nil {
+		t.Fatal("revoked current Builder proof identity was lost", err)
 	}
 }

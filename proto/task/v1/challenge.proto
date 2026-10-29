@@ -4,8 +4,8 @@ package task.v1;
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "shared/v1/amount.proto";
-import "shared/v1/round_economics.proto";
 import "shared/v1/rest_encoding.proto";
+import "shared/v1/round_economics.proto";
 import "task/v1/settlement.proto";
 
 option go_package = "github.com/TrueOpen/node/x/task/types";
@@ -106,4 +106,6 @@ message TaskRoundSummaryState {
   bytes round2_effect_root_or_zero32 = 12 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   optional bytes task_round_summary_hash = 13 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   optional uint64 verifier_value_evidence_close_height = 14;
+  // Set by the close runner before finalization; absent means the window is not closed.
+  optional uint64 verifier_value_evidence_window_closed_height = 15;
 }

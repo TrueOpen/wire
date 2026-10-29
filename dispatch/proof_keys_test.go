@@ -2,132 +2,134 @@ package dispatch
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
-	"math"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 )
 
-func TestRejectProofSurvivesRotationWithinFrozenWindow(t *testing.T) {
-	key := secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{1}, 32))
-	current := secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{2}, 32))
+const vectorOperator = "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz"
+
+func TestRejectProofSurvivesPendingRotationAndEmergencyRevoke(t *testing.T) {
 	var row publishedVector
-	for _, v := range published(t) {
-		if v.MessageName == "task.v1.DispatchRejectV1" {
-			row = v
+	for _, candidate := range published(t) {
+		if candidate.MessageName == "task.v1.DispatchRejectV1" {
+			row = candidate
 			break
 		}
 	}
-	digest, err := SigningDigest(row.MessageName, hexBytes(t, row.Protobuf))
-	if err != nil {
-		t.Fatal(err)
+	if row.Protobuf == "" {
+		t.Fatal("missing real signed reject vector")
 	}
-	signer := ServiceProofSigner{ProofParticipantCortex, "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz", 1}
-	end, err := ProofKeyExpiryHeight(100, ProofRetentionWindows{2, 4, 64, 8, 32, 8})
-	if err != nil || end != 178 {
-		t.Fatal("unsafe retention horizon", end, err)
-	}
-	opts := ProofKeyOptions{Height: 178, LookupProofKey: func(got ServiceProofSigner) (ProofKeyBinding, error) {
+	signer := ServiceProofSigner{ProofParticipantCortex, vectorOperator, 1}
+	current := ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyActive}
+	opts := ProofKeyOptions{LookupProofKey: func(got ServiceProofSigner) (ProofKeyBinding, error) {
 		if got != signer {
-			return ProofKeyBinding{}, errors.New("unknown generation")
+			return ProofKeyBinding{}, errors.New("unknown current binding")
 		}
-		return ProofKeyBinding{PublicKey: key.PubKey().SerializeCompressed(), ServiceAuthorizationNonce: 1, Status: ProofKeyRetained, RetiredHeight: 100, ProofExpiryHeight: end}, nil
+		return current, nil
 	}}
-	if err = VerifyDispatchProof("trueopen-phase1-vector-1", row.MessageName, hexBytes(t, row.Protobuf), opts); err != nil {
-		t.Fatal("honest Builder lost its reject proof after Worker rotation", err)
-	}
-	if VerifyDigestSignature(current.PubKey().SerializeCompressed(), digest[:], hexBytes(t, row.Signature)) == nil {
-		t.Fatal("test does not reproduce the current-key failure")
-	}
-	raw, err := os.ReadFile(filepath.Join("..", "testdata", "v1", "shared", "service_key_proof_v1.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var fixture struct {
-		Cases []struct {
-			Height   uint64 `json:"height"`
-			Accepted bool   `json:"proof_accepted"`
-		} `json:"cases"`
-	}
-	if err = json.Unmarshal(raw, &fixture); err != nil {
-		t.Fatal(err)
-	}
-	for _, scenario := range fixture.Cases {
-		check := opts
-		check.Height = scenario.Height
-		err = VerifyServiceProofSignature(signer, digest, hexBytes(t, row.Signature), check)
-		if (err == nil) != scenario.Accepted || !scenario.Accepted && !errors.Is(err, ErrProofKeyUnavailable) {
-			t.Fatal("published proof window mismatch", scenario.Height, err)
+	for _, status := range []ProofKeyStatus{ProofKeyActive, ProofKeyRevoked} {
+		current.Status = status
+		if err := VerifyDispatchProof("trueopen-phase1-vector-1", row.MessageName, hexBytes(t, row.Protobuf), opts); err != nil {
+			t.Fatal("waiting or revoke invalidated an honest reject proof", status, err)
 		}
 	}
-	for _, changed := range []ServiceProofSigner{{ProofParticipantBuilder, signer.OperatorAddress, 1}, {ProofParticipantCortex, signer.OperatorAddress, 2}, {ProofParticipantCortex, signer.OperatorAddress, 0}, {3, signer.OperatorAddress, 1}} {
-		if VerifyServiceProofSignature(changed, digest, hexBytes(t, row.Signature), opts) == nil {
-			t.Fatal("proof crossed role/generation")
-		}
-	}
-	if err = VerifyServiceProofSignature(signer, digest, hexBytes(t, row.Signature), ProofKeyOptions{}); !errors.Is(err, ErrProofKeyUnavailable) {
-		t.Fatal("missing key authority was not distinguished", err)
+	current = ProofKeyBinding{PublicKey: secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{2}, 32)).PubKey().SerializeCompressed(), ServiceAuthorizationNonce: 2, Status: ProofKeyActive}
+	if err := VerifyDispatchProof("trueopen-phase1-vector-1", row.MessageName, hexBytes(t, row.Protobuf), opts); !errors.Is(err, ErrProofKeyUnavailable) {
+		t.Fatal("activated replacement resolved a retired generation", err)
 	}
 }
 
-func TestBuilderProofsRetainSignedAuthorizationNonce(t *testing.T) {
-	for _, row := range published(t) {
-		if row.MessageName != "task.v1.DispatchTicketV1" && row.MessageName != "task.v1.DispatchRecordV1" && row.MessageName != "task.v1.SignedHandraiseRootV1" && row.MessageName != "task.v1.DispatchAcceptV1" {
-			continue
-		}
-		t.Run(row.MessageName, func(t *testing.T) {
-			raw := hexBytes(t, row.Protobuf)
-			digest, err := SigningDigest(row.MessageName, raw)
-			if err != nil {
-				t.Fatal(err)
-			}
-			role := ProofParticipantBuilder
-			if row.MessageName == "task.v1.DispatchAcceptV1" {
-				role = ProofParticipantCortex
-			}
-			signer := ServiceProofSigner{role, "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz", 1}
-			opts := ProofKeyOptions{Height: 120, LookupProofKey: func(got ServiceProofSigner) (ProofKeyBinding, error) {
-				if got != signer {
-					return ProofKeyBinding{}, errors.New("unexpected nonce")
+func TestBuilderDispatchProofDoesNotRequireAnAddedNonce(t *testing.T) {
+	for _, name := range []string{"task.v1.SignedHandraiseRootV1", "task.v1.DispatchTicketV1", "task.v1.DispatchRecordV1"} {
+		t.Run(name, func(t *testing.T) {
+			var row publishedVector
+			for _, candidate := range published(t) {
+				if candidate.MessageName == name {
+					row = candidate
+					break
 				}
-				return ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyRetained, RetiredHeight: 100, ProofExpiryHeight: 178}, nil
+			}
+			if row.Protobuf == "" {
+				t.Fatal("missing signed Builder vector")
+			}
+			current := ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyActive}
+			opts := ProofKeyOptions{LookupProofKey: func(signer ServiceProofSigner) (ProofKeyBinding, error) {
+				if signer != (ServiceProofSigner{ProofParticipantBuilder, vectorOperator, 0}) {
+					t.Fatal("unsigned nonce copy entered the proof selector", signer)
+				}
+				return current, nil
 			}}
-			if err = VerifyDispatchProof("trueopen-phase1-vector-1", row.MessageName, raw, opts); err != nil {
+			if err := VerifyDispatchProof("trueopen-phase1-vector-1", name, hexBytes(t, row.Protobuf), opts); err != nil {
 				t.Fatal(err)
 			}
-			// Builder projections put the new generation field last.
-			if role == ProofParticipantCortex {
-				return
-			}
-			changed := append([]byte(nil), raw...)
-			changed[len(changed)-1] = 2
-			other, err := SigningDigest(row.MessageName, changed)
-			if err != nil || other == digest || VerifyDigestSignature(hexBytes(t, row.PublicKey), other[:], hexBytes(t, row.Signature)) == nil {
-				t.Fatal("nonce was not signed", err)
+			current.PublicKey = secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{2}, 32)).PubKey().SerializeCompressed()
+			current.ServiceAuthorizationNonce = 2
+			if VerifyDispatchProof("trueopen-phase1-vector-1", name, hexBytes(t, row.Protobuf), opts) == nil {
+				t.Fatal("retired Builder signature verified with the new current key")
 			}
 		})
 	}
 }
 
-func TestProofRetentionUsesLongestWindowAndCheckedArithmetic(t *testing.T) {
-	windows := ProofRetentionWindows{2, 4, 1, 1, 64, 8}
-	if end, err := ProofKeyExpiryHeight(100, windows); err != nil || end != 178 {
-		t.Fatal(end, err)
-	}
-	windows.OrderFreshnessMarginBlocks = 0
-	if end, err := ProofKeyExpiryHeight(100, windows); err != nil || end != 177 {
-		t.Fatal("future-order block was omitted", end, err)
-	}
-	for _, w := range []ProofRetentionWindows{{2, 4, math.MaxUint64, 1, 1, 1}, {2, 4, 1, 1, math.MaxUint64, 1}, {2, 4, 1, 1, 1, 1}} {
-		if _, err := ProofKeyExpiryHeight(math.MaxUint64-1, w); err == nil {
-			t.Fatal("overflow admitted")
+func TestProofLookupRejectsInvalidAuthority(t *testing.T) {
+	valid := ServiceProofSigner{ProofParticipantCortex, account(t, 1), 1}
+	for _, signer := range []ServiceProofSigner{{0, valid.OperatorAddress, 1}, {3, valid.OperatorAddress, 1}, {ProofParticipantCortex, valid.OperatorAddress, 0}, {ProofParticipantCortex, "invalid", 1}} {
+		if _, err := resolveProofKey(signer, ProofKeyOptions{}); err == nil {
+			t.Fatal("invalid selector admitted", signer)
 		}
 	}
-	if _, err := ProofKeyExpiryHeight(0, windows); err == nil {
-		t.Fatal("missing retirement height admitted")
+	for _, binding := range []ProofKeyBinding{{ServiceAuthorizationNonce: 0, Status: ProofKeyActive}, {ServiceAuthorizationNonce: 2, Status: ProofKeyActive}, {ServiceAuthorizationNonce: 1, Status: ProofKeyStatus(3)}} {
+		if _, err := resolveProofKey(valid, ProofKeyOptions{LookupProofKey: func(ServiceProofSigner) (ProofKeyBinding, error) { return binding, nil }}); !errors.Is(err, ErrProofKeyUnavailable) {
+			t.Fatal("non-current authority admitted", binding, err)
+		}
+	}
+}
+
+func TestPendingBuilderNonceCannotAuthorizeOfflineMessagesEarly(t *testing.T) {
+	var row publishedVector
+	for _, candidate := range published(t) {
+		if candidate.MessageName == "nexus.v1.OpenVerifyV1" {
+			row = candidate
+			break
+		}
+	}
+	if row.Protobuf == "" {
+		t.Fatal("missing signed Builder message")
+	}
+	raw := hexBytes(t, row.Protobuf)
+	d, err := decode(row.MessageName, raw, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	binding := bytesAt(d, 10)
+	if !bytes.HasSuffix(binding, []byte{24, 1}) {
+		t.Fatal("fixture binding changed")
+	}
+	withoutNonce := bytes.Replace(raw, wireBytes(10, binding), wireBytes(10, binding[:len(binding)-2]), 1)
+	if _, err := DecodeSignedMessageV1(1, withoutNonce); err == nil {
+		t.Fatal("typed Builder message used the unsigned dispatch nonce selector")
+	}
+	nextBinding := bytes.Clone(binding)
+	nextBinding[len(nextBinding)-1] = 2
+	nextMessage := bytes.Replace(raw, wireBytes(10, binding), wireBytes(10, nextBinding), 1)
+	key := secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{2}, 32))
+	digest, err := SigningDigest(row.MessageName, nextMessage)
+	if err != nil {
+		t.Fatal(err)
+	}
+	nextMessage = bytes.Replace(nextMessage, wireBytes(9, hexBytes(t, row.Signature)), wireBytes(9, SignDigest(key, digest)), 1)
+	branch := append([]byte{8, 1}, wireBytes(2, nextMessage)...)
+	branch = append(branch, 24, 1)
+	proof := append([]byte{8, 2}, wireBytes(3, branch)...)
+	current := ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyActive}
+	opts := EvidenceVerifyOptions{ChainID: "trueopen-phase1-vector-1", LookupProofKey: func(ServiceProofSigner) (ProofKeyBinding, error) { return current, nil }}
+	if _, err := VerifyBuilderEvidenceV2(proof, opts); err == nil {
+		t.Fatal("pending key gained proof authority before activation")
+	}
+	current = ProofKeyBinding{PublicKey: key.PubKey().SerializeCompressed(), ServiceAuthorizationNonce: 2, Status: ProofKeyActive}
+	if _, err := VerifyBuilderEvidenceV2(proof, opts); err != nil {
+		t.Fatal("activated next binding cannot verify its own message", err)
 	}
 }

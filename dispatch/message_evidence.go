@@ -102,6 +102,9 @@ func DecodeSignedMessageV1(kind int32, raw []byte) (SignedMessageV1, error) {
 	if len(binding[3]) != 0 {
 		result.Binding.ServiceAuthorizationNonce = binding[3][0].varint
 	}
+	if result.Binding.ServiceAuthorizationNonce == 0 {
+		return result, fmt.Errorf("%w: signed Builder binding nonce must be positive", ErrDecode)
+	}
 	if kind == 1 {
 		model, e := hashAt(d, 3)
 		if e != nil {
@@ -136,12 +139,11 @@ type VerifiedBuilderEvidenceV2 struct {
 // EvidenceVerifyOptions supplies chain authority without generated imports.
 type EvidenceVerifyOptions struct {
 	ChainID        string
-	Height         uint64
 	LookupProofKey func(ServiceProofSigner) (ProofKeyBinding, error)
 }
 
 // VerifyBuilderEvidenceV2 is the sole generated-code-free evidence verifier.
-// Revoked and retained keys are proof-only and never authorize a live action.
+// A revoked current key verifies old facts only; pending keys never authorize proofs.
 func VerifyBuilderEvidenceV2(raw []byte, opts EvidenceVerifyOptions) (VerifiedBuilderEvidenceV2, error) {
 	var result VerifiedBuilderEvidenceV2
 	if opts.ChainID == "" {
@@ -201,7 +203,7 @@ func VerifyBuilderEvidenceV2(raw []byte, opts EvidenceVerifyOptions) (VerifiedBu
 	if a.Binding.ChainID != opts.ChainID {
 		return result, fmt.Errorf("%w: chain or key authority unavailable", ErrEvidence)
 	}
-	key, e := verifyServiceProofSignature(ServiceProofSigner{ParticipantType: ProofParticipantBuilder, OperatorAddress: a.Binding.BuilderAddress, ServiceAuthorizationNonce: a.Binding.ServiceAuthorizationNonce}, a.SigningDigest, a.Signature, ProofKeyOptions{Height: opts.Height, LookupProofKey: opts.LookupProofKey})
+	key, e := verifyServiceProofSignature(ServiceProofSigner{ParticipantType: ProofParticipantBuilder, OperatorAddress: a.Binding.BuilderAddress, ServiceAuthorizationNonce: a.Binding.ServiceAuthorizationNonce}, a.SigningDigest, a.Signature, ProofKeyOptions{LookupProofKey: opts.LookupProofKey})
 	if e != nil {
 		return result, e
 	}

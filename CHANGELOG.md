@@ -7,10 +7,18 @@
 - Bind Chunk/Fin signatures to dispatch_ticket_hash and rebuild Worker evidence
   from the accepted receipt's attempt. An old generation of the same order
   cannot falsely prove equivocation by an honest Worker.
-- Sign the Builder authorization nonce in tickets, records and handraise roots.
-  Retain rotated service keys for bounded proof-only verification by role,
-  operator and nonce, with Hub Genesis recovery; live authority stays current-only.
-  Reuse shared roster/pool/challenge commitments and generation-aware proof checks.
+- Register delayed service-key rotation and switch only at safe epoch boundaries.
+  Keep the current proof identity until old material windows close; export pending
+  state, rebuild derived indexes/counts, and preserve stable operator group duties.
+  Remove the retired-service-key table and added Builder dispatch nonces.
+- Complete value-evidence closure (deadline kind 14 and actual closed height),
+  Worker contradiction slash configuration, and per-entry rejection categories.
+  Bind roster authentication to chain/Builder and input access to the accept digest.
+  Keep sticky_applied solely on the record; close revoke reasons to pre-accept RBF.
+- Publish independently computed handraise roots/paths and verify raw64 output-header
+  signatures over the ticket-bound digest. Fix header size and retired-attempt notes,
+  cumulative token naming, delayed session comments and restrictive key-update vectors.
+  Remove the unused extra dispatch-pool commitment.
 - Add `cortex.v1.ChatCompletionOutputUsage.cached_prompt_tokens` (field 4,
   int32) for prefix-cache reads, mapped to `prompt_tokens_details.cached_tokens`.
   It is a reported subset of prompt_tokens and changes no on-chain accounting.
