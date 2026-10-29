@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/TrueOpen/wire/tools/internal/protoimage"
 	"reflect"
 	"sort"
+	"strings"
+
+	"github.com/TrueOpen/wire/tools/internal/protoimage"
 )
 
 func validateQueryPageScopes(image, registry, fixture []byte) error {
@@ -102,6 +104,11 @@ func validateQueryPageVectors(fixture []byte, expected map[string][]string) erro
 			Fields  []struct {
 				Name string `json:"name"`
 			} `json:"fields"`
+			Replay []struct {
+				Name  string `json:"name"`
+				Field int    `json:"field"`
+				Value string `json:"value"`
+			} `json:"replay"`
 		} `json:"vectors"`
 	}
 	if err := json.Unmarshal(fixture, &vectors); err != nil {
@@ -126,6 +133,20 @@ func validateQueryPageVectors(fixture []byte, expected map[string][]string) erro
 				return fmt.Errorf("query fixture variant differs from RPC %s", vector.RPC)
 			}
 			want = append([]string{"chain_id", "rpc_method_digest"}, fields...)
+			chainReplay, rpcReplay := false, false
+			for _, replay := range vector.Replay {
+				chainReplay = chainReplay || replay.Field == 0 && replay.Name == "cross_chain"
+				other, registered := expected[replay.Value]
+				rpcReplay = rpcReplay || replay.Field == 1 && strings.HasPrefix(replay.Name, "cross_rpc") && registered && replay.Value != vector.RPC && len(other) == len(fields)
+			}
+			if !chainReplay {
+				return fmt.Errorf("query selector %s lacks cross-chain replay", vector.RPC)
+			}
+			for rpc, other := range expected {
+				if rpc != vector.RPC && len(other) == len(fields) && !rpcReplay {
+					return fmt.Errorf("query selector %s lacks same-arity cross-RPC replay", vector.RPC)
+				}
+			}
 		default:
 			return fmt.Errorf("unexpected query fixture domain %s", vector.Domain)
 		}

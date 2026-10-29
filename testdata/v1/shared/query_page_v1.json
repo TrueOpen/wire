@@ -506,6 +506,13 @@
           "name": "cross_chain",
           "reason": "a token minted on one chain must not verify on another",
           "value": "trueopen-page-vector-2"
+        },
+        {
+          "digest_hex": "2c3e6b8ef095925cd559944dce300f37113ad0d3b244259a93aa480529c61860",
+          "field": 1,
+          "name": "cross_rpc_value_evidence",
+          "reason": "VerifierValueEvidence also has three selector fields; RPC identity keeps their page cursors separate.",
+          "value": "/task.v1.Query/VerifierValueEvidence"
         }
       ],
       "rpc_method": "/hub.v1.Query/FreezeSignals",

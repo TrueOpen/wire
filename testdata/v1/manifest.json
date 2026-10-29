@@ -104,8 +104,8 @@
       "path": "shared/query_page_v1.json",
       "origin": "wire",
       "contract_section": "Height-pinned pagination scope for every active Hub and Task Query RPC",
-      "bytes": 50749,
-      "sha256": "94f5d0de712989d84e8ff70767c9215010a00f3e5cccd73471c8298208318a4a"
+      "bytes": 51113,
+      "sha256": "e06edffe86dc9a786d41fb1ec1bf432219262c38a5e3199b78d84447c3508403"
     },
     {
       "path": "shared/rest_json_shapes_v1.json",
