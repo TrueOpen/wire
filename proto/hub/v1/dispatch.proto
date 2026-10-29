@@ -59,7 +59,9 @@ message CandidateWeightInputsV1 {
 // CandidatePoolSnapshotMemberViewV1 reads only the frozen snapshot. With a
 // model/profile selector, fields 6/7 are projections of the matching profiles[]
 // entry, not independent live facts; candidate_weight uses that same entry and
-// the frozen member inputs. No match means profile_support_fresh=false and zero
+// the frozen member inputs and the snapshot header's Worker coefficients.
+// Never substitute current Task parameters. No match means
+// profile_support_fresh=false and zero
 // candidate_weight/min_stake_snapshot. Missing weight_inputs on an in-pool member
 // is an invalid snapshot, not permission to read current bond/support state.
 message CandidatePoolSnapshotMemberViewV1 {

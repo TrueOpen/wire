@@ -21,6 +21,16 @@ This document describes the candidate contract; it is not a release announcement
 | Lifecycle and recovery | Task/Hub Genesis, queries and events include the new primary facts; consumers rebuild derived indexes rather than trust imported copies |
 | Verification | Bounded verifier value-contradiction payloads, strict decode/digest, compact receipts, paginated query and event 30 are active at genesis; joint random-position opening remains inactive |
 
+Each activated epoch snapshot header freezes `worker_stake_weight_ppm` and
+`worker_performance_weight_ppm` (state fields 17/18, query header fields 13/14).
+Their checked sum is 1,000,000; either coefficient may be zero. READY headers leave both zero.
+Activation saves the applicable Worker policy once, and later parameter
+updates cannot alter it. Member-weight queries and dispatch challenges combine
+that saved policy with the same snapshot's member/profile facts, never current
+Task parameters. Genesis and retained expired/pruned activated headers preserve
+the policy. The existing pool hash commits membership; these scoring facts do
+not change its registered preimage.
+
 The old NATS/BusEnvelope package, per-task Worker handraise union, Worker
 assignment beacon, Builder ranking and selection anchor are retired. Verifier
 handraises, future-beacon selection and verification rounds remain separate.

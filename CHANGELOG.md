@@ -2,6 +2,9 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Freeze the governable Worker stake/performance coefficients once per activated
+  epoch snapshot header. Historical member queries, challenges and Genesis use
+  the saved policy rather than current Task parameters.
 - Add height-pinned Builder queries for open dispatch challenges and compensation
   claims, and freeze the event targets needed to discover and defend them.
 - Define the verified epoch-start beacon source and epoch-zero dispatch boundary,
