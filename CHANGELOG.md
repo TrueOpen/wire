@@ -6,9 +6,12 @@
   (field 6), `DispatchInputResponseV1` (field 9), `DispatchRevokeV1` (field 6) and
   `RecordResultNoticeV1` (field 6). These retained messages keep their original
   signed bytes across reconnect and service key cutover and verify against the
-  current or previous key selected by that nonce, through `VerifyDispatchProof`
-  (result header) or the new `dispatch.VerifyTicketBoundDispatchProof`. Stream
-  bindings, requests and Builder sync transport stay current-key only.
+  current or previous key selected by that nonce, never older than their
+  ticket's nonce, through `VerifyDispatchProof` (result header) or the new
+  `dispatch.VerifyTicketBoundDispatchProof`. Stream bindings, requests and Builder
+  sync transport stay current-key only; the new `dispatch.VerifyDispatchStreamBinding`
+  requires the current ACTIVE key, and a Builder closes established streams once
+  the binding key is no longer ACTIVE.
 - Define Builder sync duplicate items by byte-equal canonical item projections,
   exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
   as binary protobuf only.
