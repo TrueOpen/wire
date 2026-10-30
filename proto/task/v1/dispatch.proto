@@ -136,7 +136,8 @@ enum DispatchRejectCodeV1 {
   DISPATCH_REJECT_CODE_V1_WINNER_NOT_ELIGIBLE = 10;
   // RECORD_LATE is the record late value.
   DISPATCH_REJECT_CODE_V1_RECORD_LATE = 11;
-  // TAKEOVER_SEQUENCE_CONSUMED is the takeover sequence consumed value.
+  // A takeover entry's order sequence is behind the session's next expected
+  // sequence or already taken. An ahead takeover uses SEQUENCE_NOT_NEXT.
   DISPATCH_REJECT_CODE_V1_TAKEOVER_SEQUENCE_CONSUMED = 12;
   // TAKEOVER_PENDING is the takeover pending value.
   DISPATCH_REJECT_CODE_V1_TAKEOVER_PENDING = 13;
@@ -190,9 +191,9 @@ enum DispatchRejectCodeV1 {
   DISPATCH_REJECT_CODE_V1_CHALLENGE_DUPLICATE = 36;
   // A pending rotation forbids the requested new duty or binding.
   DISPATCH_REJECT_CODE_V1_SERVICE_KEY_ROTATION_PENDING = 37;
-  // The order sequence is ahead of the session's next expected sequence. It was
-  // not consumed; resend the same sequence after the earlier sequences are
-  // recorded.
+  // The order sequence of a dispatch or takeover entry is ahead of the
+  // session's next expected sequence. It was not consumed; resend the same
+  // sequence after the earlier sequences are recorded.
   DISPATCH_REJECT_CODE_V1_SEQUENCE_NOT_NEXT = 38;
 }
 // DispatchProfileV1 defines the canonical DispatchProfileV1 fields.
