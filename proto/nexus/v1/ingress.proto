@@ -875,10 +875,19 @@ message GetTaskEventsResponse {
 // TaskEventDetailV1 carries event-local routing and rejection facts so the SDK
 // can recover without resubmitting OpenTask. Addresses identify stable operators.
 // TAKEOVER_PENDING supplies candidate + activation height; TAKEOVER_RECORDED
-// supplies bound_builder. TAKEOVER_VOIDED caused by recording supplies the
-// recording Builder + recorded task ID; cancellation/closure need no destination.
-// DISPATCH_ACCEPTED and RECORD_REJECTED supply the ticket; the former supplies
-// worker_operator_address and the latter its nonzero rejection category.
+// supplies bound_builder. TAKEOVER_VOIDED supplies what voided it: recording
+// supplies the recording Builder + recorded task ID; another takeover that
+// registered first supplies that takeover's candidate_builder +
+// takeover_activation_height; a Session bound to another Builder supplies
+// bound_builder; cancellation/closure need no destination.
+// DISPATCH_ACCEPTED supplies the ticket and worker_operator_address.
+// RECORD_REJECTED supplies a nonzero reject_code and the rejected entry's ticket
+// when one exists. dispatch_ticket_hash is absent when no ticket exists: a
+// rejected takeover entry, or an order that missed its record deadline before
+// any Worker accepted. A missed record deadline uses RECORD_LATE. When one entry
+// is rejected, later sequences of the same Session are rejected with it; those
+// sequences were not consumed, so they use CONFLICT, never SEQUENCE_CONSUMED,
+// and the client resends an order at the same sequence.
 message TaskEventDetailV1 {
   optional string bound_builder = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   optional string recording_builder = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];

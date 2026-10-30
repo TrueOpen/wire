@@ -172,9 +172,17 @@ agree across chunks; reassemble in index order and verify whole-input size and
 SHA-256 before use. `GetTaskEventsResponse` reports the Nexus lifecycle code set
 documented on its schema, separate from Node protocol events. Its typed detail
 carries takeover destinations/heights, recording Builder/task and dispatch
-rejection facts for recovery without resending an order. New keepalive probes
-use odd values from Builder and even values from Cortex; echoes retain the peer's
-value, including its parity.
+rejection facts for recovery without resending an order. TAKEOVER_VOIDED names
+its cause: the recording Builder and recorded task, the candidate and activation
+height of another takeover that registered first, the Builder the Session is
+bound to, or nothing for cancellation/closure. RECORD_REJECTED always carries a
+nonzero reject_code; its ticket is absent when none exists (a rejected takeover
+entry, or an order whose record deadline passed before any Worker accepted). A
+missed record deadline uses RECORD_LATE. Later sequences of the same Session
+rejected together with an earlier entry use CONFLICT, never SEQUENCE_CONSUMED:
+they were not consumed, and the client resends an order at the same sequence.
+New keepalive probes use odd values from Builder and even values from Cortex;
+echoes retain the peer's value, including its parity.
 
 Claims are keyed by ticket hash. A recorded winner cannot claim, and winner
 ineligibility markers exclude failures attributable to the Worker. Claims check
