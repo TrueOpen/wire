@@ -8,7 +8,7 @@ import (
 
 const handraiseMerkleDomain = "TRUEOPEN_HANDRAISE_MERKLE_V1"
 
-// AdmitRejectServiceKeyRotationPending is the closed pending-duty reason.
+// AdmitRejectServiceKeyRotationPending is the local pending-offer admission reason.
 const AdmitRejectServiceKeyRotationPending uint32 = 5
 
 func treeHash(parts ...[]byte) []byte {

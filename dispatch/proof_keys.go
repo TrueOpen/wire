@@ -15,8 +15,8 @@ const (
 // signature. Missing required chain facts must not be converted into guilt.
 var ErrProofKeyUnavailable = errors.New("dispatch: proof key unavailable")
 
-// ServiceProofSigner selects a current binding. Zero nonce is permitted only
-// for Builder dispatch messages that carry no nonce; signed nonces must match.
+// ServiceProofSigner selects a signed generation. Zero nonce is used only by
+// nonce-free current Builder transport; every signed dispatch nonce is positive.
 type ServiceProofSigner struct {
 	ParticipantType           int32
 	OperatorAddress           string
@@ -29,20 +29,26 @@ type ProofKeyStatus uint8
 const (
 	ProofKeyActive ProofKeyStatus = iota + 1
 	ProofKeyRevoked
+	ProofKeyPrevious
 )
 
 // ProofKeyBinding is resolved by role/operator/nonce from authoritative state.
-// Waiting rotation keeps this binding current; retired generations are unavailable.
+// Only current and one previous generation are resolvable. Previous is proof-only.
 type ProofKeyBinding struct {
 	PublicKey                 []byte
 	ServiceAuthorizationNonce uint64
 	Status                    ProofKeyStatus
+	PreviousRetiredHeight     uint64
 }
 
-// ProofKeyOptions supplies current binding resolution from authoritative state.
-// It must never be used to authorize live streams, orders or transactions.
+// ProofKeyOptions supplies current/previous resolution from authoritative state.
+// Resolution alone grants no live permission. A transport consumer such as
+// VerifyBuilderSyncRequest additionally requires current ACTIVE authority.
 type ProofKeyOptions struct {
 	LookupProofKey func(ServiceProofSigner) (ProofKeyBinding, error)
+	// Required for previous-generation dispatch proofs; read from the signed
+	// order or immutable accepted record, never a later live Session anchor.
+	OrderEarliestSubmitHeight *uint64
 }
 
 func resolveProofKey(signer ServiceProofSigner, opts ProofKeyOptions) (ProofKeyBinding, error) {
@@ -65,13 +71,20 @@ func resolveProofKey(signer ServiceProofSigner, opts ProofKeyOptions) (ProofKeyB
 	}
 	switch key.Status {
 	case ProofKeyActive, ProofKeyRevoked:
+		if key.PreviousRetiredHeight != 0 {
+			return empty, fmt.Errorf("%w: current key has a previous retirement height", ErrProofKeyUnavailable)
+		}
+	case ProofKeyPrevious:
+		if signer.ServiceAuthorizationNonce == 0 || key.PreviousRetiredHeight == 0 {
+			return empty, fmt.Errorf("%w: previous key requires a signed nonce and retirement height", ErrProofKeyUnavailable)
+		}
 	default:
 		return empty, fmt.Errorf("%w: ineligible binding", ErrProofKeyUnavailable)
 	}
 	return key, nil
 }
 
-// VerifyServiceProofSignature verifies a fact with the still-current proof key.
+// VerifyServiceProofSignature verifies a fact with its resolved proof key.
 // Callers must separately validate the fact's scope and admission
 // window; successful cryptography never authorizes a new live submission.
 func VerifyServiceProofSignature(signer ServiceProofSigner, digest [32]byte, signature []byte, opts ProofKeyOptions) error {
@@ -91,19 +104,19 @@ func verifyServiceProofSignature(signer ServiceProofSigner, digest [32]byte, sig
 }
 
 // VerifyDispatchProof resolves the signer from the exact signed dispatch
-// material. Waiting rotation preserves the current key until its windows close;
-// admission and live traffic additionally enforce ACTIVE and pending-duty gates.
+// material. Previous keys require an order strictly before their retirement.
+// Submitter authorization and live traffic separately require current authority.
 func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions) error {
 	role := ProofParticipantBuilder
 	var operatorField, nonceField, signatureField uint32
 	memberField := uint32(0)
 	switch name {
 	case "task.v1.SignedHandraiseRootV1":
-		operatorField, nonceField, signatureField = 2, 0, 7
+		operatorField, nonceField, signatureField = 2, 9, 7
 	case "task.v1.DispatchTicketV1":
-		operatorField, nonceField, signatureField = 7, 0, 25
+		operatorField, nonceField, signatureField = 7, 27, 25
 	case "task.v1.DispatchRecordV1":
-		operatorField, nonceField, signatureField = 7, 0, 20
+		operatorField, nonceField, signatureField = 7, 22, 20
 	case "task.v1.DispatchAcceptV1":
 		role, memberField, nonceField, signatureField = ProofParticipantCortex, 6, 7, 8
 	case "task.v1.DispatchRejectV1":
@@ -139,5 +152,16 @@ func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions)
 	if err != nil {
 		return err
 	}
-	return VerifyServiceProofSignature(ServiceProofSigner{role, operator, scalarAt(d, nonceField)}, digest, bytesAt(d, signatureField), opts)
+	nonce := scalarAt(d, nonceField)
+	if nonce == 0 {
+		return fmt.Errorf("%w: signed proof nonce must be positive", ErrProofKeyUnavailable)
+	}
+	key, err := resolveProofKey(ServiceProofSigner{role, operator, nonce}, opts)
+	if err != nil {
+		return err
+	}
+	if key.Status == ProofKeyPrevious && (opts.OrderEarliestSubmitHeight == nil || *opts.OrderEarliestSubmitHeight >= key.PreviousRetiredHeight) {
+		return fmt.Errorf("%w: previous key cannot prove a post-cutover order", ErrProofKeyUnavailable)
+	}
+	return VerifyDigestSignature(key.PublicKey, digest[:], bytesAt(d, signatureField))
 }

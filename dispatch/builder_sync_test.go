@@ -169,6 +169,92 @@ func TestBuilderSyncRejectsMalformedBatchesBeforeSignatureVerification(t *testin
 	}
 }
 
+func syncItems(t *testing.T, encoded string) [][]byte {
+	t.Helper()
+	request, err := decode("nexus.v1.SyncRequest", hexBytes(t, encoded), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	batch, err := decode("nexus.v1.BuilderSyncBatchV1", bytesAt(request, 1), 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	items := make([][]byte, 0, len(batch[9]))
+	for _, item := range batch[9] {
+		items = append(items, item.bytes)
+	}
+	return items
+}
+
+// The duplicate-item comparison must be the per-item projection the batch
+// signature commits to. The published preimages were computed independently,
+// so every item's bytes must reassemble the signed REPEATED_V1 items field.
+func TestBuilderSyncItemCanonicalBytesMatchSignedBatchProjection(t *testing.T) {
+	_, _, _, vectors := readSyncFixture(t)
+	covered := 0
+	for _, row := range vectors {
+		items, equivalent := syncItems(t, row.Protobuf), syncItems(t, row.Equivalent)
+		if len(items) == 0 {
+			continue
+		}
+		if len(equivalent) != len(items) {
+			t.Fatal(row.Name, "equivalent encoding changed the item count")
+		}
+		parts := [][]byte{Uint32(uint32(len(items)))}
+		for i, raw := range items {
+			got, err := BuilderSyncItemCanonicalBytes(raw)
+			if err != nil {
+				t.Fatal(row.Name, err)
+			}
+			again, err := BuilderSyncItemCanonicalBytes(equivalent[i])
+			if err != nil || !bytes.Equal(got, again) {
+				t.Fatal(row.Name, "reordered fields or explicit defaults changed an item's identity", err)
+			}
+			parts = append(parts, got)
+			covered++
+		}
+		if !bytes.Contains(hexBytes(t, row.Preimage), FieldFrame(FieldFrame(parts...))) {
+			t.Fatal(row.Name, "item projections differ from the signed batch items field")
+		}
+	}
+	if covered == 0 {
+		t.Fatal("no published sync item was compared")
+	}
+
+	conflicted := false
+	for _, raw := range syncItems(t, publishedByName(t, "builder_sync_full_batch").Protobuf) {
+		item, err := decode("nexus.v1.BuilderSyncItemV1", raw, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(item[3]) == 0 {
+			continue
+		}
+		chunk, err := decode("nexus.v1.BuilderSyncInputChunkV1", bytesAt(item, 3), 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		chunk[4] = []value{{bytes: []byte("application/x-conflict")}}
+		item[3] = []value{{bytes: encodeTestMessage("nexus.v1.BuilderSyncInputChunkV1", chunk)}}
+		original, err := BuilderSyncItemCanonicalBytes(raw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		changed, err := BuilderSyncItemCanonicalBytes(encodeTestMessage("nexus.v1.BuilderSyncItemV1", item))
+		if err != nil || bytes.Equal(original, changed) {
+			t.Fatal("a conflicting payload at the same sequence compared equal", err)
+		}
+		if _, err := BuilderSyncItemCanonicalBytes(append(append([]byte{}, raw...), wireBytes(5, nil)...)); err == nil {
+			t.Fatal("a duplicate oneof item produced comparison bytes")
+		}
+		conflicted = true
+		break
+	}
+	if !conflicted {
+		t.Fatal("full batch has no input chunk item to mutate")
+	}
+}
+
 func TestCanonicalOneofIncludesProtoTagAndPayloadFrame(t *testing.T) {
 	const name = "test.OneofProjection"
 	protoTables[name] = messageSpec{2: {name: "first", kind: kindBytes, oneof: 1}, 3: {name: "second", kind: kindBytes, oneof: 1}}

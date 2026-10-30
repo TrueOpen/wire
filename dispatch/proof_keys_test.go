@@ -2,7 +2,10 @@ package dispatch
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
@@ -41,8 +44,22 @@ func TestRejectProofSurvivesPendingRotationAndEmergencyRevoke(t *testing.T) {
 	}
 }
 
-func TestBuilderDispatchProofDoesNotRequireAnAddedNonce(t *testing.T) {
-	for _, name := range []string{"task.v1.SignedHandraiseRootV1", "task.v1.DispatchTicketV1", "task.v1.DispatchRecordV1"} {
+func TestDispatchProofSelectsSignedCurrentOrPreviousNonce(t *testing.T) {
+	rawCases, err := os.ReadFile(filepath.Join("..", "testdata", "v1", "shared", "service_key_rotation_v1.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cases struct {
+		Proofs []struct {
+			Height  uint64 `json:"earliest_submit_height"`
+			Retired uint64 `json:"previous_retired_height"`
+			Allowed bool   `json:"allowed"`
+		} `json:"proof_cases"`
+	}
+	if err = json.Unmarshal(rawCases, &cases); err != nil || len(cases.Proofs) != 3 {
+		t.Fatal("missing published proof boundaries", err)
+	}
+	for _, name := range []string{"task.v1.SignedHandraiseRootV1", "task.v1.DispatchTicketV1", "task.v1.DispatchRecordV1", "task.v1.DispatchAcceptV1", "task.v1.DispatchRejectV1"} {
 		t.Run(name, func(t *testing.T) {
 			var row publishedVector
 			for _, candidate := range published(t) {
@@ -52,22 +69,48 @@ func TestBuilderDispatchProofDoesNotRequireAnAddedNonce(t *testing.T) {
 				}
 			}
 			if row.Protobuf == "" {
-				t.Fatal("missing signed Builder vector")
+				t.Fatal("missing signed vector")
 			}
-			current := ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyActive}
+			role := ProofParticipantBuilder
+			if name == "task.v1.DispatchAcceptV1" || name == "task.v1.DispatchRejectV1" {
+				role = ProofParticipantCortex
+			}
+			key := ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: ProofKeyActive}
 			opts := ProofKeyOptions{LookupProofKey: func(signer ServiceProofSigner) (ProofKeyBinding, error) {
-				if signer != (ServiceProofSigner{ProofParticipantBuilder, vectorOperator, 0}) {
-					t.Fatal("unsigned nonce copy entered the proof selector", signer)
+				if signer != (ServiceProofSigner{role, vectorOperator, 1}) {
+					t.Fatal("unsigned or wrong nonce", signer)
 				}
-				return current, nil
+				return key, nil
 			}}
-			if err := VerifyDispatchProof("trueopen-phase1-vector-1", name, hexBytes(t, row.Protobuf), opts); err != nil {
+			raw := hexBytes(t, row.Protobuf)
+			if err := VerifyDispatchProof("trueopen-phase1-vector-1", name, raw, opts); err != nil {
 				t.Fatal(err)
 			}
-			current.PublicKey = secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{2}, 32)).PubKey().SerializeCompressed()
-			current.ServiceAuthorizationNonce = 2
-			if VerifyDispatchProof("trueopen-phase1-vector-1", name, hexBytes(t, row.Protobuf), opts) == nil {
-				t.Fatal("retired Builder signature verified with the new current key")
+			fields, err := decode(name, raw, 0)
+			if err != nil {
+				t.Fatal(err)
+			}
+			nonceField := map[string]uint32{"task.v1.SignedHandraiseRootV1": 9, "task.v1.DispatchTicketV1": 27, "task.v1.DispatchRecordV1": 22, "task.v1.DispatchAcceptV1": 7, "task.v1.DispatchRejectV1": 7}[name]
+			delete(fields, nonceField)
+			if err := VerifyDispatchProof("trueopen-phase1-vector-1", name, encodeTestMessage(name, fields), opts); !errors.Is(err, ErrProofKeyUnavailable) {
+				t.Fatal("missing signed nonce resolved a current key", err)
+			}
+			key.Status = ProofKeyPrevious
+			key.PreviousRetiredHeight = 120
+			if err := VerifyDispatchProof("trueopen-phase1-vector-1", name, raw, opts); !errors.Is(err, ErrProofKeyUnavailable) {
+				t.Fatal("previous proof lacked order authority", err)
+			}
+			for _, proof := range cases.Proofs {
+				key.PreviousRetiredHeight = proof.Retired
+				opts.OrderEarliestSubmitHeight = &proof.Height
+				err := VerifyDispatchProof("trueopen-phase1-vector-1", name, raw, opts)
+				if (err == nil) != proof.Allowed {
+					t.Fatal("retirement boundary", proof.Height, err)
+				}
+			}
+			key.ServiceAuthorizationNonce = 2
+			if err := VerifyDispatchProof("trueopen-phase1-vector-1", name, raw, opts); !errors.Is(err, ErrProofKeyUnavailable) {
+				t.Fatal("unknown generation admitted", err)
 			}
 		})
 	}
@@ -87,7 +130,7 @@ func TestProofLookupRejectsInvalidAuthority(t *testing.T) {
 	}
 }
 
-func TestPendingBuilderNonceCannotAuthorizeOfflineMessagesEarly(t *testing.T) {
+func TestUnactivatedBuilderNonceCannotAuthorizeOfflineMessages(t *testing.T) {
 	var row publishedVector
 	for _, candidate := range published(t) {
 		if candidate.MessageName == "nexus.v1.OpenVerifyV1" {
@@ -109,7 +152,7 @@ func TestPendingBuilderNonceCannotAuthorizeOfflineMessagesEarly(t *testing.T) {
 	}
 	withoutNonce := bytes.Replace(raw, wireBytes(10, binding), wireBytes(10, binding[:len(binding)-2]), 1)
 	if _, err := DecodeSignedMessageV1(1, withoutNonce); err == nil {
-		t.Fatal("typed Builder message used the unsigned dispatch nonce selector")
+		t.Fatal("typed Builder message omitted its signed nonce")
 	}
 	nextBinding := bytes.Clone(binding)
 	nextBinding[len(nextBinding)-1] = 2

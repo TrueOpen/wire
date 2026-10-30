@@ -6,20 +6,13 @@ import (
 )
 
 // RotationWindowHardLimits are protocol clamps, never live governance values.
-// Consumers bind these to their reviewed protocol version before enabling rotation.
+// They protect the previous proof generation before another registration.
 type RotationWindowHardLimits struct {
 	RecordDeadlineBlocks                  uint64 `json:"record_deadline_blocks"`
 	DispatchCompensationClaimWindowBlocks uint64 `json:"dispatch_compensation_claim_window_blocks"`
 	DispatchCompensationRebuttalBlocks    uint64 `json:"dispatch_compensation_rebuttal_blocks"`
 	DispatchChallengeWindowBlocks         uint64 `json:"dispatch_challenge_window_blocks"`
 	DispatchChallengeResponseBlocks       uint64 `json:"dispatch_challenge_response_blocks"`
-}
-
-// RotationSchedule freezes an inclusive old-dispatch cutoff and a safe epoch start.
-// Old Task evidence can postpone activation further, by whole epochs only.
-type RotationSchedule struct {
-	OldMaterialCloseHeight uint64 `json:"old_material_close_height"`
-	EffectiveHeight        uint64 `json:"effective_height"`
 }
 
 func rotationAdd(a, b uint64) (uint64, error) {
@@ -29,52 +22,59 @@ func rotationAdd(a, b uint64) (uint64, error) {
 	return a + b, nil
 }
 
-// ServiceKeyRotationSchedule uses the chain's current epoch start and length;
-// it does not invent a second epoch origin. The first usable height is strictly
-// after the inclusive cutoff, even when that cutoff is itself an epoch start.
-func ServiceKeyRotationSchedule(registeredHeight, epochStartHeight, epochLength uint64, limits RotationWindowHardLimits) (RotationSchedule, error) {
-	var empty RotationSchedule
-	if registeredHeight == 0 || epochLength == 0 || epochStartHeight > registeredHeight || registeredHeight-epochStartHeight >= epochLength {
-		return empty, fmt.Errorf("invalid service key rotation epoch scope")
+// ServiceKeyRotationHeight returns the fixed E+2 start using the chain's
+// zero-based epoch. Old-material counts and windows do not change this height.
+func ServiceKeyRotationHeight(registeredHeight, epochStartHeight, epochLength uint64) (uint64, error) {
+	if registeredHeight == 0 || epochLength == 0 || epochStartHeight%epochLength != 0 || epochStartHeight > registeredHeight || registeredHeight-epochStartHeight >= epochLength {
+		return 0, fmt.Errorf("invalid service key rotation epoch scope")
 	}
+	next, err := rotationAdd(epochStartHeight, epochLength)
+	if err != nil {
+		return 0, err
+	}
+	return rotationAdd(next, epochLength)
+}
+
+// ServiceKeyRotationInterval protects the previous key before another rotation
+// can be registered. It does not schedule the pending key's activation.
+func ServiceKeyRotationInterval(limits RotationWindowHardLimits) (uint64, error) {
 	for _, limit := range []uint64{limits.RecordDeadlineBlocks, limits.DispatchCompensationClaimWindowBlocks, limits.DispatchCompensationRebuttalBlocks, limits.DispatchChallengeWindowBlocks, limits.DispatchChallengeResponseBlocks} {
 		if limit == 0 {
-			return empty, fmt.Errorf("rotation window hard limits must be positive")
+			return 0, fmt.Errorf("rotation window hard limits must be positive")
 		}
 	}
 	claim, err := rotationAdd(limits.DispatchCompensationClaimWindowBlocks, limits.DispatchCompensationRebuttalBlocks)
 	if err != nil {
-		return empty, err
+		return 0, err
 	}
 	challenge, err := rotationAdd(limits.DispatchChallengeWindowBlocks, limits.DispatchChallengeResponseBlocks)
 	if err != nil {
-		return empty, err
+		return 0, err
 	}
-	closeHeight := registeredHeight
-	for _, span := range []uint64{1, limits.RecordDeadlineBlocks, max(claim, challenge)} {
-		closeHeight, err = rotationAdd(closeHeight, span)
-		if err != nil {
-			return empty, err
-		}
-	}
-	first, err := rotationAdd(closeHeight, 1)
+	interval, err := rotationAdd(1, limits.RecordDeadlineBlocks)
 	if err != nil {
-		return empty, err
+		return 0, err
 	}
-	effective := first
-	if remainder := (first - epochStartHeight) % epochLength; remainder != 0 {
-		effective, err = rotationAdd(first, epochLength-remainder)
-		if err != nil {
-			return empty, err
-		}
-	}
-	return RotationSchedule{OldMaterialCloseHeight: closeHeight, EffectiveHeight: effective}, nil
+	return rotationAdd(interval, max(claim, challenge))
 }
 
-// ServiceKeyRotationReady is the shared material/height gate. Call it with the
-// next epoch's first height from the preceding EndBlock. The count includes only
-// old-generation material dependencies, never future-generation operator duties.
-// Node additionally enforces Cortex liability/stage guards and the global budget.
-func ServiceKeyRotationReady(nextHeight uint64, schedule RotationSchedule, oldMaterialCount uint64) bool {
-	return schedule.EffectiveHeight != 0 && nextHeight == schedule.EffectiveHeight && nextHeight > schedule.OldMaterialCloseHeight && oldMaterialCount == 0
+// CanRegisterServiceKeyRotation checks the previous generation's protection.
+// A zero previousRetiredHeight means no previous key. Current group duties and
+// liability are deliberately absent from this gate.
+func CanRegisterServiceKeyRotation(height, previousRetiredHeight, previousEvidenceCount uint64, limits RotationWindowHardLimits) (bool, error) {
+	interval, err := ServiceKeyRotationInterval(limits)
+	if err != nil {
+		return false, err
+	}
+	if height == 0 || previousRetiredHeight > height || previousRetiredHeight == 0 && previousEvidenceCount != 0 {
+		return false, fmt.Errorf("invalid previous service key protection scope")
+	}
+	if previousRetiredHeight == 0 {
+		return true, nil
+	}
+	eligible, err := rotationAdd(previousRetiredHeight, interval)
+	if err != nil {
+		return false, err
+	}
+	return height >= eligible && previousEvidenceCount == 0, nil
 }

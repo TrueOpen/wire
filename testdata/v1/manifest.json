@@ -118,8 +118,8 @@
       "path": "shared/service_key_rotation_v1.json",
       "origin": "wire",
       "contract_section": "Delayed service-key rotation, inclusive cutoffs and safe epoch activation",
-      "bytes": 2633,
-      "sha256": "2116de3e5981a4697b5ce493a4dd165cf9773e2eb25f5262c9195f1e69303dd8"
+      "bytes": 3229,
+      "sha256": "120f73eb369a0abc2dfeb7c1795b3e4be9ded0d15c2afffdd738f8549b2cb344"
     },
     {
       "path": "shared/shared_domains_v1.json",
@@ -138,8 +138,8 @@
       "path": "task/builder_sync_v1.json",
       "origin": "wire",
       "contract_section": "Typed Builder replication, canonical oneof signing and current-key transport vectors",
-      "bytes": 175766,
-      "sha256": "f34a561d90d1c835025042bc057ef879f86182b7c4b842a13f4f03c64b1f7fef"
+      "bytes": 178105,
+      "sha256": "afc5149681966fb6f39e3f70e0e33bcc9f279a5e67fb7b440a2f4f42e8dbed5b"
     },
     {
       "path": "task/canonical_json_v1.json",
@@ -152,8 +152,8 @@
       "path": "task/dispatch_v1.json",
       "origin": "wire",
       "contract_section": "Generation-bound dispatch proofs and attempt-bound output signatures; docs/PHASE1_CONTRACT.md",
-      "bytes": 140285,
-      "sha256": "66d7cc921155c52b790ced718c0f8d0a52ee12dc8010f5f5aa48c77ae9932765"
+      "bytes": 140931,
+      "sha256": "c35035a8455bd0b0348fcc0572bac7316f4ee80a95553979ef1b2393add78f02"
     },
     {
       "path": "task/generation_params_ranges_v1.json",

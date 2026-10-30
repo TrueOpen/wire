@@ -35,8 +35,10 @@ ACTIVE/IDLE session accepts updates; CLOSED rejects even while its row remains
 retained. The session key does not acquire the owner's transaction permissions.
 An update requires exactly one SET or CLEAR action.
 
-SET requires `height < expiry <= height + max_session_key_blocks`, with checked
-addition and a positive current effective parameter. Historical session-pinned
+SET requires `base_height < expiry <= base_height + max_session_key_blocks`,
+with checked addition and a positive current effective parameter. Creation and
+immediate renewal use the current height; a delayed SET uses its scheduled
+effective height, so the key is valid when it activates. Historical session-pinned
 parameters are not consulted for this input bound. Governance changes affect
 later registrations/renewals, not already granted expiry heights. Deployments
 choose the limit; no seven-day default is frozen here.

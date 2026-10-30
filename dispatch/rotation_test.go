@@ -15,53 +15,61 @@ func TestPublishedServiceKeyRotationSchedules(t *testing.T) {
 	}
 	var doc struct {
 		Limits    RotationWindowHardLimits `json:"hard_limits"`
+		Interval  uint64                   `json:"rotation_interval_blocks"`
 		Schedules []struct {
-			Name             string `json:"name"`
-			RegisteredHeight uint64 `json:"registered_height"`
-			EpochStart       uint64 `json:"epoch_start_height"`
-			EpochLength      uint64 `json:"epoch_length"`
-			RotationSchedule
+			Name      string `json:"name"`
+			Height    uint64 `json:"registered_height"`
+			Start     uint64 `json:"epoch_start_height"`
+			Length    uint64 `json:"epoch_length"`
+			Effective uint64 `json:"effective_height"`
 		} `json:"schedules"`
 		Cases []struct {
-			Name       string `json:"name"`
-			NextHeight uint64 `json:"next_height"`
-			OldCount   uint64 `json:"old_material_count"`
-			Ready      bool   `json:"ready"`
-		} `json:"activation_cases"`
+			Name     string `json:"name"`
+			Height   uint64 `json:"height"`
+			Previous uint64 `json:"previous_retired_height"`
+			Evidence uint64 `json:"previous_evidence_count"`
+			Allowed  bool   `json:"allowed"`
+		} `json:"registration_cases"`
 	}
-	if err := json.Unmarshal(raw, &doc); err != nil {
+	if err = json.Unmarshal(raw, &doc); err != nil {
 		t.Fatal(err)
+	}
+	interval, err := ServiceKeyRotationInterval(doc.Limits)
+	if err != nil || interval != doc.Interval {
+		t.Fatal(interval, err)
 	}
 	for _, row := range doc.Schedules {
 		t.Run(row.Name, func(t *testing.T) {
-			got, err := ServiceKeyRotationSchedule(row.RegisteredHeight, row.EpochStart, row.EpochLength, doc.Limits)
-			if err != nil || got != row.RotationSchedule {
-				t.Fatal("rotation differs from independent schedule", got, row.RotationSchedule, err)
+			got, err := ServiceKeyRotationHeight(row.Height, row.Start, row.Length)
+			if err != nil || got != row.Effective {
+				t.Fatal(got, row.Effective, err)
 			}
 		})
 	}
-	if len(doc.Schedules) != 4 || len(doc.Cases) != 4 {
-		t.Fatal("missing schedule or activation boundary")
-	}
 	for _, row := range doc.Cases {
-		if got := ServiceKeyRotationReady(row.NextHeight, doc.Schedules[0].RotationSchedule, row.OldCount); got != row.Ready {
-			t.Fatal(row.Name, got)
+		t.Run(row.Name, func(t *testing.T) {
+			got, err := CanRegisterServiceKeyRotation(row.Height, row.Previous, row.Evidence, doc.Limits)
+			if err != nil || got != row.Allowed {
+				t.Fatal(got, row.Allowed, err)
+			}
+		})
+	}
+	if len(doc.Schedules) != 5 || len(doc.Cases) != 5 {
+		t.Fatal("missing published boundaries")
+	}
+	for _, scope := range [][3]uint64{{0, 0, 10}, {100, 100, 0}, {100, 101, 10}, {105, 101, 10}, {111, 100, 10}, {math.MaxUint64, math.MaxUint64, 10}, {math.MaxUint64 - 1, math.MaxUint64 - 1, 1}} {
+		if _, err := ServiceKeyRotationHeight(scope[0], scope[1], scope[2]); err == nil {
+			t.Fatal("invalid or overflowing activation", scope)
 		}
 	}
-	if ServiceKeyRotationReady(180, RotationSchedule{180, 180}, 0) || ServiceKeyRotationReady(0, RotationSchedule{}, 0) {
-		t.Fatal("inclusive cutoff or unspecified activation ignored")
-	}
-	for _, scope := range [][3]uint64{{0, 0, 10}, {100, 100, 0}, {100, 101, 10}, {111, 100, 10}, {math.MaxUint64, math.MaxUint64, 10}} {
-		if _, err := ServiceKeyRotationSchedule(scope[0], scope[1], scope[2], doc.Limits); err == nil {
-			t.Fatal("invalid or overflowing schedule admitted", scope)
+	for _, limits := range []RotationWindowHardLimits{{}, {1, math.MaxUint64, 1, 1, 1}, {math.MaxUint64, 1, 1, 1, 1}, {1, 1, 1, math.MaxUint64, 1}} {
+		if _, err := ServiceKeyRotationInterval(limits); err == nil {
+			t.Fatal("invalid hard limits", limits)
 		}
 	}
-	bad := doc.Limits
-	bad.DispatchCompensationClaimWindowBlocks = math.MaxUint64
-	if _, err := ServiceKeyRotationSchedule(100, 100, 10, bad); err == nil {
-		t.Fatal("window-sum overflow admitted")
-	}
-	if _, err := ServiceKeyRotationSchedule(100, 100, 10, RotationWindowHardLimits{}); err == nil {
-		t.Fatal("unspecified protocol clamps admitted")
+	for _, scope := range [][3]uint64{{0, 0, 0}, {10, 11, 0}, {10, 0, 1}, {math.MaxUint64, math.MaxUint64 - 1, 0}} {
+		if _, err := CanRegisterServiceKeyRotation(scope[0], scope[1], scope[2], doc.Limits); err == nil {
+			t.Fatal("invalid previous scope", scope)
+		}
 	}
 }

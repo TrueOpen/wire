@@ -102,13 +102,35 @@ Availability rosters only filter this order. Each round binds its own signed
 root and roster; cursor and skip count continue across rounds. A refresh never
 rescans earlier ranks. Sticky promotion is decided once using the first-round
 roster and the pre-admission chain snapshot retained in DispatchRecordState;
-later rosters only filter. A sticky candidate that rejects or times out does not
+later rosters only filter. Sticky age is max(0, earliest_submit_height -
+sticky_anchor_height); underflow remains in the window for pipelined orders.
+A sticky candidate that rejects or times out does not
 restart the draw. Only rejects/timeouts consume the skip limit.
 
 Keeper admission verifies signatures, VRF, reference height, winner eligibility,
 ticket/record consistency, deadlines, sequence and funds. It does not recompute
 the whole weighted order; objective challenges do that using frozen epoch
 weight inputs, the saved sticky snapshot and the first-round roster.
+
+Recording permits height == order_expire_height. Preflight permits an order at
+most one block ahead of the observed head and does not wait for that order's
+earliest_submit_height before dispatch. Epoch zero, an unavailable committed
+epoch-start beacon, and a not-yet-effective snapshot return the retryable
+NEXUS_INGRESS_DISPATCH_NOT_READY with OpenTaskResponse.dispatch_available_height;
+do not switch Builder. Once the snapshot activates, the same epoch is usable.
+An empty roster or exhausted skip limit uses NO_CAPACITY instead.
+An order referencing a superseded BuilderSet uses NEXUS_INGRESS_BUILDER_SET_STALE;
+query the latest set and re-sign the same sequence without triggering takeover.
+
+Binding/takeover errors carry typed OpenTaskResponse details: bound_builder,
+task_id and, when pending, takeover_activation_height. Output group authority is
+chain-recorded membership, independent of replica arrival. Bound the replica
+wait, then return NEXUS_OUTPUT_REPLICA_NOT_READY and retry/fall back to
+FetchTaskData(OUTPUT), not SESSION_UNBOUND. Stale-attempt errors cover ongoing
+subscriptions and old-ticket uploads; recording rejection and an unusable stream
+terminate that attempt explicitly. The dispatching Builder authenticates a
+recorded upload against its local recorded attempt; group members use chain Task
+authority. Chunk/Fin already sign the ticket, so no extra relay envelope is added.
 
 ## Funds, delayed actions and takeover
 
@@ -117,7 +139,9 @@ from balance minus frozen funds, without subtracting a pending withdrawal.
 Settlement/refund releases the remainder back to the session. Deposits and
 withdrawal/CLOSE require the owner wallet; delegated keys cannot move funds.
 Builder preflight additionally subtracts pending withdrawals and local inflight
-reservations. CLOSE stops new dispatch and waits for admitted tasks to finish;
+reservations. Delegated cap preflight requires spent + this Builder/session
+delegated inflight max_fee + the new max_fee <= nonzero cap; wallet inflight
+orders do not consume delegated cap. CLOSE stops new dispatch and waits for admitted tasks to finish;
 it may replace an AMOUNT request. Maturity transfers only currently available
 funds. Lifecycle expiry uses the same delayed CLOSE/refund path.
 
@@ -131,6 +155,9 @@ accepted-or-locked outcome. Return and query effective heights for SDK key use.
 A takeover entry registers a candidate but creates no Task, consumes no sequence,
 freezes no funds and does not change sticky history. EndBlock activates it after
 the registration-based delay only while the sequence remains unconsumed. An
+expired takeover order does not consume its sequence: emit ORDER_EXPIRED and
+re-sign that sequence to the newly bound Builder. Later orders received by the
+former Builder use takeover instead of a blanket rejection. An
 accepted dispatch, effective cancellation or session closure atomically clears
 the pending takeover. A second pending candidate is rejected. The two domains
 `TRUEOPEN_DISPATCH_RECORD_ENTRY_V1` and `TRUEOPEN_TAKEOVER_ENTRY_V1` are separate;
@@ -151,23 +178,40 @@ replicas become available only after chain admission. Receiver membership,
 accepted authority, business proofs and durable replay/conflict checks remain
 consumer obligations; a valid transport signature does not assert those facts.
 Validate raw request bytes before generated decoding can discard unknown or
-duplicate fields. The shared verifier accepts raw bytes for this reason.
+duplicate fields. The shared verifier accepts raw bytes for this reason, so Sync
+accepts binary protobuf only; JSON or other transcoded requests are rejected.
+An item at an already applied sequence is an exact duplicate iff its canonical
+item projection, the REPEATED_V1 element the batch signature commits to and
+`dispatch.BuilderSyncItemCanonicalBytes` returns, is byte-equal to the applied
+item's; otherwise it conflicts and is refused. Nested business signatures are
+part of that projection; protobuf encoding is never compared. A receiver may
+retain SHA-256 of those bytes as a local key, which is not a protocol identity.
 
-Sync transport uses the current ACTIVE Builder key. Drain materials needing the
-old current proof key before cutover, subject to the existing safe-activation and
-response-window guards. After activation, reject old transport signatures and
-re-sign retransmission batches with the new current key. Retained authenticated
-or chain-accepted facts remain facts about the stable operator; do not verify
-old business signatures with a new key or introduce service-key history.
+Sync transport uses the current ACTIVE Builder key. After activation, reject old
+transport signatures and re-sign retransmission batches with the new current key.
+Eligible inner business proofs select current/previous by their signed nonce;
+previous dispatch material must belong to an order before retirement. Retained
+authenticated or chain-accepted facts remain owned by the stable operator. No
+mandatory drain, activation gate or unbounded service-key history is introduced.
 
 Dispatch input chunks start at index 0 with positive count. Size/hash/count must
 agree across chunks; reassemble in index order and verify whole-input size and
 SHA-256 before use. `GetTaskEventsResponse` reports the Nexus lifecycle code set
 documented on its schema, separate from Node protocol events. Its typed detail
 carries takeover destinations/heights, recording Builder/task and dispatch
-rejection facts for recovery without resending an order. New keepalive probes
-use odd values from Builder and even values from Cortex; echoes retain the peer's
-value, including its parity.
+rejection facts for recovery without resending an order. TAKEOVER_VOIDED names
+its cause: the recording Builder and recorded task, the candidate and activation
+height of another takeover that registered first, the Builder the Session is
+bound to, or nothing for cancellation/closure. RECORD_REJECTED always carries a
+nonzero reject_code; its ticket is absent when none exists (a rejected takeover
+entry, or an order whose record deadline passed before any Worker accepted). A
+missed record deadline uses RECORD_LATE. Later sequences of the same Session
+rejected together with an earlier entry use CONFLICT, never SEQUENCE_CONSUMED:
+they were not consumed, and the client resends an order at the same sequence.
+An order ahead of the next expected sequence is SEQUENCE_NOT_NEXT, also unconsumed
+and resent at the same sequence; only SEQUENCE_CONSUMED retires a sequence.
+New keepalive probes use odd values from Builder and even values from Cortex;
+echoes retain the peer's value, including its parity.
 
 Claims are keyed by ticket hash. A recorded winner cannot claim, and winner
 ineligibility markers exclude failures attributable to the Worker. Claims check
@@ -185,20 +229,23 @@ and the account balance, then pay the independently configured penalty from
 the remaining balance to Treasury. Count the actual compensation in total_paid
 and actual penalty in total_penalized. Fault compensated_amount and penalty_amount
 record those actual payments; fault unfilled_amount is only the penalty shortfall.
+Task event 137 (EventBuilderDispatchFaultRecorded) carries the same three amounts,
+so a Builder or Worker can account for the fault without querying its state.
 
 An omission proof using a newer signed handraise_root must also supply
 bound_handraise_root, the signed preimage of the round's committed root. Verify
 both against the same chain/Builder, require the bound preimage's digest to match
 the retained commitment, then compare (root_height, root_version) lexicographically.
-The newer root height must not exceed the retained earliest_submit_height. When
+The newer root requires checked root_height + 2 <= retained earliest_submit_height;
+this excludes roots signed after dispatch when a one-block-ahead order is allowed. When
 the evidence root itself matches the commitment, the bound preimage is optional;
 if supplied, it must still match. A digest alone cannot establish root freshness.
 
 Four recorded-task challenges use retained records. Double dispatch can be
 proved from a signed record before admission. Each challenge kind has its own
-scope/deduplication key, gas cap and bounded response. Reject proofs use the current service proof key and match its signed nonce;
-registration leaves that binding unchanged throughout its evidence windows;
-honesty does not depend on a Worker's voluntary drain before rotation.
+scope/deduplication key, gas cap and bounded response. Reject proofs select
+current/previous by signed nonce; previous requires an order before retirement.
+Honest defense does not depend on a Worker's voluntary drain before rotation.
 Preserve record/winner exclusion facts until claim
 windows close and all pending claims finish. Pruned records must never be
 interpreted as unrecorded tasks. Parameter updates must not reopen pruned claims.
@@ -217,78 +264,97 @@ Worker output-equivocation evidence reconstructs the ticket from the accepted
 InferReceiptV3, never from a caller's attempt copy. An old attempt's genuine frame
 cannot incriminate a later attempt by the same Worker on the same signed order.
 
-SignedHandraiseRootV1, DispatchTicketV1 and DispatchRecordV1 use the current
-Builder key without an added Builder nonce. Ticket promotion is not a second
+SignedHandraiseRootV1, DispatchTicketV1 and DispatchRecordV1 sign their Builder
+service_authorization_nonce. DispatchRecordState freezes the record nonce and
+bound_change_height. Ticket promotion is not a second
 fact: sticky_applied exists only on the record and remains true if the promoted
 Worker rejects and another Worker wins. Existing Cortex accept/reject nonces
-and typed BuilderMessageBinding nonces remain signed and match current authority.
+and typed BuilderMessageBinding nonces remain signed and select current/previous
+proof authority, separately from current-only online authentication.
 Shared proof verification, roster commitments and challenge identities live in
 dispatch/. The unused extra dispatch-pool commitment is removed.
 
 ## Delayed key cutover
 
-MsgRotateServiceKey registers one PendingServiceKeyRotationState per role/operator.
-The old address/key/nonce stay current. The proposed next key has no live or proof
-permissions before activation. Registration reserves its address and emits event
-145; the existing rotated event is emitted only at actual activation. The current
-key query and registration response expose the pending primary.
+MsgRotateServiceKey registers one PendingServiceKeyRotationState per role/operator,
+checks the new key's PoP and reserves its address. Registration in epoch E fixes
+effective_height to EpochStartHeight(E+2), even on the last block of E. Install
+all due bindings atomically before business transactions at that height; material
+counts or ordinary queue budgets cannot postpone activation. The old binding
+remains current until then, and a pending key has no live or proof permissions.
+Event 145 announces registration; the rotated event announces actual activation.
 
-The inclusive old-dispatch cutoff is registration_height + 1 + the protocol hard
-limit for record_deadline_blocks + max(claim_window_hard_limit + rebuttal_hard_limit,
-challenge_window_hard_limit + response_hard_limit), with checked arithmetic. Use
-protocol clamps rather than mutable governance values. ServiceKeyRotationSchedule
-rounds strictly beyond this cutoff to an epoch start. Process activation in the
-preceding block's EndBlock so all consumers see the committed binding at the epoch
-start. A still-open old Task material window or insufficient global budget postpones
-activation by whole epochs. Never shorten an old proof window to force a switch.
-Governance cannot reopen a closed old-material batch; increasing protocol hard
-limits is a separately reviewed upgrade. These hard limits require the same
-pre-release calibration as the existing dispatch parameters; fixtures are examples.
+CortexNodeState, BuilderState and CurrentServiceKeyViewV1 retain exactly one
+previous_service_pubkey / previous_service_authorization_nonce /
+previous_retired_height, with paired presence. The public key is raw33 Base64 at
+the API boundary; previous has no online reverse-address index or live rights.
+Activation saves old current as previous, installs the pending key and advances
+the nonce. Genesis exports these fields and pending primaries, validates their
+presence/nonces/heights, and rebuilds activation/address indexes from primaries.
 
-Pending Cortex operators leave new Worker/Verifier duty admission. Pending Builders
-stop new tickets/roots, new session bindings and new takeover bindings; bound
-sessions hand over through the existing takeover path. Old-material admission and
-proof windows use the ticket/record's own anchors and the frozen cutoff, never a
-later live session binding. Accepted facts and ongoing group duties stay owned by
-the stable operator. A pending Builder can continue on-chain group work with its
-current key. Its already-frozen old Task material contexts retain the old nonce;
-new Task Builder evidence contexts reserve the pending next nonce and cannot
-accept old-nonce offline messages. Other available group members coordinate those
-new offline contexts until activation. Same-block transaction ordering is read
-from the frozen responsibility row, not inferred from Task creation height.
+Another registration requires height >= previous_retired_height + interval and
+no evidence responsibility still bound to the previous nonce. Reuse existing
+ServiceKeyResponsibilityState accounting; current group duties and liability do
+not block registration. The interval is checked integer arithmetic over protocol
+hard limits, never mutable current governance values:
 
-Activation's old-material count includes BUS_OBJECTIVE_EVIDENCE,
-WORKER_OUTPUT_EVIDENCE and CHALLENGE_VERIFIER, not the pure operator duties
-OPEN_VERIFY_BUILDER/SETTLE_BUILDER or reserved future-generation contexts. Rebuild
-this derived count from existing responsibility primaries; no Task-wide scan is
-allowed. Cortex liability/stage guards and admissible old responses also gate
-activation. Proof-key lookup remains current-only. No retired service-key primary,
-history prune index or governance history-expansion scan exists.
+```
+1 + record_deadline_blocks_hard_limit
+  + max(claim_window_hard_limit + rebuttal_hard_limit,
+        challenge_window_hard_limit + response_hard_limit)
+```
 
-Emergency revoke stops live permission immediately, cancels pending replacement
-and its address reservation, and keeps the current revoked proof identity until
-its material windows close. Unactivated future-nonce Builder responsibility rows
-are operator markers only, authorize no signatures and follow Task cleanup.
-Builder VRF rotation uses the same hard-limit waiting and an epoch-only cutover,
-while retaining its existing independent VRF audit history. It does not use the
-service-material counter. Validator and first-registration next-epoch behavior
-is unchanged. All of these are consumer execution requirements, not a claim that
-Node implements them yet.
+It protects previous before another registration; it never computes E+2.
+Network hard-limit values require release calibration; examples are not defaults.
+The shared implementation separates ServiceKeyRotationHeight,
+ServiceKeyRotationInterval and CanRegisterServiceKeyRotation.
 
-Hub Genesis exports pending rotations, validates their current/next nonce and
-frozen heights, and rebuilds activation/address indexes and material counts. Public
-addresses remain canonical Bech32 strings; private keys/values store validated raw20
-addresses and raw33 public keys. Do not copy public DTOs as private storage codecs.
+Ticket, record, root, accept and reject proofs select current/previous by their
+own signed nonce. Previous is accepted only when the associated signed order or
+immutable accepted record has earliest_submit_height < previous_retired_height.
+Unknown generations, missing old-order authority or the retirement-height block
+and later are rejected. Use VerifyDispatchProof with OrderEarliestSubmitHeight
+for previous dispatch proofs; no later live Session anchor may replace it.
+Submitter identity and material verification are separate: first recording uses
+a current submitter, while its eligible pre-cutover ticket/record/accept material
+may verify with previous. Live streams, requests and sync transport require the
+current ACTIVE key. Typed Builder objective evidence additionally binds the
+existing Task responsibility nonce and admissibility window.
+
+Pending rotation is local admission only: Builder declines the Cortex's new
+offers with admitted=false and SERVICE_KEY_ROTATION_PENDING; a pending Builder
+does not sign new roots or accept new Sessions. Keeper does not reject new
+Sessions, takeover bindings or Worker/Verifier duty merely because rotation is
+pending. Already issued/accepted work, recording, takeover, settlement and stable
+operator group duties continue. Do not reserve next-nonce Task responsibilities,
+add material counters, freeze material cutoffs or add activation/drain gates.
+
+Emergency revoke immediately stops live permission, cancels pending/address
+reservations and preserves required proof identities. It bypasses E+2 and the
+registration interval, but does not install a replacement key. Later rotation
+still follows registration rules. Builder and Validator VRF keys retain their
+separate next-epoch schedule and VRF audit history.
 
 Roster request signatures bind chain_id and the target builder_operator. Input
 requests bind dispatch_accept_digest as well as the ticket. Revoke reasons are
 closed to pre-acceptance RBF. Chunk cumulative_generated_tokens is non-decreasing
 within an attempt and is used only for the pre-record forwarding cap. Public
 per-entry rejection codes include all order-validation failures and duplicate
-challenge scopes. Verifier value-evidence closure uses deadline kind 14 and a
-persisted verifier_value_evidence_window_closed_height before round finalization;
-its close index rebuilds when close is present and closed is absent. Double-dispatch
-windows use the signed record's bound_change_height, never mutable session state.
+challenge scopes. Record admission requires order_sequence to equal the
+session's next_expected_sequence with its OrderSequenceState absent, UNUSED or
+CANCEL_PENDING. A sequence ahead of next expected is SEQUENCE_NOT_NEXT: it was
+not consumed, and the client resends the same sequence after the earlier ones
+are recorded. A sequence behind next expected, or one holding a record or
+another non-cancellable state, is SEQUENCE_CONSUMED and must never be reused. A
+takeover entry follows the same order: one whose order_sequence is ahead of
+next_expected_sequence is SEQUENCE_NOT_NEXT, consumes nothing and may be resent
+at the same sequence after the earlier ones are recorded, while
+TAKEOVER_SEQUENCE_CONSUMED keeps meaning the sequence is behind next expected or
+already taken. Verifier value-evidence closure uses deadline kind 14 and a
+persisted verifier_value_evidence_window_closed_height before round
+finalization; its close index rebuilds when close is present and closed is
+absent. Double-dispatch windows use the signed record's bound_change_height,
+never mutable session state.
 
 ## Event routing and gap recovery
 
@@ -310,7 +376,7 @@ labelling the Cortex operator's address as a `BUILDER` is not equivalent. Task
 codes route through the Task role stream; Hub codes route through the protocol
 stream. Clients use both streams. A global protocol subscription is also possible
 but does not replace the mandatory targets. Events are hints: preflight and chain
-admission still enforce the current/pending identity.
+admission enforce the current identity; pending offer admission is local only.
 
 `DispatchChallengesByBuilder` and `DispatchCompensationClaimsByBuilder` recover
 open items after a gap of any length. Both reuse shared height-pinned keyset

@@ -2,10 +2,11 @@
   "schema": "trueopen-service-key-rotation-v1",
   "notes": [
     "Protocol-hard-limit examples, not approved network parameter values.",
-    "The old binding stays current during waiting; accepted chain facts retain their operator identity.",
-    "Effective height is an epoch start; perform the switch in the preceding EndBlock only after old-generation material dependencies close.",
-    "Future-generation Builder group duties do not enter the old-material counter.",
-    "An emergency revoke cancels pending replacement and preserves the current revoked proof identity."
+    "Registration in epoch E activates at the fixed E+2 start, including the last block of E.",
+    "The interval protects the previous generation before another registration; it never schedules activation.",
+    "Only previous-generation evidence responsibilities gate another registration; current group duties and liability do not.",
+    "Previous dispatch proofs require order earliest_submit_height strictly before previous_retired_height; online submitters remain current-only.",
+    "Emergency revoke immediately cancels pending replacement and preserves necessary proof identities."
   ],
   "hard_limits": {
     "record_deadline_blocks": 4,
@@ -16,74 +17,99 @@
   },
   "schedules": [
     {
-      "name": "wait_rounds_to_epoch",
+      "name": "first_block",
       "registered_height": 100,
       "epoch_start_height": 100,
       "epoch_length": 10,
-      "old_material_close_height": 177,
-      "effective_height": 180
+      "effective_height": 120
     },
     {
-      "name": "inclusive_cutoff_is_epoch_start",
-      "registered_height": 103,
+      "name": "last_block",
+      "registered_height": 109,
       "epoch_start_height": 100,
       "epoch_length": 10,
-      "old_material_close_height": 180,
-      "effective_height": 190
+      "effective_height": 120
     },
     {
-      "name": "nonzero_epoch_origin",
+      "name": "next_epoch",
       "registered_height": 110,
-      "epoch_start_height": 101,
+      "epoch_start_height": 110,
       "epoch_length": 10,
-      "old_material_close_height": 187,
-      "effective_height": 191
+      "effective_height": 130
     },
     {
-      "name": "single_block_epoch",
+      "name": "initial_epoch",
+      "registered_height": 1,
+      "epoch_start_height": 0,
+      "epoch_length": 120,
+      "effective_height": 240
+    },
+    {
+      "name": "one_block_epoch",
       "registered_height": 1,
       "epoch_start_height": 1,
       "epoch_length": 1,
-      "old_material_close_height": 78,
-      "effective_height": 79
+      "effective_height": 3
     }
   ],
-  "activation_cases": [
+  "rotation_interval_blocks": 77,
+  "registration_cases": [
     {
-      "name": "before_epoch",
-      "next_height": 179,
-      "old_material_count": 0,
-      "ready": false
+      "name": "first_registration",
+      "height": 100,
+      "previous_retired_height": 0,
+      "previous_evidence_count": 0,
+      "allowed": true
     },
     {
-      "name": "old_material_still_open",
-      "next_height": 180,
-      "old_material_count": 1,
-      "ready": false
+      "name": "before_interval",
+      "height": 176,
+      "previous_retired_height": 100,
+      "previous_evidence_count": 0,
+      "allowed": false
     },
     {
-      "name": "future_group_duties_do_not_block",
-      "next_height": 180,
-      "old_material_count": 0,
-      "future_group_count": 2,
-      "ready": true
+      "name": "interval_boundary",
+      "height": 177,
+      "previous_retired_height": 100,
+      "previous_evidence_count": 0,
+      "allowed": true
     },
     {
-      "name": "epoch_missed_no_mid_epoch_switch",
-      "next_height": 181,
-      "old_material_count": 0,
-      "ready": false
+      "name": "previous_evidence_open",
+      "height": 178,
+      "previous_retired_height": 100,
+      "previous_evidence_count": 1,
+      "allowed": false
+    },
+    {
+      "name": "current_duties_do_not_block",
+      "height": 178,
+      "previous_retired_height": 100,
+      "previous_evidence_count": 0,
+      "current_group_count": 2,
+      "current_liability_count": 3,
+      "allowed": true
     }
   ],
-  "reject_proof": {
-    "message_name": "task.v1.DispatchRejectV1",
-    "vector_file": "task/dispatch_v1.json",
-    "vector_name": "task_v1_dispatchrejectv1",
-    "signed_nonce": 1,
-    "current_nonce_during_wait": 1,
-    "next_nonce": 2,
-    "registered_height": 100,
-    "old_material_close_height": 177,
-    "effective_height": 180
-  }
+  "proof_cases": [
+    {
+      "name": "before_cutover",
+      "earliest_submit_height": 119,
+      "previous_retired_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "at_cutover",
+      "earliest_submit_height": 120,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "after_cutover",
+      "earliest_submit_height": 121,
+      "previous_retired_height": 120,
+      "allowed": false
+    }
+  ]
 }

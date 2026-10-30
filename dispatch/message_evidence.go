@@ -143,7 +143,8 @@ type EvidenceVerifyOptions struct {
 }
 
 // VerifyBuilderEvidenceV2 is the sole generated-code-free evidence verifier.
-// A revoked current key verifies old facts only; pending keys never authorize proofs.
+// Current/previous keys prove only their bound Task facts; pending keys never
+// authorize proofs. The consumer resolves the frozen Task responsibility nonce.
 func VerifyBuilderEvidenceV2(raw []byte, opts EvidenceVerifyOptions) (VerifiedBuilderEvidenceV2, error) {
 	var result VerifiedBuilderEvidenceV2
 	if opts.ChainID == "" {

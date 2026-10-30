@@ -809,7 +809,8 @@
         "sticky_run_count",
         "sticky_applied",
         "rounds",
-        "dispatch_ticket_hash"
+        "dispatch_ticket_hash",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -819,7 +820,7 @@
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": " The signed nonce selects a retained proof-only key by (BUILDER, operator, nonce); live admission still requires the current ACTIVE binding."
+      "note": "The signed nonce selects current or the sole previous proof key. Previous dispatch material requires its order earliest_submit_height to be strictly before previous_retired_height; submitter and live authorization remain current-only."
     },
     {
       "domain": "TRUEOPEN_DISPATCH_REJECT_V1",
@@ -964,7 +965,8 @@
         "input_hash",
         "bound_change_height",
         "sticky_anchor_sequence",
-        "sticky_run_count"
+        "sticky_run_count",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -974,7 +976,7 @@
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": " The signed nonce selects a retained proof-only key by (BUILDER, operator, nonce); live admission still requires the current ACTIVE binding."
+      "note": "The signed nonce selects current or the sole previous proof key. Previous dispatch material requires its order earliest_submit_height to be strictly before previous_retired_height; submitter and live authorization remain current-only."
     },
     {
       "domain": "TRUEOPEN_DISPATCH_VRF_INPUT_V1",
@@ -1315,7 +1317,8 @@
         "root_height",
         "root_version",
         "leaf_count",
-        "root"
+        "root",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -1325,7 +1328,7 @@
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": " The signed nonce selects a retained proof-only key by (BUILDER, operator, nonce); live admission still requires the current ACTIVE binding."
+      "note": "The signed nonce selects current or the sole previous proof key. Previous dispatch material requires its order earliest_submit_height to be strictly before previous_retired_height; submitter and live authorization remain current-only."
     },
     {
       "domain": "TRUEOPEN_HUB_PARAMS_V2",

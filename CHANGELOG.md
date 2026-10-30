@@ -2,6 +2,18 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Define Builder sync duplicate items by byte-equal canonical item projections,
+  exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
+  as binary protobuf only.
+- Complete TaskEventDetailV1: TAKEOVER_VOIDED destinations for a takeover voided
+  by another registered takeover or a session bound elsewhere; RECORD_REJECTED
+  without a ticket when none exists, RECORD_LATE for a missed record deadline and
+  CONFLICT for unconsumed cascaded sequences.
+- Add `compensated_amount` (field 8) to `task.v1.EventBuilderDispatchFaultRecorded`.
+- Add `DISPATCH_REJECT_CODE_V1_SEQUENCE_NOT_NEXT` (38) for an unconsumed order ahead
+  of the next expected sequence; SEQUENCE_CONSUMED now means the sequence is retired.
+- Add a typed dispatch-readiness retry height and bounded recorded-replica recovery;
+  specify saturated sticky age, inclusive order expiry and the two-block newer-root margin.
 - Preserve frozen Task/Session parameter versions in Genesis, including historical
   bodies and non-current bindings, with derived reference counts and bounded
   retirement after the epoch policy lookup window.
@@ -36,10 +48,11 @@
 - Bind Chunk/Fin signatures to dispatch_ticket_hash and rebuild Worker evidence
   from the accepted receipt's attempt. An old generation of the same order
   cannot falsely prove equivocation by an honest Worker.
-- Register delayed service-key rotation and switch only at safe epoch boundaries.
-  Keep the current proof identity until old material windows close; export pending
-  state, rebuild derived indexes/counts, and preserve stable operator group duties.
-  Remove the retired-service-key table and added Builder dispatch nonces.
+- Fix service-key activation at E+2, retain one previous proof generation and
+  gate another registration by its hard-limit interval and evidence duties.
+  Restore signed Builder nonces and frozen record anchors; previous dispatch
+  material is limited to orders before retirement. Remove old cutoffs, material
+  counters, activation postponement, next-nonce duties and chain pending rejection.
 - Complete value-evidence closure (deadline kind 14 and actual closed height),
   Worker contradiction slash configuration, and per-entry rejection categories.
   Bind roster authentication to chain/Builder and input access to the accept digest.
