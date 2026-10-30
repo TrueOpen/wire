@@ -2,6 +2,10 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Freeze `earliest_submit_height` in `DispatchCompensationClaimState` (field 17)
+  so previous-key record and reject rebuttals work for unrecorded orders. Keep
+  the original claim height through Query, Genesis, replay and resolution; do
+  not borrow another ticket's accepted record under the same TaskID.
 - Define Builder sync duplicate items by byte-equal canonical item projections,
   exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
   as binary protobuf only.

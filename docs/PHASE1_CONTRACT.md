@@ -310,11 +310,21 @@ The shared implementation separates ServiceKeyRotationHeight,
 ServiceKeyRotationInterval and CanRegisterServiceKeyRotation.
 
 Ticket, record, root, accept and reject proofs select current/previous by their
-own signed nonce. Previous is accepted only when the associated signed order or
-immutable accepted record has earliest_submit_height < previous_retired_height.
+own signed nonce. Previous is accepted only when the associated signed order,
+immutable accepted record or compensation claim's frozen verified original order
+has earliest_submit_height < previous_retired_height.
 Unknown generations, missing old-order authority or the retirement-height block
 and later are rejected. Use VerifyDispatchProof with OrderEarliestSubmitHeight
 for previous dispatch proofs; no later live Session anchor may replace it.
+At claim registration, freeze the verified original order's earliest_submit_height
+in DispatchCompensationClaimState (field 17). It must be positive and strictly
+below claimed_height. Preserve it through replay, resolution, Query and Genesis
+until the claim itself is pruned. Both the rebuttal record and optional reject
+use this same claim fact against their respective key retirement heights, even
+when the order was never recorded. Another ticket's accepted record under the
+same TaskID, a live Session anchor or a height inferred from claim windows cannot
+replace it. Missing or invalid claim heights fail validation. This adds no signed
+field, signing domain or request argument.
 Submitter identity and material verification are separate: first recording uses
 a current submitter, while its eligible pre-cutover ticket/record/accept material
 may verify with previous. Live streams, requests and sync transport require the

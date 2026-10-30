@@ -47,7 +47,9 @@ type ProofKeyBinding struct {
 type ProofKeyOptions struct {
 	LookupProofKey func(ServiceProofSigner) (ProofKeyBinding, error)
 	// Required for previous-generation dispatch proofs; read from the signed
-	// order or immutable accepted record, never a later live Session anchor.
+	// order, immutable accepted record, or the compensation claim's frozen
+	// verified original order. Never substitute another ticket's accepted
+	// record, a later live Session anchor, or a height inferred from a window.
 	OrderEarliestSubmitHeight *uint64
 }
 
