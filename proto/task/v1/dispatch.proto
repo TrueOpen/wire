@@ -156,7 +156,9 @@ enum DispatchRejectCodeV1 {
   DISPATCH_REJECT_CODE_V1_STICKY_MISMATCH = 20;
   // BOUND_CHANGE_HEIGHT_MISMATCH is the bound change height mismatch value.
   DISPATCH_REJECT_CODE_V1_BOUND_CHANGE_HEIGHT_MISMATCH = 21;
-  // SEQUENCE_CONSUMED is the sequence consumed value.
+  // The order sequence is behind the session's next expected sequence, or it
+  // already holds a record or a state that cancellation cannot release. The
+  // client must not reuse this sequence.
   DISPATCH_REJECT_CODE_V1_SEQUENCE_CONSUMED = 22;
   // SESSION_BALANCE_INSUFFICIENT is the session balance insufficient value.
   DISPATCH_REJECT_CODE_V1_SESSION_BALANCE_INSUFFICIENT = 23;
@@ -188,6 +190,10 @@ enum DispatchRejectCodeV1 {
   DISPATCH_REJECT_CODE_V1_CHALLENGE_DUPLICATE = 36;
   // A pending rotation forbids the requested new duty or binding.
   DISPATCH_REJECT_CODE_V1_SERVICE_KEY_ROTATION_PENDING = 37;
+  // The order sequence is ahead of the session's next expected sequence. It was
+  // not consumed; resend the same sequence after the earlier sequences are
+  // recorded.
+  DISPATCH_REJECT_CODE_V1_SEQUENCE_NOT_NEXT = 38;
 }
 // DispatchProfileV1 defines the canonical DispatchProfileV1 fields.
 message DispatchProfileV1 {

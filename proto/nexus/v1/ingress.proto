@@ -887,7 +887,10 @@ message GetTaskEventsResponse {
 // any Worker accepted. A missed record deadline uses RECORD_LATE. When one entry
 // is rejected, later sequences of the same Session are rejected with it; those
 // sequences were not consumed, so they use CONFLICT, never SEQUENCE_CONSUMED,
-// and the client resends an order at the same sequence.
+// and the client resends an order at the same sequence. An order ahead of the
+// Session's next expected sequence uses SEQUENCE_NOT_NEXT and is likewise
+// resent at the same sequence once the earlier sequences are recorded; only
+// SEQUENCE_CONSUMED means the sequence must not be reused.
 message TaskEventDetailV1 {
   optional string bound_builder = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   optional string recording_builder = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];

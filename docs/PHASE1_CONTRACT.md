@@ -181,6 +181,8 @@ entry, or an order whose record deadline passed before any Worker accepted). A
 missed record deadline uses RECORD_LATE. Later sequences of the same Session
 rejected together with an earlier entry use CONFLICT, never SEQUENCE_CONSUMED:
 they were not consumed, and the client resends an order at the same sequence.
+An order ahead of the next expected sequence is SEQUENCE_NOT_NEXT, also unconsumed
+and resent at the same sequence; only SEQUENCE_CONSUMED retires a sequence.
 New keepalive probes use odd values from Builder and even values from Cortex;
 echoes retain the peer's value, including its parity.
 
@@ -302,7 +304,12 @@ requests bind dispatch_accept_digest as well as the ticket. Revoke reasons are
 closed to pre-acceptance RBF. Chunk cumulative_generated_tokens is non-decreasing
 within an attempt and is used only for the pre-record forwarding cap. Public
 per-entry rejection codes include all order-validation failures and duplicate
-challenge scopes. Verifier value-evidence closure uses deadline kind 14 and a
+challenge scopes. Record admission requires order_sequence to equal the session's
+next_expected_sequence with its OrderSequenceState absent, UNUSED or
+CANCEL_PENDING. A sequence ahead of next expected is SEQUENCE_NOT_NEXT: it was not
+consumed, and the client resends the same sequence after the earlier ones are
+recorded. A sequence behind next expected, or one holding a record or another
+non-cancellable state, is SEQUENCE_CONSUMED and must never be reused. Verifier value-evidence closure uses deadline kind 14 and a
 persisted verifier_value_evidence_window_closed_height before round finalization;
 its close index rebuilds when close is present and closed is absent. Double-dispatch
 windows use the signed record's bound_change_height, never mutable session state.

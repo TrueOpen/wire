@@ -10,6 +10,8 @@
   without a ticket when none exists, RECORD_LATE for a missed record deadline and
   CONFLICT for unconsumed cascaded sequences.
 - Add `compensated_amount` (field 8) to `task.v1.EventBuilderDispatchFaultRecorded`.
+- Add `DISPATCH_REJECT_CODE_V1_SEQUENCE_NOT_NEXT` (38) for an unconsumed order ahead
+  of the next expected sequence; SEQUENCE_CONSUMED now means the sequence is retired.
 - Preserve frozen Task/Session parameter versions in Genesis, including historical
   bodies and non-current bindings, with derived reference counts and bounded
   retirement after the epoch policy lookup window.
