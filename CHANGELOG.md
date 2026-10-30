@@ -10,8 +10,9 @@
   ticket's nonce, through `VerifyDispatchProof` (result header) or the new
   `dispatch.VerifyTicketBoundDispatchProof`. Stream bindings, requests and Builder
   sync transport stay current-key only; the new `dispatch.VerifyDispatchStreamBinding`
-  requires the current ACTIVE key, and a Builder closes established streams once
-  the binding key is no longer ACTIVE.
+  requires the current ACTIVE key. A Builder closes an established stream when the
+  Cortex binding key is revoked or rotated out; a Cortex closes it when the
+  Builder's current key is revoked, but not at a Builder rotation activation.
 - Define Builder sync duplicate items by byte-equal canonical item projections,
   exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
   as binary protobuf only.

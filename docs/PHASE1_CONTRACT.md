@@ -347,15 +347,27 @@ ticket and the accept separately before trusting who won.
 
 Online authentication stays current-only: DispatchStreamBindingV1, requests
 (roster requests and SDK envelopes) and BuilderSyncService transport require the
-current ACTIVE key. Verify a binding with VerifyDispatchStreamBinding. A binding
-is checked once per connection, so when the Cortex key that authenticated it is
-no longer that Cortex's current ACTIVE key, for example after emergency
-revocation or rotation activation, the receiving Builder closes the established
-DispatchStream as soon as it observes this; the Cortex reconnects with a fresh
-binding under its current key. BuilderSyncService.Sync is unary and verifies
-every request, so the receiver refuses the next request signed by a key that is
-no longer ACTIVE; no sync authentication outlives a request. This keeps a
-revoked current key from authorizing live traffic.
+current ACTIVE key. Verify a binding with VerifyDispatchStreamBinding.
+
+A binding is checked once per connection, so when the Cortex key that
+authenticated it is no longer that Cortex's current ACTIVE key, the receiving
+Builder closes the established DispatchStream as soon as it observes this. That
+applies to emergency revocation and also to Cortex rotation activation, because
+the binding itself is current-only; after rotation the Cortex reconnects with a
+fresh binding under its new current key.
+
+Symmetrically, when the Builder's current key is no longer ACTIVE because it was
+revoked, the Cortex closes the DispatchStream with that Builder as soon as it
+observes this and accepts no further live messages from it until the Builder has
+a current ACTIVE key again. Copies the Cortex already holds stay valid as proofs.
+A Builder rotation activation does not require closing the stream: retained
+messages carry their own nonce and the Builder signs new messages with its new
+current key.
+
+BuilderSyncService.Sync is unary and verifies every request, so the receiver
+refuses the next request signed by a key that is no longer ACTIVE; no sync
+authentication outlives a request. Neither a revoked Builder key nor a revoked
+Cortex key authorizes live traffic.
 
 Pending rotation is local admission only: Builder declines the Cortex's new
 offers with admitted=false and SERVICE_KEY_ROTATION_PENDING; a pending Builder

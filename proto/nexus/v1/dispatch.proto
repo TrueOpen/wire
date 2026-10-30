@@ -28,9 +28,9 @@ enum OpenTaskStatusV1 {
 }
 // DispatchStreamBindingV1 authenticates one DispatchStream with the Cortex's
 // current ACTIVE service key. It is checked once per connection: when that key
-// is no longer the Cortex's current ACTIVE key (emergency revocation or rotation
-// activation), the receiving Builder closes the established stream, and the
-// Cortex reconnects with a fresh binding.
+// is no longer the Cortex's current ACTIVE key (emergency revocation, or Cortex
+// rotation activation since the binding is current-only), the receiving Builder
+// closes the established stream, and the Cortex reconnects with a fresh binding.
 message DispatchStreamBindingV1 {
   // Must be 1. Authentication must complete before any business frame is used.
   uint32 schema_version = 1;
@@ -88,7 +88,8 @@ message DispatchInputResponseV1 {
   // Service key generation that signed this message; the signer is the Builder
   // that issued dispatch_ticket_hash. Must be positive and not older than that
   // ticket's nonce. Retained with its original signed bytes across reconnect and
-  // service key cutover; verified by this nonce, never re-signed.
+  // service key cutover; verified by this nonce, never re-signed. A new live copy
+  // is accepted only while the Builder's current key is ACTIVE.
   uint64 service_authorization_nonce = 9;
 }
 // DispatchRevokeReasonV1 is closed; Phase 1 only permits pre-acceptance RBF.
@@ -109,7 +110,8 @@ message DispatchRevokeV1 {
   // Service key generation that signed this message; the signer is the Builder
   // that issued dispatch_ticket_hash. Must be positive and not older than that
   // ticket's nonce. Retained with its original signed bytes across reconnect and
-  // service key cutover; verified by this nonce, never re-signed.
+  // service key cutover; verified by this nonce, never re-signed. A new live copy
+  // is accepted only while the Builder's current key is ACTIVE.
   uint64 service_authorization_nonce = 6;
 }
 // RecordResultNoticeV1 defines the canonical RecordResultNoticeV1 fields.
@@ -122,7 +124,8 @@ message RecordResultNoticeV1 {
   // Service key generation that signed this message; the signer is the Builder
   // that issued dispatch_ticket_hash. Must be positive and not older than that
   // ticket's nonce. Retained with its original signed bytes across reconnect and
-  // service key cutover; verified by this nonce, never re-signed.
+  // service key cutover; verified by this nonce, never re-signed. A new live copy
+  // is accepted only while the Builder's current key is ACTIVE.
   uint64 service_authorization_nonce = 6;
 }
 // VerifyResultSubmittedNoticeV1 defines the canonical VerifyResultSubmittedNoticeV1 fields.
@@ -204,6 +207,12 @@ message ResumeOutputRequest {
 // retained unexpired business messages keep their original signed bytes, also
 // across service key cutover. They are verified by their own signed nonce; only
 // the binding must authenticate with the current ACTIVE key.
+// When the Builder's current key is revoked, the Cortex closes the stream as soon
+// as it observes this and accepts no further live messages from that Builder
+// until it has a current ACTIVE key again; copies already held stay valid as
+// proofs. A Builder rotation activation does not close the stream. When the
+// Cortex's binding key is revoked or rotated out, the Builder closes the stream.
+// Neither a revoked Builder key nor a revoked Cortex key authorizes live traffic.
 message DispatchStreamFrameV1 {
   bytes stream_nonce = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
   uint64 cursor = 2;
