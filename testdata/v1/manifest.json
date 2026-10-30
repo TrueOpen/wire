@@ -118,8 +118,8 @@
       "path": "shared/service_key_rotation_v1.json",
       "origin": "wire",
       "contract_section": "Delayed service-key rotation, inclusive cutoffs and safe epoch activation",
-      "bytes": 4617,
-      "sha256": "44f656d336cbc148ed7c9a3a748f6d00be255e19a2f2f0b910c85dcd041b85b9"
+      "bytes": 6042,
+      "sha256": "abdf8812837640ccab7a2b68bfd18c3d4b314b85f7e7f0498e5c64827ed25b96"
     },
     {
       "path": "shared/shared_domains_v1.json",

@@ -196,13 +196,42 @@ func verifyRetained(name string, raw, ticket []byte, opts ProofKeyOptions) error
 	return VerifyTicketBoundDispatchProof("trueopen-phase1-vector-1", name, raw, ticket, opts)
 }
 
-// resignRetained replaces the signed nonce (zero removes it) and signs the
-// result, as a Builder of that generation would.
-func resignRetained(t *testing.T, name string, raw []byte, m retainedMessage, nonce uint64, key *secp256k1.PrivateKey) []byte {
+// ticketWithNonce returns the published ticket signed by the given generation.
+func ticketWithNonce(t *testing.T, ticket []byte, nonce uint64, key *secp256k1.PrivateKey) []byte {
+	t.Helper()
+	fields, err := decode(dispatchTicketMessage, ticket, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fields[27] = []value{{varint: nonce}}
+	digest, err := SigningDigest(dispatchTicketMessage, encodeTestMessage(dispatchTicketMessage, fields))
+	if err != nil {
+		t.Fatal(err)
+	}
+	fields[25] = []value{{bytes: SignDigest(key, digest)}}
+	return encodeTestMessage(dispatchTicketMessage, fields)
+}
+
+// resignRetained binds the message to ticket, replaces the signed nonce (zero
+// removes it) and signs the result, as a Builder of that generation would.
+func resignRetained(t *testing.T, name string, raw, ticket []byte, m retainedMessage, nonce uint64, key *secp256k1.PrivateKey) []byte {
 	t.Helper()
 	fields, err := decode(name, raw, 0)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if name == "nexus.v1.DispatchResultHeaderV1" {
+		fields[2] = []value{{bytes: ticket}}
+	} else {
+		hash, e := SigningDigest(dispatchTicketMessage, ticket)
+		if e != nil {
+			t.Fatal(e)
+		}
+		hashField := uint32(2)
+		if name == "nexus.v1.RecordResultNoticeV1" {
+			hashField = 1
+		}
+		fields[hashField] = []value{{bytes: hash[:]}}
 	}
 	delete(fields, m.nonceField)
 	if nonce != 0 {
@@ -217,7 +246,8 @@ func resignRetained(t *testing.T, name string, raw []byte, m retainedMessage, no
 }
 
 // Retained and relayed Builder messages keep their original signed bytes after
-// cutover: the signed nonce selects current or previous, never the live key.
+// cutover: the signed nonce selects current or previous, never the live key,
+// and never a generation older than the message's ticket.
 func TestRetainedDispatchMessagesSelectSignedGeneration(t *testing.T) {
 	rawCases, err := os.ReadFile(filepath.Join("..", "testdata", "v1", "shared", "service_key_rotation_v1.json"))
 	if err != nil {
@@ -225,21 +255,29 @@ func TestRetainedDispatchMessagesSelectSignedGeneration(t *testing.T) {
 	}
 	var doc struct {
 		Cases []struct {
-			Name     string `json:"name"`
-			Signed   uint64 `json:"signed_nonce"`
-			Current  uint64 `json:"current_nonce"`
-			Previous uint64 `json:"previous_nonce"`
-			Height   uint64 `json:"earliest_submit_height"`
-			Retired  uint64 `json:"previous_retired_height"`
-			Allowed  bool   `json:"allowed"`
+			Name     string  `json:"name"`
+			Signed   uint64  `json:"signed_nonce"`
+			Ticket   uint64  `json:"ticket_nonce"`
+			Current  uint64  `json:"current_nonce"`
+			Status   string  `json:"current_status"`
+			Previous uint64  `json:"previous_nonce"`
+			Height   *uint64 `json:"earliest_submit_height"`
+			Retired  uint64  `json:"previous_retired_height"`
+			Allowed  bool    `json:"allowed"`
 		} `json:"retained_message_cases"`
 	}
-	if err = json.Unmarshal(rawCases, &doc); err != nil || len(doc.Cases) != 5 {
+	if err = json.Unmarshal(rawCases, &doc); err != nil || len(doc.Cases) != 8 {
 		t.Fatal("missing published retained-message cases", err)
 	}
 	ticket := hexBytes(t, publishedByName(t, "task_v1_dispatchticketv1").Protobuf)
 	oldKey := secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{1}, 32))
 	newKey := secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{2}, 32))
+	keyFor := func(nonce, previous uint64) *secp256k1.PrivateKey {
+		if nonce == previous || nonce == 0 {
+			return oldKey
+		}
+		return newKey
+	}
 	for _, m := range retainedMessages {
 		row := publishedByName(t, m.vector)
 		raw := hexBytes(t, row.Protobuf)
@@ -254,21 +292,22 @@ func TestRetainedDispatchMessagesSelectSignedGeneration(t *testing.T) {
 				t.Fatal("published vector", err)
 			}
 			for _, c := range doc.Cases {
-				key := newKey
-				if c.Signed == c.Previous || c.Signed == 0 {
-					key = oldKey
+				status := map[string]ProofKeyStatus{"ACTIVE": ProofKeyActive, "REVOKED": ProofKeyRevoked}[c.Status]
+				if status == 0 {
+					t.Fatal(c.Name, "unknown current status", c.Status)
 				}
-				height := c.Height
-				opts := ProofKeyOptions{OrderEarliestSubmitHeight: &height, LookupProofKey: func(signer ServiceProofSigner) (ProofKeyBinding, error) {
+				caseTicket := ticketWithNonce(t, ticket, c.Ticket, keyFor(c.Ticket, c.Previous))
+				opts := ProofKeyOptions{OrderEarliestSubmitHeight: c.Height, LookupProofKey: func(signer ServiceProofSigner) (ProofKeyBinding, error) {
 					switch signer.ServiceAuthorizationNonce {
 					case c.Current:
-						return ProofKeyBinding{PublicKey: newKey.PubKey().SerializeCompressed(), ServiceAuthorizationNonce: c.Current, Status: ProofKeyActive}, nil
+						return ProofKeyBinding{PublicKey: newKey.PubKey().SerializeCompressed(), ServiceAuthorizationNonce: c.Current, Status: status}, nil
 					case c.Previous:
 						return ProofKeyBinding{PublicKey: oldKey.PubKey().SerializeCompressed(), ServiceAuthorizationNonce: c.Previous, Status: ProofKeyPrevious, PreviousRetiredHeight: c.Retired}, nil
 					}
 					return ProofKeyBinding{}, errors.New("unknown generation")
 				}}
-				err := verifyRetained(row.MessageName, resignRetained(t, row.MessageName, raw, m, c.Signed, key), ticket, opts)
+				message := resignRetained(t, row.MessageName, raw, caseTicket, m, c.Signed, keyFor(c.Signed, c.Previous))
+				err := verifyRetained(row.MessageName, message, caseTicket, opts)
 				if (err == nil) != c.Allowed || err != nil && !errors.Is(err, ErrProofKeyUnavailable) {
 					t.Fatal(c.Name, err)
 				}
@@ -309,5 +348,51 @@ func TestRetainedDispatchMessagesBindTheirTicketAndChain(t *testing.T) {
 		if err := VerifyDispatchProof("trueopen-phase1-vector-1", row.MessageName, raw, opts); err == nil {
 			t.Fatal(row.Name, "ticket-free verification accepted a message without a signer field")
 		}
+	}
+}
+
+func TestDispatchStreamBindingRequiresCurrentActiveKey(t *testing.T) {
+	row := publishedByName(t, "nexus_v1_dispatchstreambindingv1")
+	raw := hexBytes(t, row.Protobuf)
+	d, err := decode(row.MessageName, raw, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	chainID, builder, cortex := string(bytesAt(d, 2)), string(bytesAt(d, 3)), string(bytesAt(d, 4))
+	nonce := scalarAt(d, 5)
+	if nonce == 0 {
+		t.Fatal("binding vector has no signed nonce")
+	}
+	binding := ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: nonce, Status: ProofKeyActive}
+	opts := ProofKeyOptions{LookupProofKey: func(signer ServiceProofSigner) (ProofKeyBinding, error) {
+		if signer != (ServiceProofSigner{ProofParticipantCortex, cortex, nonce}) {
+			return ProofKeyBinding{}, errors.New("unknown Cortex generation")
+		}
+		return binding, nil
+	}}
+	if err := VerifyDispatchStreamBinding(chainID, builder, raw, opts); err != nil {
+		t.Fatal(err)
+	}
+	if err := VerifyDispatchStreamBinding("another-chain", builder, raw, opts); !errors.Is(err, ErrEvidence) {
+		t.Fatal("binding verified on another chain", err)
+	}
+	if err := VerifyDispatchStreamBinding(chainID, account(t, 9), raw, opts); !errors.Is(err, ErrEvidence) {
+		t.Fatal("binding verified for another Builder", err)
+	}
+	binding.Status = ProofKeyRevoked
+	if err := VerifyDispatchStreamBinding(chainID, builder, raw, opts); !errors.Is(err, ErrProofKeyUnavailable) {
+		t.Fatal("revoked current key authorized a live stream", err)
+	}
+	binding.Status, binding.PreviousRetiredHeight = ProofKeyPrevious, 120
+	if err := VerifyDispatchStreamBinding(chainID, builder, raw, opts); !errors.Is(err, ErrProofKeyUnavailable) {
+		t.Fatal("previous key authorized a live stream", err)
+	}
+	binding = ProofKeyBinding{PublicKey: secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{2}, 32)).PubKey().SerializeCompressed(), ServiceAuthorizationNonce: nonce, Status: ProofKeyActive}
+	if err := VerifyDispatchStreamBinding(chainID, builder, raw, opts); err == nil || errors.Is(err, ErrProofKeyUnavailable) {
+		t.Fatal("binding verified with another key", err)
+	}
+	d[5] = []value{{varint: nonce + 1}}
+	if err := VerifyDispatchStreamBinding(chainID, builder, encodeTestMessage(row.MessageName, d), opts); !errors.Is(err, ErrProofKeyUnavailable) {
+		t.Fatal("binding resolved a generation it does not name", err)
 	}
 }
