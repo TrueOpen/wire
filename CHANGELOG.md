@@ -6,6 +6,7 @@
   exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
   as binary protobuf only. Complete TAKEOVER_VOIDED destinations and RECORD_REJECTED
   ticket absence, RECORD_LATE and CONFLICT for unconsumed cascaded sequences.
+  Add `compensated_amount` (field 8) to `task.v1.EventBuilderDispatchFaultRecorded`.
 - Preserve frozen Task/Session parameter versions in Genesis, including historical
   bodies and non-current bindings, with derived reference counts and bounded
   retirement after the epoch policy lookup window.

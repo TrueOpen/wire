@@ -200,6 +200,8 @@ and the account balance, then pay the independently configured penalty from
 the remaining balance to Treasury. Count the actual compensation in total_paid
 and actual penalty in total_penalized. Fault compensated_amount and penalty_amount
 record those actual payments; fault unfilled_amount is only the penalty shortfall.
+Task event 137 (EventBuilderDispatchFaultRecorded) carries the same three amounts,
+so a Builder or Worker can account for the fault without querying its state.
 
 An omission proof using a newer signed handraise_root must also supply
 bound_handraise_root, the signed preimage of the round's committed root. Verify
