@@ -2,6 +2,13 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Add a signed `service_authorization_nonce` to `nexus.v1.DispatchResultHeaderV1`
+  (field 6), `DispatchInputResponseV1` (field 9), `DispatchRevokeV1` (field 6) and
+  `RecordResultNoticeV1` (field 6). These retained messages keep their original
+  signed bytes across reconnect and service key cutover and verify against the
+  current or previous key selected by that nonce, through `VerifyDispatchProof`
+  (result header) or the new `dispatch.VerifyTicketBoundDispatchProof`. Stream
+  bindings, requests and Builder sync transport stay current-key only.
 - Define Builder sync duplicate items by byte-equal canonical item projections,
   exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
   as binary protobuf only.
