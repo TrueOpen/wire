@@ -6,6 +6,17 @@
   so previous-key record and reject rebuttals work for unrecorded orders. Keep
   the original claim height through Query, Genesis, replay and resolution; do
   not borrow another ticket's accepted record under the same TaskID.
+- Add a signed `service_authorization_nonce` to `nexus.v1.DispatchResultHeaderV1`
+  (field 6), `DispatchInputResponseV1` (field 9), `DispatchRevokeV1` (field 6) and
+  `RecordResultNoticeV1` (field 6). These retained messages keep their original
+  signed bytes across reconnect and service key cutover and verify against the
+  current or previous key selected by that nonce, never older than their
+  ticket's nonce, through `VerifyDispatchProof` (result header) or the new
+  `dispatch.VerifyTicketBoundDispatchProof`. Stream bindings, requests and Builder
+  sync transport stay current-key only; the new `dispatch.VerifyDispatchStreamBinding`
+  requires the current ACTIVE key. A Builder closes an established stream when the
+  Cortex binding key is revoked or rotated out; a Cortex closes it when the
+  Builder's current key is revoked, but not at a Builder rotation activation.
 - Define Builder sync duplicate items by byte-equal canonical item projections,
   exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
   as binary protobuf only.

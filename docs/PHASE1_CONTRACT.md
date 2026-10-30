@@ -188,9 +188,11 @@ part of that projection; protobuf encoding is never compared. A receiver may
 retain SHA-256 of those bytes as a local key, which is not a protocol identity.
 
 Sync transport uses the current ACTIVE Builder key. After activation, reject old
-transport signatures and re-sign retransmission batches with the new current key.
-Eligible inner business proofs select current/previous by their signed nonce;
-previous dispatch material must belong to an order before retirement. Retained
+transport signatures and re-sign retransmission batches with the new current key;
+only the SyncRequest signature is renewed. Inner business messages, including
+DispatchResultHeaderV1, keep their original signed bytes and select
+current/previous by their own signed nonce; previous dispatch material must
+belong to an order before retirement. Retained
 authenticated or chain-accepted facts remain owned by the stable operator. No
 mandatory drain, activation gate or unbounded service-key history is introduced.
 
@@ -327,9 +329,55 @@ replace it. Missing or invalid claim heights fail validation. This adds no signe
 field, signing domain or request argument.
 Submitter identity and material verification are separate: first recording uses
 a current submitter, while its eligible pre-cutover ticket/record/accept material
-may verify with previous. Live streams, requests and sync transport require the
-current ACTIVE key. Typed Builder objective evidence additionally binds the
+may verify with previous. Typed Builder objective evidence additionally binds the
 existing Task responsibility nonce and admissibility window.
+
+DispatchResultHeaderV1, DispatchInputResponseV1, DispatchRevokeV1 and
+RecordResultNoticeV1 are retained business messages and follow the same rule.
+Each carries a positive signed service_authorization_nonce; its associated order
+is the winner ticket's order for a result header and the order of
+dispatch_ticket_hash for the other three. The nonce may not be older than that
+ticket's nonce: rotation only advances the nonce and the Builder never signs
+these messages before their ticket, so a retired key cannot sign for a ticket
+issued under a newer one. The Builder signs every new message with its current
+key. Retained and relayed copies keep their original signed bytes across
+reconnect and cutover and are never re-signed; a group member relays another
+Builder's header unchanged. A current key that was emergency-revoked remains
+current for these proofs and is not subject to the order-height bound, which
+applies only to previous; previous without an order earliest_submit_height is
+refused.
+
+Verify a header with VerifyDispatchProof, whose signer is the winner ticket's
+Builder, and the other three with VerifyTicketBoundDispatchProof and the ticket
+whose digest equals dispatch_ticket_hash. The caller supplies
+OrderEarliestSubmitHeight from that ticket's order. Verifying a
+DispatchResultHeaderV1 authenticates only its signer; it does not verify the
+embedded winner ticket or accept. Members resuming output and the SDK verify the
+ticket and the accept separately before trusting who won.
+
+Online authentication stays current-only: DispatchStreamBindingV1, requests
+(roster requests and SDK envelopes) and BuilderSyncService transport require the
+current ACTIVE key. Verify a binding with VerifyDispatchStreamBinding.
+
+A binding is checked once per connection, so when the Cortex key that
+authenticated it is no longer that Cortex's current ACTIVE key, the receiving
+Builder closes the established DispatchStream as soon as it observes this. That
+applies to emergency revocation and also to Cortex rotation activation, because
+the binding itself is current-only; after rotation the Cortex reconnects with a
+fresh binding under its new current key.
+
+Symmetrically, when the Builder's current key is no longer ACTIVE because it was
+revoked, the Cortex closes the DispatchStream with that Builder as soon as it
+observes this and accepts no further live messages from it until the Builder has
+a current ACTIVE key again. Copies the Cortex already holds stay valid as proofs.
+A Builder rotation activation does not require closing the stream: retained
+messages carry their own nonce and the Builder signs new messages with its new
+current key.
+
+BuilderSyncService.Sync is unary and verifies every request, so the receiver
+refuses the next request signed by a key that is no longer ACTIVE; no sync
+authentication outlives a request. Neither a revoked Builder key nor a revoked
+Cortex key authorizes live traffic.
 
 Pending rotation is local admission only: Builder declines the Cortex's new
 offers with admitted=false and SERVICE_KEY_ROTATION_PENDING; a pending Builder
@@ -431,8 +479,10 @@ Each direction has its own contiguous business cursors 1, 2, ... . Binding, ack
 and keepalive frames carry cursor 0 and consume no business cursor. Ack 0 means
 nothing acknowledged; an ack cannot cross a gap or exceed what was sent. Every
 frame echoes the authenticated nonce; reconnect starts a new binding and nonce,
-with business cursor 1. Do not resign or alter retained business messages.
-Before processing business frames, authenticate the binding. Cursor overflow
+with business cursor 1. Do not re-sign or alter retained business messages,
+including after service key cutover.
+Before processing business frames, authenticate the binding with
+VerifyDispatchStreamBinding. Cursor overflow
 requires reconnect, never wraparound.
 
 A local keepalive has at most one outstanding probe, with values increasing per
