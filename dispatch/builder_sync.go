@@ -203,6 +203,21 @@ func validateBuilderSyncScopes(batch decoded) error {
 	return nil
 }
 
+// BuilderSyncItemCanonicalBytes returns the typed canonical projection of one
+// strictly decoded nexus.v1.BuilderSyncItemV1: exactly the REPEATED_V1 element
+// that a SyncRequest signature commits to for that item, sequence included.
+// Two items at the same sequence are the same iff these bytes are equal, so a
+// receiver compares them (or a local SHA-256 of them) rather than protobuf
+// encodings. Batch scope checks still apply to the enclosing verified batch.
+func BuilderSyncItemCanonicalBytes(raw []byte) ([]byte, error) {
+	// Depth 2 matches the item's position inside SyncRequest.batch.items.
+	fields, err := canonicalFields("nexus.v1.BuilderSyncItemV1", raw, nil, 2)
+	if err != nil {
+		return nil, err
+	}
+	return FieldFrame(fields...), nil
+}
+
 // VerifyBuilderSyncRequest authenticates the current live transport identity,
 // chain and exact receiving operator. The consumer additionally checks immutable
 // group membership, business proofs, durable sequencing and chain admission.

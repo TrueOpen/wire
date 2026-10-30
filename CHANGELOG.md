@@ -2,6 +2,9 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Define Builder sync duplicate items by byte-equal canonical item projections,
+  exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
+  as binary protobuf only.
 - Preserve frozen Task/Session parameter versions in Genesis, including historical
   bodies and non-current bindings, with derived reference counts and bounded
   retirement after the epoch policy lookup window.

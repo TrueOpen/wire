@@ -151,7 +151,14 @@ replicas become available only after chain admission. Receiver membership,
 accepted authority, business proofs and durable replay/conflict checks remain
 consumer obligations; a valid transport signature does not assert those facts.
 Validate raw request bytes before generated decoding can discard unknown or
-duplicate fields. The shared verifier accepts raw bytes for this reason.
+duplicate fields. The shared verifier accepts raw bytes for this reason, so Sync
+accepts binary protobuf only; JSON or other transcoded requests are rejected.
+An item at an already applied sequence is an exact duplicate iff its canonical
+item projection, the REPEATED_V1 element the batch signature commits to and
+`dispatch.BuilderSyncItemCanonicalBytes` returns, is byte-equal to the applied
+item's; otherwise it conflicts and is refused. Nested business signatures are
+part of that projection; protobuf encoding is never compared. A receiver may
+retain SHA-256 of those bytes as a local key, which is not a protocol identity.
 
 Sync transport uses the current ACTIVE Builder key. Drain materials needing the
 old current proof key before cutover, subject to the existing safe-activation and
