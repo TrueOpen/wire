@@ -1,6 +1,7 @@
 package dispatch
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 )
@@ -106,10 +107,12 @@ func verifyServiceProofSignature(signer ServiceProofSigner, digest [32]byte, sig
 // VerifyDispatchProof resolves the signer from the exact signed dispatch
 // material. Previous keys require an order strictly before their retirement.
 // Submitter authorization and live traffic separately require current authority.
+// DispatchResultHeaderV1 is signed by its winner ticket's Builder and checked
+// against that ticket's chain; relayed copies keep their original signed bytes.
 func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions) error {
 	role := ProofParticipantBuilder
 	var operatorField, nonceField, signatureField uint32
-	memberField := uint32(0)
+	memberField, ticketField := uint32(0), uint32(0)
 	switch name {
 	case "task.v1.SignedHandraiseRootV1":
 		operatorField, nonceField, signatureField = 2, 9, 7
@@ -123,6 +126,8 @@ func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions)
 		role, memberField, nonceField, signatureField = ProofParticipantCortex, 6, 7, 9
 	case "task.v1.VerifierHandraiseV1":
 		role, memberField, nonceField, signatureField = ProofParticipantCortex, 9, 11, 13
+	case "nexus.v1.DispatchResultHeaderV1":
+		ticketField, nonceField, signatureField = 2, 6, 5
 	default:
 		return fmt.Errorf("unsupported dispatch proof %s", name)
 	}
@@ -130,14 +135,24 @@ func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions)
 	if err != nil {
 		return err
 	}
+	scope := d
+	if ticketField != 0 {
+		if len(d[ticketField]) != 1 {
+			return fmt.Errorf("%w: missing winner ticket", ErrDecode)
+		}
+		if scope, err = decode("task.v1.DispatchTicketV1", d[ticketField][0].bytes, 1); err != nil {
+			return err
+		}
+		operatorField = 7
+	}
 	chainField := uint32(2)
 	if name == "task.v1.SignedHandraiseRootV1" {
 		chainField = 1
 	}
-	if chainID == "" || string(bytesAt(d, chainField)) != chainID {
+	if chainID == "" || string(bytesAt(scope, chainField)) != chainID {
 		return fmt.Errorf("%w: proof chain mismatch", ErrEvidence)
 	}
-	operator := string(bytesAt(d, operatorField))
+	operator := string(bytesAt(scope, operatorField))
 	if memberField != 0 {
 		if len(d[memberField]) != 1 {
 			return fmt.Errorf("%w: missing proof signer", ErrDecode)
@@ -152,16 +167,69 @@ func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions)
 	if err != nil {
 		return err
 	}
-	nonce := scalarAt(d, nonceField)
-	if nonce == 0 {
+	return verifySignedGeneration(ServiceProofSigner{role, operator, scalarAt(d, nonceField)}, digest, bytesAt(d, signatureField), opts)
+}
+
+// VerifyTicketBoundDispatchProof verifies a retained Builder stream message
+// that names its attempt only by dispatch_ticket_hash: DispatchInputResponseV1,
+// DispatchRevokeV1 or RecordResultNoticeV1. ticket is the raw
+// task.v1.DispatchTicketV1 the caller already verified with VerifyDispatchProof;
+// its signing digest must equal dispatch_ticket_hash, and its chain and
+// builder_address fix the expected chain and signer. The message's own signed
+// nonce selects current or previous exactly as VerifyDispatchProof does, with
+// OrderEarliestSubmitHeight taken from that ticket's order. Retained messages
+// keep their original signed bytes across reconnect and cutover.
+func VerifyTicketBoundDispatchProof(chainID, name string, raw, ticket []byte, opts ProofKeyOptions) error {
+	var hashField, nonceField, signatureField uint32
+	switch name {
+	case "nexus.v1.DispatchInputResponseV1":
+		hashField, nonceField, signatureField = 2, 9, 8
+	case "nexus.v1.DispatchRevokeV1":
+		hashField, nonceField, signatureField = 2, 6, 4
+	case "nexus.v1.RecordResultNoticeV1":
+		hashField, nonceField, signatureField = 1, 6, 5
+	default:
+		return fmt.Errorf("unsupported ticket-bound dispatch proof %s", name)
+	}
+	d, err := decode(name, raw, 0)
+	if err != nil {
+		return err
+	}
+	t, err := decode("task.v1.DispatchTicketV1", ticket, 0)
+	if err != nil {
+		return err
+	}
+	if chainID == "" || string(bytesAt(t, 2)) != chainID {
+		return fmt.Errorf("%w: proof chain mismatch", ErrEvidence)
+	}
+	ticketHash, err := SigningDigest("task.v1.DispatchTicketV1", ticket)
+	if err != nil {
+		return err
+	}
+	if !bytes.Equal(ticketHash[:], bytesAt(d, hashField)) {
+		return fmt.Errorf("%w: message names another dispatch ticket", ErrEvidence)
+	}
+	digest, err := SigningDigest(name, raw)
+	if err != nil {
+		return err
+	}
+	return verifySignedGeneration(ServiceProofSigner{ProofParticipantBuilder, string(bytesAt(t, 7)), scalarAt(d, nonceField)}, digest, bytesAt(d, signatureField), opts)
+}
+
+// verifySignedGeneration is the one current/previous selection rule for every
+// nonce-bearing dispatch proof: positive signed nonce, current or the sole
+// previous generation, and previous only for an order strictly before its
+// retirement height.
+func verifySignedGeneration(signer ServiceProofSigner, digest [32]byte, signature []byte, opts ProofKeyOptions) error {
+	if signer.ServiceAuthorizationNonce == 0 {
 		return fmt.Errorf("%w: signed proof nonce must be positive", ErrProofKeyUnavailable)
 	}
-	key, err := resolveProofKey(ServiceProofSigner{role, operator, nonce}, opts)
+	key, err := resolveProofKey(signer, opts)
 	if err != nil {
 		return err
 	}
 	if key.Status == ProofKeyPrevious && (opts.OrderEarliestSubmitHeight == nil || *opts.OrderEarliestSubmitHeight >= key.PreviousRetiredHeight) {
 		return fmt.Errorf("%w: previous key cannot prove a post-cutover order", ErrProofKeyUnavailable)
 	}
-	return VerifyDigestSignature(key.PublicKey, digest[:], bytesAt(d, signatureField))
+	return VerifyDigestSignature(key.PublicKey, digest[:], signature)
 }

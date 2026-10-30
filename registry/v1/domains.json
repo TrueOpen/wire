@@ -756,7 +756,8 @@
         "input_size_bytes",
         "input",
         "chunk_index",
-        "chunk_count"
+        "chunk_count",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -765,7 +766,8 @@
       "query": "-",
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "preimage_diverges_from_contract": false,
+      "note": "The signed nonce selects current or the sole previous proof key. Previous material requires the associated order earliest_submit_height to be strictly before previous_retired_height. Retained and relayed with its original signed bytes; never re-signed after cutover."
     },
     {
       "domain": "TRUEOPEN_DISPATCH_RECORD_ENTRY_V1",
@@ -851,7 +853,8 @@
         "task_id",
         "winner_ticket",
         "accept",
-        "record_status"
+        "record_status",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -860,7 +863,8 @@
       "query": "-",
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "preimage_diverges_from_contract": false,
+      "note": "The signed nonce selects current or the sole previous proof key. Previous material requires the associated order earliest_submit_height to be strictly before previous_retired_height. Retained and relayed with its original signed bytes; never re-signed after cutover."
     },
     {
       "domain": "TRUEOPEN_DISPATCH_REVOKE_V1",
@@ -869,7 +873,8 @@
         "task_id",
         "dispatch_ticket_hash",
         "revoked_height",
-        "reason"
+        "reason",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -878,7 +883,8 @@
       "query": "-",
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "preimage_diverges_from_contract": false,
+      "note": "The signed nonce selects current or the sole previous proof key. Previous material requires the associated order earliest_submit_height to be strictly before previous_retired_height. Retained and relayed with its original signed bytes; never re-signed after cutover."
     },
     {
       "domain": "TRUEOPEN_DISPATCH_ROSTER_REQUEST_V1",
@@ -2067,7 +2073,8 @@
         "dispatch_ticket_hash",
         "status",
         "reject_code",
-        "recorded_height"
+        "recorded_height",
+        "service_authorization_nonce"
       ],
       "producer": "current registered service key or canonical verifier",
       "consumers": "Node, Nexus, Cortex and SDK",
@@ -2076,7 +2083,8 @@
       "query": "-",
       "contract_section": "Direct dispatch signing contract",
       "registered_in_contract": true,
-      "preimage_diverges_from_contract": false
+      "preimage_diverges_from_contract": false,
+      "note": "The signed nonce selects current or the sole previous proof key. Previous material requires the associated order earliest_submit_height to be strictly before previous_retired_height. Retained and relayed with its original signed bytes; never re-signed after cutover."
     },
     {
       "domain": "TRUEOPEN_REPLACE_BUILDER_SET_V1",

@@ -117,6 +117,7 @@ var protoTables = map[string]messageSpec{
 		6: {name: "chunk_index", kind: kindVarint, bits: 32},
 		7: {name: "chunk_count", kind: kindVarint, bits: 32},
 		8: {name: "builder_service_signature", kind: kindBytes},
+		9: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"nexus.v1.DispatchOfferV1": {
 		1: {name: "ticket", kind: kindMessage, message: "task.v1.DispatchTicketV1"},
@@ -128,6 +129,7 @@ var protoTables = map[string]messageSpec{
 		3: {name: "accept", kind: kindMessage, message: "task.v1.DispatchAcceptV1"},
 		4: {name: "record_status", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true, 2: true, 3: true}},
 		5: {name: "builder_service_signature", kind: kindBytes},
+		6: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"nexus.v1.DispatchRevokeV1": {
 		1: {name: "task_id", kind: kindBytes, hash: true},
@@ -135,6 +137,7 @@ var protoTables = map[string]messageSpec{
 		3: {name: "revoked_height", kind: kindVarint},
 		4: {name: "builder_service_signature", kind: kindBytes},
 		5: {name: "reason", kind: kindVarint, bits: 32, enum: map[uint64]bool{0: true, 1: true}},
+		6: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"nexus.v1.DispatchRosterRequestV1": {
 		1: {name: "task_id", kind: kindBytes, hash: true},
@@ -196,6 +199,7 @@ var protoTables = map[string]messageSpec{
 		3: {name: "reject_code", kind: kindVarint, bits: 32, enum: dispatchRejectCodes},
 		4: {name: "recorded_height", kind: kindVarint},
 		5: {name: "builder_service_signature", kind: kindBytes},
+		6: {name: "service_authorization_nonce", kind: kindVarint},
 	},
 	"nexus.v1.StreamAckV1": {
 		1: {name: "acked_cursor", kind: kindVarint},

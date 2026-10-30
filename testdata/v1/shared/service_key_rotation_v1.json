@@ -6,7 +6,8 @@
     "The interval protects the previous generation before another registration; it never schedules activation.",
     "Only previous-generation evidence responsibilities gate another registration; current group duties and liability do not.",
     "Previous dispatch proofs require order earliest_submit_height strictly before previous_retired_height; online submitters remain current-only.",
-    "Emergency revoke immediately cancels pending replacement and preserves necessary proof identities."
+    "Emergency revoke immediately cancels pending replacement and preserves necessary proof identities.",
+    "Retained Builder messages (result header, input response, revoke, record notice) select the generation by their positive signed nonce and keep their original signed bytes; retained_message_cases sign with the selected generation's key."
   ],
   "hard_limits": {
     "record_deadline_blocks": 4,
@@ -108,6 +109,53 @@
     {
       "name": "after_cutover",
       "earliest_submit_height": 121,
+      "previous_retired_height": 120,
+      "allowed": false
+    }
+  ],
+  "retained_message_cases": [
+    {
+      "name": "current_nonce",
+      "signed_nonce": 2,
+      "current_nonce": 2,
+      "previous_nonce": 1,
+      "earliest_submit_height": 130,
+      "previous_retired_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "previous_before_cutover",
+      "signed_nonce": 1,
+      "current_nonce": 2,
+      "previous_nonce": 1,
+      "earliest_submit_height": 119,
+      "previous_retired_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "previous_at_cutover",
+      "signed_nonce": 1,
+      "current_nonce": 2,
+      "previous_nonce": 1,
+      "earliest_submit_height": 120,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "unknown_nonce",
+      "signed_nonce": 3,
+      "current_nonce": 2,
+      "previous_nonce": 1,
+      "earliest_submit_height": 119,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "zero_nonce",
+      "signed_nonce": 0,
+      "current_nonce": 2,
+      "previous_nonce": 1,
+      "earliest_submit_height": 119,
       "previous_retired_height": 120,
       "allowed": false
     }
