@@ -4,9 +4,12 @@
 
 - Define Builder sync duplicate items by byte-equal canonical item projections,
   exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
-  as binary protobuf only. Complete TAKEOVER_VOIDED destinations and RECORD_REJECTED
-  ticket absence, RECORD_LATE and CONFLICT for unconsumed cascaded sequences.
-  Add `compensated_amount` (field 8) to `task.v1.EventBuilderDispatchFaultRecorded`.
+  as binary protobuf only.
+- Complete TaskEventDetailV1: TAKEOVER_VOIDED destinations for a takeover voided
+  by another registered takeover or a session bound elsewhere; RECORD_REJECTED
+  without a ticket when none exists, RECORD_LATE for a missed record deadline and
+  CONFLICT for unconsumed cascaded sequences.
+- Add `compensated_amount` (field 8) to `task.v1.EventBuilderDispatchFaultRecorded`.
 - Preserve frozen Task/Session parameter versions in Genesis, including historical
   bodies and non-current bindings, with derived reference counts and bounded
   retirement after the epoch policy lookup window.
