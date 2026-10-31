@@ -2,6 +2,10 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Clarify that service-key rotation events carry the newly current key's nonce
+  and revocation events carry the revoked key's nonce. When a NOT_READY retry
+  height exceeds the signed order's expiry, rebuild and re-sign the same
+  unconsumed sequence with a later expiry and fresh preflight context.
 - Freeze `earliest_submit_height` in `DispatchCompensationClaimState` (field 17)
   so previous-key record and reject rebuttals work for unrecorded orders. Keep
   the original claim height through Query, Genesis, replay and resolution; do

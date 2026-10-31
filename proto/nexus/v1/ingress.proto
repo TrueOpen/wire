@@ -529,6 +529,9 @@ message OpenTaskRequest {
 // Epoch zero, an unavailable committed start beacon or a not-yet-effective pool
 // use NEXUS_INGRESS_DISPATCH_NOT_READY: retry at the supplied availability height
 // without switching Builder. Snapshot activation may occur later in the same epoch.
+// If dispatch_available_height exceeds order_expire_height, do not retry the
+// unchanged order: rebuild and re-sign the same unconsumed sequence with a later
+// expiry and fresh preflight context when retrying, without triggering takeover.
 message OpenTaskResponse {
   string task_id = 1;
   bool accepted = 2;

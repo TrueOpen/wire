@@ -118,6 +118,12 @@ earliest_submit_height before dispatch. Epoch zero, an unavailable committed
 epoch-start beacon, and a not-yet-effective snapshot return the retryable
 NEXUS_INGRESS_DISPATCH_NOT_READY with OpenTaskResponse.dispatch_available_height;
 do not switch Builder. Once the snapshot activates, the same epoch is usable.
+If dispatch_available_height exceeds the order's order_expire_height, do not
+retry the unchanged order: rebuild and re-sign the same unconsumed sequence with
+an expiry covering the retry height and fresh preflight context (including
+earliest_submit_height and the current BuilderSet) when retrying, without
+triggering takeover. Equality alone does not require a later expiry because
+recording permits height == order_expire_height.
 An empty roster or exhausted skip limit uses NO_CAPACITY instead.
 An order referencing a superseded BuilderSet uses NEXUS_INGRESS_BUILDER_SET_STALE;
 query the latest set and re-sign the same sequence without triggering takeover.
