@@ -163,7 +163,7 @@ func TestIntegratedContractVectors(t *testing.T) {
 			continue
 		}
 		fields := order["fields"].([]any)
-		if len(fields) != 28 {
+		if len(fields) != 27 {
 			t.Fatalf("TaskOrderV3 has %d fields", len(fields))
 		}
 		if integratedField(t, order, "model_id")["type"] != "bytes" {

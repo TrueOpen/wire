@@ -2,28 +2,24 @@ syntax = "proto3";
 
 package nexus.v1;
 
+import "cosmos_proto/cosmos.proto";
+import "nexus/v1/dispatch.proto";
+import "nexus/v1/sdk_auth.proto";
 import "shared/v1/evidence.proto";
 import "shared/v1/rest_encoding.proto";
 import "task/v1/commit.proto";
+import "task/v1/dispatch.proto";
 import "task/v1/evidence.proto";
 import "task/v1/infer_receipt.proto";
 import "task/v1/result.proto";
 
 option go_package = "github.com/TrueOpen/nexus/gen/trueopen/nexus/v1;nexusv1";
 
-//
-//
-//     FinalizeTaskResult / FinalizeVerifierEvidence.
-//
-//
-// IngressAPI defines the IngressAPI wire type.
+// IngressAPI authenticates user requests, direct dispatch streams and task data.
 service IngressAPI {
-
   // OpenTask executes the OpenTask operation.
   rpc OpenTask(stream OpenTaskRequest) returns (OpenTaskResponse);
-  // ConfirmOpenTask is not callable in V1: FailedPrecondition, NEXUS_INGRESS_CONTRACT_NOT_FROZEN.
-  rpc ConfirmOpenTask(ConfirmOpenTaskRequest) returns (ConfirmOpenTaskResponse);
-  // SubscribeOutput executes the SubscribeOutput operation.
+  // SubscribeOutput binds delivery to an optional dispatch attempt commitment.
   rpc SubscribeOutput(SubscribeOutputRequest) returns (stream SubscribeOutputResponse);
   // AckOutput executes the AckOutput operation.
   rpc AckOutput(AckOutputRequest) returns (AckOutputResponse);
@@ -34,13 +30,8 @@ service IngressAPI {
   // PrepareChallenge executes the PrepareChallenge operation.
   rpc PrepareChallenge(PrepareChallengeRequest) returns (PrepareChallengeResponse);
 
-
   // UploadTaskResultObject executes the UploadTaskResultObject operation.
   rpc UploadTaskResultObject(stream UploadTaskResultObjectRequest) returns (UploadTaskResultObjectResponse);
-  //
-  //
-  //
-  //
   // UploadTaskOutputStream executes the UploadTaskOutputStream operation.
   rpc UploadTaskOutputStream(stream UploadTaskOutputStreamRequest) returns (stream UploadTaskOutputStreamResponse);
   // GetTaskDataMetadata executes the GetTaskDataMetadata operation.
@@ -52,7 +43,6 @@ service IngressAPI {
   // FinalizeVerifierEvidence executes the FinalizeVerifierEvidence operation.
   rpc FinalizeVerifierEvidence(FinalizeVerifierEvidenceRequest) returns (FinalizeVerifierEvidenceResponse);
 
-
   // SubmitInferReceipt executes the SubmitInferReceipt operation.
   rpc SubmitInferReceipt(SubmitInferReceiptRequest) returns (SubmitInferReceiptResponse);
   // SubmitVerifyCommit executes the SubmitVerifyCommit operation.
@@ -60,28 +50,12 @@ service IngressAPI {
   // SubmitVerifyResult executes the SubmitVerifyResult operation.
   rpc SubmitVerifyResult(SubmitVerifyResultRequest) returns (SubmitVerifyResultResponse);
 
-
-  // SubmitOrder executes the SubmitOrder operation.
-  // Retired. Once Nexus switches to SDKRequestEnvelopeV2, this RPC always returns
-  // Unimplemented with NEXUS_INGRESS_METHOD_RETIRED, before parsing the request or
-  // verifying any signature. No body domain is defined for it.
-  rpc SubmitOrder(SubmitOrderRequest) returns (SubmitOrderResponse) {
-    option deprecated = true;
-  }
-  // FetchOutputRef executes the FetchOutputRef operation.
-  // Retired. Once Nexus switches to SDKRequestEnvelopeV2, this RPC always returns
-  // Unimplemented with NEXUS_INGRESS_METHOD_RETIRED, before parsing the request or
-  // verifying any signature. No body domain is defined for it.
-  rpc FetchOutputRef(FetchOutputRefRequest) returns (FetchOutputRefResponse) {
-    option deprecated = true;
-  }
-  // RefreshCredential executes the RefreshCredential operation.
-  // Retired. Once Nexus switches to SDKRequestEnvelopeV2, this RPC always returns
-  // Unimplemented with NEXUS_INGRESS_METHOD_RETIRED, before parsing the request or
-  // verifying any signature. No body domain is defined for it.
-  rpc RefreshCredential(RefreshCredentialRequest) returns (RefreshCredentialResponse) {
-    option deprecated = true;
-  }
+  // DispatchStream carries authenticated, cursor-scoped Builder/Cortex messages.
+  rpc DispatchStream(stream DispatchStreamRequest) returns (stream DispatchStreamResponse);
+  // ResumeOutput resumes one authenticated output attempt.
+  rpc ResumeOutput(ResumeOutputRequest) returns (stream ResumeOutputResponse);
+  // GetDispatchRoster returns every round's roster and its bound signed root.
+  rpc GetDispatchRoster(GetDispatchRosterRequest) returns (GetDispatchRosterResponse);
 }
 
 // TaskDataObjectKind defines the TaskDataObjectKind wire type.
@@ -212,8 +186,6 @@ message ByteRangeV1 {
 //       u64_be(service_authorization_nonce), canonical TaskDataObjectRefV1,
 //       u64_be(size_bytes), u64_be(artifact_total_size_bytes),
 //       u64_be(retention_until_height))
-//
-//
 // Non-evidence objects use producer_kind=UNSPECIFIED, verify_round=0,
 // no producer_operator, and artifact_total_size_bytes=0.
 // BuilderStorageConfirmationV1 defines the BuilderStorageConfirmationV1 wire type.
@@ -373,20 +345,6 @@ message TaskDataRequestAuthV1 {
 // bounded only by its expiry, may be reused until then, and is not a replay
 // record of its own. The session key is generated by the client, kept in memory
 // only, and never derived from any signature.
-message SessionGrantV1 {
-  string chain_id = 1;
-  // Canonical Bech32 account address of the granting user.
-  string user = 2;
-  // Raw 20-byte address of the session key. It is not an on-chain account.
-  bytes session_key = 3;
-  uint64 expiry_height = 4;
-  // 32 bytes from a client CSPRNG.
-  bytes grant_nonce = 5;
-  // 65 bytes R||S||V, V in {27, 28}, low S, over the SessionGrant signing digest.
-  bytes user_signature = 6;
-  // EIP-712 domain chainId of user_signature, 1..MaxInt64. Not in the typed data.
-  uint64 signature_chain_id = 7;
-}
 
 // SDKRequestEnvelopeV2 authenticates a user request to Builder Ingress:
 // OpenTask, SubscribeOutput, AckOutput, GetTaskEvents and PrepareChallenge. It
@@ -450,7 +408,7 @@ message SessionGrantV1 {
 // ingress rate limits to bound cache misses.
 // OpenTask prechecks delegated order authorization before storing input. A
 // nonzero cap failure is SDK_AUTH_SESSION_KEY_SPEND_CAP_EXCEEDED. Keeper remains
-// final authority. A later assignment rejection emits ASSIGN_REJECTED; recovery
+// final authority. A later assignment rejection emits RECORD_REJECTED; recovery
 // checks committed sequence state before resigning the same unused sequence.
 // Refresh the signing key after rotation, use the wallet after CLEAR, or renew
 // the grant after expiry/cap failure. Local terminal-task retry recovery is a
@@ -500,53 +458,6 @@ message SessionGrantV1 {
 // Replay key: request_domain \x00 chain_id \x00 signer_address \x00 hex(request_nonce),
 // where chain_id is the verifier's own chain_id, not the envelope field.
 // A session-key request is still keyed by signer_address, the granting user.
-message SDKRequestEnvelopeV2 {
-  // Exactly "TRUEOPEN_SDK_REQUEST_V2". Checked and used in the replay key; not signed.
-  string request_domain = 1;
-  // Must equal the verifier's own chain_id. The verifier never builds the
-  // digest or the replay key from it; a mismatch is rejected at the signature
-  // step with SDK_AUTH_INVALID_SIGNATURE, not as a format error.
-  string chain_id = 2;
-  // The bare name of the method called, such as "SubscribeOutput".
-  string method = 3;
-  // The full procedure, /nexus.v1.IngressAPI/<Method>, whose <Method> must
-  // equal method.
-  string endpoint = 4;
-  // The Hash32 as 0x followed by 64 lowercase hex characters (66 in all). Any
-  // other spelling, including a bare 64-character hex string, is rejected before
-  // projection.
-  string session_id = 5;
-  // Same spelling as session_id. For OpenTask it must equal
-  // TRUEOPEN_TASK_ID_V1(session_id, order_sequence).
-  string task_id = 6;
-  // Exactly 32 bytes, unique per signer.
-  bytes request_nonce = 7;
-  // Above zero; 0 and negative values are rejected before projection into the
-  // uint64 typed field. Values of 10^12 and above are Unix milliseconds;
-  // smaller values are a chain height, accepted only for OpenTask. OpenTask
-  // accepts only a chain height: a Unix millisecond value is
-  // NEXUS_INGRESS_MALFORMED at the format step, and the height must satisfy
-  // current_height <= expiry <= current_height + request_ttl_blocks (see
-  // OpenTaskHeader).
-  int64 expiry_height_or_time = 8;
-  // 32 bytes: the body domain digest of the method called.
-  bytes body_digest = 9;
-  // Canonical lowercase Bech32 address of the user with the chain's account
-  // prefix, trueopen, decoding to exactly 20 bytes; anything else is
-  // NEXUS_INGRESS_MALFORMED at the format step. Not signed: this is the user
-  // whose account, off-chain grant or registered session key authorizes recovery.
-  string signer_address = 10;
-  // 65 bytes R||S||V, V in {27, 28}, low S, over the SDKRequest signing digest.
-  bytes signature = 11;
-  // Ignored. The verifier never derives or checks an address from it; the
-  // signer is recovered from signature.
-  bytes signer_pubkey = 12 [deprecated = true];
-  // Absent permits the user's wallet or this session's registered key.
-  SessionGrantV1 session_grant = 13;
-  // EIP-712 domain chainId of signature, 1..MaxInt64. Not in the typed data
-  // and not in the replay key.
-  uint64 signature_chain_id = 14;
-}
 
 // OpenTaskHeader opens a Task. request_envelope is signed by the user's wallet
 // directly, recovering to user_address, or by a session key under a grant whose
@@ -579,9 +490,8 @@ message OpenTaskHeader {
   // Must equal "nexus://sha256/" || lowercase_hex(input_hash). It is derived
   // from the signed input_hash, checked here, and enters no preimage.
   string payload_ref = 2;
-  // Must be empty. No outer order signature exists, and this field does not
-  // enter the body digest.
-  bytes signature = 3 [deprecated = true];
+  reserved 3;
+  reserved "signature";
   SDKRequestEnvelopeV2 request_envelope = 4;
   string session_id = 5;
   uint64 order_sequence = 6;
@@ -589,8 +499,8 @@ message OpenTaskHeader {
   // decoding to exactly 20 bytes; anything else is NEXUS_INGRESS_MALFORMED at
   // the format step. Must equal the SignedOrder user.
   string user_address = 7;
-  // Must be empty, for the same reason as signature.
-  string signature_scheme = 8 [deprecated = true];
+  reserved 8;
+  reserved "signature_scheme";
   uint64 input_size_bytes = 9;
   string input_hash = 10;
   string input_media_type = 11;
@@ -613,7 +523,15 @@ message OpenTaskRequest {
   }
 }
 
-// OpenTaskResponse defines the OpenTaskResponse wire type.
+// OpenTaskResponse is also the typed gRPC error detail for binding/takeover
+// routing. SESSION_BOUND_ELSEWHERE supplies bound_builder and task_id;
+// TAKEOVER_PENDING additionally supplies takeover_activation_height.
+// Epoch zero, an unavailable committed start beacon or a not-yet-effective pool
+// use NEXUS_INGRESS_DISPATCH_NOT_READY: retry at the supplied availability height
+// without switching Builder. Snapshot activation may occur later in the same epoch.
+// If dispatch_available_height exceeds order_expire_height, do not retry the
+// unchanged order: rebuild and re-sign the same unconsumed sequence with a later
+// expiry and fresh preflight context when retrying, without triggering takeover.
 message OpenTaskResponse {
   string task_id = 1;
   bool accepted = 2;
@@ -621,25 +539,13 @@ message OpenTaskResponse {
   string session_id = 4;
   TaskDataObjectMetadataV1 input_metadata = 5;
   BuilderStorageConfirmationV1 input_confirmation = 6;
-}
 
-// ConfirmOpenTaskRequest defines the ConfirmOpenTaskRequest wire type.
-// ConfirmOpenTask is not callable in V1: its body domain is not frozen, so no
-// body_digest is defined, and the Builder returns FailedPrecondition with
-// NEXUS_INGRESS_CONTRACT_NOT_FROZEN; the caller must not retry. The body
-// domain is registered, and the RPC enabled, when this request is frozen. It is
-// outside the session-allowed set.
-message ConfirmOpenTaskRequest {
-  string session_id = 1;
-  string task_id = 2;
-  SDKRequestEnvelopeV2 request_envelope = 3;
-  repeated BuilderStorageConfirmationV1 input_confirmations = 4;
-}
-
-// ConfirmOpenTaskResponse defines the ConfirmOpenTaskResponse wire type.
-message ConfirmOpenTaskResponse {
-  bool recorded = 1;
-  string reason = 2;
+  OpenTaskStatusV1 status = 7;
+  optional DispatchResultHeaderV1 dispatch_result = 8;
+  optional string bound_builder = 9 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  optional uint64 takeover_activation_height = 10;
+  // Earliest height to retry dispatch readiness; recheck committed availability.
+  optional uint64 dispatch_available_height = 11;
 }
 
 // The upload body includes size_bytes and media_type.
@@ -671,15 +577,17 @@ message UploadTaskResultObjectResponse {
 // OutputStreamHeaderV2 binds the plaintext stream declaration to the selected
 // Worker's service key, independently of the upload request authorization.
 // worker_signature signs H_FIELDS_V1("TRUEOPEN_OUTPUT_STREAM_HEADER_V1",
-// chain_id, task_hash, attempt, stream_instance, user_recipient_pubkey,
+// chain_id, task_hash, dispatch_ticket_hash, stream_instance, user_recipient_pubkey,
 // output_key_commitment, key_package_hash).
 message OutputStreamHeaderV2 {
   string session_id = 1;
   string task_id = 2;
   string task_hash = 3;
   TaskDataRequestAuthV1 request_auth = 4;
-  // Phase 0 requires attempt 0 and stream_instance 1.
-  uint32 attempt = 5;
+  // The plaintext stream uses stream_instance 1 and a ticket-bound attempt.
+
+  reserved 5;
+  reserved "attempt";
   uint32 stream_instance = 6;
   // Phase 0 requires this field to be empty.
   bytes user_recipient_pubkey = 7;
@@ -688,6 +596,8 @@ message OutputStreamHeaderV2 {
   bytes key_package_hash = 9 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   // Raw64 R||S low-S signature over the header declaration.
   bytes worker_signature = 10 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
+
+  bytes dispatch_ticket_hash = 11 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 //
@@ -702,6 +612,14 @@ message OutputChunkV1 {
   bytes attachment = 5;
   // Phase 0 requires this field to be empty together with attachment.
   bytes attachment_signature = 6;
+
+  // Cumulative generated tokens through this chunk; non-decreasing across the attempt.
+  // Used for the pre-record forwarding cap, never counted again by the Builder.
+  uint64 cumulative_generated_tokens = 7;
+  // Must equal the stream header's ticket. The Worker signs
+  // H_FIELDS_V1("TRUEOPEN_OUTPUT_CHUNK_V1", chain_id, task_hash,
+  // dispatch_ticket_hash, seq, mmr_root). Attempts of one order cannot mix.
+  bytes dispatch_ticket_hash = 8 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 //
@@ -711,6 +629,10 @@ message OutputFinV1 {
   bytes output_mmr_root = 2;
   task.v1.FinishReasonV1 finish_reason = 3;
   bytes worker_signature = 4;
+  // Must equal the stream header and accepted receipt's ticket. The Worker signs
+  // H_FIELDS_V1("TRUEOPEN_OUTPUT_FIN_V1", chain_id, task_hash,
+  // dispatch_ticket_hash, final_seq, output_mmr_root, finish_reason).
+  bytes dispatch_ticket_hash = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 // UploadTaskOutputStreamRequest defines the UploadTaskOutputStreamRequest wire type.
@@ -879,105 +801,50 @@ message SubmitVerifyResultResponse {
   bool idempotent = 4;
 }
 
-// CredentialV1 defines the CredentialV1 wire type.
-message CredentialV1 {
-  string credential_id = 1;    // = hex(sha256(sign_bytes))
-  string session_id = 2;
-  string task_id = 3;
-  string recipient = 4;
-  string usage = 5;            // SDK_DELIVERY / VERIFIER_FETCH / CHALLENGE_EVIDENCE / WATCHER_AUDIT
-  AccessLevel access_level = 6;
-  int64 valid_until = 7;
-  string issuer = 8;
-  bytes issuer_sig = 9;
-}
-
-// SubmitOrderRequest defines the SubmitOrderRequest wire type.
-message SubmitOrderRequest {
-  bytes order_envelope = 1;
-  string payload_ref = 2;
-  bytes signature = 3;
-  SDKRequestEnvelopeV2 request_envelope = 4;
-  string session_id = 5;
-  uint64 order_sequence = 6;
-  string user_address = 7;
-  string signature_scheme = 8;
-  bytes payload = 9;
-}
-
-// SubmitOrderResponse defines the SubmitOrderResponse wire type.
-message SubmitOrderResponse {
-  string task_id = 1;
-  bool accepted = 2;
-  string reason = 3;
-  string session_id = 4;
-}
-
-// AccessLevel defines the AccessLevel wire type.
-enum AccessLevel {
-  // ACCESS_LEVEL_PACKAGE_UNSPECIFIED identifies the corresponding protocol value.
-  ACCESS_LEVEL_PACKAGE_UNSPECIFIED = 0;
-  // ACCESS_LEVEL_SEALED_KEY identifies the corresponding protocol value.
-  ACCESS_LEVEL_SEALED_KEY = 1;
-}
-
-// FetchOutputRefRequest defines the FetchOutputRefRequest wire type.
-message FetchOutputRefRequest {
-  string task_id = 1;
-  string requester = 2;
-  bytes signature = 3;
-  string session_id = 4;
-  AccessLevel access_level = 5;
-  string usage = 6;             // SDK_DELIVERY / VERIFIER_FETCH / CHALLENGE_EVIDENCE / WATCHER_AUDIT
-  SDKRequestEnvelopeV2 request_envelope = 7;
-  bytes requester_pubkey = 8;
-}
-
-// FetchOutputRefResponse defines the FetchOutputRefResponse wire type.
-message FetchOutputRefResponse {
-  reserved 1;
-  reserved "output_ref";
-  CredentialV1 credential = 2;
-}
-
 // SubscribeOutputRequest defines the SubscribeOutputRequest wire type.
+// A stale ticket also terminates an ongoing subscription and rejects old-ticket
+// uploads with NEXUS_INGRESS_ATTEMPT_STALE. A chain-recorded Task Builders member
+// waits boundedly for its replica, then returns NEXUS_OUTPUT_REPLICA_NOT_READY;
+// retry or use FetchTaskData(OUTPUT), never SESSION_UNBOUND for a recorded member.
+// RECORD_REJECTED and NEXUS_OUTPUT_STREAM_STOPPED terminate unusable attempts.
 // body_digest is H_FIELDS_V1("TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1", session_id,
-// task_id, OPTIONAL_V1(resume_after_seq)): unset is absent, and a set 0 is present 0.
+// task_id, OPTIONAL_V1(resume_after_seq), OPTIONAL_V1(dispatch_ticket_hash)).
+// Unset is absent, and a set zero is present zero.
 // A session key may sign this request.
 message SubscribeOutputRequest {
   string session_id = 1;
   string task_id = 2;
   SDKRequestEnvelopeV2 request_envelope = 3;
   optional uint64 resume_after_seq = 4;
+
+  optional bytes dispatch_ticket_hash = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 //
 // SubscribeOutputResponse defines the SubscribeOutputResponse wire type.
 message SubscribeOutputResponse {
-  string output_id = 1 [deprecated = true];
-  string session_id = 2 [deprecated = true];
-  string task_id = 3 [deprecated = true];
-  string output_text = 4 [deprecated = true];
-  bytes output_hash = 5 [deprecated = true];
-  int64 created_at = 6 [deprecated = true];
-  int64 expires_at = 7 [deprecated = true];
+  reserved 1, 2, 3, 4, 5, 6, 7;
+  reserved "output_id", "session_id", "task_id", "output_text", "output_hash", "created_at", "expires_at";
   // frame selects one supported variant.
   oneof frame {
     OutputChunkV1 chunk = 8;
     OutputFinV1 fin = 9;
   }
+
+  optional DispatchResultHeaderV1 dispatch_result = 10;
 }
 
 //
 // Acknowledgement uses the frozen output stream identity and sequence.
 // AckOutputRequest defines the AckOutputRequest wire type.
 // body_digest is H_FIELDS_V1("TRUEOPEN_SDK_BODY_ACK_OUTPUT_V1", session_id,
-// task_id, last_seq). The deprecated output_id does not enter it. A session key
+// task_id, last_seq). A session key
 // may sign this request.
 message AckOutputRequest {
   string session_id = 1;
   string task_id = 2;
-  string output_id = 3 [deprecated = true];
+  reserved 3;
+  reserved "output_id";
   SDKRequestEnvelopeV2 request_envelope = 4;
   uint64 last_seq = 5;
 }
@@ -1002,35 +869,52 @@ message GetTaskEventsRequest {
   SDKRequestEnvelopeV2 request_envelope = 4;
 }
 
-//
-//   ORDER_RECEIVED, WORKER_HANDRAISES_ACCEPTED, WORKER_ASSIGNMENT_FINALIZED,
-//   OUTPUT_DATA_RECEIVED, VERIFIER_ASSIGNMENT_FINALIZED, RESULT_ACCEPTED,
-//   TASK_SETTLED, SWEEP_OBSERVED, TASK_CLOSED, TASK_RECOVERED
-// GetTaskEventsResponse defines the GetTaskEventsResponse wire type.
+// GetTaskEventsResponse reports Nexus lifecycle events, separate from the Node
+// ProtocolEventCodeV1 registry. The closed event_code set is:
+//   ORDER_RECEIVED, DISPATCH_ACCEPTED, NO_CAPACITY, DISPATCH_RECORDED, RECORD_REJECTED,
+//   TAKEOVER_PENDING, TAKEOVER_RECORDED, TAKEOVER_VOIDED,
+//   TASK_FAILED, ORDER_EXPIRED, ASSIGN_TIMEOUT, OPEN_VERIFY_ACCEPTED, SAMPLE_READY,
+//   WORKER_REVEAL_ACCEPTED, FULL_RESULT_REVEAL_ACCEPTED, SETTLE_ACCEPTED,
+//   OUTPUT_REF_RECEIVED, SWEEP_OBSERVED, TASK_CLOSED, TASK_RECOVERED.
+// Acceptance/receipt events describe observed progress, never replacement chain
+// authority. In particular OUTPUT_REF_RECEIVED is the Worker's signed receipt.
 message GetTaskEventsResponse {
   string cursor = 1;
   string state = 2;
   string task_phase = 3;
   string event_code = 4;
   int64 chain_height = 5;
+  optional TaskEventDetailV1 detail = 6;
 }
 
-// RefreshCredentialRequest defines the RefreshCredentialRequest wire type.
-message RefreshCredentialRequest {
-  CredentialV1 credential = 1;
-  string session_id = 2;
-  string task_id = 3;
-  string recipient = 4;
-  string usage = 5;
-  int64 requested_valid_until = 6;
-  SDKRequestEnvelopeV2 request_envelope = 7;
-}
-
-// RefreshCredentialResponse defines the RefreshCredentialResponse wire type.
-message RefreshCredentialResponse {
-  CredentialV1 credential = 1;
-  reserved 2;
-  reserved "output_ref";
+// TaskEventDetailV1 carries event-local routing and rejection facts so the SDK
+// can recover without resubmitting OpenTask. Addresses identify stable operators.
+// TAKEOVER_PENDING supplies candidate + activation height; TAKEOVER_RECORDED
+// supplies bound_builder. TAKEOVER_VOIDED supplies what voided it: recording
+// supplies the recording Builder + recorded task ID; another takeover that
+// registered first supplies that takeover's candidate_builder +
+// takeover_activation_height; a Session bound to another Builder supplies
+// bound_builder; cancellation/closure need no destination.
+// DISPATCH_ACCEPTED supplies the ticket and worker_operator_address.
+// RECORD_REJECTED supplies a nonzero reject_code and the rejected entry's ticket
+// when one exists. dispatch_ticket_hash is absent when no ticket exists: a
+// rejected takeover entry, or an order that missed its record deadline before
+// any Worker accepted. A missed record deadline uses RECORD_LATE. When one entry
+// is rejected, later sequences of the same Session are rejected with it; those
+// sequences were not consumed, so they use CONFLICT, never SEQUENCE_CONSUMED,
+// and the client resends an order at the same sequence. An order ahead of the
+// Session's next expected sequence uses SEQUENCE_NOT_NEXT and is likewise
+// resent at the same sequence once the earlier sequences are recorded; only
+// SEQUENCE_CONSUMED means the sequence must not be reused.
+message TaskEventDetailV1 {
+  optional string bound_builder = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  optional string recording_builder = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  optional bytes recorded_task_id = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  optional string candidate_builder = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  optional uint64 takeover_activation_height = 5;
+  optional bytes dispatch_ticket_hash = 6 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  optional task.v1.DispatchRejectCodeV1 reject_code = 7;
+  optional string worker_operator_address = 8 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // PrepareChallengeRequest defines the PrepareChallengeRequest wire type.
@@ -1075,4 +959,9 @@ message GetTaskStatusResponse {
   string set_id = 3;
   int64 updated_at = 4;
   string task_phase = 5;
+}
+
+// ResumeOutputResponse reuses the single output stream frame contract.
+message ResumeOutputResponse {
+  SubscribeOutputResponse frame = 1;
 }

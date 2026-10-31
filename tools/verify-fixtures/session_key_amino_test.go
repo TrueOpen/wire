@@ -16,6 +16,20 @@ func TestSessionKeyAminoSigningVectors(t *testing.T) {
 	if len(rows) != 3 {
 		t.Fatal("expected creation, SET and CLEAR")
 	}
+	verifyAminoSigningRows(t, rows)
+}
+
+func TestSessionFundingAminoSigningVectors(t *testing.T) {
+	doc := loadIntegratedFixture(t, "task", "session_funding_amino_v1.json")
+	rows := doc["cases"].([]any)
+	if len(rows) != 4 {
+		t.Fatal("expected deposit, amount withdrawal, CLOSE and Builder funding")
+	}
+	verifyAminoSigningRows(t, rows)
+}
+
+func verifyAminoSigningRows(t *testing.T, rows []any) {
+	t.Helper()
 	for _, raw := range rows {
 		row := raw.(map[string]any)
 		t.Run(row["name"].(string), func(t *testing.T) {
@@ -48,6 +62,14 @@ func TestSessionKeyAminoSigningVectors(t *testing.T) {
 			case "set":
 				if !hasSet || hasClear {
 					t.Fatal("SET oneof shape")
+				}
+			case "close":
+				if value["close"] != true || value["amount"] != nil {
+					t.Fatal("CLOSE must be explicit true with no amount action")
+				}
+			case "withdraw_amount":
+				if value["close"] != nil || value["amount"].(map[string]any)["amount"] == nil {
+					t.Fatal("amount withdrawal must retain its typed nested Amount")
 				}
 			case "clear":
 				if hasSet || !hasClear || clear != true {

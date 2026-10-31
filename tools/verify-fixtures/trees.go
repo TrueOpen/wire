@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"github.com/TrueOpen/wire/dispatch"
 )
 
 // The two tree framings hash the domain into every leaf and every interior
@@ -12,15 +13,6 @@ import (
 // pinning a preimage that no implementation can reproduce. Neither framing
 // publishes a preimage_hex, which is why the preimage self-check in vectors.go
 // never reached them.
-const (
-	merkleLeafPrefix  = "TRUEOPEN_MERKLE_LEAF_V1"
-	merkleNodePrefix  = "TRUEOPEN_MERKLE_NODE_V1"
-	merkleEmptyPrefix = "TRUEOPEN_MERKLE_EMPTY_V1"
-
-	mmrLeafPrefix  = "TRUEOPEN_MMR_LEAF_V1"
-	mmrNodePrefix  = "TRUEOPEN_MMR_NODE_V1"
-	mmrEmptyPrefix = "TRUEOPEN_MMR_EMPTY_V1"
-)
 
 // validatePublishedTreeRoot recomputes a published MERKLE_ROOT_V1 or
 // MMR_ROOT_V1 root from the vector's own leaves. A tree vector carries leaves
@@ -148,75 +140,13 @@ func splitFramedPreimage(preimage []byte) ([]string, error) {
 
 // treeDomainFrame is u32be(len(domain)) || domain, the prefix both tree
 // framings bind every hash to.
-func treeDomainFrame(domain string) []byte {
-	framed := make([]byte, 4+len(domain))
-	binary.BigEndian.PutUint32(framed[:4], uint32(len(domain)))
-	copy(framed[4:], domain)
-	return framed
-}
-
-func treeHash(parts ...[]byte) []byte {
-	digest := sha256.New()
-	for _, part := range parts {
-		_, _ = digest.Write(part)
-	}
-	return digest.Sum(nil)
-}
-
 // merkleRootV1 folds a binary tree left to right, promoting a lone trailing
 // node instead of duplicating it.
 func merkleRootV1(domain string, leaves [][]byte) []byte {
-	frame := treeDomainFrame(domain)
-	if len(leaves) == 0 {
-		return treeHash([]byte(merkleEmptyPrefix), frame)
-	}
-	level := make([][]byte, len(leaves))
-	for i, leaf := range leaves {
-		level[i] = treeHash([]byte(merkleLeafPrefix), frame, leaf)
-	}
-	for len(level) > 1 {
-		next := make([][]byte, 0, (len(level)+1)/2)
-		for i := 0; i < len(level); i += 2 {
-			if i+1 == len(level) {
-				next = append(next, level[i])
-				continue
-			}
-			next = append(next, treeHash([]byte(merkleNodePrefix), frame, level[i], level[i+1]))
-		}
-		level = next
-	}
-	return level[0]
+	return dispatch.MerkleRootV1(domain, leaves)
 }
 
 // mmrRootV1 appends leaves in order, merging equal-height peaks, then bags the
 // remaining peaks right to left. The leaf hash binds the leaf's index and
 // length so a reordering cannot produce the same root.
-func mmrRootV1(domain string, leaves [][]byte) []byte {
-	frame := treeDomainFrame(domain)
-	if len(leaves) == 0 {
-		return treeHash([]byte(mmrEmptyPrefix), frame)
-	}
-	type peak struct {
-		height uint8
-		hash   []byte
-	}
-	peaks := make([]peak, 0, 64)
-	for index, leaf := range leaves {
-		var indexBytes, lengthBytes [8]byte
-		binary.BigEndian.PutUint64(indexBytes[:], uint64(index))
-		binary.BigEndian.PutUint64(lengthBytes[:], uint64(len(leaf)))
-		current := peak{hash: treeHash([]byte(mmrLeafPrefix), frame, indexBytes[:], lengthBytes[:], leaf)}
-		for len(peaks) != 0 && peaks[len(peaks)-1].height == current.height {
-			left := peaks[len(peaks)-1]
-			peaks = peaks[:len(peaks)-1]
-			current.hash = treeHash([]byte(mmrNodePrefix), frame, left.hash, current.hash)
-			current.height++
-		}
-		peaks = append(peaks, current)
-	}
-	root := peaks[len(peaks)-1].hash
-	for index := len(peaks) - 2; index >= 0; index-- {
-		root = treeHash([]byte(mmrNodePrefix), frame, peaks[index].hash, root)
-	}
-	return root
-}
+func mmrRootV1(domain string, leaves [][]byte) []byte { return dispatch.MMRRootV1(domain, leaves) }

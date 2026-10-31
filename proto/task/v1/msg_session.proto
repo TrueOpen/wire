@@ -5,10 +5,11 @@ import "amino/amino.proto";
 import "cosmos/msg/v1/msg.proto";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
-import "shared/v1/common.proto";
 import "shared/v1/amount.proto";
-import "task/v1/params.proto";
+import "shared/v1/common.proto";
 import "shared/v1/rest_encoding.proto";
+import "task/v1/params.proto";
+import "task/v1/session.proto";
 
 option go_package = "github.com/TrueOpen/node/x/task/types";
 
@@ -40,8 +41,8 @@ message MsgUpdateTaskParamsResponse {
 // MsgCreateSession opens one session namespace and locks its owner
 // (the wire API). The optional grant registers a session signing key. The
 // nonce comes from SessionNonceState and session_id is derived on
-// chain by TRUEOPEN_SESSION_V1. Model A: creating a session never moves funds, and
-// no unbounded metadata is accepted.
+// chain by TRUEOPEN_SESSION_V1. initial_deposit funds the session escrow and
+// initial_builder fixes the first dispatch binding. No unbounded metadata is accepted.
 // MsgCreateSession defines the MsgCreateSession wire type.
 message MsgCreateSession {
   option (cosmos.msg.v1.signer) = "signer_address";
@@ -49,31 +50,19 @@ message MsgCreateSession {
 
   string signer_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   SessionKeyGrantV1 session_key = 2;
-}
 
-// SessionKeyGrantV1 registers a delegated order/request signer for one session.
-// The raw20 address must be nonzero and different from the owner's address.
-// At registration/renewal, current_height < expiry_height <= current_height +
-// the current effective max_session_key_blocks (checked addition). The limit
-// is not resolved through the session's pinned historical parameter version.
-// A canonical zero spend_cap (atomic_units = "0") is unlimited; otherwise it
-// bounds cumulative admitted max_fee, not actual spend or a prepaid balance.
-message SessionKeyGrantV1 {
-  bytes session_key = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
-  uint64 expiry_height = 2;
-  shared.v1.Amount spend_cap = 3 [(gogoproto.nullable) = false];
+  shared.v1.Amount initial_deposit = 3 [(gogoproto.nullable) = false];
+  string initial_builder = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
-
-// ClearSessionKeyV1 explicitly revokes the current session key.
-message ClearSessionKeyV1 {}
 
 // MsgUpdateSessionKey changes authorization for an ACTIVE or IDLE session.
 // Only its owner signs this transaction. Exactly one action is required.
-// SET preserves spent; a different key or SET after CLEAR records the execution
+// SET preserves spent; a different key or SET after CLEAR records the effective
 // height as set_height. Same-key renewal/cap changes preserve set_height.
 // CLEAR zeroes key, expiry, cap and set_height, but never spent. An unchanged
 // result is NOOP without an event. Lifecycle status and activity are unchanged.
-// Later transactions, including in the same block, see the new authorization.
+// Restrictive updates register pending changes. Existing authorization remains
+// effective until effective_height; only nonrestrictive same-key renewal is immediate.
 // Already admitted tasks retain their authorization and escrow.
 message MsgUpdateSessionKey {
   option (cosmos.msg.v1.signer) = "signer_address";
@@ -97,6 +86,9 @@ message MsgUpdateSessionKeyResponse {
   shared.v1.Amount spent = 4 [(gogoproto.nullable) = false];
   uint64 set_height = 5;
   shared.v1.MutationStatusV1 status = 6;
+
+  optional uint64 effective_height = 7;
+  optional PendingSessionKeyChangeV1 pending_change = 8;
 }
 
 // MsgCreateSessionResponse returns the chain-derived session identity
@@ -110,11 +102,12 @@ message MsgCreateSessionResponse {
   shared.v1.MutationStatusV1 status = 3;
 }
 
-// MsgCancelOrder skips the next unconsumed order sequence so an off-chain order
-// stops occupying it. signer_address is the Cosmos signer and
+// MsgCancelOrder registers delayed cancellation of the next unconsumed sequence.
+// Registration does not consume it; the effective runner advances it only while
+// still unused. signer_address is the Cosmos signer and
 // must equal the stream owner; no duplicate detached owner signature is required.
 // It may only cancel next_expected_sequence, never a sequence already accepted by
-// MsgSubmitWorkerHandraises, and it moves no funds.
+// MsgRecordDispatch, and it moves no funds.
 // MsgCancelOrder defines the MsgCancelOrder wire type.
 message MsgCancelOrder {
   option (cosmos.msg.v1.signer) = "signer_address";
@@ -125,14 +118,16 @@ message MsgCancelOrder {
   string signer_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgCancelOrderResponse reports the cancelled sequence and the advanced counter
-//. task_id stays empty because a cancelled sequence never created a task.
+// MsgCancelOrderResponse reports the pending sequence and its effective height.
+// The next counter is unchanged at registration. task_id stays empty.
 // MsgCancelOrderResponse defines the MsgCancelOrderResponse wire type.
 message MsgCancelOrderResponse {
   bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint64 cancelled_sequence = 2;
   uint64 next_expected_sequence = 3;
   shared.v1.MutationStatusV1 status = 4;
+
+  uint64 cancel_effective_height = 5;
 }
 
 // REMOVED: MsgUpdateTimeoutBucket / MsgUpdateTimeoutBucketResponse. They lived in
@@ -143,3 +138,42 @@ message MsgCancelOrderResponse {
 // it must be re-registered by the owner of the timeout bucket wire, not
 // here. The governed ReferenceBucket path is gone entirely, so
 // the replacement takes no shape from it.
+
+// MsgDepositSession defines the canonical MsgDepositSession fields.
+message MsgDepositSession {
+  option (cosmos.msg.v1.signer) = "signer_address";
+  option (amino.name) = "trueopen/x/task/MsgDepositSession";
+  bytes session_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  shared.v1.Amount amount = 2 [(gogoproto.nullable) = false];
+  string signer_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+// MsgDepositSessionResponse defines the canonical MsgDepositSessionResponse fields.
+message MsgDepositSessionResponse {
+  shared.v1.Amount balance = 1 [(gogoproto.nullable) = false];
+  shared.v1.MutationStatusV1 status = 2;
+}
+// WithdrawAmountV1 defines the canonical WithdrawAmountV1 fields.
+message WithdrawAmountV1 {
+  shared.v1.Amount amount = 1 [(gogoproto.nullable) = false];
+}
+// CloseSessionV1 defines the canonical CloseSessionV1 fields.
+message CloseSessionV1 {}
+// MsgWithdrawSession registers one delayed withdrawal or close.
+message MsgWithdrawSession {
+  option (cosmos.msg.v1.signer) = "signer_address";
+  option (amino.name) = "trueopen/x/task/MsgWithdrawSession";
+  bytes session_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  string signer_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // action selects either a fixed amount or full close.
+  oneof action {
+    WithdrawAmountV1 amount = 3;
+    CloseSessionV1 close = 4;
+  }
+}
+// MsgWithdrawSessionResponse defines the canonical MsgWithdrawSessionResponse fields.
+message MsgWithdrawSessionResponse {
+  uint64 effective_height = 1;
+  shared.v1.Amount pending_amount = 2 [(gogoproto.nullable) = false];
+  shared.v1.MutationStatusV1 status = 3;
+}

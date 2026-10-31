@@ -5,6 +5,7 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "hub/v1/bridge.proto";
 import "shared/v1/amount.proto";
+import "shared/v1/common.proto";
 import "shared/v1/rest_encoding.proto";
 
 option go_package = "github.com/TrueOpen/node/x/hub/types";
@@ -12,6 +13,8 @@ option go_package = "github.com/TrueOpen/node/x/hub/types";
 // QueryVrfKeyRequest selects the proposer-VRF key of one stable operator.
 message QueryVrfKeyRequest {
   string operator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // Zero selects Validator; Builder selectors explicitly use BUILDER.
+  shared.v1.ParticipantType participant_type = 2;
 }
 
 // QueryVrfKeyResponse returns the active key and optional next-epoch key.

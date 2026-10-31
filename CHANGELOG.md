@@ -1,5 +1,115 @@
 # Changelog
 
+## Unreleased - Phase 1 (breaking, fresh genesis)
+
+- Clarify that service-key rotation events carry the newly current key's nonce
+  and revocation events carry the revoked key's nonce. When a NOT_READY retry
+  height exceeds the signed order's expiry, rebuild and re-sign the same
+  unconsumed sequence with a later expiry and fresh preflight context.
+- Freeze `earliest_submit_height` in `DispatchCompensationClaimState` (field 17)
+  so previous-key record and reject rebuttals work for unrecorded orders. Keep
+  the original claim height through Query, Genesis, replay and resolution; do
+  not borrow another ticket's accepted record under the same TaskID.
+- Add a signed `service_authorization_nonce` to `nexus.v1.DispatchResultHeaderV1`
+  (field 6), `DispatchInputResponseV1` (field 9), `DispatchRevokeV1` (field 6) and
+  `RecordResultNoticeV1` (field 6). These retained messages keep their original
+  signed bytes across reconnect and service key cutover and verify against the
+  current or previous key selected by that nonce, never older than their
+  ticket's nonce, through `VerifyDispatchProof` (result header) or the new
+  `dispatch.VerifyTicketBoundDispatchProof`. Stream bindings, requests and Builder
+  sync transport stay current-key only; the new `dispatch.VerifyDispatchStreamBinding`
+  requires the current ACTIVE key. A Builder closes an established stream when the
+  Cortex binding key is revoked or rotated out; a Cortex closes it when the
+  Builder's current key is revoked, but not at a Builder rotation activation.
+- Define Builder sync duplicate items by byte-equal canonical item projections,
+  exported as `dispatch.BuilderSyncItemCanonicalBytes`, and accept Sync requests
+  as binary protobuf only.
+- Complete TaskEventDetailV1: TAKEOVER_VOIDED destinations for a takeover voided
+  by another registered takeover or a session bound elsewhere; RECORD_REJECTED
+  without a ticket when none exists, RECORD_LATE for a missed record deadline and
+  CONFLICT for unconsumed cascaded sequences.
+- Add `compensated_amount` (field 8) to `task.v1.EventBuilderDispatchFaultRecorded`.
+- Add `DISPATCH_REJECT_CODE_V1_SEQUENCE_NOT_NEXT` (38) for an unconsumed order ahead
+  of the next expected sequence; SEQUENCE_CONSUMED now means the sequence is retired.
+- Add a typed dispatch-readiness retry height and bounded recorded-replica recovery;
+  specify saturated sticky age, inclusive order expiry and the two-block newer-root margin.
+- Preserve frozen Task/Session parameter versions in Genesis, including historical
+  bodies and non-current bindings, with derived reference counts and bounded
+  retirement after the epoch policy lookup window.
+- Publish exact preimages for the active data-unavailable Builder evidence variant
+  and Worker dispatch draw, linked to their production digest functions.
+- Register pagination selectors and cross-chain/cross-RPC vectors for the two
+  Builder dispatch recovery queries and bounded value-evidence query. Check
+  every paginated Query against its descriptor, registry and both vector domains.
+- Freeze typed Builder-to-Builder replication in `nexus.v1`, with receiver-scoped
+  canonical batch signatures, explicit oneof tags, current-key transport checks
+  and independently computed signing/reserialization vectors.
+- Define zero-based input chunks with consistent whole-input examples, complete
+  Nexus lifecycle event codes and recovery details, and separate simultaneous
+  keepalive probes by originating role.
+- Complete omission proof inputs with the signed bound-root preimage when a
+  newer root is used. Freeze first-upheld challenge identity for dispatch faults
+  and compensation-first accounting before the independent Treasury penalty.
+- Freeze the governable Worker stake/performance coefficients once per activated
+  epoch snapshot header. Historical member queries, challenges and Genesis use
+  the saved policy rather than current Task parameters.
+- Add height-pinned Builder queries for open dispatch challenges and compensation
+  claims, and freeze the event targets needed to discover and defend them.
+- Define the verified epoch-start beacon source and epoch-zero dispatch boundary,
+  snapshot eligibility projections, stream nonce/cursor/keepalive semantics and
+  dispatch batch result identities. Publish linked derivation and result vectors.
+- Register VerifierHandraiseV1 in the shared signing implementation, add its real
+  signature vector, and expose pending service rotation as an admission-leaf reason.
+  Remove the retired pool_hash fixture field and clarify VRF audit-query scope.
+
+- Generate gogo equality for dispatch parameters and their nested policy entries,
+  so the existing TaskParamsV1 equality method compiles in Go consumers.
+- Bind Chunk/Fin signatures to dispatch_ticket_hash and rebuild Worker evidence
+  from the accepted receipt's attempt. An old generation of the same order
+  cannot falsely prove equivocation by an honest Worker.
+- Fix service-key activation at E+2, retain one previous proof generation and
+  gate another registration by its hard-limit interval and evidence duties.
+  Restore signed Builder nonces and frozen record anchors; previous dispatch
+  material is limited to orders before retirement. Remove old cutoffs, material
+  counters, activation postponement, next-nonce duties and chain pending rejection.
+- Complete value-evidence closure (deadline kind 14 and actual closed height),
+  Worker contradiction slash configuration, and per-entry rejection categories.
+  Bind roster authentication to chain/Builder and input access to the accept digest.
+  Keep sticky_applied solely on the record; close revoke reasons to pre-accept RBF.
+- Publish independently computed handraise roots/paths and verify raw64 output-header
+  signatures over the ticket-bound digest. Fix header size and retired-attempt notes,
+  cumulative token naming, delayed session comments and restrictive key-update vectors.
+  Remove the unused extra dispatch-pool commitment.
+- Add `cortex.v1.ChatCompletionOutputUsage.cached_prompt_tokens` (field 4,
+  int32) for prefix-cache reads, mapped to `prompt_tokens_details.cached_tokens`.
+  It is a reported subset of prompt_tokens and changes no on-chain accounting.
+  This additive field does not change the withheld status of cortex.v1.
+- Replace per-task Worker handraise admission and NATS/BusEnvelope with signed
+  direct dispatch, immutable full-pool VRF order, sticky context and independently
+  admitted dispatch/takeover entries. Reserve removed fields and event values.
+- Add session prefunding, owner deposits, delayed withdrawal/CLOSE, delayed key
+  restrictions/cancellation and two-step Builder takeover. Orders freeze funds
+  only from the session ledger; settlement and refunds return to that ledger.
+- Add compensation funding, rebuttable claims, winner-ineligibility facts,
+  objective dispatch challenges, retained states, Genesis, queries and events.
+  Freeze snapshot inputs for profile-specific historical weight reconstruction.
+- Extend VRF registration to Builder identities; retain Validator beacon isolation.
+  Add ticket-bound receipts/output/resume, typed streams and strict evidence
+  verification. Activate bounded verifier value evidence; joint opening stays inactive.
+- Reuse canonical signature/tree primitives through `dispatch`; retire `bus`.
+- Revise preimages in place for fresh genesis: `TRUEOPEN_TASK_ORDER_V3` (27 fields),
+  `TRUEOPEN_ORDER_OPENING_V2` (19 fields), `TRUEOPEN_INFER_RECEIPT_V3`,
+  `TRUEOPEN_OUTPUT_STREAM_HEADER_V1`, `TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1`,
+  `TRUEOPEN_OUTPUT_CHUNK_V1`, `TRUEOPEN_OUTPUT_FIN_V1`,
+  `TRUEOPEN_HANDRAISE_ROOT_V1`, `TRUEOPEN_DISPATCH_TICKET_V1`,
+  `TRUEOPEN_DISPATCH_RECORD_V1`,
+  `TRUEOPEN_BUILDER_EVIDENCE_CONTENT_V2`, `TRUEOPEN_WEIGHTED_DRAW_V1` (dispatch),
+  `TRUEOPEN_HUB_PARAMS_V2`, `TRUEOPEN_TASK_PARAMS_V1` and
+  `TRUEOPEN_TASK_TERMINAL_SUMMARY_V1`. No old decoder is retained.
+- Consumers must pin one reviewed release and start a new genesis. See
+  [contract and acceptance requirements](docs/PHASE1_CONTRACT.md). This candidate
+  does not assign a release tag or claim Node/localnet acceptance.
+
 ## v0.5.1
 
 ### Registered session signing keys

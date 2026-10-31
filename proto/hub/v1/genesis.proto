@@ -8,6 +8,7 @@ import "hub/v1/bridge.proto";
 import "hub/v1/builder.proto";
 import "hub/v1/candidate_pool.proto";
 import "hub/v1/daily_support.proto";
+import "hub/v1/dispatch.proto";
 import "hub/v1/emergency_freeze.proto";
 import "hub/v1/fault.proto";
 import "hub/v1/model_profile_state.proto";
@@ -143,4 +144,10 @@ message GenesisState {
   repeated TreasurySpendRecipientEpochState treasury_spend_recipient_epochs = 103 [(gogoproto.nullable) = false];
   repeated TreasurySpendEpochCleanupCursorState treasury_spend_epoch_cleanup_cursors = 104 [(gogoproto.nullable) = false];
   repeated ModelSupportDeactivateCursorState model_support_deactivate_cursors = 105 [(gogoproto.nullable) = false];
+
+  repeated BuilderCompensationAccountState builder_compensation_accounts = 106 [(gogoproto.nullable) = false];
+  repeated DispatchFaultState dispatch_faults = 107 [(gogoproto.nullable) = false];
+  reserved 108;
+  reserved "service_key_proofs";
+  repeated PendingServiceKeyRotationState pending_service_key_rotations = 109 [(gogoproto.nullable) = false];
 }

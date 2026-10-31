@@ -3,10 +3,12 @@ package task.v1;
 
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
+import "shared/v1/rest_encoding.proto";
 import "task/v1/assignment.proto";
 import "task/v1/challenge.proto";
 import "task/v1/cleanup.proto";
 import "task/v1/commit.proto";
+import "task/v1/dispatch_state.proto";
 import "task/v1/epoch_summary.proto";
 import "task/v1/evidence.proto";
 import "task/v1/infer_receipt.proto";
@@ -16,6 +18,7 @@ import "task/v1/result.proto";
 import "task/v1/session.proto";
 import "task/v1/settlement.proto";
 import "task/v1/timeout_bucket.proto";
+import "task/v1/value_evidence.proto";
 
 option go_package = "github.com/TrueOpen/node/x/task/types";
 
@@ -39,7 +42,9 @@ message GenesisState {
   // TaskCoreState is the only primary of the six Task sub-states.
   repeated TaskCoreState task_cores = 19 [(gogoproto.nullable) = false];
   repeated TaskAssignmentState task_assignments = 21 [(gogoproto.nullable) = false];
-  repeated AssignmentCandidateSetState assignment_candidate_sets = 22 [(gogoproto.nullable) = false];
+
+  reserved 22;
+  reserved "assignment_candidate_sets";
   repeated InferReceiptState infer_receipts = 24 [(gogoproto.nullable) = false];
   repeated VerifierAssignmentState verifier_assignments = 26 [(gogoproto.nullable) = false];
   repeated CommitState commits = 27 [(gogoproto.nullable) = false];
@@ -79,4 +84,42 @@ message GenesisState {
   repeated TaskSettlementState task_settlements = 71 [(gogoproto.nullable) = false];
   repeated SettlementFactsRetainedState settlement_facts_retained = 72 [(gogoproto.nullable) = false];
   repeated WorkerEvidenceReceiptState worker_evidence_receipts = 73 [(gogoproto.nullable) = false];
+
+  repeated DispatchRecordState dispatch_records = 74 [(gogoproto.nullable) = false];
+  repeated DispatchCompensationClaimState dispatch_compensation_claims = 75 [(gogoproto.nullable) = false];
+  repeated DispatchChallengeState dispatch_challenges = 76 [(gogoproto.nullable) = false];
+  repeated DispatchWinnerIneligibleState dispatch_winner_ineligible = 78 [(gogoproto.nullable) = false];
+  repeated TakeoverEntryReceiptState takeover_entry_receipts = 79 [(gogoproto.nullable) = false];
+  repeated VerifierValueEvidenceReceiptState verifier_value_evidence_receipts = 80 [(gogoproto.nullable) = false];
+
+  // Current Params are stored once above. Historical bodies preserve governed
+  // behavior across export/import and support epoch-reference policy lookup.
+  repeated TaskParamsHistoryState params_history = 90 [(gogoproto.nullable) = false];
+  // Only non-current version overrides are exported. An omitted live object
+  // uses params_meta.params_version. Both lists share the same binding schema.
+  repeated ParamsVersionBindingState task_params_version_bindings = 91 [(gogoproto.nullable) = false];
+  repeated ParamsVersionBindingState session_params_version_bindings = 92 [(gogoproto.nullable) = false];
+}
+
+// TaskParamsHistoryState retains one superseded parameter body. Version zero
+// may name the chain's initial parameter set. Heights can coincide when several
+// governance updates execute in one block; the highest version wins at that H.
+// updated_height <= superseded_height, and params_version is below current.
+// Refcounts, height lookup and prune indexes are rebuilt from these primaries.
+// A zero-reference body remains through its supersession epoch: earliest
+// prune = EpochStart(epoch(superseded_height)+1)+1. Referenced
+// bodies outlive that floor; all retirement uses bounded shared block budgets.
+message TaskParamsHistoryState {
+  uint64 params_version = 1;
+  TaskParamsV1 params = 2 [(gogoproto.nullable) = false];
+  uint64 updated_height = 3;
+  uint64 superseded_height = 4;
+}
+
+// ParamsVersionBindingState is a non-current override. The containing Genesis
+// list distinguishes Task from Session. Imports reject duplicate/unknown object
+// IDs, current-version overrides and versions without a retained history body.
+message ParamsVersionBindingState {
+  bytes object_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 params_version = 2;
 }

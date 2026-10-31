@@ -1,0 +1,206 @@
+{
+  "schema": "trueopen-service-key-rotation-v1",
+  "notes": [
+    "Protocol-hard-limit examples, not approved network parameter values.",
+    "Registration in epoch E activates at the fixed E+2 start, including the last block of E.",
+    "The interval protects the previous generation before another registration; it never schedules activation.",
+    "Only previous-generation evidence responsibilities gate another registration; current group duties and liability do not.",
+    "Previous dispatch proofs require order earliest_submit_height strictly before previous_retired_height; online submitters remain current-only.",
+    "Emergency revoke immediately cancels pending replacement and preserves necessary proof identities.",
+    "Retained Builder messages (result header, input response, revoke, record notice) select the generation by their positive signed nonce, which may not precede their ticket's nonce, and keep their original signed bytes; retained_message_cases sign with the selected generation's key.",
+    "A current key remains current after emergency revocation: it still verifies retained messages it signed and is not subject to the order-height bound, which applies only to previous. A previous generation without an order earliest_submit_height is refused."
+  ],
+  "hard_limits": {
+    "record_deadline_blocks": 4,
+    "dispatch_compensation_claim_window_blocks": 64,
+    "dispatch_compensation_rebuttal_blocks": 8,
+    "dispatch_challenge_window_blocks": 32,
+    "dispatch_challenge_response_blocks": 8
+  },
+  "schedules": [
+    {
+      "name": "first_block",
+      "registered_height": 100,
+      "epoch_start_height": 100,
+      "epoch_length": 10,
+      "effective_height": 120
+    },
+    {
+      "name": "last_block",
+      "registered_height": 109,
+      "epoch_start_height": 100,
+      "epoch_length": 10,
+      "effective_height": 120
+    },
+    {
+      "name": "next_epoch",
+      "registered_height": 110,
+      "epoch_start_height": 110,
+      "epoch_length": 10,
+      "effective_height": 130
+    },
+    {
+      "name": "initial_epoch",
+      "registered_height": 1,
+      "epoch_start_height": 0,
+      "epoch_length": 120,
+      "effective_height": 240
+    },
+    {
+      "name": "one_block_epoch",
+      "registered_height": 1,
+      "epoch_start_height": 1,
+      "epoch_length": 1,
+      "effective_height": 3
+    }
+  ],
+  "rotation_interval_blocks": 77,
+  "registration_cases": [
+    {
+      "name": "first_registration",
+      "height": 100,
+      "previous_retired_height": 0,
+      "previous_evidence_count": 0,
+      "allowed": true
+    },
+    {
+      "name": "before_interval",
+      "height": 176,
+      "previous_retired_height": 100,
+      "previous_evidence_count": 0,
+      "allowed": false
+    },
+    {
+      "name": "interval_boundary",
+      "height": 177,
+      "previous_retired_height": 100,
+      "previous_evidence_count": 0,
+      "allowed": true
+    },
+    {
+      "name": "previous_evidence_open",
+      "height": 178,
+      "previous_retired_height": 100,
+      "previous_evidence_count": 1,
+      "allowed": false
+    },
+    {
+      "name": "current_duties_do_not_block",
+      "height": 178,
+      "previous_retired_height": 100,
+      "previous_evidence_count": 0,
+      "current_group_count": 2,
+      "current_liability_count": 3,
+      "allowed": true
+    }
+  ],
+  "proof_cases": [
+    {
+      "name": "before_cutover",
+      "earliest_submit_height": 119,
+      "previous_retired_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "at_cutover",
+      "earliest_submit_height": 120,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "after_cutover",
+      "earliest_submit_height": 121,
+      "previous_retired_height": 120,
+      "allowed": false
+    }
+  ],
+  "retained_message_cases": [
+    {
+      "name": "current_nonce",
+      "signed_nonce": 2,
+      "ticket_nonce": 2,
+      "current_nonce": 2,
+      "current_status": "ACTIVE",
+      "previous_nonce": 1,
+      "earliest_submit_height": 130,
+      "previous_retired_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "previous_before_cutover",
+      "signed_nonce": 1,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "ACTIVE",
+      "previous_nonce": 1,
+      "earliest_submit_height": 119,
+      "previous_retired_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "previous_at_cutover",
+      "signed_nonce": 1,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "ACTIVE",
+      "previous_nonce": 1,
+      "earliest_submit_height": 120,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "unknown_nonce",
+      "signed_nonce": 3,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "ACTIVE",
+      "previous_nonce": 1,
+      "earliest_submit_height": 119,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "zero_nonce",
+      "signed_nonce": 0,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "ACTIVE",
+      "previous_nonce": 1,
+      "earliest_submit_height": 119,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "current_revoked",
+      "signed_nonce": 2,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "REVOKED",
+      "previous_nonce": 1,
+      "earliest_submit_height": 130,
+      "previous_retired_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "previous_without_order_height",
+      "signed_nonce": 1,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "ACTIVE",
+      "previous_nonce": 1,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "older_than_ticket",
+      "signed_nonce": 1,
+      "ticket_nonce": 2,
+      "current_nonce": 2,
+      "current_status": "ACTIVE",
+      "previous_nonce": 1,
+      "earliest_submit_height": 119,
+      "previous_retired_height": 120,
+      "allowed": false
+    }
+  ]
+}
