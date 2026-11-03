@@ -260,8 +260,30 @@ current ACTIVE service identity. Eligibility does not read a historical set
 body; the signed dispatch record proves the rebuttal. Recorded-task challenge
 responses retain their separate frozen Task Builders authorization.
 
-The Session history retention must cover record_deadline_blocks + claim window
-+ rebuttal window, and compaction waits for all consumers to finish. Closed
+Order expiry is bounded by `max_order_lifetime_blocks`, measured from the signed
+`earliest_submit_height`, including takeover registration. V1 permits 1..240
+blocks; integration seeds use 120. BuilderSet notice must be strictly greater
+than the maximum of this lifetime and twice the record deadline across current
+and still-referenced policies. Unreferenced epoch bodies retain at least the
+larger of the old-material proof interval and 241 blocks, covering every
+admitted expiry, including a late takeover. Recording
+still requires the actual height not to exceed the signed expiry.
+
+Recording, claims, exclusion receipts and takeover timing use the Session's
+fixed policy. `QuerySessionResponse` returns that parameter body and version so
+clients can recover it after governance changes. New Task execution policy is
+frozen when that Task is created. A compacted Session has no live dispatch
+challenge window and cannot be reinterpreted under current parameters.
+
+All five dispatch challenge kinds have positive gas caps. Record retention
+exceeds the sum of the hard claim, rebuttal, challenge and response windows.
+Automatic compensation exclusions report `dismissal_reason`, including
+COMPENSATION_RECORD_PRUNED; their attempt outcome is UNSPECIFIED. An explicit
+signed rebuttal retains its proven attempt outcome.
+
+The Session history retention must cover the record deadline plus the larger
+of (claim + rebuttal) and (dispatch challenge + response), and compaction waits
+for all consumers to finish. Closed
 history folds sequences below final next into its original root and counts;
 then it visits through final next + max_pending_per_session, deleting UNUSED
 paid markers and gaps without adding them to the root or counts. The full

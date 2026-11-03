@@ -97,8 +97,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 66819,
-      "sha256": "2841e5b0ac68d3d2901ac962ca2e3db8018a53072c538c5b9027490030194574"
+      "bytes": 67166,
+      "sha256": "45ad7325f4f862d3e16036d9aaac86802b3e09ec857012d04082b30e3a5cb543"
     },
     {
       "path": "shared/query_page_v1.json",
@@ -196,6 +196,13 @@
       "contract_section": "TaskOrderV3 order_value derivation",
       "bytes": 7966,
       "sha256": "9d07af445a928ac4e523b24c07f7a4cafbf87cc55b500409b3fde3e5628aa9dc"
+    },
+    {
+      "path": "task/order_lifetime_v1.json",
+      "origin": "wire",
+      "contract_section": "Frozen order lifetime, expiry inclusivity and usable-height boundaries",
+      "bytes": 3301,
+      "sha256": "c8ec2841529c6447b01e50270d5333196d3aa17118f86ee53cd9b73367b32c85"
     },
     {
       "path": "task/output_chunk_equivocation_v1.json",

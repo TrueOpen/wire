@@ -94,8 +94,13 @@ message EventDispatchCompensationRebutted {
   string builder = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string worker = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   string responder = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // Proven signed attempt for an explicit rebuttal; UNSPECIFIED for automatic
+  // maturity exclusions that have no such signed attempt.
   DispatchAttemptOutcomeV1 attempt_outcome = 6;
   bool worker_fault_recorded = 7;
+  // Automatic exclusion: COMPENSATION_RECORD_PRUNED or
+  // COMPENSATION_NOT_CLAIMABLE. Absent for an explicit signed rebuttal.
+  optional DispatchRejectCodeV1 dismissal_reason = 8;
 }
 // EventDispatchChallengeOpened records the committed transition; exact replay emits nothing.
 message EventDispatchChallengeOpened {

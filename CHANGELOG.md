@@ -2,6 +2,15 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Add the Session-frozen `max_order_lifetime_blocks` parameter (field 23),
+  bounded to 1..240 in V1; integration seeds use 120. Couple BuilderSet notice
+  and pool retention to that bound. Session queries return frozen parameters
+  and their version, so clients do not infer old clocks from current policy.
+  The new field changes TaskParamsV1 commitments; regenerate all consumers
+  before the coordinated fresh genesis.
+- Require gas caps for all five dispatch challenge kinds and retain records
+  through every hard response window. Automatic compensation exclusions expose
+  a typed dismissal reason instead of asserting an unproven ACCEPTED attempt.
 - Bind replicated rounds to `BuilderSyncRoundV1.bound_change_height` (field 10).
   Include it in canonical sync item and batch signatures so a same-epoch return
   to the same Builder cannot merge old and new round 0. Receivers key rounds by

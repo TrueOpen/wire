@@ -3098,7 +3098,7 @@
       "contract_section": "Public wire domain TRUEOPEN_TASK_PARAMS_V1",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "params is ONE nested position, parallel to TRUEOPEN_HUB_PARAMS_V2: NESTED_V1(TaskParamsV1) frames the message's twelve proto fields recursively in field-number order. The two messages use the same nested encoding; testdata/v1/shared/params_v1.json publishes both trees."
+      "note": "params is ONE nested position, parallel to TRUEOPEN_HUB_PARAMS_V2: NESTED_V1(TaskParamsV1) frames every declared nested field recursively in field-number order, including DispatchParamsV1.max_order_lifetime_blocks at field 23. The two messages use the same nested encoding; testdata/v1/shared/params_v1.json publishes both trees."
     },
     {
       "domain": "TRUEOPEN_TASK_ROUND_SUMMARY_V1",

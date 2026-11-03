@@ -38,6 +38,10 @@ func TestPublishedServiceKeyRotationSchedules(t *testing.T) {
 	if err != nil || interval != doc.Interval {
 		t.Fatal(interval, err)
 	}
+	retention, err := PoolBodyRetentionBlocks(doc.Limits)
+	if err != nil || retention <= MaxOrderLifetimeBlocksV1 || retention < interval {
+		t.Fatal("pool body retention must cover both order lifetime and proof windows", retention, err)
+	}
 	for _, row := range doc.Schedules {
 		t.Run(row.Name, func(t *testing.T) {
 			got, err := ServiceKeyRotationHeight(row.Height, row.Start, row.Length)
