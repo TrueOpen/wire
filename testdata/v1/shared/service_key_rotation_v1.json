@@ -5,10 +5,10 @@
     "Registration in epoch E activates at the fixed E+2 start, including the last block of E.",
     "The interval protects the previous generation before another registration; it never schedules activation.",
     "Only previous-generation evidence responsibilities gate another registration; current group duties and liability do not.",
-    "Previous dispatch proofs require order earliest_submit_height strictly before previous_retired_height; online submitters remain current-only.",
+    "Previous dispatch proofs use max(order earliest_submit_height, signed ticket bound_change_height) strictly below previous_retired_height; handraise roots use root_height. Online submitters remain current ACTIVE only.",
     "Emergency revoke immediately cancels pending replacement and preserves necessary proof identities.",
     "Retained Builder messages (result header, input response, revoke, record notice) select the generation by their positive signed nonce, which may not precede their ticket's nonce, and keep their original signed bytes; retained_message_cases sign with the selected generation's key.",
-    "A current key remains current after emergency revocation: it still verifies retained messages it signed and is not subject to the order-height bound, which applies only to previous. A previous generation without an order earliest_submit_height is refused."
+    "Explicit emergency revoke sets revoked_height. Retained dispatch proofs must precede that cutoff; rotation clips the previous retirement height to it. Terminal-state revocation without this field does not invent an emergency-revoke cutoff."
   ],
   "hard_limits": {
     "record_deadline_blocks": 4,
@@ -99,17 +99,34 @@
       "name": "before_cutover",
       "earliest_submit_height": 119,
       "previous_retired_height": 120,
-      "allowed": true
+      "allowed": true,
+      "bound_change_height": 110
     },
     {
       "name": "at_cutover",
       "earliest_submit_height": 120,
       "previous_retired_height": 120,
-      "allowed": false
+      "allowed": false,
+      "bound_change_height": 110
     },
     {
       "name": "after_cutover",
       "earliest_submit_height": 121,
+      "previous_retired_height": 120,
+      "allowed": false,
+      "bound_change_height": 110
+    },
+    {
+      "name": "binding_at_cutover",
+      "earliest_submit_height": 119,
+      "bound_change_height": 120,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "binding_after_cutover",
+      "earliest_submit_height": 119,
+      "bound_change_height": 121,
       "previous_retired_height": 120,
       "allowed": false
     }
@@ -124,7 +141,8 @@
       "previous_nonce": 1,
       "earliest_submit_height": 130,
       "previous_retired_height": 120,
-      "allowed": true
+      "allowed": true,
+      "bound_change_height": 110
     },
     {
       "name": "previous_before_cutover",
@@ -135,7 +153,8 @@
       "previous_nonce": 1,
       "earliest_submit_height": 119,
       "previous_retired_height": 120,
-      "allowed": true
+      "allowed": true,
+      "bound_change_height": 110
     },
     {
       "name": "previous_at_cutover",
@@ -146,7 +165,8 @@
       "previous_nonce": 1,
       "earliest_submit_height": 120,
       "previous_retired_height": 120,
-      "allowed": false
+      "allowed": false,
+      "bound_change_height": 110
     },
     {
       "name": "unknown_nonce",
@@ -157,7 +177,8 @@
       "previous_nonce": 1,
       "earliest_submit_height": 119,
       "previous_retired_height": 120,
-      "allowed": false
+      "allowed": false,
+      "bound_change_height": 110
     },
     {
       "name": "zero_nonce",
@@ -168,7 +189,8 @@
       "previous_nonce": 1,
       "earliest_submit_height": 119,
       "previous_retired_height": 120,
-      "allowed": false
+      "allowed": false,
+      "bound_change_height": 110
     },
     {
       "name": "current_revoked",
@@ -179,7 +201,9 @@
       "previous_nonce": 1,
       "earliest_submit_height": 130,
       "previous_retired_height": 120,
-      "allowed": true
+      "allowed": true,
+      "bound_change_height": 110,
+      "revoked_height": 140
     },
     {
       "name": "previous_without_order_height",
@@ -189,7 +213,8 @@
       "current_status": "ACTIVE",
       "previous_nonce": 1,
       "previous_retired_height": 120,
-      "allowed": false
+      "allowed": false,
+      "bound_change_height": 110
     },
     {
       "name": "older_than_ticket",
@@ -200,6 +225,85 @@
       "previous_nonce": 1,
       "earliest_submit_height": 119,
       "previous_retired_height": 120,
+      "allowed": false,
+      "bound_change_height": 110
+    },
+    {
+      "name": "previous_binding_at_cutover",
+      "signed_nonce": 1,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "ACTIVE",
+      "previous_nonce": 1,
+      "earliest_submit_height": 119,
+      "bound_change_height": 120,
+      "previous_retired_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "revoked_order_at_cutoff",
+      "signed_nonce": 2,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "REVOKED",
+      "previous_nonce": 1,
+      "earliest_submit_height": 140,
+      "bound_change_height": 110,
+      "previous_retired_height": 120,
+      "revoked_height": 140,
+      "allowed": false
+    },
+    {
+      "name": "revoked_binding_at_cutoff",
+      "signed_nonce": 2,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "REVOKED",
+      "previous_nonce": 1,
+      "earliest_submit_height": 119,
+      "bound_change_height": 140,
+      "previous_retired_height": 120,
+      "revoked_height": 140,
+      "allowed": false
+    },
+    {
+      "name": "revoked_without_order_height",
+      "signed_nonce": 2,
+      "ticket_nonce": 1,
+      "current_nonce": 2,
+      "current_status": "REVOKED",
+      "previous_nonce": 1,
+      "bound_change_height": 110,
+      "previous_retired_height": 120,
+      "revoked_height": 140,
+      "allowed": false
+    }
+  ],
+  "root_proof_cases": [
+    {
+      "name": "root_before_cutoff_without_order",
+      "root_height": 119,
+      "cutoff_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "root_before_cutoff_with_later_order",
+      "root_height": 119,
+      "earliest_submit_height": 200,
+      "cutoff_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "root_at_cutoff_with_older_order",
+      "root_height": 120,
+      "earliest_submit_height": 1,
+      "cutoff_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "root_after_cutoff",
+      "root_height": 121,
+      "cutoff_height": 120,
       "allowed": false
     }
   ]

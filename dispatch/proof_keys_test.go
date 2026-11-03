@@ -13,7 +13,7 @@ import (
 
 const vectorOperator = "trueopen1rfjz7r3u8t65teavh5utquj3kwvsj983p3jclz"
 
-func TestRejectProofSurvivesPendingRotationAndEmergencyRevoke(t *testing.T) {
+func TestRejectProofSurvivesPendingRotationAndTerminalRevocation(t *testing.T) {
 	var row publishedVector
 	for _, candidate := range published(t) {
 		if candidate.MessageName == "task.v1.DispatchRejectV1" {
@@ -52,14 +52,15 @@ func TestDispatchProofSelectsSignedCurrentOrPreviousNonce(t *testing.T) {
 	var cases struct {
 		Proofs []struct {
 			Height  uint64 `json:"earliest_submit_height"`
+			Bound   uint64 `json:"bound_change_height"`
 			Retired uint64 `json:"previous_retired_height"`
 			Allowed bool   `json:"allowed"`
 		} `json:"proof_cases"`
 	}
-	if err = json.Unmarshal(rawCases, &cases); err != nil || len(cases.Proofs) != 3 {
+	if err = json.Unmarshal(rawCases, &cases); err != nil || len(cases.Proofs) < 3 {
 		t.Fatal("missing published proof boundaries", err)
 	}
-	for _, name := range []string{"task.v1.SignedHandraiseRootV1", "task.v1.DispatchTicketV1", "task.v1.DispatchRecordV1", "task.v1.DispatchAcceptV1", "task.v1.DispatchRejectV1"} {
+	for _, name := range []string{"task.v1.DispatchTicketV1", "task.v1.DispatchRecordV1", "task.v1.DispatchAcceptV1", "task.v1.DispatchRejectV1"} {
 		t.Run(name, func(t *testing.T) {
 			var row publishedVector
 			for _, candidate := range published(t) {
@@ -103,9 +104,31 @@ func TestDispatchProofSelectsSignedCurrentOrPreviousNonce(t *testing.T) {
 			for _, proof := range cases.Proofs {
 				key.PreviousRetiredHeight = proof.Retired
 				opts.OrderEarliestSubmitHeight = &proof.Height
-				err := VerifyDispatchProof("trueopen-phase1-vector-1", name, raw, opts)
-				if (err == nil) != proof.Allowed {
-					t.Fatal("retirement boundary", proof.Height, err)
+				opts.TicketBoundChangeHeight = &proof.Bound
+				material := raw
+				if name == dispatchTicketMessage || name == "task.v1.DispatchRecordV1" {
+					material = resignDispatchUint(t, name, raw, "bound_change_height", "builder_service_signature", proof.Bound, secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{1}, 32)))
+				}
+				for _, status := range []ProofKeyStatus{ProofKeyPrevious, ProofKeyRevoked} {
+					key.Status = status
+					key.PreviousRetiredHeight, key.RevokedHeight = 0, 0
+					if status == ProofKeyPrevious {
+						key.PreviousRetiredHeight = proof.Retired
+					} else {
+						key.RevokedHeight = proof.Retired
+					}
+					err := VerifyDispatchProof("trueopen-phase1-vector-1", name, material, opts)
+					if (err == nil) != proof.Allowed {
+						t.Fatal("key cutoff boundary", status, proof.Height, proof.Bound, err)
+					}
+				}
+			}
+			if name == "task.v1.DispatchAcceptV1" || name == "task.v1.DispatchRejectV1" {
+				height := uint64(119)
+				opts.OrderEarliestSubmitHeight = &height
+				opts.TicketBoundChangeHeight = nil
+				if err := VerifyDispatchProof("trueopen-phase1-vector-1", name, raw, opts); !errors.Is(err, ErrProofKeyUnavailable) {
+					t.Fatal("height-bounded proof omitted its ticket binding context", err)
 				}
 			}
 			key.ServiceAuthorizationNonce = 2
@@ -116,6 +139,60 @@ func TestDispatchProofSelectsSignedCurrentOrPreviousNonce(t *testing.T) {
 	}
 }
 
+func resignDispatchUint(t *testing.T, name string, raw []byte, field, signatureField string, number uint64, key *secp256k1.PrivateKey) []byte {
+	t.Helper()
+	fields, err := decode(name, raw, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fields[fieldNumber(name, field)] = []value{{varint: number}}
+	unsigned := encodeTestMessage(name, fields)
+	digest, err := SigningDigest(name, unsigned)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fields[fieldNumber(name, signatureField)] = []value{{bytes: SignDigest(key, digest)}}
+	return encodeTestMessage(name, fields)
+}
+
+func TestHandraiseRootCutoffUsesRootHeight(t *testing.T) {
+	rawCases, err := os.ReadFile(filepath.Join("..", "testdata", "v1", "shared", "service_key_rotation_v1.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Cases []struct {
+			Name    string  `json:"name"`
+			Root    uint64  `json:"root_height"`
+			Order   *uint64 `json:"earliest_submit_height"`
+			Cutoff  uint64  `json:"cutoff_height"`
+			Allowed bool    `json:"allowed"`
+		} `json:"root_proof_cases"`
+	}
+	if err := json.Unmarshal(rawCases, &doc); err != nil || len(doc.Cases) < 4 {
+		t.Fatal("missing root proof boundaries", err)
+	}
+	row := publishedByName(t, "task_v1_signedhandraiserootv1")
+	for _, status := range []ProofKeyStatus{ProofKeyPrevious, ProofKeyRevoked} {
+		for _, c := range doc.Cases {
+			t.Run(c.Name+"/"+map[ProofKeyStatus]string{ProofKeyPrevious: "previous", ProofKeyRevoked: "revoked"}[status], func(t *testing.T) {
+				binding := ProofKeyBinding{PublicKey: hexBytes(t, row.PublicKey), ServiceAuthorizationNonce: 1, Status: status}
+				if status == ProofKeyPrevious {
+					binding.PreviousRetiredHeight = c.Cutoff
+				} else {
+					binding.RevokedHeight = c.Cutoff
+				}
+				opts := ProofKeyOptions{OrderEarliestSubmitHeight: c.Order, LookupProofKey: func(ServiceProofSigner) (ProofKeyBinding, error) { return binding, nil }}
+				raw := resignDispatchUint(t, row.MessageName, hexBytes(t, row.Protobuf), "root_height", "builder_service_signature", c.Root, secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{1}, 32)))
+				err := VerifyDispatchProof("trueopen-phase1-vector-1", row.MessageName, raw, opts)
+				if (err == nil) != c.Allowed || err != nil && !errors.Is(err, ErrProofKeyUnavailable) {
+					t.Fatal(err)
+				}
+			})
+		}
+	}
+}
+
 func TestProofLookupRejectsInvalidAuthority(t *testing.T) {
 	valid := ServiceProofSigner{ProofParticipantCortex, account(t, 1), 1}
 	for _, signer := range []ServiceProofSigner{{0, valid.OperatorAddress, 1}, {3, valid.OperatorAddress, 1}, {ProofParticipantCortex, valid.OperatorAddress, 0}, {ProofParticipantCortex, "invalid", 1}} {
@@ -123,7 +200,7 @@ func TestProofLookupRejectsInvalidAuthority(t *testing.T) {
 			t.Fatal("invalid selector admitted", signer)
 		}
 	}
-	for _, binding := range []ProofKeyBinding{{ServiceAuthorizationNonce: 0, Status: ProofKeyActive}, {ServiceAuthorizationNonce: 2, Status: ProofKeyActive}, {ServiceAuthorizationNonce: 1, Status: ProofKeyStatus(3)}} {
+	for _, binding := range []ProofKeyBinding{{ServiceAuthorizationNonce: 0, Status: ProofKeyActive}, {ServiceAuthorizationNonce: 2, Status: ProofKeyActive}, {ServiceAuthorizationNonce: 1, Status: ProofKeyStatus(3)}, {ServiceAuthorizationNonce: 1, Status: ProofKeyActive, RevokedHeight: 120}, {ServiceAuthorizationNonce: 1, Status: ProofKeyPrevious, PreviousRetiredHeight: 120, RevokedHeight: 110}} {
 		if _, err := resolveProofKey(valid, ProofKeyOptions{LookupProofKey: func(ServiceProofSigner) (ProofKeyBinding, error) { return binding, nil }}); !errors.Is(err, ErrProofKeyUnavailable) {
 			t.Fatal("non-current authority admitted", binding, err)
 		}
@@ -262,11 +339,13 @@ func TestRetainedDispatchMessagesSelectSignedGeneration(t *testing.T) {
 			Status   string  `json:"current_status"`
 			Previous uint64  `json:"previous_nonce"`
 			Height   *uint64 `json:"earliest_submit_height"`
+			Bound    uint64  `json:"bound_change_height"`
+			Revoked  uint64  `json:"revoked_height"`
 			Retired  uint64  `json:"previous_retired_height"`
 			Allowed  bool    `json:"allowed"`
 		} `json:"retained_message_cases"`
 	}
-	if err = json.Unmarshal(rawCases, &doc); err != nil || len(doc.Cases) != 8 {
+	if err = json.Unmarshal(rawCases, &doc); err != nil || len(doc.Cases) < 8 {
 		t.Fatal("missing published retained-message cases", err)
 	}
 	ticket := hexBytes(t, publishedByName(t, "task_v1_dispatchticketv1").Protobuf)
@@ -297,10 +376,11 @@ func TestRetainedDispatchMessagesSelectSignedGeneration(t *testing.T) {
 					t.Fatal(c.Name, "unknown current status", c.Status)
 				}
 				caseTicket := ticketWithNonce(t, ticket, c.Ticket, keyFor(c.Ticket, c.Previous))
+				caseTicket = resignDispatchUint(t, dispatchTicketMessage, caseTicket, "bound_change_height", "builder_service_signature", c.Bound, keyFor(c.Ticket, c.Previous))
 				opts := ProofKeyOptions{OrderEarliestSubmitHeight: c.Height, LookupProofKey: func(signer ServiceProofSigner) (ProofKeyBinding, error) {
 					switch signer.ServiceAuthorizationNonce {
 					case c.Current:
-						return ProofKeyBinding{PublicKey: newKey.PubKey().SerializeCompressed(), ServiceAuthorizationNonce: c.Current, Status: status}, nil
+						return ProofKeyBinding{PublicKey: newKey.PubKey().SerializeCompressed(), ServiceAuthorizationNonce: c.Current, Status: status, RevokedHeight: c.Revoked}, nil
 					case c.Previous:
 						return ProofKeyBinding{PublicKey: oldKey.PubKey().SerializeCompressed(), ServiceAuthorizationNonce: c.Previous, Status: ProofKeyPrevious, PreviousRetiredHeight: c.Retired}, nil
 					}

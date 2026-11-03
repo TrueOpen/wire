@@ -31,7 +31,9 @@ message MsgRecordDispatchResponse {
   repeated BatchItemResultV1 results = 1;
   bytes batch_digest = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
-// MsgClaimDispatchCompensation defines the canonical MsgClaimDispatchCompensation fields.
+// MsgClaimDispatchCompensation authenticates current submitter identity separately
+// from retained ticket/accept proofs. A retained Session and bounded sequence
+// are required; a paid sequence cannot claim again after its old receipt prunes.
 message MsgClaimDispatchCompensation {
   option (cosmos.msg.v1.signer) = "submitter_address";
   option (amino.name) = "trueopen/x/task/MsgClaimDispatchCompensation";
@@ -47,7 +49,10 @@ message MsgClaimDispatchCompensationResponse {
   uint64 rebuttal_deadline_height = 3;
   shared.v1.MutationStatusV1 status = 4;
 }
-// MsgRebutDispatchCompensation defines the canonical MsgRebutDispatchCompensation fields.
+// MsgRebutDispatchCompensation requires the dispatching Builder's current ACTIVE
+// service address or that of any current BuilderSet member. Historical set
+// membership is not needed. Record/reject proof cutoffs use the claim's frozen
+// order and binding heights; successful rebuttal freezes each round's acceptor.
 message MsgRebutDispatchCompensation {
   option (cosmos.msg.v1.signer) = "responder_address";
   option (amino.name) = "trueopen/x/task/MsgRebutDispatchCompensation";

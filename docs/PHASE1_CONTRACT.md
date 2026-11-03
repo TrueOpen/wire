@@ -221,12 +221,56 @@ and resent at the same sequence; only SEQUENCE_CONSUMED retires a sequence.
 New keepalive probes use odd values from Builder and even values from Cortex;
 echoes retain the peer's value, including its parity.
 
-Claims are keyed by ticket hash. A recorded winner cannot claim, and winner
-ineligibility markers exclude failures attributable to the Worker. Claims check
-the Builder proof, acceptance and order hash without reconstructing historical
-user/session-key authorization. Payment follows a rebuttal window; penalties
-and compensation are capped by the Builder account balance and create no debt.
-There is no compensation-account withdrawal message in Phase 1.
+Claims are keyed by (session_id, order_sequence), with a derived ByTicket index
+for replay, Query and rebuttal. A recorded winner cannot claim; winner-ineligible
+markers exclude failures attributable to the Worker. A claim requires a retained
+StreamState, not a terminal summary alone. For CLOSED, max(order ESH, ticket
+bound_change_height) must be below closed_height. Its sequence must be below
+next_expected_sequence + max_pending_per_session, with checked addition.
+Lifecycle checks read the Session's fixed parameter version.
+
+Claims verify the Builder proof, acceptance and order hash without reconstructing
+historical user/session-key authorization. PENDING or PAID blocks another ticket
+at that sequence; DISMISSED may be replaced atomically, deleting the old ticket
+and prune indexes. The old dismissed ticket then queries as NotFound. Exact
+retained-ticket replay returns its original receipt without another payment.
+PAID atomically sets OrderSequenceState.compensation_paid even when the account
+pays zero. An absent sequence row is created as UNUSED; all later cancellation,
+admission and settlement writers preserve the marker. Pruning the claim does
+not clear it, so a fresh ticket cannot reopen the unique sequence allowance.
+
+A successful rebuttal registers the first ACCEPTED or VOIDED ticket of each
+represented round. DispatchRoundAcceptorState is keyed by (session_id,
+order_sequence, builder_address, bound_change_height, vrf_epoch, dispatch_round).
+Read the ticket's signed binding/epoch at claim time and write the record's
+signed binding/epoch at rebuttal time, never live state or registration time.
+New epoch or a takeover binding change, including returning to the same Builder,
+restarts round numbering and the record; retries within that context continue
+the existing rounds. VRF inputs are unchanged. Rebuild acceptor prune indexes
+from registered_height + dispatch_record_retention_blocks on Genesis import.
+
+The dispatching Builder or any current BuilderSet member may rebut using its
+current ACTIVE service identity. Eligibility does not read a historical set
+body; the signed dispatch record proves the rebuttal. Recorded-task challenge
+responses retain their separate frozen Task Builders authorization.
+
+The Session history retention must cover record_deadline_blocks + claim window
++ rebuttal window, and compaction waits for all consumers to finish. Closed
+history folds sequences below final next into its original root and counts;
+then it visits through final next + max_pending_per_session, deleting UNUSED
+paid markers and gaps without adding them to the root or counts. The full
+cursor range survives Genesis. A retained PAID claim requires its paid sequence
+row only while the Stream exists and the cursor has not passed that sequence.
+After the row, Stream or summary is compacted, the PAID claim remains an
+independent receipt until its own prune index expires; new claims are no longer
+admissible. Session IDs are never reused.
+
+Payment follows a rebuttal window; penalties and compensation are capped by the
+Builder balance and create no debt. Phase 1 accepts two explicit admission
+risks: a cooperating Builder may fabricate claims without a user signature,
+and a skipped GPU may sign late and win the unique allowance while no Builder
+can rebut, excluding the actual acceptor. Reassess these before opening Builder
+or GPU admission. There is no compensation-account withdrawal message.
 
 An upheld dispatch fault uses the first upheld challenge_id in its objective
 scope as fault_id. The scope excludes the challenger, so a second reporter
@@ -318,21 +362,32 @@ The shared implementation separates ServiceKeyRotationHeight,
 ServiceKeyRotationInterval and CanRegisterServiceKeyRotation.
 
 Ticket, record, root, accept and reject proofs select current/previous by their
-own signed nonce. Previous is accepted only when the associated signed order,
-immutable accepted record or compensation claim's frozen verified original order
-has earliest_submit_height < previous_retired_height.
-Unknown generations, missing old-order authority or the retirement-height block
-and later are rejected. Use VerifyDispatchProof with OrderEarliestSubmitHeight
-for previous dispatch proofs; no later live Session anchor may replace it.
-At claim registration, freeze the verified original order's earliest_submit_height
-in DispatchCompensationClaimState (field 17). It must be positive and strictly
-below claimed_height. Preserve it through replay, resolution, Query and Genesis
-until the claim itself is pruned. Both the rebuttal record and optional reject
-use this same claim fact against their respective key retirement heights, even
-when the order was never recorded. Another ticket's accepted record under the
-same TaskID, a live Session anchor or a height inferred from claim windows cannot
-replace it. Missing or invalid claim heights fail validation. This adds no signed
-field, signing domain or request argument.
+own signed nonce. Previous uses a strict previous_retired_height cutoff; an
+explicitly emergency-revoked current key uses revoked_height. On rotation,
+clip the previous retirement height to min(activation, revoked_height), then
+clear current revoked_height. Only explicit revoke writes that optional field;
+terminal-state revocation alone does not invent a height. Query and Genesis
+preserve its presence, and a present value requires current REVOKED status.
+
+Ticket-related proofs compare max(order earliest_submit_height, signed ticket
+bound_change_height) with that key cutoff. Roots instead compare their own
+root_height, regardless of any caller's order context. This prevents a leaked
+old key from reopening windows by moving only the binding height forward.
+VerifyDispatchProof derives the binding height from tickets and records;
+accept/reject callers additionally supply TicketBoundChangeHeight from the
+verified ticket or frozen claim, alongside OrderEarliestSubmitHeight. Missing
+required context fails closed for height-bounded proofs. Business validation
+still checks order/root values, scope and admissibility windows. Unknown
+generations and the cutoff block itself are rejected.
+
+Claim registration freezes original earliest_submit_height (field 17) and ticket
+bound_change_height (field 18). The first is positive and below claimed_height;
+both remain unchanged through replay, resolution, Query and Genesis. Record and
+optional reject rebuttals use their maximum against each signer's own cutoff,
+including unrecorded orders. Another ticket's accepted record, a later live
+Session anchor or a height inferred from a window cannot replace these facts.
+No signed field or signature domain changes.
+
 Submitter identity and material verification are separate: first recording uses
 a current submitter, while its eligible pre-cutover ticket/record/accept material
 may verify with previous. Typed Builder objective evidence additionally binds the
@@ -348,10 +403,9 @@ these messages before their ticket, so a retired key cannot sign for a ticket
 issued under a newer one. The Builder signs every new message with its current
 key. Retained and relayed copies keep their original signed bytes across
 reconnect and cutover and are never re-signed; a group member relays another
-Builder's header unchanged. A current key that was emergency-revoked remains
-current for these proofs and is not subject to the order-height bound, which
-applies only to previous; previous without an order earliest_submit_height is
-refused.
+Builder's header unchanged. An emergency-revoked current key verifies only
+retained proofs whose original context is below its revoked_height, using the
+same ticket-bound maximum as previous.
 
 Verify a header with VerifyDispatchProof, whose signer is the winner ticket's
 Builder, and the other three with VerifyTicketBoundDispatchProof and the ticket
@@ -386,11 +440,17 @@ authentication outlives a request. Neither a revoked Builder key nor a revoked
 Cortex key authorizes live traffic.
 
 Pending rotation is local admission only: Builder declines the Cortex's new
-offers with admitted=false and SERVICE_KEY_ROTATION_PENDING; a pending Builder
-does not sign new roots or accept new Sessions. Keeper does not reject new
-Sessions, takeover bindings or Worker/Verifier duty merely because rotation is
-pending. Already issued/accepted work, recording, takeover, settlement and stable
-operator group duties continue. Do not reserve next-nonce Task responsibilities,
+offers with admitted=false and SERVICE_KEY_ROTATION_PENDING. A pending Builder
+declines all new orders, next sequences, failed same-sequence retries, takeover
+requests and new Sessions with NEXUS_INGRESS_BUILDER_KEY_ROTATING plus
+OpenTaskResponse.service_key_rotation_effective_height. Existing-order replay
+continues, and the old current key still signs fresh roots for later rounds of
+already dispatched work. Cortex rejects pending-Builder tickets whose order
+ESH is at least activation H. SDK routes new work as NO_CAPACITY, skips pending
+targets and waits until the earliest H if all candidates are pending; existing
+work continues at its original Builder, with recorded-group recovery as fallback.
+Keeper does not reject Sessions, takeover bindings or Worker/Verifier duty merely
+because rotation is pending. Do not reserve next-nonce Task responsibilities,
 add material counters, freeze material cutoffs or add activation/drain gates.
 
 Emergency revoke immediately stops live permission, cancels pending/address

@@ -40,6 +40,9 @@ type ProofKeyBinding struct {
 	ServiceAuthorizationNonce uint64
 	Status                    ProofKeyStatus
 	PreviousRetiredHeight     uint64
+	// Explicit emergency revoke only; zero for terminal-state revocation alone.
+	// A rotated revoked key folds this into PreviousRetiredHeight instead.
+	RevokedHeight uint64
 }
 
 // ProofKeyOptions supplies current/previous resolution from authoritative state.
@@ -47,11 +50,15 @@ type ProofKeyBinding struct {
 // VerifyBuilderSyncRequest additionally requires current ACTIVE authority.
 type ProofKeyOptions struct {
 	LookupProofKey func(ServiceProofSigner) (ProofKeyBinding, error)
-	// Required for previous-generation dispatch proofs; read from the signed
+	// Required for height-bounded order proofs; read from the signed
 	// order, immutable accepted record, or the compensation claim's frozen
 	// verified original order. Never substitute another ticket's accepted
 	// record, a later live Session anchor, or a height inferred from a window.
 	OrderEarliestSubmitHeight *uint64
+	// Required alongside the order height for accept/reject proofs, which name
+	// their ticket only by hash. Read the verified ticket or frozen claim. Ticket,
+	// record and ticket-bound message verifiers derive it from signed material.
+	TicketBoundChangeHeight *uint64
 }
 
 func resolveProofKey(signer ServiceProofSigner, opts ProofKeyOptions) (ProofKeyBinding, error) {
@@ -77,8 +84,11 @@ func resolveProofKey(signer ServiceProofSigner, opts ProofKeyOptions) (ProofKeyB
 		if key.PreviousRetiredHeight != 0 {
 			return empty, fmt.Errorf("%w: current key has a previous retirement height", ErrProofKeyUnavailable)
 		}
+		if key.Status == ProofKeyActive && key.RevokedHeight != 0 {
+			return empty, fmt.Errorf("%w: active key has a revoke height", ErrProofKeyUnavailable)
+		}
 	case ProofKeyPrevious:
-		if signer.ServiceAuthorizationNonce == 0 || key.PreviousRetiredHeight == 0 {
+		if signer.ServiceAuthorizationNonce == 0 || key.PreviousRetiredHeight == 0 || key.RevokedHeight != 0 {
 			return empty, fmt.Errorf("%w: previous key requires a signed nonce and retirement height", ErrProofKeyUnavailable)
 		}
 	default:
@@ -107,7 +117,8 @@ func verifyServiceProofSignature(signer ServiceProofSigner, digest [32]byte, sig
 }
 
 // VerifyDispatchProof resolves the signer from the exact signed dispatch
-// material. Previous keys require an order strictly before their retirement.
+// material. Previous/revoked cutoffs use max(order ESH, ticket bound height);
+// handraise roots use their own root_height, independently of any order.
 // Submitter authorization and live traffic separately require current authority.
 // DispatchResultHeaderV1 is signed by its winner ticket's Builder and checked
 // against that ticket's chain; relayed copies keep their original signed bytes.
@@ -173,7 +184,32 @@ func VerifyDispatchProof(chainID, name string, raw []byte, opts ProofKeyOptions)
 	if err != nil {
 		return err
 	}
-	return verifySignedGeneration(ServiceProofSigner{role, operator, nonce}, digest, bytesAt(d, signatureField), opts)
+	return verifySignedGeneration(ServiceProofSigner{role, operator, nonce}, digest, bytesAt(d, signatureField), opts, dispatchProofHeight(scopeName, scope, opts))
+}
+
+// dispatchProofHeight keeps all dispatch entry points on the same cutoff rule.
+// A nil height fails closed only when the selected key requires a cutoff.
+func dispatchProofHeight(name string, material decoded, opts ProofKeyOptions) *uint64 {
+	switch name {
+	case "task.v1.SignedHandraiseRootV1":
+		height := scalarAt(material, fieldNumber(name, "root_height"))
+		return &height
+	case dispatchTicketMessage, "task.v1.DispatchRecordV1":
+		bound := scalarAt(material, fieldNumber(name, "bound_change_height"))
+		return boundOrderHeight(opts.OrderEarliestSubmitHeight, &bound)
+	case "task.v1.DispatchAcceptV1", "task.v1.DispatchRejectV1":
+		return boundOrderHeight(opts.OrderEarliestSubmitHeight, opts.TicketBoundChangeHeight)
+	default:
+		return opts.OrderEarliestSubmitHeight
+	}
+}
+
+func boundOrderHeight(earliest, bound *uint64) *uint64 {
+	if earliest == nil || bound == nil {
+		return nil
+	}
+	height := max(*earliest, *bound)
+	return &height
 }
 
 const dispatchTicketMessage = "task.v1.DispatchTicketV1"
@@ -252,7 +288,7 @@ func VerifyTicketBoundDispatchProof(chainID, name string, raw, ticket []byte, op
 		return err
 	}
 	operator := string(bytesAt(t, fieldNumber(dispatchTicketMessage, "builder_address")))
-	return verifySignedGeneration(ServiceProofSigner{ProofParticipantBuilder, operator, nonce}, digest, bytesAt(d, signatureField), opts)
+	return verifySignedGeneration(ServiceProofSigner{ProofParticipantBuilder, operator, nonce}, digest, bytesAt(d, signatureField), opts, dispatchProofHeight(dispatchTicketMessage, t, opts))
 }
 
 // VerifyDispatchStreamBinding authenticates the live DispatchStreamBindingV1
@@ -289,15 +325,14 @@ func VerifyDispatchStreamBinding(chainID, builderOperator string, raw []byte, op
 	return nil
 }
 
-// verifySignedGeneration is the current/previous rule with the order bound for
-// nonce-bearing dispatch proofs: positive signed nonce, current (ACTIVE or
-// REVOKED, never bounded by order height) or the sole previous generation, and
-// previous only for an order strictly before its retirement height. It is not
+// verifySignedGeneration applies one strict height cutoff to a signed generation.
+// Explicitly revoked current keys use RevokedHeight; previous uses the clipped
+// retirement height. Other current keys have no proof-height cutoff. It is not
 // the only proof rule: VerifyServiceProofSignature, and the OPEN_VERIFY and
 // VERIFIER_ASSIGNMENT_NOTIFY evidence in VerifyBuilderEvidenceV2 built on it,
 // resolve previous without this bound; that path's window comes from the Task
 // responsibility nonce and the evidence admissibility window.
-func verifySignedGeneration(signer ServiceProofSigner, digest [32]byte, signature []byte, opts ProofKeyOptions) error {
+func verifySignedGeneration(signer ServiceProofSigner, digest [32]byte, signature []byte, opts ProofKeyOptions, height *uint64) error {
 	if signer.ServiceAuthorizationNonce == 0 {
 		return fmt.Errorf("%w: signed proof nonce must be positive", ErrProofKeyUnavailable)
 	}
@@ -305,8 +340,12 @@ func verifySignedGeneration(signer ServiceProofSigner, digest [32]byte, signatur
 	if err != nil {
 		return err
 	}
-	if key.Status == ProofKeyPrevious && (opts.OrderEarliestSubmitHeight == nil || *opts.OrderEarliestSubmitHeight >= key.PreviousRetiredHeight) {
-		return fmt.Errorf("%w: previous key cannot prove a post-cutover order", ErrProofKeyUnavailable)
+	cutoff := key.RevokedHeight
+	if key.Status == ProofKeyPrevious {
+		cutoff = key.PreviousRetiredHeight
+	}
+	if cutoff != 0 && (height == nil || *height >= cutoff) {
+		return fmt.Errorf("%w: proof height must precede its key cutoff", ErrProofKeyUnavailable)
 	}
 	return VerifyDigestSignature(key.PublicKey, digest[:], signature)
 }

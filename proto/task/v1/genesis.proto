@@ -99,6 +99,9 @@ message GenesisState {
   // uses params_meta.params_version. Both lists share the same binding schema.
   repeated ParamsVersionBindingState task_params_version_bindings = 91 [(gogoproto.nullable) = false];
   repeated ParamsVersionBindingState session_params_version_bindings = 92 [(gogoproto.nullable) = false];
+  // First acceptor facts include their signed binding/epoch context. Derived
+  // prune indexes are rebuilt and are not exported.
+  repeated DispatchRoundAcceptorState dispatch_round_acceptors = 93 [(gogoproto.nullable) = false];
 }
 
 // TaskParamsHistoryState retains one superseded parameter body. Version zero

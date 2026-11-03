@@ -2,6 +2,17 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Key compensation by Session/sequence, retain the paid marker through claim
+  pruning, and freeze binding/epoch/round acceptor identities through Genesis.
+  Define closed-Session admission, bounded tail cleanup and independent paid
+  receipts after compaction. Rebuttal submitters use the current BuilderSet;
+  recorded-task challenge authorization keeps its frozen Task Builders scope.
+- Add explicit service-key revoke heights. Dispatch proofs compare the maximum
+  of original order and ticket binding heights with previous/revoked cutoffs;
+  handraise roots use their own root height. Preserve both claim heights and
+  publish cutoff, binding-reset and cleanup acceptance cases.
+- Add the pending-Builder error detail with its rotation activation height;
+  stop all new orders while preserving dispatched work and its fresh roots.
 - Clarify that service-key rotation events carry the newly current key's nonce
   and revocation events carry the revoked key's nonce. When a NOT_READY retry
   height exceeds the signed order's expiry, rebuild and re-sign the same
