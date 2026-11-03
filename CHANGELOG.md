@@ -2,6 +2,9 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Require the original ticket/claim binding height when checking retained
+  record proofs, alongside the original order height. A signed record cannot
+  lower that frozen context or replace a missing one to bypass a key cutoff.
 - Key compensation by Session/sequence, retain the paid marker through claim
   pruning, and freeze binding/epoch/round acceptor identities through Genesis.
   Define closed-Session admission, bounded tail cleanup and independent paid

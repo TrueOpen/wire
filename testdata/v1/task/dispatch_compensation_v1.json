@@ -4,7 +4,8 @@
     "Consumer state-transition acceptance cases; wire owns their public shapes and normative identities, not Keeper business logic.",
     "Claim primary is (session_id, order_sequence); ticket lookup is derived. A dismissed replacement removes old ticket/prune indexes atomically.",
     "Amounts are atomic units. PAID consumes the unique sequence allowance even when actual payment is zero; DISMISSED does not.",
-    "Session lifecycle reads its fixed Task parameter version. All arithmetic is checked and cleanup is bounded by visited items."
+    "Session lifecycle reads its fixed Task parameter version. All arithmetic is checked and cleanup is bounded by visited items.",
+    "Each claim_cases row overrides claim_defaults; existing status and exact replay always refer to an existing claim row."
   ],
   "round_identity_cases": [
     {
@@ -199,21 +200,24 @@
     {
       "name": "other_ticket_pending",
       "existing_claim_status": "PENDING_REBUTTAL",
-      "expected": "COMPENSATION_NOT_CLAIMABLE"
+      "expected": "COMPENSATION_NOT_CLAIMABLE",
+      "claim_exists": true
     },
     {
       "name": "dismissed_can_replace",
       "existing_claim_status": "DISMISSED",
       "compensation_paid": false,
       "expected": "APPLIED",
-      "old_ticket_query": "NOT_FOUND"
+      "old_ticket_query": "NOT_FOUND",
+      "claim_exists": true
     },
     {
       "name": "exact_paid_replay_after_session_compaction",
       "exact_ticket_replay": true,
       "existing_claim_status": "PAID",
       "stream_exists": false,
-      "expected": "NOOP"
+      "expected": "NOOP",
+      "claim_exists": true
     }
   ],
   "lifecycle_cases": [

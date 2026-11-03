@@ -193,6 +193,46 @@ func TestHandraiseRootCutoffUsesRootHeight(t *testing.T) {
 	}
 }
 
+func TestRecordProofUsesFrozenTicketBindingHeight(t *testing.T) {
+	rawCases, err := os.ReadFile(filepath.Join("..", "testdata", "v1", "shared", "service_key_rotation_v1.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc struct {
+		Cases []struct {
+			Name    string  `json:"name"`
+			Height  uint64  `json:"earliest_submit_height"`
+			Bound   *uint64 `json:"bound_change_height"`
+			Record  uint64  `json:"record_bound_change_height"`
+			Cutoff  uint64  `json:"cutoff_height"`
+			Allowed bool    `json:"allowed"`
+		} `json:"record_proof_context_cases"`
+	}
+	if err := json.Unmarshal(rawCases, &doc); err != nil || len(doc.Cases) < 4 {
+		t.Fatal("missing frozen record context cases", err)
+	}
+	row := publishedByName(t, "task_v1_dispatchrecordv1")
+	private := secp256k1.PrivKeyFromBytes(bytes.Repeat([]byte{1}, 32))
+	for _, c := range doc.Cases {
+		for _, status := range []ProofKeyStatus{ProofKeyPrevious, ProofKeyRevoked} {
+			t.Run(c.Name+"/"+map[ProofKeyStatus]string{ProofKeyPrevious: "previous", ProofKeyRevoked: "revoked"}[status], func(t *testing.T) {
+				binding := ProofKeyBinding{PublicKey: private.PubKey().SerializeCompressed(), ServiceAuthorizationNonce: 1, Status: status}
+				if status == ProofKeyPrevious {
+					binding.PreviousRetiredHeight = c.Cutoff
+				} else {
+					binding.RevokedHeight = c.Cutoff
+				}
+				opts := ProofKeyOptions{OrderEarliestSubmitHeight: &c.Height, TicketBoundChangeHeight: c.Bound, LookupProofKey: func(ServiceProofSigner) (ProofKeyBinding, error) { return binding, nil }}
+				raw := resignDispatchUint(t, row.MessageName, hexBytes(t, row.Protobuf), "bound_change_height", "builder_service_signature", c.Record, private)
+				err := VerifyDispatchProof("trueopen-phase1-vector-1", row.MessageName, raw, opts)
+				if (err == nil) != c.Allowed || err != nil && !errors.Is(err, ErrProofKeyUnavailable) {
+					t.Fatal("record replaced its frozen ticket context", err)
+				}
+			})
+		}
+	}
+}
+
 func TestProofLookupRejectsInvalidAuthority(t *testing.T) {
 	valid := ServiceProofSigner{ProofParticipantCortex, account(t, 1), 1}
 	for _, signer := range []ServiceProofSigner{{0, valid.OperatorAddress, 1}, {3, valid.OperatorAddress, 1}, {ProofParticipantCortex, valid.OperatorAddress, 0}, {ProofParticipantCortex, "invalid", 1}} {

@@ -373,10 +373,11 @@ Ticket-related proofs compare max(order earliest_submit_height, signed ticket
 bound_change_height) with that key cutoff. Roots instead compare their own
 root_height, regardless of any caller's order context. This prevents a leaked
 old key from reopening windows by moving only the binding height forward.
-VerifyDispatchProof derives the binding height from tickets and records;
-accept/reject callers additionally supply TicketBoundChangeHeight from the
-verified ticket or frozen claim, alongside OrderEarliestSubmitHeight. Missing
-required context fails closed for height-bounded proofs. Business validation
+VerifyDispatchProof derives the binding height from actual tickets. Record,
+accept and reject callers supply TicketBoundChangeHeight from the verified
+ticket, immutable accepted state or frozen claim, alongside OrderEarliestSubmitHeight.
+A record's own signed binding field cannot replace its ticket/claim context.
+Missing required context fails closed for height-bounded proofs. Business validation
 still checks order/root values, scope and admissibility windows. Unknown
 generations and the cutoff block itself are rejected.
 

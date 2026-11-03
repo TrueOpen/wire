@@ -8,7 +8,8 @@
     "Previous dispatch proofs use max(order earliest_submit_height, signed ticket bound_change_height) strictly below previous_retired_height; handraise roots use root_height. Online submitters remain current ACTIVE only.",
     "Emergency revoke immediately cancels pending replacement and preserves necessary proof identities.",
     "Retained Builder messages (result header, input response, revoke, record notice) select the generation by their positive signed nonce, which may not precede their ticket's nonce, and keep their original signed bytes; retained_message_cases sign with the selected generation's key.",
-    "Explicit emergency revoke sets revoked_height. Retained dispatch proofs must precede that cutoff; rotation clips the previous retirement height to it. Terminal-state revocation without this field does not invent an emergency-revoke cutoff."
+    "Explicit emergency revoke sets revoked_height. Retained dispatch proofs must precede that cutoff; rotation clips the previous retirement height to it. Terminal-state revocation without this field does not invent an emergency-revoke cutoff.",
+    "Record proofs use the associated ticket or claim binding height; the signed record cannot replace or lower frozen context, including missing context."
   ],
   "hard_limits": {
     "record_deadline_blocks": 4,
@@ -303,6 +304,39 @@
     {
       "name": "root_after_cutoff",
       "root_height": 121,
+      "cutoff_height": 120,
+      "allowed": false
+    }
+  ],
+  "record_proof_context_cases": [
+    {
+      "name": "matching_frozen_context_before_cutoff",
+      "earliest_submit_height": 119,
+      "bound_change_height": 110,
+      "record_bound_change_height": 110,
+      "cutoff_height": 120,
+      "allowed": true
+    },
+    {
+      "name": "signed_record_cannot_lower_frozen_binding_at_cutoff",
+      "earliest_submit_height": 119,
+      "bound_change_height": 120,
+      "record_bound_change_height": 110,
+      "cutoff_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "signed_record_cannot_lower_frozen_binding_after_cutoff",
+      "earliest_submit_height": 119,
+      "bound_change_height": 121,
+      "record_bound_change_height": 110,
+      "cutoff_height": 120,
+      "allowed": false
+    },
+    {
+      "name": "signed_record_cannot_replace_missing_frozen_binding",
+      "earliest_submit_height": 119,
+      "record_bound_change_height": 110,
       "cutoff_height": 120,
       "allowed": false
     }

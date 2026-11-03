@@ -118,8 +118,8 @@
       "path": "shared/service_key_rotation_v1.json",
       "origin": "wire",
       "contract_section": "Fixed E+2 service-key rotation, strict proof cutoffs and retained message generations",
-      "bytes": 8870,
-      "sha256": "9da01189c9d56da7fc255712b013c5c65ef3434f42b673613ae212dbe47096e9"
+      "bytes": 9999,
+      "sha256": "4761e1219e47b4c371f60b6c31dec75c32e97cd7ad7b0feadf559a8565f89d40"
     },
     {
       "path": "shared/shared_domains_v1.json",
@@ -152,8 +152,8 @@
       "path": "task/dispatch_compensation_v1.json",
       "origin": "wire",
       "contract_section": "Sequence compensation, binding-scoped round acceptors and bounded Session compaction",
-      "bytes": 9885,
-      "sha256": "e5ba1947e1f15e32e891ec0b53791f1093d14b8bcb0c56eea25a7facac54774f"
+      "bytes": 10095,
+      "sha256": "54114eeb59ab945bb687521022599c0549fa9d433f50bce792b2edcdb2d3556c"
     },
     {
       "path": "task/dispatch_v1.json",

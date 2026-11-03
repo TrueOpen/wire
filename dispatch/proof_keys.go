@@ -55,9 +55,10 @@ type ProofKeyOptions struct {
 	// verified original order. Never substitute another ticket's accepted
 	// record, a later live Session anchor, or a height inferred from a window.
 	OrderEarliestSubmitHeight *uint64
-	// Required alongside the order height for accept/reject proofs, which name
-	// their ticket only by hash. Read the verified ticket or frozen claim. Ticket,
-	// record and ticket-bound message verifiers derive it from signed material.
+	// Required alongside the order height for record/accept/reject proofs. Read
+	// the verified ticket, immutable accepted state or frozen claim. A record's
+	// own signed field cannot replace this associated context. Ticket and
+	// ticket-bound message verifiers derive it from the actual ticket.
 	TicketBoundChangeHeight *uint64
 }
 
@@ -119,6 +120,8 @@ func verifyServiceProofSignature(signer ServiceProofSigner, digest [32]byte, sig
 // VerifyDispatchProof resolves the signer from the exact signed dispatch
 // material. Previous/revoked cutoffs use max(order ESH, ticket bound height);
 // handraise roots use their own root_height, independently of any order.
+// Record/accept/reject callers provide both original heights in opts; a record
+// cannot substitute its own binding height for its ticket or claim's context.
 // Submitter authorization and live traffic separately require current authority.
 // DispatchResultHeaderV1 is signed by its winner ticket's Builder and checked
 // against that ticket's chain; relayed copies keep their original signed bytes.
@@ -194,10 +197,10 @@ func dispatchProofHeight(name string, material decoded, opts ProofKeyOptions) *u
 	case "task.v1.SignedHandraiseRootV1":
 		height := scalarAt(material, fieldNumber(name, "root_height"))
 		return &height
-	case dispatchTicketMessage, "task.v1.DispatchRecordV1":
+	case dispatchTicketMessage:
 		bound := scalarAt(material, fieldNumber(name, "bound_change_height"))
 		return boundOrderHeight(opts.OrderEarliestSubmitHeight, &bound)
-	case "task.v1.DispatchAcceptV1", "task.v1.DispatchRejectV1":
+	case "task.v1.DispatchRecordV1", "task.v1.DispatchAcceptV1", "task.v1.DispatchRejectV1":
 		return boundOrderHeight(opts.OrderEarliestSubmitHeight, opts.TicketBoundChangeHeight)
 	default:
 		return opts.OrderEarliestSubmitHeight
