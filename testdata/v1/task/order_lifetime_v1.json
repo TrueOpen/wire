@@ -5,7 +5,8 @@
   "notes": [
     "Heights and limits are decimal strings to preserve uint64 values across languages.",
     "Expiry is inclusive and measured from signed earliest_submit_height, not the live binding height.",
-    "Admission and takeover apply the Session-frozen policy. Compensation only verifies the committed order identity."
+    "Admission and takeover apply the Session-frozen policy. Compensation only verifies the committed order identity.",
+    "Expiry must strictly follow earliest_submit_height; chain admission also requires the frozen recording span."
   ],
   "cases": [
     {
@@ -13,7 +14,7 @@
       "earliest_submit_height": "100",
       "order_expire_height": "100",
       "max_order_lifetime_blocks": "120",
-      "allowed": true
+      "allowed": false
     },
     {
       "name": "test_limit_inclusive",
@@ -66,7 +67,7 @@
     },
     {
       "name": "last_usable_height",
-      "earliest_submit_height": "9223372036854775807",
+      "earliest_submit_height": "9223372036854775806",
       "order_expire_height": "9223372036854775807",
       "max_order_lifetime_blocks": "1",
       "allowed": true
