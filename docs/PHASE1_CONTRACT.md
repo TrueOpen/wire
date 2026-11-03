@@ -183,6 +183,12 @@ items and the Worker's independent output sequence. Orders and winner output
 replicas become available only after chain admission. Receiver membership,
 accepted authority, business proofs and durable replay/conflict checks remain
 consumer obligations; a valid transport signature does not assert those facts.
+Each round item carries the tickets' `bound_change_height`. Receivers retain it
+under `(task_id, bound_change_height, vrf_epoch, dispatch_round)` before the first
+ticket arrives and require every associated ticket to match that full scope,
+including across batches. A takeover or return to the same Builder starts a new
+binding generation even when epoch, round number, root and roster are identical.
+Never infer that generation from a later ticket or the live Session binding.
 Validate raw request bytes before generated decoding can discard unknown or
 duplicate fields. The shared verifier accepts raw bytes for this reason, so Sync
 accepts binary protobuf only; JSON or other transcoded requests are rejected.

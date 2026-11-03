@@ -138,8 +138,8 @@
       "path": "task/builder_sync_v1.json",
       "origin": "wire",
       "contract_section": "Typed Builder replication, canonical oneof signing and current-key transport vectors",
-      "bytes": 178364,
-      "sha256": "4f2e61495c4083ccb7bf5750da7901153e5aa6f861069ad5f527e23b3674ab8d"
+      "bytes": 193834,
+      "sha256": "4baf434626a5b8694706da8647f4a0c62f78d38284fa3f3d8339dbd33211d063"
     },
     {
       "path": "task/canonical_json_v1.json",

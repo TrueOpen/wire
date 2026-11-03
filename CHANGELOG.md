@@ -2,6 +2,10 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Bind replicated rounds to `BuilderSyncRoundV1.bound_change_height` (field 10).
+  Include it in canonical sync item and batch signatures so a same-epoch return
+  to the same Builder cannot merge old and new round 0. Receivers key rounds by
+  Task, binding height, epoch and round, and check the associated tickets.
 - Require the original ticket/claim binding height when checking retained
   record proofs, alongside the original order height. A signed record cannot
   lower that frozen context or replace a missing one to bypass a key cutoff.

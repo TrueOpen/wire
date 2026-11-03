@@ -271,6 +271,62 @@ func TestCanonicalOneofIncludesProtoTagAndPayloadFrame(t *testing.T) {
 	}
 }
 
+func TestBuilderSyncRoundIdentityIncludesBindingBeforeAnyTicket(t *testing.T) {
+	row := publishedByName(t, "builder_sync_round_only")
+	items := syncItems(t, row.Protobuf)
+	if len(items) != 1 {
+		t.Fatal("round-only batch must not need a first ticket to identify its round")
+	}
+	item, err := decode("nexus.v1.BuilderSyncItemV1", items[0], 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	round, err := decode("nexus.v1.BuilderSyncRoundV1", bytesAt(item, 2), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	original, err := BuilderSyncItemCanonicalBytes(items[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Keep task, epoch, round, root and roster identical across a binding return.
+	round[10] = []value{{varint: scalarAt(round, 10) + 1}}
+	item[2] = []value{{bytes: encodeTestMessage("nexus.v1.BuilderSyncRoundV1", round)}}
+	changed, err := BuilderSyncItemCanonicalBytes(encodeTestMessage("nexus.v1.BuilderSyncItemV1", item))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(original, changed) {
+		t.Fatal("different binding generations collapsed to one canonical sync item")
+	}
+	returned := publishedByName(t, "builder_sync_round_returned_binding")
+	returnedItems := syncItems(t, returned.Protobuf)
+	if len(returnedItems) != 1 {
+		t.Fatal("returned binding must also identify its round without a ticket")
+	}
+	published, err := BuilderSyncItemCanonicalBytes(returnedItems[0])
+	if err != nil || !bytes.Equal(changed, published) {
+		t.Fatal("published return case differs in facts other than binding generation", err)
+	}
+	request, err := decode("nexus.v1.SyncRequest", hexBytes(t, row.Protobuf), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	batch, err := decode("nexus.v1.BuilderSyncBatchV1", bytesAt(request, 1), 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	batch[9][0].bytes = encodeTestMessage("nexus.v1.BuilderSyncItemV1", item)
+	request[1] = []value{{bytes: encodeTestMessage("nexus.v1.BuilderSyncBatchV1", batch)}}
+	digest, err := SigningDigest("nexus.v1.SyncRequest", encodeTestMessage("nexus.v1.SyncRequest", request))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if VerifyDigestSignature(hexBytes(t, row.PublicKey), digest[:], hexBytes(t, row.Signature)) == nil {
+		t.Fatal("transport signature did not bind the round's binding generation")
+	}
+}
+
 func TestDispatchInputChunksAssembleWholeInputFromZero(t *testing.T) {
 	var joined []byte
 	var expected []byte

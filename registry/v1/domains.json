@@ -1571,7 +1571,7 @@
       "contract_section": "BuilderSyncService.Sync canonical batch authentication",
       "registered_in_contract": true,
       "preimage_diverges_from_contract": false,
-      "note": "sender_operator_address is raw20. batch is the typed canonical BuilderSyncBatchV1 with REPEATED_V1 items, ONEOF_V1 proto tags and OPTIONAL_V1 presence. Nested business signatures remain payload; outer sender_signature is excluded. Raw protobuf serialization is never the preimage."
+      "note": "sender_operator_address is raw20. batch is the typed canonical BuilderSyncBatchV1 with REPEATED_V1 items, ONEOF_V1 proto tags and OPTIONAL_V1 presence. Round items include bound_change_height as uint64 after user_address, distinguishing binding generations before any ticket arrives. Nested business signatures remain payload; outer sender_signature is excluded. Raw protobuf serialization is never the preimage."
     },
     {
       "domain": "TRUEOPEN_OPEN_VERIFY_PROPOSAL_V1",
