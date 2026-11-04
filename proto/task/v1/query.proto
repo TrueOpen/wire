@@ -3,6 +3,7 @@ syntax = "proto3";
 package task.v1;
 
 import "google/api/annotations.proto";
+import "task/v1/anchor.proto";
 import "task/v1/query_session.proto";
 import "task/v1/query_settlement_build.proto";
 import "task/v1/query_task.proto";
@@ -50,6 +51,10 @@ service Query {
   // InferReceipt returns one task's accepted inference receipt.
   rpc InferReceipt(QueryInferReceiptRequest) returns (QueryInferReceiptResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/infer_receipt";
+  }
+  // AnchorAudit returns the anchor commitment audit record of one task (ADR-0040).
+  rpc AnchorAudit(QueryAnchorAuditRequest) returns (QueryAnchorAuditResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/anchor_audit";
   }
   // WorkerEvidence returns one compact objective-evidence receipt.
   rpc WorkerEvidence(QueryWorkerEvidenceRequest) returns (QueryWorkerEvidenceResponse) {

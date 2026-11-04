@@ -4,6 +4,7 @@ package task.v1;
 
 import "cosmos/msg/v1/msg.proto";
 import "shared/v1/evidence_responsibility.proto";
+import "task/v1/anchor.proto";
 import "task/v1/builder_evidence.proto";
 import "task/v1/deadline.proto";
 import "task/v1/msg_assignment.proto";
@@ -46,6 +47,10 @@ service Msg {
   // deleted MsgOpenVerify.
   // SubmitVerifierHandraises executes the SubmitVerifierHandraises operation.
   rpc SubmitVerifierHandraises(MsgSubmitVerifierHandraises) returns (MsgSubmitVerifierHandraisesResponse);
+  // SubmitAnchorOpening records the winner Worker's opening of the sampled anchor positions (ADR-0040).
+  rpc SubmitAnchorOpening(MsgSubmitAnchorOpening) returns (MsgSubmitAnchorOpeningResponse);
+  // SubmitAnchorAuditResult records a selected Verifier's anchor audit verdicts (ADR-0040).
+  rpc SubmitAnchorAuditResult(MsgSubmitAnchorAuditResult) returns (MsgSubmitAnchorAuditResultResponse);
   // ReportDataUnavailable records one selected Verifier's data-availability report.
   rpc ReportDataUnavailable(MsgReportDataUnavailable) returns (MsgReportDataUnavailableResponse);
   // SubmitBuilderEvidence accepts one closed typed objective Builder proof.
