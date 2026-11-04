@@ -7,7 +7,7 @@ import (
 
 // MaxOrderLifetimeBlocksV1 keeps admitted orders inside unreferenced epoch-body
 // retention. A Session's positive governed value may be lower than this clamp.
-const MaxOrderLifetimeBlocksV1 = uint64(240)
+const MaxOrderLifetimeBlocksV1 = uint64(7200)
 
 // PoolBodyRetentionBlocks preserves an unreferenced epoch body for both the
 // hard order lifetime and the chain's immutable old-material proof windows.

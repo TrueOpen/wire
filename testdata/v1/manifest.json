@@ -201,8 +201,8 @@
       "path": "task/order_lifetime_v1.json",
       "origin": "wire",
       "contract_section": "Frozen order lifetime, expiry inclusivity and usable-height boundaries",
-      "bytes": 3418,
-      "sha256": "b18fe6303e6179f969f0b21bbcd26e01f9971fd15894e95189cd11c1a4743b68"
+      "bytes": 3631,
+      "sha256": "81ee9849d5bda25bb934e1fdd10693bc2e85ece8f357added3e979fcb1a0df6f"
     },
     {
       "path": "task/output_chunk_equivocation_v1.json",

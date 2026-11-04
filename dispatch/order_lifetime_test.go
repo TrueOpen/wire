@@ -36,3 +36,28 @@ func TestPublishedOrderLifetimeBoundaries(t *testing.T) {
 		})
 	}
 }
+
+func TestProtocolWindowsKeepThePreviousProofGeneration(t *testing.T) {
+	limits := ProtocolRotationWindowHardLimitsV1()
+	interval, err := ServiceKeyRotationInterval(limits)
+	if err != nil || interval != 9601 {
+		t.Fatal(interval, err)
+	}
+	retention, err := PoolBodyRetentionBlocks(limits)
+	if err != nil || retention != interval || retention <= MaxOrderLifetimeBlocksV1 {
+		t.Fatal(retention, interval, err)
+	}
+	for _, row := range []struct {
+		height, evidence uint64
+		allowed          bool
+	}{{19600, 0, false}, {19601, 0, true}, {19601, 1, false}} {
+		allowed, err := CanRegisterServiceKeyRotation(row.height, 10000, row.evidence, limits)
+		if err != nil || allowed != row.allowed {
+			t.Fatal(row, allowed, err)
+		}
+	}
+	limits.RecordDeadlineBlocks = 1
+	if ProtocolRotationWindowHardLimitsV1().RecordDeadlineBlocks != 600 {
+		t.Fatal("caller mutation changed protocol limits")
+	}
+}

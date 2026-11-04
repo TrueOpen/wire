@@ -2,8 +2,13 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Expand the fresh-network order ceiling to 7200 blocks and publish shared
+  record/claim/rebuttal/challenge/response limits of 600/7200/1800/7200/1800.
+  Preserve complete proof and epoch-body retention without adding a wait to
+  off-chain admission, first output or successful recording.
+
 - Add the Session-frozen `max_order_lifetime_blocks` parameter (field 23),
-  bounded to 1..240 in V1; the fixture example uses 120. Couple BuilderSet notice
+  bounded to 1..7200 in V1. Couple BuilderSet notice
   and pool retention to that bound. Session queries return frozen parameters
   and their version, so clients do not infer old clocks from current policy.
   The new field changes TaskParamsV1 commitments; regenerate all consumers

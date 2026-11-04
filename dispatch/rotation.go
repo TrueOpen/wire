@@ -15,6 +15,19 @@ type RotationWindowHardLimits struct {
 	DispatchChallengeResponseBlocks       uint64 `json:"dispatch_challenge_response_blocks"`
 }
 
+// ProtocolRotationWindowHardLimitsV1 returns the immutable fresh-network limits.
+// Network parameters may be shorter. Protection and retention use these limits
+// so a later governance increase cannot invalidate already signed material.
+func ProtocolRotationWindowHardLimitsV1() RotationWindowHardLimits {
+	return RotationWindowHardLimits{
+		RecordDeadlineBlocks:                  600,
+		DispatchCompensationClaimWindowBlocks: 7200,
+		DispatchCompensationRebuttalBlocks:    1800,
+		DispatchChallengeWindowBlocks:         7200,
+		DispatchChallengeResponseBlocks:       1800,
+	}
+}
+
 func rotationAdd(a, b uint64) (uint64, error) {
 	if a > math.MaxUint64-b {
 		return 0, fmt.Errorf("service key rotation height overflow")

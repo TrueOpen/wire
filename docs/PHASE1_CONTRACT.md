@@ -261,13 +261,24 @@ body; the signed dispatch record proves the rebuttal. Recorded-task challenge
 responses retain their separate frozen Task Builders authorization.
 
 Order expiry is bounded by `max_order_lifetime_blocks`, measured from the signed
-`earliest_submit_height`, including takeover registration. V1 permits 1..240
-blocks; integration seeds use 120. BuilderSet notice must be strictly greater
+`earliest_submit_height`, including takeover registration. V1 permits 1..7200
+blocks. This is an admission ceiling, not an execution delay: an accepted Task
+uses its own inference and verification clocks. BuilderSet notice must be strictly greater
 than the maximum of this lifetime and twice the record deadline across current
 and still-referenced policies. Unreferenced epoch bodies retain at least the
-larger of the old-material proof interval and 241 blocks, covering every
+larger of the old-material proof interval and 7201 blocks, covering every
 admitted expiry, including a late takeover. Recording
 still requires the actual height not to exceed the signed expiry.
+
+`ProtocolRotationWindowHardLimitsV1` freezes record/claim/rebuttal/challenge/
+response maxima at 600/7200/1800/7200/1800 blocks. The complete proof interval
+is 9601 blocks. At a nominal 0.5-second block these allow five-minute recording,
+one-hour claim/challenge windows and fifteen-minute responses. They do not
+schedule off-chain work: order admission, GPU first output and local fallback
+must not wait for a block confirmation or any of these windows to expire.
+Successful stages advance when their conditions are met; proof windows retain
+their required finality and cleanup barriers. Existing live networks require
+a coordinated protocol upgrade to change these immutable limits.
 
 Recording, claims, exclusion receipts and takeover timing use the Session's
 fixed policy. `QuerySessionResponse` returns that parameter body and version so

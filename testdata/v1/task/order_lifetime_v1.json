@@ -1,7 +1,7 @@
 {
   "schema": "trueopen-order-lifetime-v1",
-  "maximum_protocol_blocks": "240",
-  "recommended_test_blocks": "120",
+  "maximum_protocol_blocks": "7200",
+  "recommended_test_blocks": "7200",
   "notes": [
     "Heights and limits are decimal strings to preserve uint64 values across languages.",
     "Expiry is inclusive and measured from signed earliest_submit_height, not the live binding height.",
@@ -33,8 +33,8 @@
     {
       "name": "protocol_limit_inclusive",
       "earliest_submit_height": "100",
-      "order_expire_height": "340",
-      "max_order_lifetime_blocks": "240",
+      "order_expire_height": "7300",
+      "max_order_lifetime_blocks": "7200",
       "allowed": true
     },
     {
@@ -48,7 +48,7 @@
       "name": "policy_above_protocol_limit",
       "earliest_submit_height": "100",
       "order_expire_height": "100",
-      "max_order_lifetime_blocks": "241",
+      "max_order_lifetime_blocks": "7201",
       "allowed": false
     },
     {
@@ -67,9 +67,9 @@
     },
     {
       "name": "last_usable_height",
-      "earliest_submit_height": "9223372036854775806",
+      "earliest_submit_height": "9223372036854768607",
       "order_expire_height": "9223372036854775807",
-      "max_order_lifetime_blocks": "1",
+      "max_order_lifetime_blocks": "7200",
       "allowed": true
     },
     {
@@ -105,6 +105,13 @@
       "earliest_submit_height": "9007199254740992",
       "order_expire_height": "9007199254741112",
       "max_order_lifetime_blocks": "120",
+      "allowed": true
+    },
+    {
+      "name": "shorter_legacy_policy_remains_valid",
+      "earliest_submit_height": "100",
+      "order_expire_height": "340",
+      "max_order_lifetime_blocks": "240",
       "allowed": true
     }
   ]
