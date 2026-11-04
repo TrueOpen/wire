@@ -4,8 +4,8 @@ package task.v1;
 import "cosmos_proto/cosmos.proto";
 import "shared/v1/common.proto";
 import "shared/v1/model_profile.proto";
-import "shared/v1/round_economics.proto";
 import "shared/v1/rest_encoding.proto";
+import "shared/v1/round_economics.proto";
 import "task/v1/assignment.proto";
 import "task/v1/settlement.proto";
 
@@ -61,7 +61,8 @@ message TaskTerminalSummaryState {
   shared.v1.TaskType task_type = 13;
   bytes candidate_pool_snapshot_id = 14 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   bytes candidate_pool_hash = 15 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
-  bytes assignment_candidate_set_hash = 16 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  reserved 16;
+  reserved "assignment_candidate_set_hash";
   bool candidate_pool_ref_released = 17;
   optional string winner_worker = 18 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   bytes round1_selected_verifiers_hash_or_zero32 = 19 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
@@ -91,6 +92,8 @@ message TaskTerminalSummaryState {
   uint64 created_height = 43;
   uint64 compacted_height = 44;
   bytes summary_hash = 45 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // Retained admission commitment distinguishes a pruned record from no admission.
+  bytes dispatch_record_hash = 46 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 // TaskCleanupCursorState is the single restart-safe cursor for one Task.

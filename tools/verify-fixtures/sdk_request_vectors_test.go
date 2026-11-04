@@ -14,11 +14,13 @@ import (
 // sdkBodyDomains maps each User Ingress method to its body domain. The set is
 // closed: a method outside it has no registered body.
 var sdkBodyDomains = map[string]string{
-	"OpenTask":         "TRUEOPEN_SDK_BODY_OPEN_TASK_V1",
-	"SubscribeOutput":  "TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1",
-	"AckOutput":        "TRUEOPEN_SDK_BODY_ACK_OUTPUT_V1",
-	"GetTaskEvents":    "TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1",
-	"PrepareChallenge": "TRUEOPEN_SDK_BODY_PREPARE_CHALLENGE_V1",
+	"ResumeOutput":      "TRUEOPEN_SDK_BODY_RESUME_OUTPUT_V1",
+	"GetDispatchRoster": "TRUEOPEN_SDK_BODY_GET_DISPATCH_ROSTER_V1",
+	"OpenTask":          "TRUEOPEN_SDK_BODY_OPEN_TASK_V1",
+	"SubscribeOutput":   "TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1",
+	"AckOutput":         "TRUEOPEN_SDK_BODY_ACK_OUTPUT_V1",
+	"GetTaskEvents":     "TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1",
+	"PrepareChallenge":  "TRUEOPEN_SDK_BODY_PREPARE_CHALLENGE_V1",
 }
 
 // Every body vector must frame exactly the fields its registry row lists, in

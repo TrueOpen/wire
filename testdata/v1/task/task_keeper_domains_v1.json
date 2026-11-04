@@ -1,20 +1,7 @@
 {
   "notes": [
-    "Golden vectors for the consensus domains whose producers live in x/task/keeper and can be called directly. Each vector's fields[] is the frozen ordered preimage of its registered formula, named to match DomainRegistryV1[domain].Fields.",
-    "Every vector is bound to a real production function by TestTaskKeeperDomainFixtureMatchesProducers: the typed inputs below are passed to the named producer and the function's own output is compared with digest_hex. A vector that only agrees with its own fields[] would not detect a reordered preimage, which is the failure this file exists to prevent.",
-    "Same-width fields inside one vector carry deliberately different values (0x11/0x22/... fills, distinct counts, distinct heights) so that swapping any two fields of one encoder moves the preimage. Where production frames a hard-coded constant twice - TRUEOPEN_CLASSIFICATION_EVIDENCE_DIGEST_V1's two zero32 placeholders and TRUEOPEN_EVIDENCE_MANIFEST_V1's leaf_count_task_meta / leaf_count_infer_receipt, all of which are literals in the producer - that pair cannot be distinguished by any vector, and the invariance is a property of the contract rather than a gap in this file.",
-    "TRUEOPEN_WEIGHTED_DRAW_V1 is the one domain whose producer does not return the digest: this contract hashes inside the bounded rejection loop and returns the selected candidate. Its binding runs the executor over three candidate sets whose weights turn the accepted slot into three disjoint 12-bit windows of digest_hex.",
-    "TRUEOPEN_VERIFIER_FINALIZE_CURSOR_LEAF_V1 also has no producer that returns it: appendVerifierFactFold hashes the leaf and immediately folds it. The leaf vector's digest is therefore pinned as the fold vector's leaf_hash field, and the single appendVerifierFactFold call binds both domains at once - a reordered leaf preimage moves the fold digest.",
-    "TRUEOPEN_VERIFIER_LEGAL_SET_V1 reuses the TRUEOPEN_VERIFIER_WINDOW_V1 vector's digest as its verifier_window_hash field, because verifierLegalSetHash recomputes the window commitment from the same frozen header before it hashes. The two vectors therefore have to agree about the window scope, and the binding test asserts that they do.",
-    "inputs[] holds the producer arguments that are NOT part of the preimage but are still needed to make the call reproducible: task_builder_count validates the report bitmap length, segment_bytes and slot_capacity fix the bitmap layout, max_attempts bounds the rejection loop, task_id scopes the verifier fact chunk, and the settlement / window heights close the producers' cross-field consistency checks.",
-    "Address fields frame the address codec bytes, never the Bech32 text. The bech32 column is a self-verification column for non-Go readers and is asserted to decode to the hex column. TRUEOPEN_SERVICE_KEY_RESPONSIBILITY_ID_V1 is the exception and frames its operator_address as UTF-8 text, which is why that field is typed \"string\": the responsibility id is an internal store key, not an address commitment.",
-    "A later revision added TRUEOPEN_TASK_TERMINAL_SUMMARY_V1, TRUEOPEN_EPOCH_TASK_SUMMARY_SOURCE_V1 and TRUEOPEN_EPOCH_TASK_SUMMARY_FOLD_V1. All three preimages used to be built inside a producer that took a context only to read ChainID(), so they could not be called from a vector at all; they are now named pure functions and the bindings call them directly. TRUEOPEN_TASK_TERMINAL_SUMMARY_V1 was the one domain a mutation scan proved to be partially bare: its last two fields were pinned by an existing test, but candidate_pool_snapshot_id and candidate_pool_hash could be swapped with the whole suite still green.",
-    "The two bool fields of TRUEOPEN_TASK_TERMINAL_SUMMARY_V1 carry different values on purpose. BoolByte frames one byte, so a vector with two trues could not distinguish candidate_pool_ref_released from support_candidate at all; the binding asserts they disagree.",
-    "TRUEOPEN_EPOCH_TASK_SUMMARY_FOLD_V1's source_hash is the TRUEOPEN_EPOCH_TASK_SUMMARY_SOURCE_V1 vector's own digest, which is how production folds: the leaf producer's output is fed straight into the fold. One binding therefore checks both, and a moved source preimage moves the fold digest too.",
-    "framed_empty_reason marks a field that production always frames as zero bytes, so the per-field bit-flip gate has nothing to flip. TRUEOPEN_WORKER_PROPOSAL_V1's data_ready_attestation_or_empty is the only one: OPEN_TASK has no data-ready attestation and workerProposalDigest passes nil unconditionally.",
-    "Regenerate with TRUEOPEN_REGEN_FIXTURES=1; the run rewrites preimage_hex and digest_hex and then fails on purpose so the diff must be reviewed against the frozen contract before it is committed.",
-    "This wire-authored fixture retains active domain vectors and removes retired domains; its hashes are reviewed in this repository.",
-    "settlement_facts_v1 was removed with this revision: its inner SettlementFactsV1 frame still carried registered_full_result_refs_hash at field 13, which v0.3.0 deletes while renumbering challenge_close_height from 14 to 13, so the published digest describes a schema that no longer exists. It is not recomputed here because the wire API states the TRUEOPEN_SETTLEMENT_FACTS_V1 preimage twice with different leading fields (once without chain_id and settlement_id, once with them) and no replacement golden vector is published here until that conflict is resolved."
+    "Phase 1 canonical Keeper identities; retired Worker proposals, Builder ranking and Worker beacon selection are absent.",
+    "Terminal summary commits retained dispatch and round/finality facts; fixture values are illustrative."
   ],
   "schema": "trueopen.task.keeper.domains.v1",
   "source": "Public wire conformance vectors in testdata/v1/task/task_keeper_domains_v1.json",
@@ -104,7 +91,7 @@
     },
     {
       "contract_section": "Public wire fixture testdata/v1/task/task_keeper_domains_v1.json",
-      "digest_hex": "03931a752435628c34834ba2fd01a2e7316110494a356bbf3996bc071bf66eef",
+      "digest_hex": "8ac5a76ab78fc279ad21255fe23032976fd7094f21c84799da3ba614a93526bd",
       "domain": "TRUEOPEN_WEIGHTED_DRAW_V1",
       "fields": [
         {
@@ -115,7 +102,7 @@
         {
           "name": "purpose",
           "type": "string",
-          "utf8": "WORKER_ASSIGNMENT"
+          "utf8": "VERIFIER_SELECTION"
         },
         {
           "hex": "1111111111111111111111111111111111111111111111111111111111111111",
@@ -148,67 +135,10 @@
         "max_attempts": 1
       },
       "name": "weighted_draw_v1",
-      "preimage_hex": "0000000000000019545255454f50454e5f57454947485445445f445241575f56310000000000000012747275656f70656e2d756e626c6f636b2d310000000000000011574f524b45525f41535349474e4d454e540000000000000020111111111111111111111111111111111111111111111111111111111111111100000000000000202222222222222222222222222222222222222222222222222222222222222222000000000000000800000000000dbba10000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000080000000000000005",
+      "preimage_hex": "0000000000000019545255454f50454e5f57454947485445445f445241575f56310000000000000012747275656f70656e2d756e626c6f636b2d31000000000000001256455249464945525f53454c454354494f4e0000000000000020111111111111111111111111111111111111111111111111111111111111111100000000000000202222222222222222222222222222222222222222222222222222222222222222000000000000000800000000000dbba10000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000080000000000000005",
       "preimage_size_bytes": 236,
-      "producer": "drawWeightedCandidate"
-    },
-    {
-      "contract_section": "Public wire fixture testdata/v1/task/task_keeper_domains_v1.json",
-      "digest_hex": "692e80e42151c37f2817618943de9ef1b4b631c209fec5e57d9d2e6e82bdec83",
-      "domain": "TRUEOPEN_WINNER_DRAW_V1",
-      "fields": [
-        {
-          "name": "chain_id",
-          "type": "string",
-          "utf8": "trueopen-unblock-1"
-        },
-        {
-          "hex": "1111111111111111111111111111111111111111111111111111111111111111",
-          "name": "task_id",
-          "type": "bytes"
-        },
-        {
-          "hex": "2222222222222222222222222222222222222222222222222222222222222222",
-          "name": "assignment_candidate_set_hash",
-          "type": "bytes"
-        },
-        {
-          "name": "assignment_randomness_height",
-          "type": "uint64",
-          "value": 900001
-        },
-        {
-          "hex": "3333333333333333333333333333333333333333333333333333333333333333",
-          "name": "beacon_randomness",
-          "type": "bytes"
-        },
-        {
-          "name": "accepted_draw_counter",
-          "type": "uint32",
-          "value": 5
-        },
-        {
-          "name": "winner_slot",
-          "type": "uint32",
-          "value": 3
-        },
-        {
-          "name": "winner_slot_version",
-          "type": "uint64",
-          "value": 9
-        },
-        {
-          "bech32": "trueopen15zs69gay5kn2029f4246etdw47ctrv4ns6facc",
-          "hex": "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3",
-          "name": "winner_worker",
-          "type": "address"
-        }
-      ],
-      "framing": "H_FIELDS_V1",
-      "name": "winner_draw_v1",
-      "preimage_hex": "0000000000000017545255454f50454e5f57494e4e45525f445241575f56310000000000000012747275656f70656e2d756e626c6f636b2d310000000000000020111111111111111111111111111111111111111111111111111111111111111100000000000000202222222222222222222222222222222222222222222222222222222222222222000000000000000800000000000dbba100000000000000203333333333333333333333333333333333333333333333333333333333333333000000000000000400000005000000000000000400000003000000000000000800000000000000090000000000000014a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3",
-      "preimage_size_bytes": 261,
-      "producer": "winnerDrawDigest"
+      "producer": "drawWeightedCandidate",
+      "variant": "purpose=VERIFIER_SELECTION"
     },
     {
       "contract_section": "Public wire fixture testdata/v1/task/task_keeper_domains_v1.json",
@@ -919,85 +849,6 @@
       "preimage_hex": "0000000000000029545255454f50454e5f56455249464945525f46494e414c495a455f435552534f525f464f4c445f5631000000000000002011111111111111111111111111111111111111111111111111111111111111110000000000000020b1f4bebbd1edf562525b3a9ed1bab0d55b8000310095c080c3f146843b2387a0000000000000000400000001",
       "preimage_size_bytes": 141,
       "producer": "appendVerifierFactFold"
-    },
-    {
-      "contract_section": "Public wire fixture testdata/v1/task/task_keeper_domains_v1.json",
-      "digest_hex": "3eec399247be7218ed3a2da1409e4b91183f214d99e54b64ad7e2748596adbac",
-      "domain": "TRUEOPEN_WORKER_PROPOSAL_V1",
-      "fields": [
-        {
-          "name": "chain_id",
-          "type": "string",
-          "utf8": "trueopen-unblock-1"
-        },
-        {
-          "hex": "1111111111111111111111111111111111111111111111111111111111111111",
-          "name": "task_id",
-          "type": "bytes"
-        },
-        {
-          "hex": "2222222222222222222222222222222222222222222222222222222222222222",
-          "name": "task_hash",
-          "type": "bytes"
-        },
-        {
-          "name": "stage",
-          "type": "enum",
-          "value": 1
-        },
-        {
-          "hex": "3333333333333333333333333333333333333333333333333333333333333333",
-          "name": "candidate_pool_snapshot_id",
-          "type": "bytes"
-        },
-        {
-          "hex": "4444444444444444444444444444444444444444444444444444444444444444",
-          "name": "candidate_pool_hash",
-          "type": "bytes"
-        },
-        {
-          "bech32": "trueopen1v3jxgeryv3jxgeryv3jxgeryv3jxgeryvtfqzy",
-          "hex": "6464646464646464646464646464646464646464",
-          "name": "proposer_operator_or_empty",
-          "type": "address"
-        },
-        {
-          "framed_empty_reason": "OPEN_TASK has no data-ready attestation; workerProposalDigest frames a nil field unconditionally, so there is no bit to flip",
-          "name": "data_ready_attestation_or_empty",
-          "type": "bytes"
-        },
-        {
-          "name": "handraise_count",
-          "type": "uint32",
-          "value": 2
-        },
-        {
-          "fields": [
-            {
-              "name": "element_count",
-              "type": "uint32",
-              "value": 2
-            },
-            {
-              "hex": "5555555555555555555555555555555555555555555555555555555555555555",
-              "name": "handraise_signing_digest",
-              "type": "bytes"
-            },
-            {
-              "hex": "6666666666666666666666666666666666666666666666666666666666666666",
-              "name": "handraise_signing_digest",
-              "type": "bytes"
-            }
-          ],
-          "name": "handraise_digests",
-          "type": "frame"
-        }
-      ],
-      "framing": "H_FIELDS_V1",
-      "name": "worker_proposal_v1",
-      "preimage_hex": "000000000000001b545255454f50454e5f574f524b45525f50524f504f53414c5f56310000000000000012747275656f70656e2d756e626c6f636b2d3100000000000000201111111111111111111111111111111111111111111111111111111111111111000000000000002022222222222222222222222222222222222222222222222222222222222222220000000000000004000000010000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000204444444444444444444444444444444444444444444444444444444444444444000000000000001464646464646464646464646464646464646464640000000000000000000000000000000400000002000000000000005c0000000000000004000000020000000000000020555555555555555555555555555555555555555555555555555555555555555500000000000000206666666666666666666666666666666666666666666666666666666666666666",
-      "preimage_size_bytes": 381,
-      "producer": "workerProposalDigest"
     },
     {
       "contract_section": "Public wire fixture testdata/v1/task/task_keeper_domains_v1.json",
@@ -1973,7 +1824,7 @@
     },
     {
       "contract_section": "Public wire fixture testdata/v1/task/task_keeper_domains_v1.json",
-      "digest_hex": "6f2e7b4fef9bd044e68040b5ae133c951ead21c82c52a79e29045684fa8c3c03",
+      "digest_hex": "fb35a44340ab934163f30cbc9d60a828a3f63a857ab96aa5338d3baf6aee6ebe",
       "domain": "TRUEOPEN_TASK_TERMINAL_SUMMARY_V1",
       "fields": [
         {
@@ -2012,9 +1863,24 @@
           "value": 2
         },
         {
+          "name": "failure_class",
+          "type": "enum",
+          "value": 4
+        },
+        {
+          "name": "settlement_status",
+          "type": "enum",
+          "value": 1
+        },
+        {
           "name": "finality_status",
           "type": "enum",
           "value": 3
+        },
+        {
+          "name": "effective_verify_round",
+          "type": "uint32",
+          "value": 1
         },
         {
           "hex": "5555555555555555555555555555555555555555555555555555555555555555",
@@ -2042,8 +1908,8 @@
           "type": "bytes"
         },
         {
-          "hex": "6666666666666666666666666666666666666666666666666666666666666666",
-          "name": "assignment_candidate_set_hash",
+          "hex": "2247b6a1c39cd39c32b83c175f2f74dc3f281cfbd1bc8ae387451351692e38af",
+          "name": "dispatch_record_hash",
           "type": "bytes"
         },
         {
@@ -2052,15 +1918,32 @@
           "type": "bool"
         },
         {
-          "bech32": "trueopen15zs69gay5kn2029f4246etdw47ctrv4ns6facc",
-          "hex": "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3",
+          "fields": [
+            {
+              "bech32": "trueopen15zs69gay5kn2029f4246etdw47ctrv4ns6facc",
+              "hex": "a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3",
+              "name": "value",
+              "type": "address"
+            }
+          ],
           "name": "winner_worker",
-          "type": "address"
+          "present": true,
+          "type": "optional"
         },
         {
-          "hex": "7777777777777777777777777777777777777777777777777777777777777777",
-          "name": "selected_verifiers_hash",
+          "hex": "ee840df65cf9fd08be09ce62a0860da817cdf098eb3034ec1accc31d3e988403",
+          "name": "round1_selected_verifiers_hash_or_zero32",
           "type": "bytes"
+        },
+        {
+          "hex": "6af2459ae3a4cd8fec3d896ffbdd511c830699915006ef01ca4f0cf9aa1e86eb",
+          "name": "round2_selected_verifiers_hash_or_zero32",
+          "type": "bytes"
+        },
+        {
+          "name": "builder_set_version",
+          "type": "uint64",
+          "value": 1
         },
         {
           "name": "builder_set_id",
@@ -2088,6 +1971,16 @@
           "type": "bytes"
         },
         {
+          "hex": "79f71443ca2a7b7a914974b0f66ba78236d48a94bcd045b8b65968ce3ca3a911",
+          "name": "infer_receipt_ref_or_zero32",
+          "type": "bytes"
+        },
+        {
+          "name": "generated_token_count",
+          "type": "uint64",
+          "value": 1
+        },
+        {
           "hex": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
           "name": "settlement_id",
           "type": "bytes"
@@ -2103,18 +1996,53 @@
           "value": 9814
         },
         {
+          "name": "task_finality_height",
+          "type": "uint64",
+          "value": 1
+        },
+        {
           "hex": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
           "name": "settlement_facts_hash",
           "type": "bytes"
         },
         {
-          "hex": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-          "name": "task_evidence_root",
+          "hex": "e6f852d6e5d8e92f4d39d1ec4ea3eec1b9fdd5672920259b1b3bf6034e382b8e",
+          "name": "settlement_plan_hash",
           "type": "bytes"
         },
         {
-          "hex": "0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f",
-          "name": "challenge_summary_hash",
+          "hex": "ea0c5c96ae53ea4be271b16a411e759de9672b36a77fe4946cdb5f25efec6ba7",
+          "name": "settlement_bill_hash_or_zero32",
+          "type": "bytes"
+        },
+        {
+          "hex": "81ab174dca44c1dc88edb7ac15098449f11dc545f7f153ff18850b58dec45aa7",
+          "name": "task_round_summary_hash",
+          "type": "bytes"
+        },
+        {
+          "hex": "5538c0edacfa8f7dba32dae1698f6ee603e0542a2471900851e6fca5a52934ad",
+          "name": "round1_facts_hash_or_zero32",
+          "type": "bytes"
+        },
+        {
+          "hex": "bb4f2b85827c4997ab8711263ffe06759e401c1004a30383666c7f563f915239",
+          "name": "round2_facts_hash_or_zero32",
+          "type": "bytes"
+        },
+        {
+          "name": "round2_outcome_or_unspecified",
+          "type": "enum",
+          "value": 0
+        },
+        {
+          "hex": "44f2c32d86d35e229bb25540d996c2ff899da129deebb5b1496f564585a2ba4b",
+          "name": "round_effect_root",
+          "type": "bytes"
+        },
+        {
+          "hex": "08c2a22c00ea560f0b5a1b1473bfd6997eea90bd6cd84099e034919b35fd20c2",
+          "name": "round2_funding_resolution_hash_or_zero32",
           "type": "bytes"
         },
         {
@@ -2123,41 +2051,22 @@
           "type": "bytes"
         },
         {
-          "hex": "2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b",
-          "name": "task_economic_effect_root",
-          "type": "bytes"
-        },
-        {
           "name": "created_height",
           "type": "uint64",
           "value": 9001
         },
         {
-          "name": "finality_height",
-          "type": "uint64",
-          "value": 9902
-        },
-        {
           "name": "compacted_height",
           "type": "uint64",
           "value": 10050
-        },
-        {
-          "name": "failure_class",
-          "type": "enum",
-          "value": 4
-        },
-        {
-          "bool": false,
-          "name": "support_candidate",
-          "type": "bool"
         }
       ],
       "framing": "H_FIELDS_V1",
+      "mutations": [],
       "name": "task_terminal_summary_v1",
-      "preimage_hex": "0000000000000021545255454f50454e5f5441534b5f5445524d494e414c5f53554d4d4152595f56310000000000000012747275656f70656e2d756e626c6f636b2d3100000000000000201111111111111111111111111111111111111111111111111111111111111111000000000000002022222222222222222222222222222222222222222222222222222222222222220000000000000008000000000000002900000000000000203333333333333333333333333333333333333333333333333333333333333333000000000000000400000008000000000000000400000002000000000000000400000003000000000000002055555555555555555555555555555555555555555555555555555555555555550000000000000004000000030000000000000004000000060000000000000020444444444444444444444444444444444444444444444444444444444444444400000000000000205555555555555555555555555555555555555555555555555555555555555555000000000000002066666666666666666666666666666666666666666666666666666666666666660000000000000001010000000000000014a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b300000000000000207777777777777777777777777777777777777777777777777777777777777777000000000000000d6275696c6465722d7365742d3700000000000000208888888888888888888888888888888888888888888888888888888888888888000000000000002099999999999999999999999999999999999999999999999999999999999999990000000000000020aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0000000000000020bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb0000000000000020cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc00000000000000080000000000002648000000000000000800000000000026560000000000000020dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd0000000000000020eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee00000000000000200f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f00000000000000201d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d00000000000000202b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b00000000000000080000000000002329000000000000000800000000000026ae00000000000000080000000000002742000000000000000400000004000000000000000100",
+      "preimage_hex": "0000000000000021545255454f50454e5f5441534b5f5445524d494e414c5f53554d4d4152595f56310000000000000012747275656f70656e2d756e626c6f636b2d310000000000000020111111111111111111111111111111111111111111111111111111111111111100000000000000202222222222222222222222222222222222222222222222222222222222222222000000000000000800000000000000290000000000000020333333333333333333333333333333333333333333333333333333333333333300000000000000040000000800000000000000040000000200000000000000040000000400000000000000040000000100000000000000040000000300000000000000040000000100000000000000205555555555555555555555555555555555555555555555555555555555555555000000000000000400000003000000000000000400000006000000000000002044444444444444444444444444444444444444444444444444444444444444440000000000000020555555555555555555555555555555555555555555555555555555555555555500000000000000202247b6a1c39cd39c32b83c175f2f74dc3f281cfbd1bc8ae387451351692e38af000000000000000101000000000000001d010000000000000014a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b30000000000000020ee840df65cf9fd08be09ce62a0860da817cdf098eb3034ec1accc31d3e98840300000000000000206af2459ae3a4cd8fec3d896ffbdd511c830699915006ef01ca4f0cf9aa1e86eb00000000000000080000000000000001000000000000000d6275696c6465722d7365742d3700000000000000208888888888888888888888888888888888888888888888888888888888888888000000000000002099999999999999999999999999999999999999999999999999999999999999990000000000000020aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa0000000000000020bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb000000000000002079f71443ca2a7b7a914974b0f66ba78236d48a94bcd045b8b65968ce3ca3a911000000000000000800000000000000010000000000000020cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc0000000000000008000000000000264800000000000000080000000000002656000000000000000800000000000000010000000000000020dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd0000000000000020e6f852d6e5d8e92f4d39d1ec4ea3eec1b9fdd5672920259b1b3bf6034e382b8e0000000000000020ea0c5c96ae53ea4be271b16a411e759de9672b36a77fe4946cdb5f25efec6ba7000000000000002081ab174dca44c1dc88edb7ac15098449f11dc545f7f153ff18850b58dec45aa700000000000000205538c0edacfa8f7dba32dae1698f6ee603e0542a2471900851e6fca5a52934ad0000000000000020bb4f2b85827c4997ab8711263ffe06759e401c1004a30383666c7f563f915239000000000000000400000000000000000000002044f2c32d86d35e229bb25540d996c2ff899da129deebb5b1496f564585a2ba4b000000000000002008c2a22c00ea560f0b5a1b1473bfd6997eea90bd6cd84099e034919b35fd20c200000000000000201d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d1d0000000000000008000000000000232900000000000000080000000000002742",
       "preimage_size_bytes": 1022,
-      "producer": "taskTerminalSummaryDigest"
+      "producer": "Canonical terminal summary projection"
     },
     {
       "contract_section": "Public wire fixture testdata/v1/task/task_keeper_domains_v1.json",

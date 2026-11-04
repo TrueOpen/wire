@@ -38,6 +38,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	canonicalfixture "github.com/TrueOpen/wire/tools/internal/canonical"
 )
 
 func main() {
@@ -797,6 +799,17 @@ func encodeField(field map[string]any) ([]byte, error) {
 			return nil, err
 		}
 		return frame(parts...), nil
+	case "oneof":
+		tag, err := uintValue(field["field_number"])
+		children, ok := field["fields"].([]any)
+		if err != nil || !ok {
+			return nil, errors.New("oneof requires a proto field number and selected payload fields")
+		}
+		parts, err := encodeFields(children)
+		if err != nil {
+			return nil, err
+		}
+		return canonicalfixture.Oneof(tag, parts...)
 	case "optional":
 		present, ok := field["present"].(bool)
 		if !ok {

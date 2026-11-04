@@ -1,5 +1,17 @@
 # Wire Test Vectors
 
+`v1/task/builder_sync_v1.json` publishes typed replication signing vectors:
+all five item branches, independent output progress, optional Fin/output,
+canonical oneof tags and equivalent protobuf encodings with reversed fields
+and explicit defaults. The low-S service signatures and canonical preimages
+were independently computed in Python. Chain/group admission and prior durable
+state are explicit consumer preconditions. The fixture also illustrates the
+originating-role parity of keepalive probes and unchanged echo values.
+
+`v1/task/dispatch_v1.json` includes three signed input chunks, numbered 0, 1, 2,
+that reconstruct `abcdef`. Every chunk commits the same whole-input size/hash
+and count. A chunk's own byte length is not the whole-input size.
+
 `v1/task/session_key_authorization_v1.json` contains wallet and delegated
 signatures over the same order digest, registered-key requests with no
 SessionGrant, and admission/SET/CLEAR cases. It covers inclusive expiry,
@@ -59,3 +71,13 @@ Python's default `int`, or a JavaScript parser with a BigInt reviver. The
 values stay numbers because existing decoders read them as numbers; changing
 them to strings would break those decoders. `task/order_economics_v1.json`,
 whose amounts routinely exceed 2^53, writes every amount as a decimal string.
+
+## Phase 1 byte conformance
+
+`v1/task/dispatch_v1.json` includes independent signing projections, real low-S
+signatures and ELL2 proof, full-pool weighted ordering, operation isolation,
+challenge scopes and exact typed Builder evidence linked to content/evidence/fault
+IDs. `value_evidence_v1.json` pins both bounded opening payloads and digest
+projections. `session_funding_amino_v1.json` freezes funding/withdrawal wallet
+signatures, including boolean CLOSE. These establish bytes, not Task admission:
+consumer authority, escrow and complete localnet acceptance remain required.
