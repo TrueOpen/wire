@@ -70,6 +70,10 @@ message AnchorAuditState {
   uint64 worker_proof_size_bytes = 16;
   string worker_proof_uri = 17;
   uint64 worker_proof_height = 18;
+  // Captured at sampling so the audit outlives the task's receipt and
+  // assignment records (which the chain prunes once the task is terminal).
+  string winner_worker = 19;
+  repeated string selected_verifiers = 20;
 }
 
 // MsgSubmitAnchorOpening records the Worker's opening of the sampled
