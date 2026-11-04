@@ -1,0 +1,118 @@
+syntax = "proto3";
+package task.v1;
+
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "shared/v1/common.proto";
+import "shared/v1/rest_encoding.proto";
+
+option go_package = "github.com/TrueOpen/node/x/task/types";
+
+// AnchorVerdictV1 is the verdict of the anchor commitment audit (ADR-0040) on
+// one sampled position, or on the whole task after all positions are judged.
+// AnchorVerdictV1 defines the AnchorVerdictV1 wire type.
+enum AnchorVerdictV1 {
+  // ANCHOR_VERDICT_V1_UNSPECIFIED identifies the corresponding protocol value.
+  ANCHOR_VERDICT_V1_UNSPECIFIED = 0;
+  // Every anchor, recurrent-state recomputation, direction statistic, glue row
+  // and token rule holds at the position.
+  ANCHOR_VERDICT_V1_PASS = 1;
+  // At least one rule failed at the position: the Worker did not compute it
+  // with the registered weights under the registered precision class.
+  ANCHOR_VERDICT_V1_REJECT = 2;
+  // The auditor could not judge the position (missing material, proof not
+  // established); attributable to the verifier, never to the Worker.
+  ANCHOR_VERDICT_V1_NO_VERDICT = 3;
+}
+
+// AnchorPositionVerdictV1 is the auditor's verdict on one sampled position.
+// AnchorPositionVerdictV1 defines the AnchorPositionVerdictV1 wire type.
+message AnchorPositionVerdictV1 {
+  uint64 position = 1;
+  AnchorVerdictV1 verdict = 2;
+  // Short diagnostic (rule name and statistic); informational, not consensus.
+  string reason = 3;
+}
+
+// AnchorAuditState is the per-task record of the anchor commitment audit
+// (ADR-0040, first slice): the positions the chain sampled from the beacon,
+// the Worker's opening hash and the auditor's verdicts. The anchor commitment
+// itself is the WORKER_ANCHOR_OPENING entry of the accepted InferReceipt.
+// AnchorAuditState defines the AnchorAuditState wire type.
+message AnchorAuditState {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // Whether the beacon selected this task for an opening.
+  bool sampled = 2;
+  // Sampled positions, strictly ascending, each in [0, rows).
+  repeated uint64 positions = 3;
+  // Randomness the sample was derived from.
+  bytes sample_beacon = 4 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 sample_height = 5;
+  // Opening material hash (sha256 of the exact bytes) once the Worker opened.
+  bytes opening_hash = 6 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 opening_size_bytes = 7;
+  // Where the material can be fetched; devnet accepts file:// and http(s)://.
+  string opening_uri = 8;
+  uint64 opening_height = 9;
+  string result_verifier_operator_address = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  repeated AnchorPositionVerdictV1 verdicts = 11 [(gogoproto.nullable) = false];
+  // sha256 of the proof package (zero bytes when the auditor recomputed
+  // directly with the weights instead of proving).
+  bytes proof_hash = 12 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 result_height = 13;
+  AnchorVerdictV1 task_verdict = 14;
+}
+
+// MsgSubmitAnchorOpening records the Worker's opening of the sampled
+// positions: the material hash, its size and where it can be fetched. The
+// outer Cosmos signer is the winner Worker's current service address.
+// MsgSubmitAnchorOpening defines the MsgSubmitAnchorOpening wire type.
+message MsgSubmitAnchorOpening {
+  option (cosmos.msg.v1.signer) = "submitter_address";
+  option (amino.name) = "trueopen/x/task/MsgSubmitAnchorOpening";
+
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  repeated uint64 positions = 2;
+  bytes opening_hash = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 opening_size_bytes = 4;
+  string opening_uri = 5;
+  string submitter_address = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgSubmitAnchorOpeningResponse defines the MsgSubmitAnchorOpeningResponse wire type.
+message MsgSubmitAnchorOpeningResponse {
+  shared.v1.MutationStatusV1 status = 1;
+}
+
+// MsgSubmitAnchorAuditResult records the auditor's per-position verdicts over
+// the opening whose hash it names. The outer Cosmos signer is a selected
+// Verifier's current service address.
+// MsgSubmitAnchorAuditResult defines the MsgSubmitAnchorAuditResult wire type.
+message MsgSubmitAnchorAuditResult {
+  option (cosmos.msg.v1.signer) = "submitter_address";
+  option (amino.name) = "trueopen/x/task/MsgSubmitAnchorAuditResult";
+
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes opening_hash = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  repeated AnchorPositionVerdictV1 verdicts = 3 [(gogoproto.nullable) = false];
+  bytes proof_hash = 4 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  string submitter_address = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgSubmitAnchorAuditResultResponse defines the MsgSubmitAnchorAuditResultResponse wire type.
+message MsgSubmitAnchorAuditResultResponse {
+  AnchorVerdictV1 task_verdict = 1;
+  shared.v1.MutationStatusV1 status = 2;
+}
+
+// QueryAnchorAuditRequest defines the QueryAnchorAuditRequest wire type.
+message QueryAnchorAuditRequest {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+}
+
+// QueryAnchorAuditResponse defines the QueryAnchorAuditResponse wire type.
+message QueryAnchorAuditResponse {
+  AnchorAuditState audit = 1 [(gogoproto.nullable) = false];
+}
