@@ -63,6 +63,13 @@ message AnchorAuditState {
   bytes proof_hash = 12 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
   uint64 result_height = 13;
   AnchorVerdictV1 task_verdict = 14;
+  // Worker-produced proof package covering the sampled positions (ADR-0040
+  // v2: the Worker proves on its own CPU while it keeps serving; a Verifier
+  // checks the proof without the weights). Zero/empty until submitted.
+  bytes worker_proof_hash = 15 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 worker_proof_size_bytes = 16;
+  string worker_proof_uri = 17;
+  uint64 worker_proof_height = 18;
 }
 
 // MsgSubmitAnchorOpening records the Worker's opening of the sampled
@@ -83,6 +90,27 @@ message MsgSubmitAnchorOpening {
 
 // MsgSubmitAnchorOpeningResponse defines the MsgSubmitAnchorOpeningResponse wire type.
 message MsgSubmitAnchorOpeningResponse {
+  shared.v1.MutationStatusV1 status = 1;
+}
+
+// MsgSubmitAnchorProof records the Worker's proof package over its recorded
+// opening: the proof hash, its size and where it can be fetched. The outer
+// Cosmos signer is the winner Worker's current service address.
+// MsgSubmitAnchorProof defines the MsgSubmitAnchorProof wire type.
+message MsgSubmitAnchorProof {
+  option (cosmos.msg.v1.signer) = "submitter_address";
+  option (amino.name) = "trueopen/x/task/MsgSubmitAnchorProof";
+
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes opening_hash = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes proof_hash = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 proof_size_bytes = 4;
+  string proof_uri = 5;
+  string submitter_address = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgSubmitAnchorProofResponse defines the MsgSubmitAnchorProofResponse wire type.
+message MsgSubmitAnchorProofResponse {
   shared.v1.MutationStatusV1 status = 1;
 }
 
