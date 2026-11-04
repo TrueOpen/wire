@@ -36,6 +36,40 @@ message AnchorPositionVerdictV1 {
   string reason = 3;
 }
 
+// AnchorResultSourceV1 names who finalized the anchor verdict of a task.
+enum AnchorResultSourceV1 {
+  ANCHOR_RESULT_SOURCE_V1_UNSPECIFIED = 0;
+  // A selected round-1 Verifier's MsgSubmitAnchorAuditResult (ADR-0040 v1; advisory since v4).
+  ANCHOR_RESULT_SOURCE_V1_VERIFIER = 1;
+  // Consensus validators reached >= 2/3 of the last bonded voting power on one verdict (v4).
+  ANCHOR_RESULT_SOURCE_V1_VALIDATOR_VOTE = 2;
+  // verdict_deadline_height passed without a final vote: REJECT when the Worker never
+  // opened or never proved, NO_VERDICT when the validators did not reach 2/3 on a proof.
+  ANCHOR_RESULT_SOURCE_V1_TIMEOUT = 3;
+}
+
+// AnchorVoteTallyV1 is the running validator-vote tally of one anchor audit, in
+// units of staking voting power as of the last validator-set update.
+message AnchorVoteTallyV1 {
+  uint64 pass_power = 1;
+  uint64 reject_power = 2;
+  uint64 no_verdict_power = 3;
+  uint64 total_power = 4;
+  uint32 vote_count = 5;
+}
+
+// AnchorValidatorVoteState is one bonded validator's vote on a Worker's anchor proof.
+message AnchorValidatorVoteState {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  string validator_operator_address = 2 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
+  string voter_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  AnchorVerdictV1 verdict = 4;
+  bytes proof_hash = 5 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 height = 6;
+  uint64 power = 7;
+  repeated AnchorPositionVerdictV1 verdicts = 8 [(gogoproto.nullable) = false];
+}
+
 // AnchorAuditState is the per-task record of the anchor commitment audit
 // (ADR-0040, first slice): the positions the chain sampled from the beacon,
 // the Worker's opening hash and the auditor's verdicts. The anchor commitment
@@ -74,6 +108,14 @@ message AnchorAuditState {
   // assignment records (which the chain prunes once the task is terminal).
   string winner_worker = 19;
   repeated string selected_verifiers = 20;
+  // Height by which a final verdict must exist; settlement of a PASS round waits until
+  // then (or until the validators finalize earlier). Zero on audits sampled before v4.
+  uint64 verdict_deadline_height = 21;
+  AnchorResultSourceV1 result_source = 22;
+  AnchorVoteTallyV1 tally = 23 [(gogoproto.nullable) = false];
+  string result_reason = 24;
+  // Role-fault id of the Worker slash applied at settlement on a REJECT verdict.
+  bytes worker_fault_id = 25 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
 // MsgSubmitAnchorOpening records the Worker's opening of the sampled
@@ -137,6 +179,38 @@ message MsgSubmitAnchorAuditResult {
 message MsgSubmitAnchorAuditResultResponse {
   AnchorVerdictV1 task_verdict = 1;
   shared.v1.MutationStatusV1 status = 2;
+}
+
+// MsgSubmitAnchorValidatorVote is a bonded consensus validator's verdict on the Worker's
+// recorded anchor proof (ADR-0040 v4). The signer must be the validator operator's account.
+// The verdict is final once one side holds >= 2/3 of the last bonded voting power.
+message MsgSubmitAnchorValidatorVote {
+  option (cosmos.msg.v1.signer) = "submitter_address";
+  option (amino.name) = "trueopen/x/task/MsgSubmitAnchorValidatorVote";
+
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes opening_hash = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  bytes proof_hash = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  AnchorVerdictV1 verdict = 4;
+  repeated AnchorPositionVerdictV1 verdicts = 5 [(gogoproto.nullable) = false];
+  string validator_operator_address = 6 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
+  string submitter_address = 7 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+message MsgSubmitAnchorValidatorVoteResponse {
+  AnchorVerdictV1 task_verdict = 1;
+  bool finalized = 2;
+  AnchorVoteTallyV1 tally = 3 [(gogoproto.nullable) = false];
+  shared.v1.MutationStatusV1 status = 4;
+}
+
+message QueryAnchorVotesRequest {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+}
+
+message QueryAnchorVotesResponse {
+  repeated AnchorValidatorVoteState votes = 1 [(gogoproto.nullable) = false];
+  AnchorVoteTallyV1 tally = 2 [(gogoproto.nullable) = false];
 }
 
 // QueryAnchorAuditRequest defines the QueryAnchorAuditRequest wire type.

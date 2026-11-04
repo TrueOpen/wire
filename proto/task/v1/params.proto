@@ -108,6 +108,12 @@ message VerificationParamsV1 {
   uint32 worker_infer_timeout_slash_bps = 1;
   uint32 result_reveal_missing_slash_bps = 4;
   uint32 builder_fault_slash_bps = 5;
+  // Basis points of the Worker's task liability reservation slashed when the anchor
+  // audit verdict is REJECT (ADR-0040 v4). Zero means the node default (10000).
+  uint32 anchor_reject_slash_bps = 7;
+  // Blocks after anchor sampling by which the validators' verdict must be final;
+  // a PASS round does not settle before then. Zero means the node default.
+  uint64 anchor_verdict_window_blocks = 8;
 }
 
 // EvidenceLimitParamsV1 bounds evidence payloads and supported version catalogs.
