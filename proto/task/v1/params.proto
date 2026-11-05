@@ -108,17 +108,21 @@ message VerificationParamsV1 {
   uint32 worker_infer_timeout_slash_bps = 1;
   uint32 result_reveal_missing_slash_bps = 4;
   uint32 builder_fault_slash_bps = 5;
-  // Basis points of the Worker's whole active service bond slashed when the anchor
-  // audit verdict is REJECT (ADR-0040 v5; v4 slashed only the task reservation).
-  // Zero means the node default (2500).
+  // Basis points of the slashable bond D (fixed at sampling) taken when the
+  // validators REJECT the Worker's anchor proof (ADR-0040 v6). Zero disables it.
   uint32 anchor_reject_slash_bps = 7;
-  // Blocks after anchor sampling by which the validators' verdict must be final;
-  // a PASS round does not settle before then. Zero means the node default.
+  // Validator voting window after the proof deadline (ADR-0040 v6). Must be > 0.
   uint64 anchor_verdict_window_blocks = 8;
-  // Floor of the per-task audit probability (ADR-0040 v5). Zero means the node default (500 = 5%).
+  // Floor of the per-task audit probability in basis points.
   uint32 anchor_audit_min_rate_bps = 9;
-  // Risk margin k (basis points) in s = k*R / (D + k*R); 10000 = 1x. Zero means the node default.
+  // Risk margin k (basis points) in s = k*R / (D + k*R); 10000 = 1x.
   uint32 anchor_audit_risk_margin_bps = 10;
+  // Blocks after sampling within which the Worker must record its opening. Must be > 0.
+  uint64 anchor_open_window_blocks = 11;
+  // Blocks after the opening deadline within which the Worker must record its proof. Must be > 0.
+  uint64 anchor_proof_window_blocks = 12;
+  // Basis points of D taken when the Worker never opened or never proved by the deadline.
+  uint32 anchor_timeout_slash_bps = 13;
 }
 
 // EvidenceLimitParamsV1 bounds evidence payloads and supported version catalogs.

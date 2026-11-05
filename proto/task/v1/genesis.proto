@@ -3,6 +3,7 @@ package task.v1;
 
 import "amino/amino.proto";
 import "gogoproto/gogo.proto";
+import "task/v1/anchor.proto";
 import "task/v1/assignment.proto";
 import "task/v1/challenge.proto";
 import "task/v1/cleanup.proto";
@@ -79,4 +80,8 @@ message GenesisState {
   repeated TaskSettlementState task_settlements = 71 [(gogoproto.nullable) = false];
   repeated SettlementFactsRetainedState settlement_facts_retained = 72 [(gogoproto.nullable) = false];
   repeated WorkerEvidenceReceiptState worker_evidence_receipts = 73 [(gogoproto.nullable) = false];
+  // Anchor audits, validator votes and vote delegations (ADR-0040).
+  repeated AnchorAuditState anchor_audits = 74 [(gogoproto.nullable) = false];
+  repeated AnchorValidatorVoteState anchor_validator_votes = 75 [(gogoproto.nullable) = false];
+  repeated AnchorVoteKeyState anchor_vote_keys = 76 [(gogoproto.nullable) = false];
 }

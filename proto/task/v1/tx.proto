@@ -55,6 +55,8 @@ service Msg {
   rpc SubmitAnchorAuditResult(MsgSubmitAnchorAuditResult) returns (MsgSubmitAnchorAuditResultResponse);
   // SubmitAnchorValidatorVote records a bonded validator's verdict on the Worker's anchor proof (ADR-0040 v4).
   rpc SubmitAnchorValidatorVote(MsgSubmitAnchorValidatorVote) returns (MsgSubmitAnchorValidatorVoteResponse);
+  // RegisterAnchorVoteKey delegates a validator's anchor votes to a hot vote address (ADR-0040 v6).
+  rpc RegisterAnchorVoteKey(MsgRegisterAnchorVoteKey) returns (MsgRegisterAnchorVoteKeyResponse);
   // ReportDataUnavailable records one selected Verifier's data-availability report.
   rpc ReportDataUnavailable(MsgReportDataUnavailable) returns (MsgReportDataUnavailableResponse);
   // SubmitBuilderEvidence accepts one closed typed objective Builder proof.

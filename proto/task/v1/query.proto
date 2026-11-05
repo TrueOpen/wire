@@ -60,6 +60,14 @@ service Query {
   rpc AnchorVotes(QueryAnchorVotesRequest) returns (QueryAnchorVotesResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/anchor_votes";
   }
+  // AnchorAuditsPending pages over sampled, selected audits awaiting a final verdict (ADR-0040 v6).
+  rpc AnchorAuditsPending(QueryAnchorAuditsPendingRequest) returns (QueryAnchorAuditsPendingResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/anchor_audits/pending";
+  }
+  // AnchorVoteKey returns one validator's anchor vote delegation (ADR-0040 v6).
+  rpc AnchorVoteKey(QueryAnchorVoteKeyRequest) returns (QueryAnchorVoteKeyResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/anchor_vote_key/{validator_operator_address}";
+  }
   // WorkerEvidence returns one compact objective-evidence receipt.
   rpc WorkerEvidence(QueryWorkerEvidenceRequest) returns (QueryWorkerEvidenceResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/worker_evidence/{worker_operator_address}/{seq}";
