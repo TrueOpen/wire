@@ -42,7 +42,7 @@
         "properties": {
           "path": {
             "type": "string",
-            "pattern": "^(shared|hub|task|bus)/[a-z0-9_]+\\.json$"
+            "pattern": "^(shared|hub|task|bus|parser)/[a-z0-9_]+\\.json$"
           },
           "origin": {
             "enum": ["node", "wire"]
