@@ -38,6 +38,7 @@ message AnchorPositionVerdictV1 {
 
 // AnchorResultSourceV1 names who finalized the anchor verdict of a task.
 enum AnchorResultSourceV1 {
+  // No final verdict yet.
   ANCHOR_RESULT_SOURCE_V1_UNSPECIFIED = 0;
   // A selected round-1 Verifier's MsgSubmitAnchorAuditResult (ADR-0040 v1; advisory since v4).
   ANCHOR_RESULT_SOURCE_V1_VERIFIER = 1;
@@ -46,15 +47,23 @@ enum AnchorResultSourceV1 {
   // verdict_deadline_height passed without a final vote: REJECT when the Worker never
   // opened or never proved, NO_VERDICT when the validators did not reach 2/3 on a proof.
   ANCHOR_RESULT_SOURCE_V1_TIMEOUT = 3;
+  // The receipt's commitments could not be sampled (malformed token commitment);
+  // the audit is final REJECT at sampling (ADR-0040 v6).
+  ANCHOR_RESULT_SOURCE_V1_INVALID_COMMITMENT = 4;
 }
 
 // AnchorVoteTallyV1 is the running validator-vote tally of one anchor audit, in
 // units of staking voting power as of the last validator-set update.
 message AnchorVoteTallyV1 {
+  // pass_power is the summed voting power of PASS votes.
   uint64 pass_power = 1;
+  // reject_power is the summed voting power of REJECT votes.
   uint64 reject_power = 2;
+  // no_verdict_power is the summed voting power of NO_VERDICT votes.
   uint64 no_verdict_power = 3;
+  // total_power is the last total bonded voting power at the latest vote.
   uint64 total_power = 4;
+  // vote_count is the number of recorded votes.
   uint32 vote_count = 5;
 }
 
@@ -125,6 +134,32 @@ message AnchorAuditState {
   bool selected = 27;
   // audit_basis spells out R, D and the coin for audit.
   string audit_basis = 28;
+  // Height by which the Worker's opening must be recorded (ADR-0040 v6); later openings are refused.
+  uint64 opening_deadline_height = 29;
+  // Height by which the Worker's proof must be recorded (ADR-0040 v6); later proofs are refused.
+  uint64 proof_deadline_height = 30;
+  // Slashable base D fixed at sampling: the Worker's effective active bond then (ADR-0040 v6).
+  // A REJECT or TIMEOUT slash is requested against D, so bond moved out after sampling
+  // is reached through the unbonding queue.
+  uint64 slashable_bond = 31;
+  // anchor_commit_uri locates the Worker's anchor_commit artifact in DA; its digest is the
+  // receipt's WORKER_ANCHOR_OPENING commitment.
+  string anchor_commit_uri = 32;
+  // epoch_manifest_hash is sha256 of the canonical epoch manifest the Worker's proof covers.
+  bytes epoch_manifest_hash = 33 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // epoch_manifest_uri locates the epoch manifest in DA.
+  string epoch_manifest_uri = 34;
+}
+
+// AnchorVoteKeyState delegates anchor votes of one validator to a hot vote address,
+// so the operator key can stay offline (ADR-0040 v6).
+message AnchorVoteKeyState {
+  // validator_operator_address is the delegating validator.
+  string validator_operator_address = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
+  // vote_address may sign MsgSubmitAnchorValidatorVote for the validator.
+  string vote_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // height is when the delegation was recorded.
+  uint64 height = 3;
 }
 
 // MsgSubmitAnchorOpening records the Worker's opening of the sampled
@@ -141,6 +176,8 @@ message MsgSubmitAnchorOpening {
   uint64 opening_size_bytes = 4;
   string opening_uri = 5;
   string submitter_address = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // anchor_commit_uri locates the anchor_commit artifact in DA (ADR-0040 v6).
+  string anchor_commit_uri = 7;
 }
 
 // MsgSubmitAnchorOpeningResponse defines the MsgSubmitAnchorOpeningResponse wire type.
@@ -162,6 +199,10 @@ message MsgSubmitAnchorProof {
   uint64 proof_size_bytes = 4;
   string proof_uri = 5;
   string submitter_address = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // epoch_manifest_hash is sha256 of the canonical epoch manifest (ADR-0040 v6).
+  bytes epoch_manifest_hash = 7 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // epoch_manifest_uri locates the epoch manifest in DA.
+  string epoch_manifest_uri = 8;
 }
 
 // MsgSubmitAnchorProofResponse defines the MsgSubmitAnchorProofResponse wire type.
@@ -191,7 +232,8 @@ message MsgSubmitAnchorAuditResultResponse {
 }
 
 // MsgSubmitAnchorValidatorVote is a bonded consensus validator's verdict on the Worker's
-// recorded anchor proof (ADR-0040 v4). The signer must be the validator operator's account.
+// recorded anchor proof (ADR-0040 v4). The signer must be the validator operator's account
+// or the vote address it registered with MsgRegisterAnchorVoteKey (v6).
 // The verdict is final once one side holds >= 2/3 of the last bonded voting power.
 message MsgSubmitAnchorValidatorVote {
   option (cosmos.msg.v1.signer) = "submitter_address";
@@ -206,17 +248,66 @@ message MsgSubmitAnchorValidatorVote {
   string submitter_address = 7 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
+// MsgSubmitAnchorValidatorVoteResponse reports the audit after the vote.
 message MsgSubmitAnchorValidatorVoteResponse {
+  // task_verdict is the audit verdict (UNSPECIFIED while open).
   AnchorVerdictV1 task_verdict = 1;
+  // finalized is true once the verdict is final.
   bool finalized = 2;
+  // tally is the running tally.
   AnchorVoteTallyV1 tally = 3 [(gogoproto.nullable) = false];
+  // status reports whether the vote changed state.
   shared.v1.MutationStatusV1 status = 4;
 }
 
+// MsgRegisterAnchorVoteKey lets a validator operator delegate its anchor votes to a hot
+// vote address (ADR-0040 v6). The signer is the validator operator's account; an empty
+// vote_address clears the delegation.
+message MsgRegisterAnchorVoteKey {
+  option (cosmos.msg.v1.signer) = "submitter_address";
+  option (amino.name) = "trueopen/x/task/MsgRegisterAnchorVoteKey";
+
+  string validator_operator_address = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
+  string vote_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string submitter_address = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgRegisterAnchorVoteKeyResponse defines the MsgRegisterAnchorVoteKeyResponse wire type.
+message MsgRegisterAnchorVoteKeyResponse {
+  shared.v1.MutationStatusV1 status = 1;
+}
+
+// QueryAnchorAuditsPendingRequest pages over audits awaiting a final verdict.
+message QueryAnchorAuditsPendingRequest {
+  // start_after resumes after this task id (exclusive); empty starts at the beginning.
+  bytes start_after = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // limit caps the page (default 100, maximum 500).
+  uint32 limit = 2;
+}
+
+// QueryAnchorAuditsPendingResponse lists sampled, selected, not yet final audits by task id.
+message QueryAnchorAuditsPendingResponse {
+  repeated AnchorAuditState audits = 1 [(gogoproto.nullable) = false];
+  // next is the start_after of the following page; empty at the end.
+  bytes next = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+}
+
+// QueryAnchorVoteKeyRequest names one validator.
+message QueryAnchorVoteKeyRequest {
+  string validator_operator_address = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
+}
+
+// QueryAnchorVoteKeyResponse returns the validator's vote delegation.
+message QueryAnchorVoteKeyResponse {
+  AnchorVoteKeyState vote_key = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryAnchorVotesRequest names one task.
 message QueryAnchorVotesRequest {
   bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
 }
 
+// QueryAnchorVotesResponse lists the validator votes and the tally of one audit.
 message QueryAnchorVotesResponse {
   repeated AnchorValidatorVoteState votes = 1 [(gogoproto.nullable) = false];
   AnchorVoteTallyV1 tally = 2 [(gogoproto.nullable) = false];
