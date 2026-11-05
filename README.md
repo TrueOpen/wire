@@ -39,6 +39,8 @@ Pull requests are checked for breaking changes against `main`. See
 - `gen`: pinned TypeScript and OpenAPI compatibility generation profiles.
 - [Registered session keys](docs/SESSION_KEYS_V1.md): authorization
   schema, admission rules, request authentication and consumer impact.
+- [Model support relay](docs/MODEL_SUPPORT_RELAY.md): Cortex confirmation
+  submission, Builder batching and chain-confirmed renewal.
 - `release`: release manifest policy. A release is cut by pushing a `v*` tag;
   see [release/README.md](release/README.md) and [VERSIONING.md](VERSIONING.md).
 

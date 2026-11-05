@@ -2,6 +2,11 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Add `IngressAPI.SubmitModelSupportConfirmation` for fee-paid relay of Cortex
+  support refreshes. Carry the existing Hub confirmation as protobuf binary,
+  preserving its type, signing domain and on-chain messages. Define replay,
+  bounded batching and chain-confirmed recovery without a wallet requirement.
+
 - Expand the fresh-network order ceiling to 7200 blocks and publish shared
   record/claim/rebuttal/challenge/response limits of 600/7200/1800/7200/1800.
   Preserve complete proof and epoch-body retention without adding a wait to

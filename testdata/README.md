@@ -1,5 +1,10 @@
 # Wire Test Vectors
 
+`v1/hub/model_support_relay_v1.json` carries the existing Hub daily-support
+signing vector through the Nexus relay envelope, with a real compact low-S
+signature, its chain replay fingerprint and equivalent protobuf field orders.
+It freezes transport bytes, not a Nexus queue or on-chain renewal result.
+
 `v1/task/builder_sync_v1.json` publishes typed replication signing vectors:
 all five item branches, independent output progress, optional Fin/output,
 canonical oneof tags and equivalent protobuf encodings with reversed fields
