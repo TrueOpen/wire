@@ -148,8 +148,8 @@ from those engines.
 
 Path: `testdata/v1/parser/reasoning_qwen3_v1.json`, registered in
 `testdata/v1/manifest.json` with `"origin": "wire"` and a `contract_section`
-pointing here. CI recomputes every case in Go / Rust / TS and asserts
-byte-identical output.
+pointing here. Every Go / Rust / TS implementation recomputes every case in its own
+CI and asserts byte-identical output; wire's CI checks the files' bytes and names.
 
 Each vector entry:
 

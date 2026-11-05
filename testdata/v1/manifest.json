@@ -327,6 +327,27 @@
       "contract_section": "Registered session key Cosmos Amino JSON and Web3 signing",
       "bytes": 7471,
       "sha256": "cc31a726291d86eb295303f14acaf5b35050e6126c948650171c170e38abe5cb"
+    },
+    {
+      "path": "parser/reasoning_qwen3_v1.json",
+      "origin": "wire",
+      "contract_section": "Reasoning Parser V1: qwen3@1 reasoning separation and its hand-off to the tool-call parsers",
+      "bytes": 9534,
+      "sha256": "5a382ba632d436fa99af45d5e10e7ac37b603382e74f525158e13889bad72a9a"
+    },
+    {
+      "path": "parser/tool_call_hermes_v1.json",
+      "origin": "wire",
+      "contract_section": "Tool Call Parser V1: hermes@1 blocks, payload rules, content layout and finish_reason-gated recovery",
+      "bytes": 18298,
+      "sha256": "e4bae61166591ae4ae7902e51ebaafc0e5c972de75e38d0122f8d320b6016922"
+    },
+    {
+      "path": "parser/tool_call_qwen3_coder_v1.json",
+      "origin": "wire",
+      "contract_section": "Tool Call Parser V1: qwen3_coder@1 grammar, value trimming and arguments encoding",
+      "bytes": 14421,
+      "sha256": "83310e3ad4f5cf3c350b289b9e4c3e3edc4bf196515693f85c63ebc3af12df99"
     }
   ]
 }

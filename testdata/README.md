@@ -18,6 +18,15 @@ signing projection are Base64, not the REST Hash32 form. CLEAR is `true`, not an
 empty struct; consumers must check the independent digests, not only that three
 actions produce different hashes.
 
+`v1/parser/` holds the shared parser vectors: `reasoning_qwen3_v1.json` for
+`qwen3@1` (docs/REASONING_PARSER_V1.md), and `tool_call_hermes_v1.json` and
+`tool_call_qwen3_coder_v1.json` for `hermes@1` and `qwen3_coder@1`
+(docs/TOOL_CALL_PARSER_V1.md). Each entry gives committed output, an optional
+verified finish reason and frame splits, and the exact `reasoning_content`,
+`content` and `tool_calls` every implementation must produce. Inputs that hold
+U+FEFF, U+2028 or 0x7F write them as `\u` escapes so no byte is invisible in
+the file.
+
 This directory stages language-neutral wire fixtures for Node, Nexus,
 Cortex, and SDK implementations.
 
