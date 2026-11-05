@@ -116,6 +116,15 @@ message AnchorAuditState {
   string result_reason = 24;
   // Role-fault id of the Worker slash applied at settlement on a REJECT verdict.
   bytes worker_fault_id = 25 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // Audit probability of this task in basis points (ADR-0040 v5): derived at sampling
+  // from the order value R and the Worker's slashable bond D = active_bond * anchor_reject_slash_bps:
+  // s = k*R / (D + k*R), floored at anchor_audit_min_rate_bps. A larger bond buys a lower rate.
+  uint32 audit_rate_bps = 26;
+  // selected is the beacon coin at audit_rate_bps: only selected tasks open, prove, vote and
+  // hold settlement; an unselected task settles on the round-1 verdict alone.
+  bool selected = 27;
+  // audit_basis spells out R, D and the coin for audit.
+  string audit_basis = 28;
 }
 
 // MsgSubmitAnchorOpening records the Worker's opening of the sampled
