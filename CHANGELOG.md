@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.6.0-anchor.1
+
+### Anchor commitment audit (ADR-0040)
+
+- Add evidence kind 5, WORKER_ANCHOR_OPENING: an optional third Worker
+  commitment, required only by Profiles that list it in
+  required_infer_evidence. Receipts of Profiles without it are unchanged.
+- Add task/v1/anchor.proto: AnchorAuditState, AnchorValidatorVoteState,
+  AnchorVoteKeyState; MsgSubmitAnchorOpening, MsgSubmitAnchorProof (Worker
+  service signer only), MsgSubmitAnchorValidatorVote (bonded validator operator
+  or its registered vote address; final at >= 2/3 of the last total power),
+  MsgRegisterAnchorVoteKey, the advisory MsgSubmitAnchorAuditResult; queries
+  AnchorAudit, AnchorVotes, AnchorAuditsPending, AnchorVoteKey; event
+  EventAnchorVerdictFinalized.
+- Add DeadlineKindV1.ANCHOR_VERDICT = 14: a PASS round's settlement is held
+  until the anchor verdict is final or its deadline passes.
+- Add task GenesisState fields 74-76 (anchor audits, votes, vote keys).
+- Add VerificationParamsV1 fields 7-13: anchor_reject_slash_bps,
+  anchor_verdict_window_blocks, anchor_audit_min_rate_bps,
+  anchor_audit_risk_margin_bps, anchor_open_window_blocks,
+  anchor_proof_window_blocks, anchor_timeout_slash_bps. Zero is a value, not a
+  default; the three windows must be positive.
+- **Commitment change:** TRUEOPEN_TASK_PARAMS_V1 now frames all ten
+  VerificationParamsV1 fields in field-number order. Historical bodies hash
+  differently under the new encoder; consumers must retain the previous encoder
+  for versions recorded before activation and must not recompute or overwrite
+  old metadata. The fixture shared/params_v1.json is regenerated accordingly.
+- Deployment requires a coordinated upgrade (node plan v0.6.0-anchor-audit)
+  and this order: chain, every Builder (nexus), every Cortex node, the anchor
+  sidecars, and only then registration of a Profile requiring kind 5.
+
 ## v0.5.1
 
 ### Registered session signing keys
