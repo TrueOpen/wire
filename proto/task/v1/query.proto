@@ -68,6 +68,14 @@ service Query {
   rpc AnchorVoteKey(QueryAnchorVoteKeyRequest) returns (QueryAnchorVoteKeyResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/anchor_vote_key/{validator_operator_address}";
   }
+  // AnchorEpoch returns one sealed B1 epoch and its x beacon (ADR-0040 v7).
+  rpc AnchorEpoch(QueryAnchorEpochRequest) returns (QueryAnchorEpochResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/anchor_epoch/{epoch_manifest_hash}";
+  }
+  // AnchorContentVotes returns the content votes and tally of one task's anchor audit (ADR-0040 v7).
+  rpc AnchorContentVotes(QueryAnchorContentVotesRequest) returns (QueryAnchorContentVotesResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/anchor_content_votes";
+  }
   // WorkerEvidence returns one compact objective-evidence receipt.
   rpc WorkerEvidence(QueryWorkerEvidenceRequest) returns (QueryWorkerEvidenceResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/worker_evidence/{worker_operator_address}/{seq}";

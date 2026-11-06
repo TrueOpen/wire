@@ -1,5 +1,37 @@
 # Changelog
 
+## v0.7.0-anchor-content.1
+
+### Anchor content-integrity verdict (ADR-0040 v7)
+
+- Add AnchorContentVerdictV1 (PASS, REJECT_CONTENT, NO_VERDICT) and a content
+  track on AnchorAuditState, separate from the compute verdict: fields 35-46
+  (content deadline, verdict, source, height, tally, reason, content fault id,
+  epoch seal height, x beacon height, x beacon digest, x-bound proof flag,
+  per-position content verdicts). AnchorResultSourceV1.COMPUTE_REJECTED = 5
+  closes the content track when the compute track already rejected the Worker.
+- Add MsgSealAnchorEpoch (winner Worker service signer): freezes the opening set
+  of a B1 proving epoch after all members opened and records x_beacon_height =
+  freeze (seal) height + 1, above every member opening. The proof records the
+  chain beacon randomness at that height as x_beacon. Add AnchorEpochState.
+- MsgSubmitAnchorProof field 9 x_beacon_height: a proof carrying Y_x rows must
+  name the recorded height; a sealed task must carry them.
+- Add MsgSubmitAnchorContentVote (validator operator or registered vote
+  address): final at >= 2/3 of the last total voting power; opens once the task
+  has settled on its compute verdict. Add AnchorContentVoteState,
+  AnchorContentPositionVerdictV1 (with z_micro), EventAnchorContentVerdictFinalized.
+- Add queries AnchorEpoch and AnchorContentVotes; QueryAnchorAuditsPendingRequest
+  field 3 content selects the content track.
+- Add AnchorWorkerCusumState (specified, not stored yet): cross-task CUSUM of
+  the direction statistic, planned for v8.
+- Add task GenesisState fields 97-98 (content votes, sealed epochs).
+- Add VerificationParamsV1 fields 14-17: anchor_positions_per_task (1..64),
+  anchor_min_bond_multiple (0 disables), anchor_content_verdict_window_blocks
+  (0 disables the content track), anchor_content_reject_slash_bps.
+- **Commitment change:** TRUEOPEN_TASK_PARAMS_V1 frames the four new fields;
+  the fixture shared/params_v1.json is updated accordingly.
+- Deployment requires a coordinated upgrade (node plan v0.7.0-anchor-content).
+
 ## v0.6.1-anchor.2
 
 ### Anchor commitment audit (ADR-0040): renumbering

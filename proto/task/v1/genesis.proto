@@ -85,4 +85,7 @@ message GenesisState {
   repeated AnchorAuditState anchor_audits = 94 [(gogoproto.nullable) = false];
   repeated AnchorValidatorVoteState anchor_validator_votes = 95 [(gogoproto.nullable) = false];
   repeated AnchorVoteKeyState anchor_vote_keys = 96 [(gogoproto.nullable) = false];
+  // Anchor content votes and sealed B1 epochs (ADR-0040 v7).
+  repeated AnchorContentVoteState anchor_content_votes = 97 [(gogoproto.nullable) = false];
+  repeated AnchorEpochState anchor_epochs = 98 [(gogoproto.nullable) = false];
 }

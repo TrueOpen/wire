@@ -111,8 +111,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "Hub and Task parameter commitments and replay separation",
-      "bytes": 60213,
-      "sha256": "7b8ccddc6a7de2e849ccd3d555f24b941ba2e835a4e39f0e4b064ec6e7c28bc2"
+      "bytes": 61223,
+      "sha256": "d83c2215f61ebe028218e02bacebfd4ec23dd9fcd152d7e62220e334c3b4e4bc"
     },
     {
         "path": "shared/query_page_v1.json",
