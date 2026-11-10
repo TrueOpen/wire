@@ -286,6 +286,23 @@ clients can recover it after governance changes. New Task execution policy is
 frozen when that Task is created. A compacted Session has no live dispatch
 challenge window and cannot be reinterpreted under current parameters.
 
+`task.v1.Query/TaskFrozenParams` is the matching read for a Task. It returns the
+`TaskParamsV1` body and version the Task bound when it was accepted, which can
+differ from both current parameters and the Session's frozen version. Clients
+use it to price a challenge round exactly: the lock is
+`challenge_open_bond + floor(floor(floor(tokens * price_bid / 1e6) *
+verify_ratio_bps_snapshot / 10000) / selected_verifier_count) *
+challenge_verifier_count`, where `tokens` is round 1's `generated_token_count`,
+`price_bid` and `verify_ratio_bps_snapshot` come from the Task budget, and the
+three parameter inputs come from this query. A Task that is active or terminal
+but not yet compacted is readable (version 0 is valid), including while
+compaction is still in progress. The final compaction step releases the binding
+together with the Task, so a compacted or unknown Task is NotFound and the terminal summary carries no
+parameters. A live Task without a binding, or a bound version whose body is
+missing, is Internal; the query never answers with current parameters. A
+non-canonical `task_id` is InvalidArgument. The query is read-only and adds no
+state.
+
 All five dispatch challenge kinds have positive gas caps. Record retention
 exceeds the sum of the hard claim, rebuttal, challenge and response windows.
 Automatic compensation exclusions report `dismissal_reason`, including

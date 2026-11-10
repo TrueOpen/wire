@@ -23,6 +23,10 @@ service Query {
   rpc Task(QueryTaskRequest) returns (QueryTaskResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}";
   }
+  // TaskFrozenParams returns the parameters frozen when one task was accepted.
+  rpc TaskFrozenParams(QueryTaskFrozenParamsRequest) returns (QueryTaskFrozenParamsResponse) {
+    option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/params";
+  }
   // TaskStage returns the stage and next-deadline projection of one task.
   rpc TaskStage(QueryTaskStageRequest) returns (QueryTaskStageResponse) {
     option (google.api.http).get = "/TrueOpen/task/v1/task/{task_id}/stage";

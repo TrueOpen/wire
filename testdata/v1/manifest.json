@@ -118,8 +118,8 @@
       "path": "shared/rest_json_shapes_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 38686,
-      "sha256": "a457e8e5ad8cb80678c4f6dfcafe39da901d2d7271f9817e437cb892998d803c"
+      "bytes": 45923,
+      "sha256": "fe1a8ddf25a193b66d37c618c0a11edf8a171595dc752774acb30c7c593cb3ef"
     },
     {
       "path": "shared/service_key_rotation_v1.json",

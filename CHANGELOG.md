@@ -2,6 +2,17 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Add `task.v1.Query/TaskFrozenParams` (`GET /TrueOpen/task/v1/task/{task_id}/params`)
+  returning a Task's frozen `TaskParamsV1` and its version, so a client can
+  price a challenge round with the `selected_verifier_count`,
+  `challenge_verifier_count` and `challenge_open_bond` the chain will read for
+  that Task. Neither current parameters nor `QuerySessionResponse.params` can
+  stand in for them. A missing Task row (compacted or unknown) is NotFound, a
+  live Task whose binding or body is missing is Internal, and current
+  parameters are never substituted. The request/response messages are new and
+  the rpc is additive; `QueryTaskParams*` stays the current-parameter query.
+  See #52.
+
 - Add `IngressAPI.SubmitModelSupportConfirmation` for fee-paid relay of Cortex
   support refreshes. Carry the existing Hub confirmation as protobuf binary,
   preserving its type, signing domain and on-chain messages. Define replay,
