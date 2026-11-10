@@ -9,8 +9,10 @@ import "shared/v1/rest_encoding.proto";
 
 option go_package = "github.com/TrueOpen/node/x/hub/types";
 
-// MsgRegisterVrfKey registers or rotates a validator's independent ECVRF key.
-// The Keeper derives pending_from_epoch as current_epoch + 1.
+// MsgRegisterVrfKey registers an independent Validator or Builder ECVRF key.
+// Validator and Builder registration/rotation activate next epoch. The existing
+// VRF audit history stays separate from service keys; service-key E+2 activation
+// and the previous-generation registration interval do not apply here.
 // MsgRegisterVrfKey defines the MsgRegisterVrfKey wire type.
 message MsgRegisterVrfKey {
   option (cosmos.msg.v1.signer) = "operator_address";
@@ -20,6 +22,8 @@ message MsgRegisterVrfKey {
   bytes vrf_key_pop = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_PROTOJSON_BASE64];
   uint64 vrf_authorization_nonce = 3;
   string operator_address = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  shared.v1.ParticipantType participant_type = 5;
 }
 
 // MsgRegisterVrfKeyResponse reports the pending activation and accepted nonce.
@@ -28,4 +32,6 @@ message MsgRegisterVrfKeyResponse {
   uint64 pending_from_epoch = 2;
   uint64 vrf_authorization_nonce = 3;
   shared.v1.MutationStatusV1 status = 4;
+
+  shared.v1.ParticipantType participant_type = 5;
 }

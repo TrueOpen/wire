@@ -13,8 +13,8 @@ This repository owns the language-neutral wire definitions under `proto/`:
 - `hub.v1`: Hub messages, queries, events, parameters, and state schemas.
 - `task.v1`: Task messages, queries, events, parameters, and state schemas.
   It has no direct or transitive proto import of `hub.v1`.
-- `bus.v1`: the nexus <-> cortex NATS task-control envelope and payloads.
-  It imports `shared.v1` and `task.v1` only.
+- `nexus.v1`: authenticated direct dispatch streams and user ingress.
+  NATS and the BusEnvelope transport are retired.
 
 Generated Node Go sources, Node OpenAPI assembly, Keeper validation, and service
 implementations remain in their consumer repositories.
@@ -39,6 +39,8 @@ Pull requests are checked for breaking changes against `main`. See
 - `gen`: pinned TypeScript and OpenAPI compatibility generation profiles.
 - [Registered session keys](docs/SESSION_KEYS_V1.md): authorization
   schema, admission rules, request authentication and consumer impact.
+- [Model support relay](docs/MODEL_SUPPORT_RELAY.md): Cortex confirmation
+  submission, Builder batching and chain-confirmed renewal.
 - `release`: release manifest policy. A release is cut by pushing a `v*` tag;
   see [release/README.md](release/README.md) and [VERSIONING.md](VERSIONING.md).
 
@@ -58,3 +60,6 @@ fixture file by size and SHA-256.
 See [Canonical Encoding V1](docs/CANONICAL_ENCODING_V1.md) for the current
 implemented framing boundary. Entries marked unregistered or divergent remain
 non-frozen until reviewed.
+
+The current Phase 1 candidate and consumer acceptance boundaries are described in
+[docs/PHASE1_CONTRACT.md](docs/PHASE1_CONTRACT.md).
