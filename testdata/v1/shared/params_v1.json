@@ -1,19 +1,24 @@
 {
+  "schema": "trueopen-params-domains-v1",
+  "source": "Hub and Task parameter commitment wire contract",
   "notes": [
     "HubParamsV2 includes the ModelParamsV1 parser allowlists and hard caps.",
     "TaskParamsV1 reserves encryption and Verifier value-evidence limits while enforcing a 256-byte output frame minimum.",
     "The H_FIELDS parameter commitments include every nested field and retain cross-chain and version replay separation.",
     "leaf_accounting counts the params message tree, the vector's params frame: a non-frame field is a scalar; a frame whose first child is element_count is one repeated field, and that element_count is not a scalar; any other frame below the root is a submessage.",
-    "Task session field 11 is the current effective registration/renewal limit; 604800 is fixture material, not a network default. This addition changes TRUEOPEN_TASK_PARAMS_V1 commitments."
+    "Task session field 11 is the current effective registration/renewal limit; 604800 is fixture material, not a network default. This addition changes TRUEOPEN_TASK_PARAMS_V1 commitments.",
+    "Task verification fields 14-17 (ADR-0040 v7 anchor content track: positions per task, minimum bond multiple, content verdict window, content reject slash) are framed in field-number order. This addition changes TRUEOPEN_TASK_PARAMS_V1 commitments."
   ],
-  "schema": "trueopen-params-domains-v1",
-  "source": "Hub and Task parameter commitment wire contract",
   "vectors": [
     {
-      "chain_id": "trueopen-hub-params-v2-vector-1",
-      "contract_section": "Public wire fixture testdata/v1/shared/params_v1.json",
-      "digest_hex": "06aeb17aaca0e2393de2c7c3a9d448fddcfa6e5c5bf2eb6c2018b22d691b7f5e",
+      "name": "hub_params_v2",
       "domain": "TRUEOPEN_HUB_PARAMS_V2",
+      "framing": "H_FIELDS_V1",
+      "contract_section": "Public wire fixture testdata/v1/shared/params_v1.json",
+      "producer": "HubParamsHashV2",
+      "proto_message": "hub.v1.HubParamsV2",
+      "chain_id": "trueopen-hub-params-v2-vector-1",
+      "params_version": 7,
       "fields": [
         {
           "name": "chain_id",
@@ -26,6 +31,8 @@
           "value": 7
         },
         {
+          "name": "params",
+          "type": "frame",
           "fields": [
             {
               "name": "schema_version",
@@ -33,6 +40,8 @@
               "value": 2
             },
             {
+              "name": "epoch",
+              "type": "frame",
               "fields": [
                 {
                   "name": "epoch_length_blocks",
@@ -49,11 +58,11 @@
                   "type": "uint64",
                   "value": 100
                 }
-              ],
-              "name": "epoch",
-              "type": "frame"
+              ]
             },
             {
+              "name": "support",
+              "type": "frame",
               "fields": [
                 {
                   "name": "support_window_epochs",
@@ -125,11 +134,11 @@
                   "type": "uint32",
                   "value": 32
                 }
-              ],
-              "name": "support",
-              "type": "frame"
+              ]
             },
             {
+              "name": "candidate_pool",
+              "type": "frame",
               "fields": [
                 {
                   "name": "candidate_slot_hard_capacity",
@@ -181,11 +190,11 @@
                   "type": "uint32",
                   "value": 1000
                 }
-              ],
-              "name": "candidate_pool",
-              "type": "frame"
+              ]
             },
             {
+              "name": "service",
+              "type": "frame",
               "fields": [
                 {
                   "name": "service_unbonding_period_blocks",
@@ -243,15 +252,15 @@
                   "value": 64
                 },
                 {
+                  "name": "service_bond_min_initial",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "1000000"
                     }
-                  ],
-                  "name": "service_bond_min_initial",
-                  "type": "frame"
+                  ]
                 },
                 {
                   "name": "max_service_material_expiry_blocks",
@@ -284,15 +293,15 @@
                   "value": 300
                 },
                 {
+                  "name": "min_task_liability",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "15000"
                     }
-                  ],
-                  "name": "min_task_liability",
-                  "type": "frame"
+                  ]
                 },
                 {
                   "name": "max_service_bond_effective_items_per_block",
@@ -309,11 +318,11 @@
                   "type": "uint64",
                   "value": 100
                 }
-              ],
-              "name": "service",
-              "type": "frame"
+              ]
             },
             {
+              "name": "builder",
+              "type": "frame",
               "fields": [
                 {
                   "name": "builder_set_cap",
@@ -375,11 +384,11 @@
                   "type": "uint32",
                   "value": 128
                 }
-              ],
-              "name": "builder",
-              "type": "frame"
+              ]
             },
             {
+              "name": "reward",
+              "type": "frame",
               "fields": [
                 {
                   "name": "max_order_value_histogram_buckets",
@@ -387,6 +396,8 @@
                   "value": 256
                 },
                 {
+                  "name": "order_value_bucket_boundaries",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "element_count",
@@ -394,63 +405,61 @@
                       "value": 4
                     },
                     {
+                      "name": "order_value_bucket_boundaries_0",
+                      "type": "frame",
                       "fields": [
                         {
                           "name": "atomic_units",
                           "type": "string",
                           "utf8": "1000000"
                         }
-                      ],
-                      "name": "order_value_bucket_boundaries_0",
-                      "type": "frame"
+                      ]
                     },
                     {
+                      "name": "order_value_bucket_boundaries_1",
+                      "type": "frame",
                       "fields": [
                         {
                           "name": "atomic_units",
                           "type": "string",
                           "utf8": "5000000"
                         }
-                      ],
-                      "name": "order_value_bucket_boundaries_1",
-                      "type": "frame"
+                      ]
                     },
                     {
+                      "name": "order_value_bucket_boundaries_2",
+                      "type": "frame",
                       "fields": [
                         {
                           "name": "atomic_units",
                           "type": "string",
                           "utf8": "10000000"
                         }
-                      ],
-                      "name": "order_value_bucket_boundaries_2",
-                      "type": "frame"
+                      ]
                     },
                     {
+                      "name": "order_value_bucket_boundaries_3",
+                      "type": "frame",
                       "fields": [
                         {
                           "name": "atomic_units",
                           "type": "string",
                           "utf8": "50000000"
                         }
-                      ],
-                      "name": "order_value_bucket_boundaries_3",
-                      "type": "frame"
+                      ]
                     }
-                  ],
-                  "name": "order_value_bucket_boundaries",
-                  "type": "frame"
+                  ]
                 },
                 {
+                  "name": "p30_bootstrap_order_value_floor",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "1"
                     }
-                  ],
-                  "name": "p30_bootstrap_order_value_floor",
-                  "type": "frame"
+                  ]
                 },
                 {
                   "name": "min_epoch_sample",
@@ -468,21 +477,21 @@
                   "value": 30
                 },
                 {
+                  "name": "min_claim_amount",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "1"
                     }
-                  ],
-                  "name": "min_claim_amount",
-                  "type": "frame"
+                  ]
                 }
-              ],
-              "name": "reward",
-              "type": "frame"
+              ]
             },
             {
+              "name": "freeze",
+              "type": "frame",
               "fields": [
                 {
                   "name": "freeze_risk_window_blocks",
@@ -539,11 +548,11 @@
                   "type": "uint32",
                   "value": 32
                 }
-              ],
-              "name": "freeze",
-              "type": "frame"
+              ]
             },
             {
+              "name": "treasury",
+              "type": "frame",
               "fields": [
                 {
                   "name": "governance_action_replay_window_blocks",
@@ -556,65 +565,65 @@
                   "value": 32
                 },
                 {
-                  "fields": [
-                    {
-                      "name": "atomic_units",
-                      "type": "string",
-                      "utf8": "1000000"
-                    }
-                  ],
                   "name": "model_profile_registration_fee",
-                  "type": "frame"
-                },
-                {
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "1000000"
                     }
-                  ],
+                  ]
+                },
+                {
                   "name": "profile_version_update_fee",
-                  "type": "frame"
-                },
-                {
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
-                      "utf8": "1000000000"
+                      "utf8": "1000000"
                     }
-                  ],
+                  ]
+                },
+                {
                   "name": "treasury_spend_limit_per_proposal",
-                  "type": "frame"
-                },
-                {
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "1000000000"
                     }
-                  ],
+                  ]
+                },
+                {
                   "name": "treasury_spend_limit_per_epoch",
-                  "type": "frame"
-                },
-                {
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "1000000000"
                     }
-                  ],
+                  ]
+                },
+                {
                   "name": "treasury_spend_limit_per_recipient",
-                  "type": "frame"
+                  "type": "frame",
+                  "fields": [
+                    {
+                      "name": "atomic_units",
+                      "type": "string",
+                      "utf8": "1000000000"
+                    }
+                  ]
                 }
-              ],
-              "name": "treasury",
-              "type": "frame"
+              ]
             },
             {
+              "name": "bucket",
+              "type": "frame",
               "fields": [
                 {
                   "name": "max_parameter_bucket_entries",
@@ -636,11 +645,11 @@
                   "type": "uint32",
                   "value": 32
                 }
-              ],
-              "name": "bucket",
-              "type": "frame"
+              ]
             },
             {
+              "name": "query_event",
+              "type": "frame",
               "fields": [
                 {
                   "name": "max_query_page_token_bytes",
@@ -667,11 +676,11 @@
                   "type": "uint32",
                   "value": 10000
                 }
-              ],
-              "name": "query_event",
-              "type": "frame"
+              ]
             },
             {
+              "name": "price",
+              "type": "frame",
               "fields": [
                 {
                   "name": "price_step_ppm",
@@ -698,11 +707,11 @@
                   "type": "uint64",
                   "value": 18446744073709551615
                 }
-              ],
-              "name": "price",
-              "type": "frame"
+              ]
             },
             {
+              "name": "beacon",
+              "type": "frame",
               "fields": [
                 {
                   "name": "beacon_retention_blocks",
@@ -734,11 +743,11 @@
                   "type": "uint32",
                   "value": 30
                 }
-              ],
-              "name": "beacon",
-              "type": "frame"
+              ]
             },
             {
+              "name": "phase0",
+              "type": "frame",
               "fields": [
                 {
                   "name": "business_denom",
@@ -756,20 +765,20 @@
                   "utf8": "1000000"
                 },
                 {
-                  "bool": false,
                   "name": "native_token_enabled",
-                  "type": "bool"
+                  "type": "bool",
+                  "bool": false
                 },
                 {
+                  "name": "epoch_block_reward",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "0"
                     }
-                  ],
-                  "name": "epoch_block_reward",
-                  "type": "frame"
+                  ]
                 },
                 {
                   "name": "fee_policy_version",
@@ -787,59 +796,59 @@
                   "value": 1
                 },
                 {
+                  "name": "fee_bypass_type_urls",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "element_count",
                       "type": "uint32",
                       "value": 0
                     }
-                  ],
-                  "name": "fee_bypass_type_urls",
-                  "type": "frame"
+                  ]
                 },
                 {
                   "name": "max_bypass_gas_per_block",
                   "type": "uint64",
                   "value": 10000000
                 }
-              ],
-              "name": "phase0",
-              "type": "frame"
+              ]
             },
             {
+              "name": "bridge",
+              "type": "frame",
               "fields": [
                 {
+                  "name": "bridge_limit_hard_max",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "1000000000000"
                     }
-                  ],
-                  "name": "bridge_limit_hard_max",
-                  "type": "frame"
+                  ]
                 },
                 {
-                  "fields": [
-                    {
-                      "name": "atomic_units",
-                      "type": "string",
-                      "utf8": "1000000000"
-                    }
-                  ],
                   "name": "initial_inbound_limit_per_epoch",
-                  "type": "frame"
-                },
-                {
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "1000000000"
                     }
-                  ],
+                  ]
+                },
+                {
                   "name": "initial_outbound_limit_per_epoch",
-                  "type": "frame"
+                  "type": "frame",
+                  "fields": [
+                    {
+                      "name": "atomic_units",
+                      "type": "string",
+                      "utf8": "1000000000"
+                    }
+                  ]
                 },
                 {
                   "name": "bridge_usage_retention_epochs",
@@ -861,33 +870,33 @@
                   "type": "uint64",
                   "value": 10000000
                 }
-              ],
-              "name": "bridge",
-              "type": "frame"
+              ]
             },
             {
+              "name": "model",
+              "type": "frame",
               "fields": [
                 {
+                  "name": "supported_tool_call_parsers",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "element_count",
                       "type": "uint32",
                       "value": 0
                     }
-                  ],
-                  "name": "supported_tool_call_parsers",
-                  "type": "frame"
+                  ]
                 },
                 {
+                  "name": "supported_reasoning_parsers",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "element_count",
                       "type": "uint32",
                       "value": 0
                     }
-                  ],
-                  "name": "supported_reasoning_parsers",
-                  "type": "frame"
+                  ]
                 },
                 {
                   "name": "max_supported_tool_call_parsers",
@@ -939,72 +948,68 @@
                   "type": "uint32",
                   "value": 2048
                 }
-              ],
-              "name": "model",
-              "type": "frame"
+              ]
             }
-          ],
-          "name": "params",
-          "type": "frame"
+          ]
         }
       ],
-      "framing": "H_FIELDS_V1",
-      "leaf_accounting": {
-        "repeated": 4,
-        "scalars": 136,
-        "submessages": 32
-      },
-      "name": "hub_params_v2",
-      "params_version": 7,
       "preimage_hex": "0000000000000016545255454f50454e5f4855425f504152414d535f5632000000000000001f747275656f70656e2d6875622d706172616d732d76322d766563746f722d3100000000000000080000000000000007000000000000087c0000000000000004000000020000000000000030000000000000000800000000039ada00000000000000000800000000000000050000000000000008000000000000006400000000000000ac0000000000000004000000020000000000000004000000020000000000000004000000020000000000000004000000030000000000000004000001000000000000000004000001000000000000000004000001000000000000000008000000000010000000000000000000040000001e00000000000000040000001e000000000000000400000020000000000000000400000020000000000000000400000100000000000000000400000020000000000000007c0000000000000004000010000000000000000004000002000000000000000008000000000000006400000000000000040000040000000000000000040000002000000000000000040000001e00000000000000040000001e0000000000000004000000200000000000000004000000640000000000000004000003e8000000000000013800000000000000080000000000049d40000000000000000800000000000000640000000000000004000000100000000000000008000000000000ec4000000000000000040000002000000000000000040000000100000000000000040000000300000000000000040000001000000000000000080000000000004000000000000000000400000200000000000000000400000040000000000000000f00000000000000073130303030303000000000000000080000000000093a8000000000000000040000001000000000000000040000040000000000000000080000000000093a8000000000000000040000010000000000000000040000012c000000000000000d000000000000000531353030300000000000000004000004000000000000000004000027100000000000000008000000000000006400000000000000a400000000000000040000000f0000000000000004000000030000000000000008000000000000006400000000000000080000000000000005000000000000000800000000000000050000000000000008000000000000000200000000000000040000001e00000000000000040000001e00000000000000040000002000000000000000080000000000093a8000000000000000040000010000000000000000040000008000000000000000c4000000000000000400000100000000000000006a000000000000000400000004000000000000000f000000000000000731303030303030000000000000000f000000000000000735303030303030000000000000001000000000000000083130303030303030000000000000001000000000000000083530303030303030000000000000000900000000000000013100000000000000040000001e00000000000000040000040000000000000000040000001e0000000000000009000000000000000131000000000000009800000000000000080000000000000064000000000000000400000001000000000000000800000000000000640000000000000008000000000000ec400000000000000008000000000000ec4000000000000000080000000000093a8000000000000000040000040000000000000000040000040000000000000000040000040000000000000000040000040000000000000000040000002000000000000000980000000000000008000000000000ec40000000000000000400000020000000000000000f000000000000000731303030303030000000000000000f0000000000000007313030303030300000000000000012000000000000000a313030303030303030300000000000000012000000000000000a313030303030303030300000000000000012000000000000000a313030303030303030300000000000000038000000000000000400000400000000000000000800000000001000000000000000000008000000000000ec4000000000000000040000002000000000000000400000000000000004000004000000000000000004000003e80000000000000008000000000040000000000000000000040001000000000000000000040000271000000000000000440000000000000004000f424000000000000000040000000a0000000000000004000003e8000000000000000800000000000000010000000000000008ffffffffffffffff00000000000000540000000000000008000000000000ec40000000000000000800000000000004000000000000000004000001000000000000000008000000000000000000000000000000040000040000000000000000040000001e000000000000009b000000000000000975747275656f70656e000000000000000575626f6e640000000000000007313030303030300000000000000001000000000000000009000000000000000130000000000000000800000000000000010000000000000008000000000000000100000000000000080000000000000001000000000000000c0000000000000004000000000000000000000008000000000098968000000000000000850000000000000015000000000000000d313030303030303030303030300000000000000012000000000000000a313030303030303030300000000000000012000000000000000a3130303030303030303000000000000000040000001e0000000000000004000001000000000000000004000027100000000000000008000000000098968000000000000000a0000000000000000c000000000000000400000000000000000000000c0000000000000004000000000000000000000004000000800000000000000004000000800000000000000004000000400000000000000004000000200000000000000004000008000000000000000004000000800000000000000004000000400000000000000004000000ff000000000000000400000020000000000000000400000800",
       "preimage_size_bytes": 2265,
-      "producer": "HubParamsHashV2",
-      "proto_message": "hub.v1.HubParamsV2",
-      "replay": [
-        {
-          "chain_id": "trueopen-hub-params-v2-vector-2",
-          "digest_hex": "ff857c41cf5424758579b86698a8c63a13872b8c01f1e8bc8bd8691202fb3e0a",
-          "name": "cross_chain",
-          "params_version": 7,
-          "reason": "the same parameter body is scoped to one chain"
-        },
-        {
-          "chain_id": "trueopen-hub-params-v2-vector-1",
-          "digest_hex": "ec77cfdaca750c3594a2c3c129863fe49e9a411d37eb66b75c717458d216e8c1",
-          "name": "stale_params_version",
-          "params_version": 6,
-          "reason": "the same parameter body at another version is a different commitment"
-        }
-      ],
+      "digest_hex": "06aeb17aaca0e2393de2c7c3a9d448fddcfa6e5c5bf2eb6c2018b22d691b7f5e",
       "tamper": [
         {
-          "bit": 0,
-          "byte": 0,
-          "digest_hex": "41c4645be48235dc330a8e5f6325c655bcf4604320cc4ffd381c42c99852c101",
+          "name": "chain_id_first_byte",
           "field": 0,
-          "name": "chain_id_first_byte"
+          "byte": 0,
+          "bit": 0,
+          "digest_hex": "41c4645be48235dc330a8e5f6325c655bcf4604320cc4ffd381c42c99852c101"
         },
         {
-          "bit": 0,
-          "byte": 0,
-          "digest_hex": "d4ec33510d94c83892011368e6734e5cbf2b8fcb6a496f53a3fc63bb8eaec624",
+          "name": "params_version_first_byte",
           "field": 1,
-          "name": "params_version_first_byte"
+          "byte": 0,
+          "bit": 0,
+          "digest_hex": "d4ec33510d94c83892011368e6734e5cbf2b8fcb6a496f53a3fc63bb8eaec624"
         },
         {
-          "bit": 0,
-          "byte": 0,
-          "digest_hex": "d1d24465c97a203dfc01d89cf9eb6a713bc66bda40cf8e6d40e3359f2f3ce718",
+          "name": "params_frame_first_byte",
           "field": 2,
-          "name": "params_frame_first_byte"
+          "byte": 0,
+          "bit": 0,
+          "digest_hex": "d1d24465c97a203dfc01d89cf9eb6a713bc66bda40cf8e6d40e3359f2f3ce718"
         }
-      ]
+      ],
+      "replay": [
+        {
+          "name": "cross_chain",
+          "reason": "the same parameter body is scoped to one chain",
+          "chain_id": "trueopen-hub-params-v2-vector-2",
+          "params_version": 7,
+          "digest_hex": "ff857c41cf5424758579b86698a8c63a13872b8c01f1e8bc8bd8691202fb3e0a"
+        },
+        {
+          "name": "stale_params_version",
+          "reason": "the same parameter body at another version is a different commitment",
+          "chain_id": "trueopen-hub-params-v2-vector-1",
+          "params_version": 6,
+          "digest_hex": "ec77cfdaca750c3594a2c3c129863fe49e9a411d37eb66b75c717458d216e8c1"
+        }
+      ],
+      "leaf_accounting": {
+        "submessages": 32,
+        "repeated": 4,
+        "scalars": 136
+      }
     },
     {
-      "chain_id": "trueopen-task-params-v1-vector-1",
-      "contract_section": "Public wire fixture testdata/v1/shared/params_v1.json",
-      "digest_hex": "42d761dd31c7de6c68a68e82d4f4021e29c7d73fa5a0298be73178186d5a17e1",
+      "name": "task_params_v1",
       "domain": "TRUEOPEN_TASK_PARAMS_V1",
+      "framing": "H_FIELDS_V1",
+      "contract_section": "Public wire fixture testdata/v1/shared/params_v1.json",
+      "producer": "TaskParamsHashV1",
+      "proto_message": "task.v1.TaskParamsV1",
+      "chain_id": "trueopen-task-params-v1-vector-1",
+      "params_version": 7,
       "fields": [
         {
           "name": "chain_id",
@@ -1017,6 +1022,8 @@
           "value": 7
         },
         {
+          "name": "params",
+          "type": "frame",
           "fields": [
             {
               "name": "schema_version",
@@ -1024,6 +1031,8 @@
               "value": 1
             },
             {
+              "name": "session",
+              "type": "frame",
               "fields": [
                 {
                   "name": "max_order_sequences_per_active_session",
@@ -1080,11 +1089,11 @@
                   "type": "uint64",
                   "value": 604800
                 }
-              ],
-              "name": "session",
-              "type": "frame"
+              ]
             },
             {
+              "name": "deadlines",
+              "type": "frame",
               "fields": [
                 {
                   "name": "verify_open_deadline_blocks",
@@ -1121,11 +1130,11 @@
                   "type": "uint32",
                   "value": 1024
                 }
-              ],
-              "name": "deadlines",
-              "type": "frame"
+              ]
             },
             {
+              "name": "proposals",
+              "type": "frame",
               "fields": [
                 {
                   "name": "max_candidate_handraises_per_proposal",
@@ -1157,11 +1166,11 @@
                   "type": "uint32",
                   "value": 4096
                 }
-              ],
-              "name": "proposals",
-              "type": "frame"
+              ]
             },
             {
+              "name": "weights",
+              "type": "frame",
               "fields": [
                 {
                   "name": "worker_stake_weight_ppm",
@@ -1218,11 +1227,11 @@
                   "type": "uint32",
                   "value": 64
                 }
-              ],
-              "name": "weights",
-              "type": "frame"
+              ]
             },
             {
+              "name": "verification",
+              "type": "frame",
               "fields": [
                 {
                   "name": "worker_infer_timeout_slash_bps",
@@ -1238,12 +1247,67 @@
                   "name": "builder_fault_slash_bps",
                   "type": "uint32",
                   "value": 0
+                },
+                {
+                  "name": "anchor_reject_slash_bps",
+                  "type": "uint32",
+                  "value": 2500
+                },
+                {
+                  "name": "anchor_verdict_window_blocks",
+                  "type": "uint64",
+                  "value": 1800
+                },
+                {
+                  "name": "anchor_audit_min_rate_bps",
+                  "type": "uint32",
+                  "value": 500
+                },
+                {
+                  "name": "anchor_audit_risk_margin_bps",
+                  "type": "uint32",
+                  "value": 10000
+                },
+                {
+                  "name": "anchor_open_window_blocks",
+                  "type": "uint64",
+                  "value": 1800
+                },
+                {
+                  "name": "anchor_proof_window_blocks",
+                  "type": "uint64",
+                  "value": 7200
+                },
+                {
+                  "name": "anchor_timeout_slash_bps",
+                  "type": "uint32",
+                  "value": 500
+                },
+                {
+                  "name": "anchor_positions_per_task",
+                  "type": "uint32",
+                  "value": 4
+                },
+                {
+                  "name": "anchor_min_bond_multiple",
+                  "type": "uint32",
+                  "value": 40
+                },
+                {
+                  "name": "anchor_content_verdict_window_blocks",
+                  "type": "uint64",
+                  "value": 3600
+                },
+                {
+                  "name": "anchor_content_reject_slash_bps",
+                  "type": "uint32",
+                  "value": 2500
                 }
-              ],
-              "name": "verification",
-              "type": "frame"
+              ]
             },
             {
+              "name": "evidence",
+              "type": "frame",
               "fields": [
                 {
                   "name": "max_evidence_retention_blocks",
@@ -1271,26 +1335,26 @@
                   "value": 16
                 },
                 {
+                  "name": "evidence_schema_version_supported",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "element_count",
                       "type": "uint32",
                       "value": 0
                     }
-                  ],
-                  "name": "evidence_schema_version_supported",
-                  "type": "frame"
+                  ]
                 },
                 {
+                  "name": "leaf_ordering_version_supported",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "element_count",
                       "type": "uint32",
                       "value": 0
                     }
-                  ],
-                  "name": "leaf_ordering_version_supported",
-                  "type": "frame"
+                  ]
                 },
                 {
                   "name": "max_output_mmr_leaves",
@@ -1327,11 +1391,11 @@
                   "type": "uint64",
                   "value": 262144
                 }
-              ],
-              "name": "evidence",
-              "type": "frame"
+              ]
             },
             {
+              "name": "cleanup",
+              "type": "frame",
               "fields": [
                 {
                   "name": "max_task_cleanup_items_per_block",
@@ -1368,11 +1432,11 @@
                   "type": "uint32",
                   "value": 256
                 }
-              ],
-              "name": "cleanup",
-              "type": "frame"
+              ]
             },
             {
+              "name": "batch",
+              "type": "frame",
               "fields": [
                 {
                   "name": "max_batch_commit_items",
@@ -1394,11 +1458,11 @@
                   "type": "uint64",
                   "value": 524288
                 }
-              ],
-              "name": "batch",
-              "type": "frame"
+              ]
             },
             {
+              "name": "generation",
+              "type": "frame",
               "fields": [
                 {
                   "name": "stop_sequence_max_items",
@@ -1430,11 +1494,11 @@
                   "type": "uint64",
                   "value": 131072
                 }
-              ],
-              "name": "generation",
-              "type": "frame"
+              ]
             },
             {
+              "name": "fee",
+              "type": "frame",
               "fields": [
                 {
                   "name": "fee_rule_version",
@@ -1462,32 +1526,32 @@
                   "value": 1
                 },
                 {
+                  "name": "max_reimbursement_per_tx",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "0"
                     }
-                  ],
-                  "name": "max_reimbursement_per_tx",
-                  "type": "frame"
+                  ]
                 },
                 {
+                  "name": "max_reimbursement_per_task",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "0"
                     }
-                  ],
-                  "name": "max_reimbursement_per_task",
-                  "type": "frame"
+                  ]
                 }
-              ],
-              "name": "fee",
-              "type": "frame"
+              ]
             },
             {
+              "name": "challenge",
+              "type": "frame",
               "fields": [
                 {
                   "name": "max_verify_round",
@@ -1505,15 +1569,15 @@
                   "value": 3
                 },
                 {
+                  "name": "challenge_open_bond",
+                  "type": "frame",
                   "fields": [
                     {
                       "name": "atomic_units",
                       "type": "string",
                       "utf8": "0"
                     }
-                  ],
-                  "name": "challenge_open_bond",
-                  "type": "frame"
+                  ]
                 },
                 {
                   "name": "challenge_inconclusive_bond_slash_bps",
@@ -1555,66 +1619,58 @@
                   "type": "uint32",
                   "value": 1024
                 }
-              ],
-              "name": "challenge",
-              "type": "frame"
+              ]
             }
-          ],
-          "name": "params",
-          "type": "frame"
+          ]
         }
       ],
-      "framing": "H_FIELDS_V1",
-      "leaf_accounting": {
-        "repeated": 2,
-        "scalars": 87,
-        "submessages": 14
-      },
-      "name": "task_params_v1",
-      "params_version": 7,
-      "preimage_hex": "0000000000000017545255454f50454e5f5441534b5f504152414d535f56310000000000000020747275656f70656e2d7461736b2d706172616d732d76312d766563746f722d3100000000000000080000000000000007000000000000052f00000000000000040000000100000000000000a00000000000000004000010000000000000000008000000000000006400000000000000080000000000061a800000000000000008000000000000ec400000000000000004000001000000000000000008000000000000ec400000000000000004000001000000000000000004000004000000000000000008000000000000c3500000000000000008000000000000271000000000000000080000000000093a80000000000000006c000000000000000800000000000249f0000000000000000800000000000186a00000000000000008000000000000007800000000000000080000000000018768000000000000000800000000000000140000000000000008000000000000000a000000000000000400000400000000000000004c0000000000000004000000d20000000000000008000000000008000000000000000000040000001000000000000000040000100000000000000000040000001000000000000000040000100000000000000000840000000000000004000493e00000000000000004000aae60000000000000000400030d400000000000000004000c35000000000000000004000186a00000000000000004000000040000000000000004000000150000000000000004000000030000000000000004000000030000000000000004000f4240000000000000000400000040000000000000002400000000000000040000000000000000000000040000000000000000000000040000000000000000000000d4000000000000000800000000000003e800000000000000040000002000000000000000080000000000002000000000000000000400000010000000000000000400000010000000000000000c000000000000000400000000000000000000000c0000000000000004000000000000000000000008000000000001000000000000000000040000010000000000000000080000000000100000000000000000000800000000000000000000000000000008000000000000000000000000000000040000000800000000000000080000000000040000000000000000005c0000000000000004000004000000000000000008000000000000ec400000000000000004000001000000000000000004000004000000000000000004000004000000000000000008000000000010000000000000000000040000010000000000000000380000000000000004000002000000000000000004000002000000000000000008000000000008000000000000000000080000000000080000000000000000004c0000000000000004000000100000000000000004000000800000000000000004000004000000000000000004000000400000000000000004000003e800000000000000080000000000020000000000000000006e000000000000000800000000000000020000000000000004000000000000000000000008000000000000000100000000000000080000000000000000000000000000000800000000000000010000000000000009000000000000000130000000000000000900000000000000013000000000000000a90000000000000004000000020000000000000004000000010000000000000004000000030000000000000009000000000000000130000000000000000400000000000000000000000400000000000000000000000800000000000000010000000000000008000000000000000100000000000000080000000000000001000000000000000800000000000000140000000000000008000000000000000a000000000000000400000400",
-      "preimage_size_bytes": 1422,
-      "producer": "TaskParamsHashV1",
-      "proto_message": "task.v1.TaskParamsV1",
-      "replay": [
-        {
-          "chain_id": "trueopen-task-params-v1-vector-2",
-          "digest_hex": "ba7eda4dd498861125d3f44726d3a2969895e229042c398bd39b000d0d1e4f60",
-          "name": "cross_chain",
-          "params_version": 7,
-          "reason": "the same parameter body is scoped to one chain"
-        },
-        {
-          "chain_id": "trueopen-task-params-v1-vector-1",
-          "digest_hex": "8393fa9cc2eedb2c43707b77be01913e09b4a8af8c9d3ce9636701f2cd69826a",
-          "name": "stale_params_version",
-          "params_version": 6,
-          "reason": "the same parameter body at another version is a different commitment"
-        }
-      ],
+      "preimage_hex": "0000000000000017545255454f50454e5f5441534b5f504152414d535f56310000000000000020747275656f70656e2d7461736b2d706172616d732d76312d766563746f722d310000000000000008000000000000000700000000000005c300000000000000040000000100000000000000a00000000000000004000010000000000000000008000000000000006400000000000000080000000000061a800000000000000008000000000000ec400000000000000004000001000000000000000008000000000000ec400000000000000004000001000000000000000004000004000000000000000008000000000000c3500000000000000008000000000000271000000000000000080000000000093a80000000000000006c000000000000000800000000000249f0000000000000000800000000000186a00000000000000008000000000000007800000000000000080000000000018768000000000000000800000000000000140000000000000008000000000000000a000000000000000400000400000000000000004c0000000000000004000000d20000000000000008000000000008000000000000000000040000001000000000000000040000100000000000000000040000001000000000000000040000100000000000000000840000000000000004000493e00000000000000004000aae60000000000000000400030d400000000000000004000c35000000000000000004000186a00000000000000004000000040000000000000004000000150000000000000004000000030000000000000004000000030000000000000004000f424000000000000000040000004000000000000000b80000000000000004000000000000000000000004000000000000000000000004000000000000000000000004000009c4000000000000000800000000000007080000000000000004000001f40000000000000004000027100000000000000008000000000000070800000000000000080000000000001c200000000000000004000001f400000000000000040000000400000000000000040000002800000000000000080000000000000e100000000000000004000009c400000000000000d4000000000000000800000000000003e800000000000000040000002000000000000000080000000000002000000000000000000400000010000000000000000400000010000000000000000c000000000000000400000000000000000000000c0000000000000004000000000000000000000008000000000001000000000000000000040000010000000000000000080000000000100000000000000000000800000000000000000000000000000008000000000000000000000000000000040000000800000000000000080000000000040000000000000000005c0000000000000004000004000000000000000008000000000000ec400000000000000004000001000000000000000004000004000000000000000004000004000000000000000008000000000010000000000000000000040000010000000000000000380000000000000004000002000000000000000004000002000000000000000008000000000008000000000000000000080000000000080000000000000000004c0000000000000004000000100000000000000004000000800000000000000004000004000000000000000004000000400000000000000004000003e800000000000000080000000000020000000000000000006e000000000000000800000000000000020000000000000004000000000000000000000008000000000000000100000000000000080000000000000000000000000000000800000000000000010000000000000009000000000000000130000000000000000900000000000000013000000000000000a90000000000000004000000020000000000000004000000010000000000000004000000030000000000000009000000000000000130000000000000000400000000000000000000000400000000000000000000000800000000000000010000000000000008000000000000000100000000000000080000000000000001000000000000000800000000000000140000000000000008000000000000000a000000000000000400000400",
+      "preimage_size_bytes": 1570,
+      "digest_hex": "34191052e917bb11c323268a37612fc776bec40602e7799294dde0bf0fe384f2",
       "tamper": [
         {
-          "bit": 0,
-          "byte": 0,
-          "digest_hex": "2007b41f88d08ea21eb2263f3474184e71fdbd96a4bd833823d6237e59f2beee",
+          "name": "chain_id_first_byte",
           "field": 0,
-          "name": "chain_id_first_byte"
+          "byte": 0,
+          "bit": 0,
+          "digest_hex": "3baebff4cd92a1734f402b54c112986d66cbe80f9ecf4d2e3b98bed378e73740"
         },
         {
-          "bit": 0,
-          "byte": 0,
-          "digest_hex": "655ec68d631cf8eb28338e6193b2daeb1e1839e7122ea85d32d72d624fa997ed",
+          "name": "params_version_first_byte",
           "field": 1,
-          "name": "params_version_first_byte"
+          "byte": 0,
+          "bit": 0,
+          "digest_hex": "aa414559e05b6795420d02489abad97889c68e45402d141565847ab719f7ccf8"
         },
         {
-          "bit": 0,
-          "byte": 0,
-          "digest_hex": "e31aec632f8c370100d034fc0db076c1a4782c202690ea6e652581fdc47c02ef",
+          "name": "params_frame_first_byte",
           "field": 2,
-          "name": "params_frame_first_byte"
+          "byte": 0,
+          "bit": 0,
+          "digest_hex": "0c05809537709cd8c60ce498620cc5feb48e3ae8797acd2ab2af12e63710ff50"
         }
-      ]
+      ],
+      "replay": [
+        {
+          "name": "cross_chain",
+          "reason": "the same parameter body is scoped to one chain",
+          "chain_id": "trueopen-task-params-v1-vector-2",
+          "params_version": 7,
+          "digest_hex": "9c24abeb940b324fe533aaed9a88aa3011b71ad69af152e7268833c6e45729bd"
+        },
+        {
+          "name": "stale_params_version",
+          "reason": "the same parameter body at another version is a different commitment",
+          "chain_id": "trueopen-task-params-v1-vector-1",
+          "params_version": 6,
+          "digest_hex": "c65e6254347c65d82e9d1f2ed5524c90c75acb6aebcf5a480447cb8417c752ae"
+        }
+      ],
+      "leaf_accounting": {
+        "submessages": 14,
+        "repeated": 2,
+        "scalars": 98
+      }
     }
   ]
 }
