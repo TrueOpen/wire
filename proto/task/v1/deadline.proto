@@ -69,8 +69,6 @@ enum DeadlineKindV1 {
   // Window in which the funded second verification round may be opened.
   // DEADLINE_KIND_V1_CHALLENGE_WINDOW_CLOSE identifies the corresponding protocol value.
   DEADLINE_KIND_V1_CHALLENGE_WINDOW_CLOSE = 12;
-  // Settlement is held until the anchor audit verdict is final (ADR-0040 v4).
-  DEADLINE_KIND_V1_ANCHOR_VERDICT = 14;
   // EvidenceCleanupIndex bounded cursor; kind_priority 110.
   // DEADLINE_KIND_V1_EVIDENCE_CLEANUP identifies the corresponding protocol value.
   DEADLINE_KIND_V1_EVIDENCE_CLEANUP = 13;
@@ -82,6 +80,9 @@ enum DeadlineKindV1 {
   DEADLINE_KIND_V1_DISPATCH_COMPENSATION_REBUTTAL = 16;
   // TAKEOVER_ACTIVATION is an EndBlock-only deadline.
   DEADLINE_KIND_V1_TAKEOVER_ACTIVATION = 17;
+  // Settlement is held until the anchor audit verdict is final (ADR-0040 v4);
+  // kind_priority 41. Values 14-17 belong to the Phase 1 dispatch contract.
+  DEADLINE_KIND_V1_ANCHOR_VERDICT = 18;
 }
 
 // DeadlineTransitionCode is the closed transition reason carried by event
