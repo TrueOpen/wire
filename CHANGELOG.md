@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.6.1-anchor.2
+
+### Anchor commitment audit (ADR-0040): renumbering
+
+- **Renumbered against the Phase 1 dispatch contract (upstream wire PR #49):**
+  DeadlineKindV1.ANCHOR_VERDICT moves from 14 to 18 because Phase 1 assigns
+  14 (VERIFIER_VALUE_EVIDENCE_WINDOW_CLOSE) through 17; the anchor task
+  GenesisState fields move from 74-76 to 94-96 because Phase 1 assigns 74-80
+  and 90-93. The numbers below for v0.6.0-anchor.1 are therefore superseded.
+  That tag was a devnet-only pre-release that no retained-data network
+  consumed, so the old numbers are released to Phase 1 rather than reserved.
+  A JSON genesis export keys the anchor tables by name and is unaffected; a
+  DeadlineIndex row recorded under kind 14 by that pre-release is not carried
+  forward, so devnet state from it is not imported under this release.
+  Nothing else moves: EvidenceKind 5, VerificationParamsV1 7-13, the anchor
+  Msg/Query RPCs and the anchor event do not overlap Phase 1, and the
+  TRUEOPEN_TASK_PARAMS_V1 commitment and shared/params_v1.json are unchanged
+  by the renumbering.
+
 ## v0.6.0-anchor.1
 
 ### Anchor commitment audit (ADR-0040)
