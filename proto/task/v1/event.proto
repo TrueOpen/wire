@@ -11,6 +11,7 @@ import "task/v1/assignment.proto";
 import "task/v1/deadline.proto";
 import "task/v1/settlement.proto";
 import "shared/v1/rest_encoding.proto";
+import "task/v1/anchor.proto";
 
 option go_package = "github.com/TrueOpen/node/x/task/types";
 
@@ -422,4 +423,16 @@ message EventSessionKeyUpdated {
   shared.v1.Amount spend_cap = 5 [(gogoproto.nullable) = false];
   shared.v1.Amount spent = 6 [(gogoproto.nullable) = false];
   uint64 set_height = 7;
+}
+
+// EventAnchorVerdictFinalized is emitted when an anchor audit verdict becomes
+// final (ADR-0040 v4): by validator vote, or by the verdict deadline.
+message EventAnchorVerdictFinalized {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  AnchorVerdictV1 verdict = 2;
+  AnchorResultSourceV1 source = 3;
+  uint64 pass_power = 4;
+  uint64 reject_power = 5;
+  uint64 total_power = 6;
+  string reason = 7;
 }
