@@ -2,6 +2,12 @@
 
 ## Unreleased - Phase 1 (breaking, fresh genesis)
 
+- Define display-only input token counts from an accepted receipt's Worker
+  token evidence size and generated count. Publish checked Go derivation and
+  conformance cases alongside the V1 token-ID vectors, including unavailable
+  values and overflow boundaries. Preserve all chain schemas, signing bytes
+  and accounting rules. See #54 and `docs/TOKEN_USAGE_V1.md`.
+
 - Add `task.v1.Query/TaskFrozenParams` (`GET /TrueOpen/task/v1/task/{task_id}/params`)
   returning a Task's frozen `TaskParamsV1` and its version, so a client can
   price a challenge round with the `selected_verifier_count`,

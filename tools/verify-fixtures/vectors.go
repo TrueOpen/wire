@@ -34,7 +34,13 @@ func validatePublishedVectors(path, declaredPath string) error {
 	if err := decoder.Decode(&document); err != nil {
 		return fmt.Errorf("decode %q for vector verification: %w", declaredPath, err)
 	}
-	return walkPublishedVectors(declaredPath, document)
+	if err := walkPublishedVectors(declaredPath, document); err != nil {
+		return err
+	}
+	if declaredPath == "task/token_ids_v1.json" {
+		return validateInputTokenCountCases(raw)
+	}
+	return nil
 }
 
 func walkPublishedVectors(where string, node any) error {

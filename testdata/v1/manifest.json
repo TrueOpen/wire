@@ -325,9 +325,9 @@
     {
       "path": "task/token_ids_v1.json",
       "origin": "wire",
-      "contract_section": "Public wire conformance vectors for task/token_ids_v1.json",
-      "bytes": 2252,
-      "sha256": "b3ed73c676493888ffe347abf26ec01d50aefa105b372ec9f177236214aeda05"
+      "contract_section": "V1 token-ID encoding and display-only input-count derivation conformance",
+      "bytes": 6639,
+      "sha256": "6f63f81f8eb45defc1d86ab5afb95f5991fff495eded1b8e9eda081291ad466a"
     },
     {
       "path": "task/value_evidence_v1.json",

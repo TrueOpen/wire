@@ -1,5 +1,10 @@
 # Wire Test Vectors
 
+`v1/task/token_ids_v1.json` also publishes display-only input-count derivation
+cases. The 28-byte / three-generated-token example is linked to its two raw
+token-ID artifacts. Invalid sizes/counts and unsigned extremes yield an
+unavailable value, never a fabricated zero. See `docs/TOKEN_USAGE_V1.md`.
+
 `v1/hub/model_support_relay_v1.json` carries the existing Hub daily-support
 signing vector through the Nexus relay envelope, with a real compact low-S
 signature, its chain replay fingerprint and equivalent protobuf field orders.

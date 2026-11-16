@@ -41,6 +41,8 @@ Pull requests are checked for breaking changes against `main`. See
   schema, admission rules, request authentication and consumer impact.
 - [Model support relay](docs/MODEL_SUPPORT_RELAY.md): Cortex confirmation
   submission, Builder batching and chain-confirmed renewal.
+- [Display-only input token counts](docs/TOKEN_USAGE_V1.md): receipt-derived
+  usage, unavailable values and the shared Go derivation.
 - `release`: release manifest policy. A release is cut by pushing a `v*` tag;
   see [release/README.md](release/README.md) and [VERSIONING.md](VERSIONING.md).
 
