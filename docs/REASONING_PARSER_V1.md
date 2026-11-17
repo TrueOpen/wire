@@ -144,12 +144,105 @@ the only boundary and absorbs only the head marker, so outputs such as
 `abc<think>x</think>ok` or a `<tool_call>` inside unclosed reasoning split differently
 from those engines.
 
+### glm47@1
+
+Serves the GLM-4.7 and GLM-5.x template families. Its tool-call counterpart is
+`glm47@1` in [Tool Call Parser V1](TOOL_CALL_PARSER_V1.md).
+
+```text
+name    : glm47
+version : 1
+markers : start = "<think>", end = "</think>"
+class   : implicit
+span    : 1. Head. Let w = the length of the leading run of whitespace bytes.
+             - If the bytes at w begin with "<think>", the span starts at
+               w + len("<think>"): that leading whitespace and this one marker are
+               dropped (absorbed). Only this first marker is absorbed; a "<think>"
+               right after it, or anywhere later, is reasoning text.
+             - Otherwise the span starts at 0 and nothing is dropped; leading
+               whitespace stays part of the span.
+          2. Close. e = the first "</think>" at or after the span start.
+             - none -> reasoning_content = bytes [span start, end); remainder empty;
+               tool parsing does not run.
+             - found -> reasoning_content = bytes [span start, e);
+               remainder = bytes after that "</think>".
+          3. Layout. Remove every consecutive LF (0x0A) at the start and at the end of
+             reasoning_content, and every consecutive LF at the start of the remainder.
+             Only LF is removed; CR, SP and HT are kept.
+          The remainder is otherwise untouched: a later "<think>" or "</think>" in it is
+          plain text for the tool-call stage / content. A "<tool_call>" before the
+          close marker is reasoning text (common contract, Internal); it does not end
+          the span.
+```
+
+The span rule is the same as `qwen3@1`; the two stay separate `(name, version)`
+pairs because each is frozen against its own template family and pairs with its own
+tool-call parser.
+
+**Why implicit.** In the default branch of both GLM template families the generation
+prompt ends with `<think>`, so the committed output opens with reasoning and the model
+does not write the start marker:
+
+| Template (default branch) | Generation prompt ends with | Committed output |
+|---|---|---|
+| GLM-4.7, GLM-5, GLM-5.1, GLM-5.2 (`enable_thinking` unset) | `<\|assistant\|><think>` | `…</think>…` |
+| GLM-5.3 (no thinking switch; any `reasoning_effort`) | `<\|assistant\|><think>` | `…</think>…` |
+
+GLM-4.7 and GLM-5 render a past assistant turn as
+`'<think>' + reasoning.strip() + '</think>'` followed by the stripped content, and split
+a stored turn by removing LF from the reasoning's ends (`rstrip('\n')` /
+`lstrip('\n')`) and from the start of the content; the layout rule is that split.
+GLM-5.1 and later render `<think>` + reasoning + `</think>` with no layout bytes, which
+the layout rule leaves as is. Absorbing a head `<think>` keeps the split unchanged if a
+model writes the marker anyway.
+
+**Applicability.** Pin `glm47@1` only on a profile whose pinned template opens
+reasoning in its default branch. GLM-5.3 always does. GLM-4.7 to GLM-5.2 do unless
+`enable_thinking` is false; that branch ends the generation prompt with `</think>`
+(GLM-4.7 to GLM-5.1) or `<think></think>` (GLM-5.2) instead, so the output carries no
+close marker and `glm47@1` would turn the whole answer into reasoning. A profile cannot
+select that branch (a request carries no thinking switch), so it matters only for a
+template whose default turns thinking off: such a profile pins no reasoning parser
+(`reasoning_parsing {}`). `glm47@1` does not serve GLM-4.5 / GLM-4.6: their default
+generation prompt does not open reasoning, so an answer the model writes without a
+`<think>` block would become reasoning.
+
+**Worked examples** (`\n` is LF, `\r` is CR; all are vectors):
+
+| Input | reasoning_content | content (no tool parser) |
+|---|---|---|
+| `abc</think>ok` | `abc` | `ok` |
+| `<think>abc</think>ok` | `abc` | `ok` |
+| `\nabc\n</think>\nok` | `abc` | `ok` |
+| `</think>ok` | (empty) | `ok` |
+| `abc` (no markers) | `abc` | (empty), no tool parse |
+| `abc<tool_call>f</tool_call>` (no `</think>`) | `abc<tool_call>f</tool_call>` | (empty), no tool parse |
+| `abc<think>x</think>ok` | `abc<think>x` | `ok` |
+| `<think><think>abc</think>ok` | `<think>abc` | `ok` |
+| `  abc</think>ok` | `  abc` | `ok` |
+| `\r\nabc\r\n</think>\r\nok` | `\r\nabc\r` | `\r\nok` |
+| `abc</think>b</think>c` | `abc` | `b</think>c` |
+
+**Reference-engine divergences** (informative). vLLM serves this format under both
+`glm45` and `glm47`: it ends reasoning implicitly at a `<tool_call>`, drops a
+`<think>` seen while reasoning and a stray `</think>` after it, trims trailing
+whitespace from the reasoning, and stops treating the output as reasoning when the
+request switches thinking off (except on the GLM-5.3 template, which has no switch).
+SGLang registers this reasoning format only as `glm45`, also ends reasoning at a
+`<tool_call>`, and strips every repeated `<think>` at the head. Dynamo routes `glm45`
+and `glm47` to one unified parser that does not assume the output starts inside
+reasoning; whether it does is decided by engine logic outside the parser. `glm47@1`
+keeps the close marker as the only boundary, absorbs only the head marker and never
+reads the request, so a `<tool_call>` inside unclosed reasoning or an output such as
+`abc<think>x</think>ok` splits differently from those engines.
+
 ## Shared vector file
 
-Path: `testdata/v1/parser/reasoning_qwen3_v1.json`, registered in
-`testdata/v1/manifest.json` with `"origin": "wire"` and a `contract_section`
-pointing here. Every Go / Rust / TS implementation recomputes every case in its own
-CI and asserts byte-identical output; wire's CI checks the files' bytes and names.
+One file per `(name, version)`: `testdata/v1/parser/reasoning_qwen3_v1.json` and
+`testdata/v1/parser/reasoning_glm47_v1.json`, each registered in `testdata/v1/manifest.json` with `"origin": "wire"` and a
+`contract_section` pointing here. Every Go / Rust / TS implementation recomputes every
+case in its own CI and asserts byte-identical output; wire's CI checks the files' bytes
+and names.
 
 Each vector entry:
 
@@ -165,9 +258,9 @@ Each vector entry:
 }
 ```
 
-### Required cases
+### Required cases: qwen3@1
 
-Every row of the worked-examples table above, plus:
+Every row of the qwen3@1 worked-examples table above, plus:
 
 | Class | Case | Expected |
 |---|---|---|
@@ -178,11 +271,29 @@ Every row of the worked-examples table above, plus:
 | Combination | `…</think>` then text, then a tool call | reasoning + content + tool_calls, order fixed |
 | Combination | `…</think><tool_call>` + complete JSON, no `</tool_call>`, hermes@1, EOS_TOKEN | reasoning_content + 1 recovered tool_call |
 | Combination | same, MAX_OUTPUT_TOKENS | reasoning_content, the open block as content, 0 tool_calls |
-| Combination | `<tool_call>` + complete JSON inside unclosed reasoning, hermes@1, EOS_TOKEN | all reasoning_content, 0 tool_calls, no tool parse (finish_reason does not reach reasoning) || Streaming | split inside `<think>` and inside `</think>` | same final result |
+| Combination | `<tool_call>` + complete JSON inside unclosed reasoning, hermes@1, EOS_TOKEN | all reasoning_content, 0 tool_calls, no tool parse (finish_reason does not reach reasoning) |
+| Streaming | split inside `<think>` and inside `</think>` | same final result |
 | Streaming | split inside the leading whitespace run and inside the LF runs trimmed by the layout rule | same final result |
 | Streaming | multi-byte character split across frames | same final result |
 
+### Required cases: glm47@1
+
+Every row of the glm47@1 worked-examples table above, plus (tool-call parser
+`glm47@1` unless stated):
+
+| Class | Case | Expected |
+|---|---|---|
+| Combination | GLM-5.3 layout: `abc</think><tool_call>get_weather<arg_key>city</arg_key><arg_value>北京</arg_value></tool_call>` | reasoning_content `abc`, content empty, 1 tool_call |
+| Combination | text after `</think>`, then a tool call (`abc</think>ok<tool_call>…</tool_call>`) | reasoning + content `ok` + 1 tool_call, order fixed |
+| Combination | `</think><tool_call>…</tool_call>` (empty reasoning) | reasoning_content empty, 1 tool_call |
+| Combination | complete `<tool_call>…</tool_call>` inside closed reasoning | stays reasoning text, 0 tool_calls |
+| Combination | complete `<tool_call>…</tool_call>` inside unclosed reasoning (no `</think>`), EOS_TOKEN | all reasoning_content, 0 tool_calls, no tool parse |
+| Combination | `…</think><tool_call>` + complete arguments, no `</tool_call>`, EOS_TOKEN | reasoning_content, the open block as content, 0 tool_calls (glm47@1 defines no recovery) |
+| Streaming | split inside `<think>` and inside `</think>` | same final result |
+| Streaming | split inside the leading whitespace run and inside the LF runs trimmed by the layout rule | same final result |
+| Streaming | multi-byte character split across frames (e.g. inside `北京`) | same final result |
+
 ## Open items
 
-1. Governance: `(qwen3, 1)` must be in `supported_reasoning_parsers` before a
-   profile can pin it.
+1. Governance: `(qwen3, 1)` and `(glm47, 1)` must be in
+   `supported_reasoning_parsers` before a profile can pin them.

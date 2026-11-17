@@ -348,6 +348,20 @@
       "contract_section": "Tool Call Parser V1: qwen3_coder@1 grammar, value trimming and arguments encoding",
       "bytes": 14421,
       "sha256": "83310e3ad4f5cf3c350b289b9e4c3e3edc4bf196515693f85c63ebc3af12df99"
+    },
+    {
+      "path": "parser/reasoning_glm47_v1.json",
+      "origin": "wire",
+      "contract_section": "Reasoning Parser V1: glm47@1 reasoning separation and its hand-off to the tool-call parsers",
+      "bytes": 7696,
+      "sha256": "8ae5f07e7a23442d71389629a356266af988e91e0753c7c58add871989ddbc89"
+    },
+    {
+      "path": "parser/tool_call_glm47_v1.json",
+      "origin": "wire",
+      "contract_section": "Tool Call Parser V1: glm47@1 grammar, raw values and arguments encoding",
+      "bytes": 13138,
+      "sha256": "b476f1fc9064333f8e702087b3eaf7709b2b5c6d6ef39d5b3bbbb51de5dca49b"
     }
   ]
 }
