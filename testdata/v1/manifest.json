@@ -353,15 +353,15 @@
       "path": "parser/reasoning_glm47_v1.json",
       "origin": "wire",
       "contract_section": "Reasoning Parser V1: glm47@1 reasoning separation and its hand-off to the tool-call parsers",
-      "bytes": 7696,
-      "sha256": "8ae5f07e7a23442d71389629a356266af988e91e0753c7c58add871989ddbc89"
+      "bytes": 7730,
+      "sha256": "2fc5dd289a1f2de6751e82ad2217a2ad63526c8ed68f1246206f111ba6993e69"
     },
     {
       "path": "parser/tool_call_glm47_v1.json",
       "origin": "wire",
       "contract_section": "Tool Call Parser V1: glm47@1 grammar, raw values and arguments encoding",
-      "bytes": 13138,
-      "sha256": "b476f1fc9064333f8e702087b3eaf7709b2b5c6d6ef39d5b3bbbb51de5dca49b"
+      "bytes": 13240,
+      "sha256": "2d0bc79b21eeeefe89eec2ca69e4737c4a624fbaee1d42e41fb68753bff3acf2"
     }
   ]
 }

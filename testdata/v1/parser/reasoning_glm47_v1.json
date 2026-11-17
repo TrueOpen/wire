@@ -179,7 +179,7 @@
       "name": "tool_call_inside_unclosed_reasoning_eos",
       "input_utf8": "abc<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value></tool_call>",
       "tool_call_parser": "glm47@1",
-      "finish_reason": "EOS_TOKEN",
+      "finish_reason": "FINISH_REASON_V1_EOS_TOKEN",
       "expected": {
         "reasoning_content": "abc<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value></tool_call>",
         "content": "",
@@ -190,7 +190,7 @@
       "name": "reasoning_then_unclosed_call_no_recovery_eos",
       "input_utf8": "abc</think><tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
       "tool_call_parser": "glm47@1",
-      "finish_reason": "EOS_TOKEN",
+      "finish_reason": "FINISH_REASON_V1_EOS_TOKEN",
       "expected": {
         "reasoning_content": "abc",
         "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",

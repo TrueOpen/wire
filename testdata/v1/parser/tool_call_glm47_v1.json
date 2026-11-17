@@ -290,7 +290,7 @@
     {
       "name": "unclosed_no_recovery_eos",
       "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
-      "finish_reason": "EOS_TOKEN",
+      "finish_reason": "FINISH_REASON_V1_EOS_TOKEN",
       "expected": {
         "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
         "tool_calls": []
@@ -299,7 +299,7 @@
     {
       "name": "unclosed_no_recovery_stop_sequence",
       "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
-      "finish_reason": "STOP_SEQUENCE",
+      "finish_reason": "FINISH_REASON_V1_STOP_SEQUENCE",
       "expected": {
         "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
         "tool_calls": []
@@ -308,7 +308,7 @@
     {
       "name": "unclosed_no_recovery_stop_token",
       "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
-      "finish_reason": "STOP_TOKEN",
+      "finish_reason": "FINISH_REASON_V1_STOP_TOKEN",
       "expected": {
         "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
         "tool_calls": []
@@ -317,7 +317,7 @@
     {
       "name": "unclosed_no_recovery_max_output_tokens",
       "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
-      "finish_reason": "MAX_OUTPUT_TOKENS",
+      "finish_reason": "FINISH_REASON_V1_MAX_OUTPUT_TOKENS",
       "expected": {
         "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
         "tool_calls": []
@@ -326,7 +326,7 @@
     {
       "name": "unclosed_no_recovery_max_output_duration",
       "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
-      "finish_reason": "MAX_OUTPUT_DURATION",
+      "finish_reason": "FINISH_REASON_V1_MAX_OUTPUT_DURATION",
       "expected": {
         "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
         "tool_calls": []
@@ -335,7 +335,7 @@
     {
       "name": "unclosed_no_recovery_user_stop",
       "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
-      "finish_reason": "USER_STOP",
+      "finish_reason": "FINISH_REASON_V1_USER_STOP",
       "expected": {
         "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
         "tool_calls": []
