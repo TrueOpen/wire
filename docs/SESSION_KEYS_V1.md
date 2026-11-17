@@ -3,7 +3,8 @@
 This contract permits a wallet to register a delegated signer for
 one session. Consumers pin the published wire release before activation.
 The client generates the key and must not derive it from a wallet
-signature. Registration stores an address, never a private key or session balance.
+signature. Key registration stores an address, never a private key. Phase 1
+session funds have a separate escrow ledger; see [the contract](PHASE1_CONTRACT.md).
 The same address may be registered independently on multiple sessions; there is
 no key-to-session uniqueness index. Each session enforces its own authorization.
 
@@ -34,24 +35,32 @@ ACTIVE/IDLE session accepts updates; CLOSED rejects even while its row remains
 retained. The session key does not acquire the owner's transaction permissions.
 An update requires exactly one SET or CLEAR action.
 
-SET requires `height < expiry <= height + max_session_key_blocks`, with checked
-addition and a positive current effective parameter. Historical session-pinned
+SET requires `base_height < expiry <= base_height + max_session_key_blocks`,
+with checked addition and a positive current effective parameter. Creation and
+immediate renewal use the current height; a delayed SET uses its scheduled
+effective height, so the key is valid when it activates. Historical session-pinned
 parameters are not consulted for this input bound. Governance changes affect
 later registrations/renewals, not already granted expiry heights. Deployments
 choose the limit; no seven-day default is frozen here.
 
-First registration, a different-key SET and SET after CLEAR record execution
-height. Same-key renewal/cap changes preserve registration height. CLEAR removes
-the key and zeroes expiry, cap and registration height. Every mutation preserves
-spent. Exact unchanged updates return NOOP and emit no event. Updates change
-neither lifecycle status nor activity/index positions. Registration emits event
-106 along with session_created; changed updates emit 106 after commit. A later
-transaction in the same block already observes the new authorization.
+Initial creation can register a key immediately. Later SET/CLEAR and restrictive
+cap/expiry changes register PendingSessionKeyChangeV1 with an effective height.
+Nonrestrictive same-key renewal can apply immediately. Pending state and effective
+height are returned by UpdateSessionKey and QuerySession. The old key remains the
+chain authorization until activation; SDKs switch at that height. Builders reject
+new work conservatively after a pending CLEAR or cap reduction.
+
+Applying a different key or SET after CLEAR records the effective height as
+set_height. Same-key renewal preserves it. CLEAR removes the key and zeroes
+expiry/cap/set_height. Every change preserves cumulative spent; exact unchanged
+updates return NOOP without an event. Already admitted tasks stay authorized.
+Requested and effective events distinguish registration from activation.
 
 ## Wallet registration signing
 
 The canonical Legacy Amino message uses the declared `amino.name` and a flat
-value. CreateSession adds `session_key` only when a grant is present.
+value. CreateSession commits initial_deposit and initial_builder, and adds
+`session_key` only when a grant is present.
 UpdateSessionKey includes `signer_address`, `session_id`, and exactly one action:
 `set` is the grant object; `clear` is the boolean `true`. The unselected action
 is absent. Missing/both actions, null actions, `clear: false` and `clear: {}` are
@@ -76,10 +85,11 @@ and the session owner/order user equality remain on both paths. A delegated
 order also requires:
 
 1. Current height is at or before the registered expiry.
-2. Its signed anchor height is at or after registration height; canonical block
-   hash/height and freshness validation remain mandatory.
+2. Its signed session_anchor_height is at or after registration height. The
+   retired session_anchor_block_hash is absent; freshness uses signed
+   earliest_submit_height and the dispatch deadline rules.
 3. Checked `spent + max_fee` does not exceed a nonzero cap. Cap zero is unlimited,
-   but never waives checked arithmetic, owner balance or other admission rules.
+   but never waives checked arithmetic, session available balance or other admission rules.
 
 The count is cumulative authorized max_fee, not actual expenditure. Increment
 once, including unlimited grants, atomically with sequence consumption, escrow
@@ -93,7 +103,7 @@ anchor, `ERR_SESSION_KEY_EXPIRED` for expiry, and
 `ERR_SESSION_KEY_SPEND_CAP_EXCEEDED` for a cap failure. A non-owner signer with
 no current registration also returns `ERR_SESSION_KEY_INVALID`, including after
 CLEAR. Preserve these errors through
-the ABCI result instead of wrapping them as generic assignment rejection.
+the ABCI result instead of wrapping them as generic dispatch rejection.
 
 Authorization is an admission-time condition. Accepted tasks retain their
 frozen scope across rotation, CLEAR, expiry, cap changes and export/import.
@@ -117,7 +127,7 @@ and a configured block expiry; disconnect clears the cache, and authorization
 events invalidate it. Apply ingress rate limits to cache misses.
 
 OpenTask prechecks delegated orders before input storage, but Keeper is final
-authority. A later local assignment rejection may emit ASSIGN_REJECTED; it is
+authority. A later local assignment rejection may emit RECORD_REJECTED; it is
 not proof another Builder did not obtain on-chain acceptance. Recovery checks
 committed sequence state and resigns the same unconsumed sequence. Rotation uses
 the new key, CLEAR uses the wallet, and expiry/cap failure first requires an owner
@@ -126,18 +136,10 @@ it does not introduce order fields or require consuming a sequence via cancellat
 
 ## Consumer and release boundary
 
-The descriptor changes are additive, but enabling delegated admission changes
-consensus. Node must supply parameter initialization, registration and
-admission enforcement, event routing, error propagation and upgrade tests.
-Nexus and SDK must implement registered-key authentication and recovery before
-activation. Compatible rollout is wire, Node, Nexus, then SDK; the SDK enables
-delegated signing only after the required services support it. Cortex follows
-the wire dependency; order encoding remains unchanged. Testnet may retain data
-and coordinate all validators' binaries at an agreed height. Initialization
-fills a zero current registration-limit parameter once with the deployment's
-chosen value and preserves a nonzero value and historical parameter versions.
-This contract freezes neither that value nor a governance upgrade mechanism.
-
-Only TRUEOPEN_TASK_PARAMS_V1 changes its commitment preimage: encode the new
-parameter in SessionParamsV1 field-number order. Existing task/order hashes and
-signature domains are unchanged. Fixture values are not deployment defaults.
+Phase 1 changes this contract through a fresh genesis. Wire freezes bytes; Node
+must implement delayed authorization, prefunded escrow, per-entry admission,
+event routing, retained facts and export/import invariants. Nexus/Cortex/SDK
+must use the same immutable released descriptor and complete coordinated localnet
+acceptance before enabling delegated dispatch. There is no retained-data upgrade
+or historical parameter decoder in this contract. See PHASE1_CONTRACT.md for
+all changed preimages, release boundaries and consumer requirements.

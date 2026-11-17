@@ -11,6 +11,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	canonicalfixture "github.com/TrueOpen/wire/tools/internal/canonical"
 )
 
 const trueOpenFrameMagic = "TRUEOPEN_FRAME_V1"
@@ -32,7 +34,13 @@ func validatePublishedVectors(path, declaredPath string) error {
 	if err := decoder.Decode(&document); err != nil {
 		return fmt.Errorf("decode %q for vector verification: %w", declaredPath, err)
 	}
-	return walkPublishedVectors(declaredPath, document)
+	if err := walkPublishedVectors(declaredPath, document); err != nil {
+		return err
+	}
+	if declaredPath == "task/token_ids_v1.json" {
+		return validateInputTokenCountCases(raw)
+	}
+	return nil
 }
 
 func walkPublishedVectors(where string, node any) error {
@@ -251,19 +259,22 @@ func encodePublishedField(field map[string]any) ([]byte, error) {
 		if !ok {
 			return nil, fmt.Errorf("frame has no fields")
 		}
-		parts := make([][]byte, 0, len(fields))
-		for index, raw := range fields {
-			nested, ok := raw.(map[string]any)
-			if !ok {
-				return nil, fmt.Errorf("nested field %d is not typed", index)
-			}
-			encoded, err := encodePublishedField(nested)
-			if err != nil {
-				return nil, err
-			}
-			parts = append(parts, encoded)
+		parts, err := encodePublishedFields(fields)
+		if err != nil {
+			return nil, err
 		}
 		return encodeFrame(parts...), nil
+	case "oneof":
+		tag, err := publishedUint(field["field_number"])
+		fields, ok := field["fields"].([]any)
+		if err != nil || !ok {
+			return nil, fmt.Errorf("oneof requires a proto field number and selected payload fields")
+		}
+		parts, err := encodePublishedFields(fields)
+		if err != nil {
+			return nil, err
+		}
+		return canonicalfixture.Oneof(tag, parts...)
 	case "optional":
 		present, ok := field["present"].(bool)
 		if !ok {
@@ -307,6 +318,22 @@ func encodePublishedField(field map[string]any) ([]byte, error) {
 		}
 	}
 	return nil, fmt.Errorf("unknown field type %q", typeName)
+}
+
+func encodePublishedFields(fields []any) ([][]byte, error) {
+	parts := make([][]byte, 0, len(fields))
+	for index, raw := range fields {
+		nested, ok := raw.(map[string]any)
+		if !ok {
+			return nil, fmt.Errorf("nested field %d is not typed", index)
+		}
+		encoded, err := encodePublishedField(nested)
+		if err != nil {
+			return nil, err
+		}
+		parts = append(parts, encoded)
+	}
+	return parts, nil
 }
 
 func publishedPayload(object map[string]any) ([]byte, bool, error) {

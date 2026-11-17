@@ -30,7 +30,7 @@ func writeImage(t *testing.T, deps map[string][]string) string {
 }
 
 // baseline is a descriptor tree that satisfies every rule: shared imports only
-// shared, and task and bus reach shared but never hub.
+// shared, and task and nexus reach shared but never hub.
 func baseline() map[string][]string {
 	return map[string][]string{
 		"shared/v1/common.proto":   {"google/protobuf/descriptor.proto"},
@@ -38,7 +38,7 @@ func baseline() map[string][]string {
 		"hub/v1/common.proto":      {"shared/v1/common.proto"},
 		"hub/v1/reward.proto":      {"hub/v1/common.proto"},
 		"task/v1/task.proto":       {"shared/v1/evidence.proto"},
-		"bus/v1/envelope.proto":    {"shared/v1/common.proto"},
+		"nexus/v1/envelope.proto":  {"shared/v1/common.proto"},
 
 		"google/protobuf/descriptor.proto": nil,
 	}
@@ -78,7 +78,7 @@ func TestSharedIsNotAllowedToImportADomainPackage(t *testing.T) {
 	for _, forbidden := range []string{
 		"hub/v1/common.proto",
 		"task/v1/task.proto",
-		"bus/v1/envelope.proto",
+		"nexus/v1/envelope.proto",
 	} {
 		t.Run(forbidden, func(t *testing.T) {
 			deps := baseline()
@@ -90,11 +90,11 @@ func TestSharedIsNotAllowedToImportADomainPackage(t *testing.T) {
 	}
 }
 
-func TestBusMayNotReachHub(t *testing.T) {
+func TestNexusMayNotReachHub(t *testing.T) {
 	deps := baseline()
-	deps["bus/v1/envelope.proto"] = []string{"hub/v1/common.proto"}
+	deps["nexus/v1/envelope.proto"] = []string{"hub/v1/common.proto"}
 	if err := run(writeImage(t, deps)); err == nil {
-		t.Fatal("bus importing hub was accepted")
+		t.Fatal("nexus importing hub was accepted")
 	}
 }
 
@@ -111,7 +111,7 @@ func TestAnEmptySubjectFails(t *testing.T) {
 	}
 	deps["hub/v1/common.proto"] = nil
 	deps["task/v1/task.proto"] = nil
-	deps["bus/v1/envelope.proto"] = nil
+	deps["nexus/v1/envelope.proto"] = nil
 
 	err := run(writeImage(t, deps))
 	if err == nil {
@@ -128,9 +128,9 @@ func TestAnEmptySubjectFails(t *testing.T) {
 // reported once, or the shortest chain would be buried among its own detours.
 func TestOneChainPerEndpointPerRoot(t *testing.T) {
 	deps := map[string][]string{
-		"shared/v1/common.proto": nil,
-		"hub/v1/common.proto":    nil,
-		"bus/v1/envelope.proto":  {"shared/v1/common.proto"},
+		"shared/v1/common.proto":  nil,
+		"hub/v1/common.proto":     nil,
+		"nexus/v1/envelope.proto": {"shared/v1/common.proto"},
 		"task/v1/task.proto": {
 			"hub/v1/common.proto",
 			"shared/v1/common.proto",
@@ -147,5 +147,13 @@ func TestOneChainPerEndpointPerRoot(t *testing.T) {
 	}
 	if got := strings.Count(err.Error(), "task.v1 does not reach hub.v1"); got != 1 {
 		t.Fatalf("reported one root's single endpoint %d times:\n%v", got, err)
+	}
+}
+
+func TestTaskMayNotImportNexus(t *testing.T) {
+	deps := baseline()
+	deps["task/v1/task.proto"] = []string{"nexus/v1/envelope.proto"}
+	if err := run(writeImage(t, deps)); err == nil {
+		t.Fatal("Task importing Nexus would create a consumer dependency cycle")
 	}
 }

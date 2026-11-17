@@ -64,6 +64,10 @@ jobs:
       # published parameter commitment computed over a message that no longer
       # exists. Every field of every params message the vectors encode must be
       # present, by name and in field-number order.
+      - name: Verify canonical dispatch tables match the descriptor
+        working-directory: tools
+        run: go run ./verify-dispatch-schema -image ../build/image.json
+
       - name: Verify parameter fixtures cover every params field
         working-directory: tools
         run: go run ./verify-params-fixture -image ../build/image.json -fixture ../testdata/v1/shared/params_v1.json
@@ -88,8 +92,8 @@ jobs:
         working-directory: tools
         run: go test ./...
 
-      - name: Test canonical bus signing implementation
-        run: go test ./bus/...
+      - name: Test canonical wire signing implementation
+        run: go test -race ./...
 
       - name: Install TypeScript generator
         run: npm ci --prefix gen/typescript

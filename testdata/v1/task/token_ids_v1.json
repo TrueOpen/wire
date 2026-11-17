@@ -49,5 +49,138 @@
       "token_ids_raw_hex": "0000000300000002000001010000ffff",
       "token_ids_raw_size_bytes": 16
     }
-  ]
+  ],
+  "input_token_count_derivation": {
+    "rule": "input_token_count = (encoded_size_bytes - 8) / 4 - generated_token_count",
+    "source_case": "input_2_generated_3",
+    "notes": [
+      "Inputs must come from the same accepted receipt and the V1 WORKER_TOKEN_OPENING commitment; the encoding vectors alone do not establish Task acceptance.",
+      "The source case matches the two token_ids_raw artifacts above and the base InferReceiptV3 commitment; other cases exercise derivation arithmetic, not full Task admission.",
+      "An input_token_count of null means unavailable, not zero. Apply checked integer arithmetic and preserve the V1 token-count limits.",
+      "Display/statistics only. Never use this value for billing, settlement, weights, budgets or signing/business digests.",
+      "Missing or pruned commitment bodies and unaccepted receipts have no derivable count. Consumers must establish these preconditions separately."
+    ],
+    "cases": [
+      {
+        "name": "input_2_generated_3",
+        "encoded_size_bytes": "28",
+        "generated_token_count": "3",
+        "input_token_count": "2"
+      },
+      {
+        "name": "one_input_no_generated",
+        "encoded_size_bytes": "12",
+        "generated_token_count": "0",
+        "input_token_count": "1"
+      },
+      {
+        "name": "one_input_three_generated",
+        "encoded_size_bytes": "24",
+        "generated_token_count": "3",
+        "input_token_count": "1"
+      },
+      {
+        "name": "two_input_no_generated",
+        "encoded_size_bytes": "16",
+        "generated_token_count": "0",
+        "input_token_count": "2"
+      },
+      {
+        "name": "max_input_count",
+        "encoded_size_bytes": "33554436",
+        "generated_token_count": "0",
+        "input_token_count": "8388607"
+      },
+      {
+        "name": "max_generated_count",
+        "encoded_size_bytes": "33554440",
+        "generated_token_count": "8388607",
+        "input_token_count": "1"
+      },
+      {
+        "name": "both_counts_at_limit",
+        "encoded_size_bytes": "67108864",
+        "generated_token_count": "8388607",
+        "input_token_count": "8388607"
+      },
+      {
+        "name": "missing_or_zero_size",
+        "encoded_size_bytes": "0",
+        "generated_token_count": "0",
+        "input_token_count": null
+      },
+      {
+        "name": "accepted_metadata_too_short",
+        "encoded_size_bytes": "1",
+        "generated_token_count": "2",
+        "input_token_count": null
+      },
+      {
+        "name": "incomplete_prefixes",
+        "encoded_size_bytes": "7",
+        "generated_token_count": "0",
+        "input_token_count": null
+      },
+      {
+        "name": "unaligned_size",
+        "encoded_size_bytes": "27",
+        "generated_token_count": "3",
+        "input_token_count": null
+      },
+      {
+        "name": "unaligned_size_after_example",
+        "encoded_size_bytes": "29",
+        "generated_token_count": "3",
+        "input_token_count": null
+      },
+      {
+        "name": "zero_input_count",
+        "encoded_size_bytes": "20",
+        "generated_token_count": "3",
+        "input_token_count": null
+      },
+      {
+        "name": "generated_exceeds_total",
+        "encoded_size_bytes": "16",
+        "generated_token_count": "3",
+        "input_token_count": null
+      },
+      {
+        "name": "both_counts_zero",
+        "encoded_size_bytes": "8",
+        "generated_token_count": "0",
+        "input_token_count": null
+      },
+      {
+        "name": "generated_uint64_max",
+        "encoded_size_bytes": "28",
+        "generated_token_count": "18446744073709551615",
+        "input_token_count": null
+      },
+      {
+        "name": "size_uint64_max",
+        "encoded_size_bytes": "18446744073709551615",
+        "generated_token_count": "0",
+        "input_token_count": null
+      },
+      {
+        "name": "aligned_size_near_uint64_max",
+        "encoded_size_bytes": "18446744073709551612",
+        "generated_token_count": "0",
+        "input_token_count": null
+      },
+      {
+        "name": "input_above_v1_limit",
+        "encoded_size_bytes": "33554440",
+        "generated_token_count": "0",
+        "input_token_count": null
+      },
+      {
+        "name": "generated_above_v1_limit",
+        "encoded_size_bytes": "33554444",
+        "generated_token_count": "8388608",
+        "input_token_count": null
+      }
+    ]
+  }
 }

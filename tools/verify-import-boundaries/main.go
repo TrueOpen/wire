@@ -6,7 +6,7 @@
 //
 //   - shared.v1 is an import leaf. It may not reach any other package this
 //     repository owns, directly or through anything it imports.
-//   - task.v1 and bus.v1 do not reach hub.v1, directly or
+//   - task.v1 and nexus.v1 do not reach hub.v1, directly or
 //     transitively.
 //
 // Reading only the import lines would miss the case that matters. An import
@@ -35,7 +35,7 @@ import (
 // ownedPrefixes are the descriptor path prefixes this repository owns. Anything
 // else in a closure - google/, cosmos/, gogoproto/ - is a third-party dependency
 // and is not what the direction rule is about.
-var ownedPrefixes = []string{"shared/", "hub/", "task/", "bus/"}
+var ownedPrefixes = []string{"shared/", "hub/", "task/", "nexus/"}
 
 // rule is one direction claim: files under From must not reach anything under
 // any of Forbidden.
@@ -50,21 +50,21 @@ var rules = []rule{
 	{
 		name:      "shared.v1 is an import leaf",
 		from:      "shared/",
-		forbidden: []string{"hub/", "task/", "bus/"},
+		forbidden: []string{"hub/", "task/", "nexus/"},
 		why: "a shared package that imports a domain package is not shared: every consumer of the " +
 			"shared symbols inherits the domain it was supposed to be independent of",
 	},
 	{
-		name:      "task.v1 does not reach hub.v1",
+		name:      "task.v1 does not reach hub.v1 or nexus.v1",
 		from:      "task/",
-		forbidden: []string{"hub/"},
+		forbidden: []string{"hub/", "nexus/"},
 		why:       "Task owns the evidence wire, which requires Task to stop depending on Hub",
 	},
 	{
-		name:      "bus.v1 does not reach hub.v1",
-		from:      "bus/",
+		name:      "nexus.v1 does not reach hub.v1",
+		from:      "nexus/",
 		forbidden: []string{"hub/"},
-		why:       "the envelope is transport and must not carry a Hub type, or every Bus consumer links the Hub module",
+		why:       "the stream is transport and must not carry a Hub type, or every Nexus consumer links the Hub module",
 	},
 }
 

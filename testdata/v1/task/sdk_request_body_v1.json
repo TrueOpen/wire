@@ -164,7 +164,7 @@
     },
     {
       "contract_section": "Public wire domain TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1",
-      "digest_hex": "e319c6b85eeacab31efcaa60691628f0fbf232d6be43191b253d93c94e1d868a",
+      "digest_hex": "33ef0af1efc035e77f8575d8c22d5f2054dda4b6a8cdbdaf0acb034e607d17f4",
       "domain": "TRUEOPEN_SDK_BODY_SUBSCRIBE_OUTPUT_V1",
       "fields": [
         {
@@ -181,16 +181,21 @@
           "name": "resume_after_seq",
           "present": false,
           "type": "optional"
+        },
+        {
+          "name": "dispatch_ticket_hash",
+          "present": false,
+          "type": "optional"
         }
       ],
       "framing": "H_FIELDS_V1",
       "name": "sdk_body_subscribe_output_v1",
-      "preimage_hex": "0000000000000025545255454f50454e5f53444b5f424f44595f5355425343524942455f4f55545055545f5631000000000000002077625100ba4faa1306ae6eaf5a872a661443aa94f87c5530c4b178614e3d62f70000000000000020bce966ae829f212a35982bcd85aaea77d8893539afa04f32ea540c46ff8323b0000000000000000100",
+      "preimage_hex": "0000000000000025545255454f50454e5f53444b5f424f44595f5355425343524942455f4f55545055545f5631000000000000002077625100ba4faa1306ae6eaf5a872a661443aa94f87c5530c4b178614e3d62f70000000000000020bce966ae829f212a35982bcd85aaea77d8893539afa04f32ea540c46ff8323b0000000000000000100000000000000000100",
       "preimage_size_bytes": 134,
       "producer": "User SDK or its session key; recomputed by the Builder Ingress from SubscribeOutputRequest",
       "replay": [
         {
-          "digest_hex": "f7db6ef20ec81ad2498eb5cba7e91c1310f1f749abbcfdc7896b060782b9a9be",
+          "digest_hex": "5e8ca1c272a54fa86b6e4bf4367d08cce7876418bb2f6899bea92c6fa0e47015",
           "name": "resume_present_zero",
           "overrides": [
             {
@@ -212,7 +217,7 @@
           "reason": "a set resume_after_seq of 0 is present 0, never absent"
         },
         {
-          "digest_hex": "7b230a93c7f5fc5cb6360eb6177c072c75c4e16c7c1070d94b8a0107271ca128",
+          "digest_hex": "644d30d17ae01edd458f6ad23445d16415b7f2ae488e283119deb956b09ccaf0",
           "name": "resume_present_17",
           "overrides": [
             {
@@ -234,7 +239,7 @@
           "reason": "resuming after a delivered sequence"
         },
         {
-          "digest_hex": "3a0a9300306e25e227a41b49a55dc1530c023f70e1a4cdf1882133755d73f1bc",
+          "digest_hex": "0378a0ee6425195aa1cba9ea4e4662b1ec04fc20bd0f1a1ba2635e7f7e4baf83",
           "name": "cross_task",
           "overrides": [
             {
@@ -249,7 +254,7 @@
           "reason": "the same subscription for another task"
         },
         {
-          "digest_hex": "2fd7bcf6e3f290484b0dc8b81c8d0614f6d5c63d67af639fd9b7c394e29c0bc1",
+          "digest_hex": "32d0933027cb09381871d99d5978b244275e22516a49b8f5266808ac58077f40",
           "domain": "TRUEOPEN_SDK_BODY_GET_TASK_EVENTS_V1",
           "name": "cross_domain_get_task_events",
           "reason": "the same three encoded fields under the GetTaskEvents domain; only the domain keeps a subscription from authorizing an event read"
@@ -259,21 +264,21 @@
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "d5629e12bc676ef4731b3f45d08d30e4fe5c3c38431e7df021751e56f750f674",
+          "digest_hex": "de8a861f5f5c0115564bba62f33bf5a52c749c4af895bad888aa0689f2c4bffc",
           "field": 0,
           "name": "session_id_first_bit"
         },
         {
           "bit": 0,
           "byte": -1,
-          "digest_hex": "70196e6fdd07ae4ae62799478dcea8c8f23ec7ad64b182bfd8613b9dac4b73e1",
+          "digest_hex": "c153b2610b152fafe6babe6195398997332d6fec27f36e8f75da162bc4557aff",
           "field": 1,
           "name": "task_id_last_bit"
         },
         {
           "bit": 0,
           "byte": 0,
-          "digest_hex": "c1ae1b05fed81c81a6ec5a8d29452caed9ec6d77890c64999a5258558ac677af",
+          "digest_hex": "32d777ca22001654e19748d5fe07fe8cc4446e564fc31b57fa8947249b6d7af7",
           "field": 2,
           "name": "resume_presence_bit"
         }
@@ -547,6 +552,66 @@
           "name": "local_evidence_digest_last_bit"
         }
       ]
+    },
+    {
+      "contract_section": "Authenticated direct dispatch ingress body",
+      "digest_hex": "d3c626ed9162d251a32d406a43e2ebd17dd7a87244f35b23c9e4bdb50f0317dd",
+      "domain": "TRUEOPEN_SDK_BODY_RESUME_OUTPUT_V1",
+      "fields": [
+        {
+          "hex": "77625100ba4faa1306ae6eaf5a872a661443aa94f87c5530c4b178614e3d62f7",
+          "name": "session_id",
+          "type": "bytes"
+        },
+        {
+          "hex": "bce966ae829f212a35982bcd85aaea77d8893539afa04f32ea540c46ff8323b0",
+          "name": "task_id",
+          "type": "bytes"
+        },
+        {
+          "fields": [
+            {
+              "name": "value",
+              "type": "uint64",
+              "value": 7
+            }
+          ],
+          "name": "resume_after_seq",
+          "present": true,
+          "type": "optional"
+        },
+        {
+          "fields": [
+            {
+              "hex": "4242424242424242424242424242424242424242424242424242424242424242",
+              "name": "value",
+              "type": "bytes"
+            }
+          ],
+          "name": "dispatch_ticket_hash",
+          "present": true,
+          "type": "optional"
+        }
+      ],
+      "name": "sdk_body_resume_output_v1"
+    },
+    {
+      "contract_section": "Authenticated direct dispatch ingress body",
+      "digest_hex": "2dc92731f99e5a1f57666d83f6c30a4c1ba78e749c099421265ef81e8c43f04f",
+      "domain": "TRUEOPEN_SDK_BODY_GET_DISPATCH_ROSTER_V1",
+      "fields": [
+        {
+          "hex": "77625100ba4faa1306ae6eaf5a872a661443aa94f87c5530c4b178614e3d62f7",
+          "name": "session_id",
+          "type": "bytes"
+        },
+        {
+          "hex": "bce966ae829f212a35982bcd85aaea77d8893539afa04f32ea540c46ff8323b0",
+          "name": "task_id",
+          "type": "bytes"
+        }
+      ],
+      "name": "sdk_body_get_dispatch_roster_v1"
     }
   ]
 }
