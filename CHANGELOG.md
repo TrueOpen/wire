@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Worker anchor opening: conformance vectors
+
+- Register `TRUEOPEN_WORKER_ANCHOR_COMMITMENT_V1` in `registry/v1/domains.json`
+  (H_FIELDS_V1 over schema_version, chain_id, task_id, accepted_task_hash,
+  worker_operator_address, evidence_schema_hash, anchor_commit_hash,
+  anchor_commit_size_bytes) and publish its vector,
+  `testdata/v1/task/worker_anchor_commitment_v1.json`, so Nexus and Cortex
+  assert one digest instead of values each pins itself.
+- Add three `*_worker_anchor_opening` vectors to
+  `testdata/v1/task/task_data_auth_v1.json`: the metadata body, the fetch body
+  and the ranged fetch body of one Worker evidence reference with
+  EVIDENCE_KIND_WORKER_ANCHOR_OPENING (5). Kind 5 is valid only for
+  Worker-produced evidence objects.
+- No proto change: the descriptor image is byte-identical to v0.6.1-anchor.2.
+
 ## v0.6.1-anchor.2
 
 ### Anchor commitment audit (ADR-0040): renumbering
