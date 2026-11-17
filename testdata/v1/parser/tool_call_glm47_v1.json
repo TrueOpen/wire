@@ -1,0 +1,407 @@
+{
+  "schema": "trueopen-parser-tool-call-v1",
+  "source": "docs/TOOL_CALL_PARSER_V1.md, glm47@1",
+  "parser": "glm47@1",
+  "notes": [
+    "input_utf8 is committed output (or, for a tool-call file, the tool stage's input). Positions, splits and matching are on its UTF-8 bytes.",
+    "finish_reason, when present, is the verified finish reason from the signed Fin (TRUEOPEN_OUTPUT_FIN_V1), written as its FinishReasonV1 enum name. Absent means no verified finish reason.",
+    "stream_splits lists frame boundaries as byte offsets into input_utf8; each list cuts the input into frames at those offsets, and feeding the frames in order must give exactly expected. A boundary may fall inside a marker or inside a multi-byte UTF-8 sequence.",
+    "tool_calls compares name and arguments only, byte for byte; id, type and index are synthesised by the Provider and are not part of the vectors.",
+    "reasoning_parser \"unsupported@1\" names a reserved reasoning parser that no SDK supports, to exercise the Support rule."
+  ],
+  "vectors": [
+    {
+      "name": "template_two_args",
+      "input_utf8": "<tool_call>get_weather<arg_key>city</arg_key><arg_value>北京</arg_value><arg_key>days</arg_key><arg_value>3</arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "get_weather",
+            "arguments": "{\"city\":\"北京\",\"days\":\"3\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "no_arg",
+      "input_utf8": "<tool_call>get_time</tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "get_time",
+            "arguments": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "two_blocks_back_to_back",
+      "input_utf8": "<tool_call>get_time</tool_call><tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "get_time",
+            "arguments": "{}"
+          },
+          {
+            "name": "f",
+            "arguments": "{\"a\":\"1\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "text_before_block_no_separator",
+      "input_utf8": "ok<tool_call>get_time</tool_call>",
+      "expected": {
+        "content": "ok",
+        "tool_calls": [
+          {
+            "name": "get_time",
+            "arguments": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "glm45_layout_accepted",
+      "input_utf8": "<tool_call>get_weather\n<arg_key>city</arg_key>\n<arg_value>北京</arg_value>\n<arg_key>days</arg_key>\n<arg_value>3</arg_value>\n</tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "get_weather",
+            "arguments": "{\"city\":\"北京\",\"days\":\"3\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty_value",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value></arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "f",
+            "arguments": "{\"a\":\"\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "value_edge_lf_kept",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>\nx\n</arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "f",
+            "arguments": "{\"a\":\"\\nx\\n\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "numeric_boolean_null_stay_strings",
+      "input_utf8": "<tool_call>f<arg_key>n</arg_key><arg_value>3</arg_value><arg_key>b</arg_key><arg_value>true</arg_value><arg_key>z</arg_key><arg_value>null</arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "f",
+            "arguments": "{\"n\":\"3\",\"b\":\"true\",\"z\":\"null\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "json_text_value_is_one_string",
+      "input_utf8": "<tool_call>f<arg_key>list</arg_key><arg_value>[1, true, null]</arg_value><arg_key>object</arg_key><arg_value>{\"b\": 2, \"a\": \"x\"}</arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "f",
+            "arguments": "{\"list\":\"[1, true, null]\",\"object\":\"{\\\"b\\\": 2, \\\"a\\\": \\\"x\\\"}\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "value_markup_verbatim",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value><b> & &lt; <arg_key>k</arg_key><arg_value></arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "f",
+            "arguments": "{\"a\":\"<b> & &lt; <arg_key>k</arg_key><arg_value>\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "value_encoding",
+      "input_utf8": "<tool_call>f<arg_key>v</arg_key><arg_value>a\nb\"\\\b\f\t\u0001\u007f\u2028é/</arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "f",
+            "arguments": "{\"v\":\"a\\nb\\\"\\\\\\b\\f\\t\\u0001\u007f\u2028é/\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "key_leading_space_kept",
+      "input_utf8": "<tool_call>f<arg_key> k</arg_key><arg_value>1</arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "f",
+            "arguments": "{\" k\":\"1\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty_name_malformed",
+      "input_utf8": "<tool_call><arg_key>a</arg_key><arg_value>1</arg_value></tool_call>",
+      "expected": {
+        "content": "<tool_call><arg_key>a</arg_key><arg_value>1</arg_value></tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "name_with_space_malformed",
+      "input_utf8": "<tool_call>get weather</tool_call>",
+      "expected": {
+        "content": "<tool_call>get weather</tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_key_malformed",
+      "input_utf8": "<tool_call>f<arg_key></arg_key><arg_value>1</arg_value></tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_key></arg_key><arg_value>1</arg_value></tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "key_with_lf_malformed",
+      "input_utf8": "<tool_call>f<arg_key>a\nb</arg_key><arg_value>1</arg_value></tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a\nb</arg_key><arg_value>1</arg_value></tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "duplicate_key_malformed",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value><arg_key>a</arg_key><arg_value>2</arg_value></tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value><arg_key>a</arg_key><arg_value>2</arg_value></tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "key_without_value_malformed",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key></tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key></tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "value_without_key_malformed",
+      "input_utf8": "<tool_call>f<arg_value>1</arg_value></tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_value>1</arg_value></tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "no_close_value_malformed",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "text_between_pairs_malformed",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>x<arg_key>b</arg_key><arg_value>2</arg_value></tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>x<arg_key>b</arg_key><arg_value>2</arg_value></tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "second_name_after_args_malformed",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>g</tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>g</tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "space_inside_tag_malformed",
+      "input_utf8": "<tool_call>f<arg_key >a</arg_key><arg_value>1</arg_value></tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_key >a</arg_key><arg_value>1</arg_value></tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "close_marker_inside_value",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>x</tool_call>y</arg_value></tool_call>",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>x</tool_call>y</arg_value></tool_call>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "good_and_malformed_block",
+      "input_utf8": "<tool_call>get_time</tool_call><tool_call>get weather</tool_call>",
+      "expected": {
+        "content": "<tool_call>get weather</tool_call>",
+        "tool_calls": [
+          {
+            "name": "get_time",
+            "arguments": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "no_wrapper_is_content",
+      "input_utf8": "get_weather<arg_key>city</arg_key><arg_value>北京</arg_value>",
+      "expected": {
+        "content": "get_weather<arg_key>city</arg_key><arg_value>北京</arg_value>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "unclosed_no_recovery_eos",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+      "finish_reason": "FINISH_REASON_V1_EOS_TOKEN",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "unclosed_no_recovery_stop_sequence",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+      "finish_reason": "FINISH_REASON_V1_STOP_SEQUENCE",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "unclosed_no_recovery_stop_token",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+      "finish_reason": "FINISH_REASON_V1_STOP_TOKEN",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "unclosed_no_recovery_max_output_tokens",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+      "finish_reason": "FINISH_REASON_V1_MAX_OUTPUT_TOKENS",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "unclosed_no_recovery_max_output_duration",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+      "finish_reason": "FINISH_REASON_V1_MAX_OUTPUT_DURATION",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "unclosed_no_recovery_user_stop",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+      "finish_reason": "FINISH_REASON_V1_USER_STOP",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "unclosed_partial_close_no_finish_reason",
+      "input_utf8": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value></tool_",
+      "expected": {
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value></tool_",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "unsupported_reasoning_parser",
+      "input_utf8": "abc<tool_call>get_time</tool_call></think>ok",
+      "reasoning_parser": "unsupported@1",
+      "expected": {
+        "content": "abc<tool_call>get_time</tool_call></think>ok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "stream_split_name_and_tags",
+      "input_utf8": "<tool_call>get_weather<arg_key>city</arg_key><arg_value>Paris</arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "get_weather",
+            "arguments": "{\"city\":\"Paris\"}"
+          }
+        ]
+      },
+      "stream_splits": [
+        [
+          15
+        ],
+        [
+          25,
+          67,
+          75
+        ]
+      ]
+    },
+    {
+      "name": "stream_split_multibyte_value",
+      "input_utf8": "<tool_call>f<arg_key>city</arg_key><arg_value>São</arg_value></tool_call>",
+      "expected": {
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "f",
+            "arguments": "{\"city\":\"São\"}"
+          }
+        ]
+      },
+      "stream_splits": [
+        [
+          48
+        ],
+        [
+          47,
+          48
+        ]
+      ]
+    }
+  ]
+}

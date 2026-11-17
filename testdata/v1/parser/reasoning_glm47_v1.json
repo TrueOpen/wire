@@ -1,0 +1,273 @@
+{
+  "schema": "trueopen-parser-reasoning-v1",
+  "source": "docs/REASONING_PARSER_V1.md, glm47@1",
+  "parser": "glm47@1",
+  "notes": [
+    "input_utf8 is committed output (or, for a tool-call file, the tool stage's input). Positions, splits and matching are on its UTF-8 bytes.",
+    "finish_reason, when present, is the verified finish reason from the signed Fin (TRUEOPEN_OUTPUT_FIN_V1), written as its FinishReasonV1 enum name. Absent means no verified finish reason.",
+    "stream_splits lists frame boundaries as byte offsets into input_utf8; each list cuts the input into frames at those offsets, and feeding the frames in order must give exactly expected. A boundary may fall inside a marker or inside a multi-byte UTF-8 sequence.",
+    "tool_calls compares name and arguments only, byte for byte; id, type and index are synthesised by the Provider and are not part of the vectors.",
+    "tool_call_parser null means no tool-call parser is pinned: the remainder is content. Otherwise the remainder goes through that parser, as specified in docs/TOOL_CALL_PARSER_V1.md."
+  ],
+  "vectors": [
+    {
+      "name": "glm53_template_layout",
+      "input_utf8": "abc</think>ok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "ok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "head_think_absorbed",
+      "input_utf8": "<think>abc</think>ok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "ok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "lf_layout_trimmed",
+      "input_utf8": "\nabc\n</think>\nok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "ok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "empty_reasoning",
+      "input_utf8": "</think>ok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "",
+        "content": "ok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "no_markers_all_reasoning",
+      "input_utf8": "abc",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "tool_markup_with_no_close_marker",
+      "input_utf8": "abc<tool_call>f</tool_call>",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "abc<tool_call>f</tool_call>",
+        "content": "",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "text_before_think_is_reasoning",
+      "input_utf8": "abc<think>x</think>ok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "abc<think>x",
+        "content": "ok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "double_head_think_absorbs_first",
+      "input_utf8": "<think><think>abc</think>ok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "<think>abc",
+        "content": "ok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "leading_whitespace_kept_without_marker",
+      "input_utf8": "  abc</think>ok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "  abc",
+        "content": "ok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "only_lf_is_layout_crlf_kept",
+      "input_utf8": "<think>\r\nabc\r\n</think>\r\nok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "\r\nabc\r",
+        "content": "\r\nok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "first_close_marker_ends_reasoning",
+      "input_utf8": "abc</think>b</think>c",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "b</think>c",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "reasoning_then_glm47_call",
+      "input_utf8": "abc</think><tool_call>get_weather<arg_key>city</arg_key><arg_value>北京</arg_value></tool_call>",
+      "tool_call_parser": "glm47@1",
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "get_weather",
+            "arguments": "{\"city\":\"北京\"}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "reasoning_text_then_glm47_call",
+      "input_utf8": "abc</think>ok<tool_call>get_time</tool_call>",
+      "tool_call_parser": "glm47@1",
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "ok",
+        "tool_calls": [
+          {
+            "name": "get_time",
+            "arguments": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty_reasoning_then_glm47_call",
+      "input_utf8": "</think><tool_call>get_time</tool_call>",
+      "tool_call_parser": "glm47@1",
+      "expected": {
+        "reasoning_content": "",
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "get_time",
+            "arguments": "{}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "tool_call_inside_closed_reasoning",
+      "input_utf8": "abc<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value></tool_call></think>ok",
+      "tool_call_parser": "glm47@1",
+      "expected": {
+        "reasoning_content": "abc<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value></tool_call>",
+        "content": "ok",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "tool_call_inside_unclosed_reasoning_eos",
+      "input_utf8": "abc<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value></tool_call>",
+      "tool_call_parser": "glm47@1",
+      "finish_reason": "FINISH_REASON_V1_EOS_TOKEN",
+      "expected": {
+        "reasoning_content": "abc<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value></tool_call>",
+        "content": "",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "reasoning_then_unclosed_call_no_recovery_eos",
+      "input_utf8": "abc</think><tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+      "tool_call_parser": "glm47@1",
+      "finish_reason": "FINISH_REASON_V1_EOS_TOKEN",
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "<tool_call>f<arg_key>a</arg_key><arg_value>1</arg_value>",
+        "tool_calls": []
+      }
+    },
+    {
+      "name": "stream_split_inside_markers",
+      "input_utf8": "<think>abc</think>ok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "ok",
+        "tool_calls": []
+      },
+      "stream_splits": [
+        [
+          3
+        ],
+        [
+          15
+        ],
+        [
+          3,
+          15
+        ]
+      ]
+    },
+    {
+      "name": "stream_split_inside_whitespace_and_lf_runs",
+      "input_utf8": "  \n<think>\n\nabc\n\n</think>\n\nok",
+      "tool_call_parser": null,
+      "expected": {
+        "reasoning_content": "abc",
+        "content": "ok",
+        "tool_calls": []
+      },
+      "stream_splits": [
+        [
+          1
+        ],
+        [
+          2,
+          11
+        ],
+        [
+          16,
+          26
+        ]
+      ]
+    },
+    {
+      "name": "stream_split_inside_multibyte_char",
+      "input_utf8": "北京</think><tool_call>get_weather<arg_key>city</arg_key><arg_value>北京</arg_value></tool_call>",
+      "tool_call_parser": "glm47@1",
+      "expected": {
+        "reasoning_content": "北京",
+        "content": "",
+        "tool_calls": [
+          {
+            "name": "get_weather",
+            "arguments": "{\"city\":\"北京\"}"
+          }
+        ]
+      },
+      "stream_splits": [
+        [
+          1
+        ],
+        [
+          72
+        ],
+        [
+          4,
+          74
+        ]
+      ]
+    }
+  ]
+}
