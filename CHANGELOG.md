@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased - Phase 1 (breaking, fresh genesis)
+## v0.6.0
+
+Phase 1 is a coordinated breaking release for a fresh genesis. Consumers must
+pin this release and its descriptor digest before activation; retained Phase 0
+state and old parameter commitments are not supported.
 
 - Define display-only input token counts from an accepted receipt's Worker
   token evidence size and generated count. Publish checked Go derivation and

@@ -4,7 +4,7 @@ This is a coordinated, breaking contract for a fresh genesis. It does not
 support replay, migration, old sessions, old parameter commitments or old
 message decoders from a retained Phase 0 chain. Publish a reviewed release and
 pin its immutable tag and descriptor digest in every consumer before activation.
-This document describes the candidate contract; it is not a release announcement.
+This document specifies the v0.6.0 contract.
 
 ## Contract coverage
 
