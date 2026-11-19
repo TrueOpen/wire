@@ -104,8 +104,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 67166,
-      "sha256": "45ad7325f4f862d3e16036d9aaac86802b3e09ec857012d04082b30e3a5cb543"
+      "bytes": 68712,
+      "sha256": "91a2dfb212a33cb47e91bc3f0e5a70be2dcdb1ec7848ad6ee60f15456e4c55a6"
     },
     {
       "path": "shared/query_page_v1.json",
@@ -285,8 +285,8 @@
       "path": "task/task_data_auth_v1.json",
       "origin": "wire",
       "contract_section": "Nexus V2 body and service request signing digests",
-      "bytes": 26082,
-      "sha256": "9e4f9a57fd79f33c83623795f22fbe713f80dfea33128fed2de41a5daee8eeaf"
+      "bytes": 37918,
+      "sha256": "e6d3b013bcc7cbdd7baa15f3fdcc5b3263d1371c043305a556bfd780adb78f7e"
     },
     {
       "path": "task/task_data_plane_v1_golden.json",
@@ -342,6 +342,13 @@
       "contract_section": "Verifier top-K, value leaves and Merkle root",
       "bytes": 13650,
       "sha256": "b59ee30e8287fc3d3de1260e62ff75ce574c7aae75be2050ebce8fdb45049ba5"
+    },
+    {
+      "path": "task/worker_anchor_commitment_v1.json",
+      "origin": "wire",
+      "contract_section": "Worker anchor commitment",
+      "bytes": 2816,
+      "sha256": "de7ba9dd92785a926cbf3dace575019e7c8c885309deedf6cf9679771b12fc08"
     },
     {
       "path": "task/worker_token_commitment_v1.json",

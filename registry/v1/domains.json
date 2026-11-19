@@ -3715,6 +3715,30 @@
       ]
     },
     {
+      "domain": "TRUEOPEN_WORKER_ANCHOR_COMMITMENT_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "task_id",
+        "accepted_task_hash",
+        "worker_operator_address",
+        "evidence_schema_hash",
+        "anchor_commit_hash",
+        "anchor_commit_size_bytes"
+      ],
+      "registration_review": "https://github.com/TrueOpen/wire/pull/50",
+      "producer": "selected Worker and Cortex; Nexus recomputes from the stored anchor_commit artifact",
+      "consumers": "InferReceiptV3 WORKER_ANCHOR_OPENING, the third commitment of Profiles whose required_infer_evidence lists that kind",
+      "store": "EvidenceCommitmentV1.evidence_hash_or_root",
+      "event": "12 infer_receipt_accepted binds the outer receipt digest",
+      "query": "QueryTask retained InferReceipt",
+      "contract_section": "Public wire domain TRUEOPEN_WORKER_ANCHOR_COMMITMENT_V1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "schema_version is exactly 1. anchor_commit_hash is the SHA-256 of the bundle's single anchor_commit artifact and anchor_commit_size_bytes its exact, positive byte size. Node retains the commitment opaquely."
+    },
+    {
       "domain": "TRUEOPEN_WORKER_TOKEN_COMMITMENT_V1",
       "framing": "H_FIELDS_V1",
       "fields": [

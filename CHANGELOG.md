@@ -1,5 +1,55 @@
 # Changelog
 
+## Unreleased
+
+### Anchor commitment audit (ADR-0040), compute track
+
+Additive on top of v0.6.0 (Phase 1). The devnet-only pre-release tags
+`v0.6.0-anchor.1` and `v0.6.1-anchor.2` were cut from the Phase 0 line and are
+superseded by this entry; no retained-data network consumed them.
+
+- Add evidence kind 5, WORKER_ANCHOR_OPENING: an optional third Worker
+  commitment, required only by Profiles that list it in
+  required_infer_evidence. Receipts of Profiles without it are unchanged.
+- Add task/v1/anchor.proto: AnchorAuditState, AnchorValidatorVoteState,
+  AnchorVoteKeyState; MsgSubmitAnchorOpening, MsgSubmitAnchorProof (Worker
+  service signer only), MsgSubmitAnchorValidatorVote (bonded validator operator
+  or its registered vote address; final at >= 2/3 of the last total power),
+  MsgRegisterAnchorVoteKey, the advisory MsgSubmitAnchorAuditResult; queries
+  AnchorAudit, AnchorVotes, AnchorAuditsPending, AnchorVoteKey; event
+  EventAnchorVerdictFinalized.
+- Add DeadlineKindV1.ANCHOR_VERDICT = 18: a PASS round's settlement is held
+  until the anchor verdict is final or its deadline passes. Values 14-17
+  belong to the Phase 1 dispatch contract.
+- Add task GenesisState fields 94-96 (anchor audits, votes, vote keys). Fields
+  74-80 and 90-93 belong to the Phase 1 dispatch contract.
+- Add VerificationParamsV1 fields 7-13: anchor_reject_slash_bps,
+  anchor_verdict_window_blocks, anchor_audit_min_rate_bps,
+  anchor_audit_risk_margin_bps, anchor_open_window_blocks,
+  anchor_proof_window_blocks, anchor_timeout_slash_bps. Zero is a value, not a
+  default; the three windows must be positive.
+- **Commitment change:** TRUEOPEN_TASK_PARAMS_V1 now frames all ten
+  VerificationParamsV1 fields in field-number order, so every TaskParamsV1
+  body hashes differently from v0.6.0. Consumers must retain the previous
+  encoder for versions recorded before activation and must not recompute or
+  overwrite old metadata. The `task_params_v1` vector of
+  `testdata/v1/shared/params_v1.json` is regenerated accordingly (the
+  `hub_params_v2` vector is unchanged).
+- Register `TRUEOPEN_WORKER_ANCHOR_COMMITMENT_V1` in `registry/v1/domains.json`
+  (H_FIELDS_V1 over schema_version, chain_id, task_id, accepted_task_hash,
+  worker_operator_address, evidence_schema_hash, anchor_commit_hash,
+  anchor_commit_size_bytes) and publish its vector,
+  `testdata/v1/task/worker_anchor_commitment_v1.json`, so Nexus and Cortex
+  assert one digest instead of values each pins itself.
+- Add three `*_worker_anchor_opening` vectors to
+  `testdata/v1/task/task_data_auth_v1.json`: the metadata body, the fetch body
+  and the ranged fetch body of one Worker evidence reference with
+  EVIDENCE_KIND_WORKER_ANCHOR_OPENING (5). Kind 5 is valid only for
+  Worker-produced evidence objects.
+- Deployment requires a coordinated upgrade and this order: chain, every
+  Builder (nexus), every Cortex node, the anchor sidecars, and only then
+  registration of a Profile requiring kind 5.
+
 ## v0.6.0
 
 Phase 1 is a coordinated breaking release for a fresh genesis. Consumers must
