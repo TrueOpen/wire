@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.6.1
 
 ### Anchor commitment audit (ADR-0040), compute track
 
