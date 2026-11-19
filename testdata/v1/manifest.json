@@ -104,8 +104,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 68712,
-      "sha256": "91a2dfb212a33cb47e91bc3f0e5a70be2dcdb1ec7848ad6ee60f15456e4c55a6"
+      "bytes": 69650,
+      "sha256": "8a470cc5d6d6d37ea45ae6e9954f27acbb5f258978dcc8b757d5b405bb6ba20f"
     },
     {
       "path": "shared/query_page_v1.json",
