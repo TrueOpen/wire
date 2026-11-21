@@ -215,11 +215,100 @@ of these leniencies.
 > format under the canonical name qwen3_coder@1; each node maps that canonical name
 > to whichever local engine flag actually produces this format.
 
+### glm47@1
+
+Serves the GLM-4.7 and GLM-5.x template families. Like qwen3_coder@1 it carries no
+JSON object: the function name follows the start marker directly and each argument is
+an `<arg_key>` / `<arg_value>` pair that the SDK assembles into the JSON arguments
+string. Its reasoning counterpart is `glm47@1` in
+[Reasoning Parser V1](REASONING_PARSER_V1.md).
+
+```text
+name    : glm47
+version : 1
+markers : start = "<tool_call>", end = "</tool_call>"
+payload : the bytes between the markers must match, exactly:
+            payload = ws* NAME ws* ( arg ws* )*
+            arg     = "<arg_key>" KEY "</arg_key>" ws* "<arg_value>" VALUE "</arg_value>"
+          where ws is a whitespace byte and:
+          - NAME: one or more bytes, none of which is "<" or a whitespace byte; taken
+            as is. A name with a space inside ("get weather") therefore leaves text
+            that is not an arg, and the block is malformed.
+          - KEY: the bytes up to the next "<", which must begin "</arg_key>"; raw (not
+            trimmed); must be non-empty and must not contain LF.
+          - VALUE: the bytes up to the first "</arg_value>", possibly empty. Nothing is
+            removed and nothing is unescaped (no HTML entities, no backslash escapes).
+            A VALUE therefore cannot contain the literal "</arg_value>"; "<", ">",
+            "<arg_key>", "<arg_value>" and LF inside it are plain bytes.
+          Malformed (the block yields no tool_call) if the payload does not match that
+          shape -- e.g. no NAME, text other than whitespace between elements, an
+          "<arg_key>" not followed by its "<arg_value>", an "<arg_value>" with no KEY
+          before it, no "</arg_value>" left in the block for an open value, spaces
+          inside a tag such as "<arg_key >" -- or if a KEY repeats within the block.
+tool_call: each block yields exactly one tool_call: name = NAME; arguments = a JSON
+          object with one member per arg, in order of appearance, KEY -> VALUE, every
+          VALUE a JSON **string** -- no type coercion (number / bool / null / nested
+          JSON) and no tool-schema lookup. A block with no arg yields "{}".
+encoding: arguments is written byte for byte by the qwen3_coder@1 encoding rule above
+          (no whitespace; the fixed string escaping; every other character copied as
+          its UTF-8 bytes).
+call_id : OPENAI_CALL_PREFIX.
+multiple: zero or more blocks, one function per block; content follows the
+          common-contract Content rule.
+recover : none. glm47@1 defines no recovery: an unclosed <tool_call> -- whether
+          </tool_call> or </arg_value> is missing -- is content whatever the
+          finish_reason.
+```
+
+Example:
+`<tool_call>get_weather<arg_key>city</arg_key><arg_value>北京</arg_value><arg_key>days</arg_key><arg_value>3</arg_value></tool_call>`
+becomes `content=""`,
+`tool_calls=[{name:"get_weather", arguments:"{\"city\":\"北京\",\"days\":\"3\"}"}]`.
+
+**Why these rules.** The GLM-4.7 to GLM-5.3 templates render a call as
+`'<tool_call>' + NAME` followed by `<arg_key>KEY</arg_key><arg_value>VALUE</arg_value>`
+for each argument and then `</tool_call>`, with no layout bytes anywhere: the stripped
+content runs straight into the first block and consecutive blocks touch. VALUE is the
+argument itself when it is a string and its `tojson` text otherwise, without escaping.
+The rendering is therefore lossy -- the string `"3"` and the number `3` both render as
+`3` -- so a type cannot be recovered from committed output alone; emitting every VALUE
+as a string keeps arguments a pure function of committed output, as in qwen3_coder@1.
+VALUE is taken as is because the template adds no wrapping LF. The optional
+whitespace around NAME and between elements accepts the older GLM-4.5 layout
+(`<tool_call>NAME\n<arg_key>…</arg_key>\n<arg_value>…</arg_value>\n</tool_call>`)
+without changing the result for the current one.
+
+> **Integration note.** Every value in arguments is a JSON string, whatever type the
+> tool schema declares: a call the model meant as `{"days": 3, "dry_run": false}`
+> arrives as `{"days":"3","dry_run":"false"}`. A client must convert values to the
+> schema's types before it runs the tool. A boolean needs care in particular: the
+> string `"false"` is truthy in most languages, so testing it directly runs the branch
+> the model meant to turn off. The same holds for qwen3_coder@1. Typed arguments are
+> left to a separate layer (see "Open items").
+
+**Reference-engine divergences** (informative). vLLM serves this format under both
+`glm45` and `glm47`: it trims NAME and KEY, ignores text between pairs, keeps the last
+value of a repeated KEY, types VALUE by the request's tool schema, re-serialises
+arguments (`json.dumps`, so `{"a": 1}` with spaces), and drops a call whose name is
+not among the request's tools. SGLang's `glm47` also trims NAME and KEY and types
+VALUE by the tool schema, through a chain of JSON and literal fallbacks; it trims the
+surrounding content and, if parsing raises, returns the whole output as content.
+Dynamo's `glm47` trims NAME and types VALUE by the tool schema. `glm47@1` takes none of
+these: it reads no request, keeps KEY raw, rejects a repeated KEY and isolates a bad
+block to itself.
+
+> **Engine-mapping note.** vLLM maps both `glm45` and `glm47` to this format. In
+> SGLang it is `glm47`; SGLang's `glm45` is a separate detector for the GLM-4.5 /
+> GLM-4.6 layout. Dynamo uses `glm47` and accepts `glm45` as an alias of the same
+> family. TrueOpen freezes the format under the canonical name glm47@1; each node
+> maps that name to whichever local engine flag produces it.
+
 ## Shared vector file
 
 One file per `(name, version)`:
-`testdata/v1/parser/tool_call_hermes_v1.json` and
-`testdata/v1/parser/tool_call_qwen3_coder_v1.json`, each registered in
+`testdata/v1/parser/tool_call_hermes_v1.json`,
+`testdata/v1/parser/tool_call_qwen3_coder_v1.json` and
+`testdata/v1/parser/tool_call_glm47_v1.json`, each registered in
 `testdata/v1/manifest.json`, carrying `"origin": "wire"` and a `contract_section`
 pointing at this document. Every Go / Rust / TS implementation recomputes every case
 in its own CI and asserts byte-identical content / tool_calls; wire's CI checks the
@@ -315,11 +404,50 @@ Each vector entry:
 | Streaming | split across `<parameter=…>` and `</parameter>` | same final result |
 | Streaming | split between the wrapping LF and VALUE | same final result |
 
+### Required cases: glm47@1
+
+| Class | Case | Expected |
+|---|---|---|
+| Positive | template layout, two args (`get_weather`, `city`, `days`) | 1 tool_call, arguments `{"city":"北京","days":"3"}` |
+| Positive | block with no arg (`<tool_call>get_time</tool_call>`) | arguments "{}" |
+| Positive | two blocks back to back, no layout bytes | 2 tool_calls in order, content empty |
+| Positive | text before the first block, no separator (`ok<tool_call>…</tool_call>`) | content `ok`, 1 tool_call |
+| Positive | GLM-4.5 layout: LF after NAME, between `</arg_key>` and `<arg_value>`, and before `</tool_call>` | same tool_call as the template layout |
+| Positive | empty VALUE (`<arg_value></arg_value>`) | member value `""` |
+| Positive | VALUE with LF at either end | kept verbatim |
+| Positive | numeric / boolean / null-looking VALUE (`3`, `true`, `null`) | JSON strings `"3"`, `"true"`, `"null"` |
+| Positive | VALUE that is JSON text (`[1, true, null]`, `{"b": 2, "a": "x"}` rendered by `tojson`) | kept as one JSON string |
+| Positive | VALUE with `<`, `>`, `&`, `&lt;`, `<arg_key>`, `<arg_value>` | copied verbatim, no unescaping |
+| Positive | VALUE with `"`, `\`, LF, HT, 0x01, 0x7F, U+2028, non-ASCII | encoded per the encoding rule |
+| Positive | KEY with a leading space (`<arg_key> k</arg_key>`) | kept raw: key ` k` |
+| Negative | empty NAME (`<tool_call><arg_key>…`) | malformed, block as content |
+| Negative | NAME with a space inside (`get weather`) | malformed, block as content |
+| Negative | empty KEY, or KEY containing LF | malformed, block as content |
+| Negative | repeated KEY in one block | malformed, block as content |
+| Negative | `<arg_key>` with no following `<arg_value>` | malformed, block as content |
+| Negative | `<arg_value>` with no KEY before it | malformed, block as content |
+| Negative | no `</arg_value>` left for an open value | malformed, block as content |
+| Negative | non-whitespace text between pairs, or a second NAME after the args | malformed, block as content |
+| Negative | `<arg_key >` (space in tag) | malformed, block as content |
+| Negative | VALUE containing `</tool_call>` | block closes there -> malformed |
+| Negative | one good block and one malformed block | 1 tool_call; malformed block's raw bytes in content |
+| Negative | `get_weather<arg_key>…</arg_value>` with no `<tool_call>` wrapper | content = whole input, 0 tool_calls |
+| Negative | unclosed block, each finish_reason including EOS_TOKEN | content, 0 tool_calls (no recovery) |
+| Negative | unclosed block ending in a partial close marker (`</tool_`), no finish_reason | block as content, partial marker included |
+| Negative | valid closed block, `reasoning_parser` = `unsupported@1` | Support fails -> content = whole input verbatim, 0 tool_calls |
+| Streaming | split inside NAME, `<arg_key>`, `</arg_value>` and `</tool_call>` | same final result |
+| Streaming | multi-byte character split inside VALUE | same final result |
+
 ## Open items
 
-1. Governance: `(hermes, 1)` and `(qwen3_coder, 1)` must be in
+1. Governance: `(hermes, 1)`, `(qwen3_coder, 1)` and `(glm47, 1)` must be in
    `supported_tool_call_parsers` before a profile can pin them.
 2. finish_reason is out of scope **except** the verified, model-initiated stop
    finish_reason that gates unclosed-call recovery (common contract / hermes@1). That
    value comes from the signed Fin (verified terminal metadata) -- no new input into
    committed output. transport id / index / type remain out of scope (separate proposal).
+3. Typed arguments. qwen3_coder@1 and glm47@1 emit every value as a JSON string
+   because committed output alone cannot recover the type. Converting values by the
+   tool schema needs the schema as a verified input and a conversion algorithm frozen
+   across Go / Rust / TS; it belongs in a separate, versioned layer that a profile may
+   pin, not in these parsers.
