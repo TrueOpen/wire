@@ -8,13 +8,21 @@ Additive on top of v0.6.1.
 
 - Add AnchorVerdictV1.ANCHOR_VERDICT_V1_UNAVAILABLE = 4, a validator vote
   value only: the validator could not obtain the opening, proof or manifest the
-  Worker recorded. It is tallied in the new AnchorVoteTallyV1.unavailable_power
-  (field 6), decides nothing before verdict_deadline_height, and may be replaced
-  by the same validator with PASS or REJECT while the vote window is open.
+  Worker recorded. It is accepted only in the second half of the verdict
+  window, is tallied in the new AnchorVoteTallyV1.unavailable_power (field 6),
+  never closes an audit early, and may be replaced by the same validator with
+  PASS or REJECT while the vote window is open.
 - Add AnchorResultSourceV1.ANCHOR_RESULT_SOURCE_V1_MATERIAL_UNAVAILABLE = 6: at
-  the verdict deadline UNAVAILABLE held >= 2/3 of the bonded voting power. The
-  audit is final REJECT and is settled as the existing timeout fault. Value 5
-  is left to the content-track contract.
+  the verdict deadline neither PASS nor REJECT had decided, PASS held at most
+  1/3 and REJECT together with UNAVAILABLE held >= 2/3 of the bonded voting
+  power. The audit is final REJECT and is settled as the existing timeout
+  fault. Value 5 is left to the content-track contract.
+- Add ServiceEndpointKind.SERVICE_ENDPOINT_KIND_ANCHOR_DA = 4: the
+  data-availability store a Worker serves its audit material from, published
+  in its service descriptor.
+- Add AnchorAuditState.da_uri_prefix (field 60): the Worker's ANCHOR_DA
+  endpoint at sampling. When set, every location recorded for the audit starts
+  with it. Fields 35-59 are left to the content-track contract.
 - Add EventAnchorVerdictFinalized.unavailable_power (field 8).
 - AnchorAuditState.opening_uri and the other recorded locations are http:// or
   https:// URLs; the comment no longer mentions file://.
