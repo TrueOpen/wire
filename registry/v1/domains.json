@@ -1621,6 +1621,26 @@
       "preimage_diverges_from_contract": false
     },
     {
+      "domain": "TRUEOPEN_ORDER_INPUT_TOKENS_V1",
+      "framing": "H_FIELDS_V1",
+      "fields": [
+        "schema_version",
+        "chain_id",
+        "order_digest",
+        "input_token_count"
+      ],
+      "registration_review": "https://github.com/TrueOpen/wire/pull/60",
+      "producer": "the user's SDK, with the key and scheme that sign the order",
+      "consumers": "Builder relays it with MsgRecordDispatch.input_tokens_attestations; Task refuses a receipt whose prompt token count is below the attested count minus input_token_tolerance",
+      "store": "not retained beyond the task's dispatch record",
+      "event": "none",
+      "query": "none",
+      "contract_section": "Public wire domain TRUEOPEN_ORDER_INPUT_TOKENS_V1",
+      "registered_in_contract": true,
+      "preimage_diverges_from_contract": false,
+      "note": "schema_version is exactly 1. order_digest is the TRUEOPEN_TASK_ORDER_V3 digest of the order the count belongs to. The signature is over this digest under the order's signature scheme; absent means the user made no statement."
+    },
+    {
       "domain": "TRUEOPEN_ORDER_OPENING_V2",
       "framing": "H_FIELDS_V1",
       "fields": [

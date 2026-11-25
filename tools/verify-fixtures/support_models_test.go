@@ -74,13 +74,20 @@ func TestHubParamsVectorPublishesPositiveStakeGracePeriod(t *testing.T) {
 			if bucket["name"] != "service" {
 				continue
 			}
-			fields := bucket["fields"].([]any)
-			last := fields[len(fields)-1].(map[string]any)
-			value, err := publishedUint(last["value"])
-			if last["name"] != "min_stake_grace_period_blocks" || last["type"] != "uint64" || err != nil || value == 0 {
-				t.Fatalf("service parameter 22 must be a positive uint64 grace period")
+			// Field 22 is no longer the last service parameter (fields 23-28
+			// follow it), so it is found by name.
+			for _, rawField := range bucket["fields"].([]any) {
+				field := rawField.(map[string]any)
+				if field["name"] != "min_stake_grace_period_blocks" {
+					continue
+				}
+				value, err := publishedUint(field["value"])
+				if field["type"] != "uint64" || err != nil || value == 0 {
+					t.Fatalf("service parameter 22 must be a positive uint64 grace period")
+				}
+				return
 			}
-			return
+			t.Fatalf("service parameter 22 (min_stake_grace_period_blocks) is missing")
 		}
 	}
 	t.Fatal("HubParamsV2 service parameter bucket not found")
