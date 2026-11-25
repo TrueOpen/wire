@@ -104,8 +104,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 68712,
-      "sha256": "91a2dfb212a33cb47e91bc3f0e5a70be2dcdb1ec7848ad6ee60f15456e4c55a6"
+      "bytes": 75906,
+      "sha256": "e26f2e927b1087d758e8150ce93a77ea453ad3a8afd3d31683269f8ce24eb969"
     },
     {
       "path": "shared/query_page_v1.json",
@@ -349,6 +349,13 @@
       "contract_section": "Worker anchor commitment",
       "bytes": 2816,
       "sha256": "de7ba9dd92785a926cbf3dace575019e7c8c885309deedf6cf9679771b12fc08"
+    },
+    {
+      "path": "task/order_input_tokens_v1.json",
+      "origin": "wire",
+      "contract_section": "Order input token count attestation",
+      "bytes": 2626,
+      "sha256": "cab193eac47cfe06d95a8fcd78a076691d1d0bdf0e32cb8d9c414a1e5730e831"
     },
     {
       "path": "task/worker_token_commitment_v1.json",

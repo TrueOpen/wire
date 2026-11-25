@@ -78,6 +78,10 @@ service Query {
   rpc ServiceBond(QueryServiceBondRequest) returns (QueryServiceBondResponse) {
     option (google.api.http).get = "/TrueOpen/hub/v1/service_bond/{operator_address}";
   }
+  // WorkerQuota returns the order quota of one Worker for the current settlement period.
+  rpc WorkerQuota(QueryWorkerQuotaRequest) returns (QueryWorkerQuotaResponse) {
+    option (google.api.http).get = "/TrueOpen/hub/v1/worker_quota/{operator_address}";
+  }
   // ServiceUnbondings pages one operator's unbonding entries by status.
   rpc ServiceUnbondings(QueryServiceUnbondingsRequest) returns (QueryServiceUnbondingsResponse) {
     option (google.api.http).get = "/TrueOpen/hub/v1/service_unbondings/{operator_address}";

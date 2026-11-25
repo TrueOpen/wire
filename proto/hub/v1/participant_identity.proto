@@ -29,6 +29,9 @@ enum ServiceEndpointKind {
   // audit sampled while this descriptor is current.
   // SERVICE_ENDPOINT_KIND_ANCHOR_DA identifies the corresponding protocol value.
   SERVICE_ENDPOINT_KIND_ANCHOR_DA = 4;
+  // Where a panel Verifier serves audit material to the other Verifiers of
+  // the same audit, by content hash. An http:// or https:// URL ending in "/".
+  SERVICE_ENDPOINT_KIND_ANCHOR_RELAY = 5;
 }
 
 // ServiceEndpointV1 is one bounded descriptor endpoint (9.6b).
