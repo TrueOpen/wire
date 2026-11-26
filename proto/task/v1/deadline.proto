@@ -91,6 +91,10 @@ enum DeadlineKindV1 {
   DEADLINE_KIND_V1_ANCHOR_LATE_WINDOW = 21;
   // Per-Worker batch settlement queue; EndBlock-only.
   DEADLINE_KIND_V1_BATCH_SETTLEMENT = 22;
+  // Two-step anchor sampling: the commitment-list deadline of a selected task
+  // and, once the list is recorded, the height of its position draw.
+  // EndBlock-only.
+  DEADLINE_KIND_V1_ANCHOR_LIST = 23;
 }
 
 // DeadlineTransitionCode is the closed transition reason carried by event

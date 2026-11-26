@@ -1,0 +1,188 @@
+{
+  "schema": "trueopen.task.anchor_two_step_sampling.v1",
+  "source": "docs/ANCHOR_TWO_STEP_SAMPLING_V1.md",
+  "notes": [
+    "list_hash = sha256('TRUEOPEN_ANCHOR_KV_LIST_V1' || chain_id || task_id || u64_be(rows) || list), list = rows entries of 32 bytes.",
+    "position_beacon = sha256('TRUEOPEN_ANCHOR_POSITION_BEACON_V1' || chain_id || task_id || u64_be(first_height) || u32_be(m) || beacon(first_height) || ... || beacon(first_height + m - 1)).",
+    "position draw: for i = 0, 1, ... (at most 64 draws) p = u64_be(sha256('TRUEOPEN_ANCHOR_SAMPLE_V1' || chain_id || task_id || sample_beacon || list_hash || position_beacon || u32_be(i))[0:8]) mod rows; duplicates are skipped; the result is sorted ascending.",
+    "chain_id is its UTF-8 bytes without a length prefix; every other input has a fixed length.",
+    "The list entries of these vectors are arbitrary 32-byte strings: the vectors pin the hashing only."
+  ],
+  "vectors": [
+    {
+      "name": "two_positions",
+      "note": "ordinary draw",
+      "chain_id": "trueopen-localnet-1",
+      "task_id_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+      "rows": 1000,
+      "list_size_bytes": 32000,
+      "list_sha256_hex": "74c00efce9160e8a2f6dba9cc6e1bea33a3f62e96935c0b1ec5285807231115e",
+      "list_entry_rule": "entry i = sha256('vector-point' || task_id || u32_be(i)); opaque bytes for hashing only, not curve points",
+      "list_hash_hex": "a719b4d4ff415d04c08031874b17f588e0210929e87d932ecc59d80370c3655e",
+      "sample_beacon_hex": "1139ede07af735b6d2b008c352a47fa9fa6f3d9e75fc5afbf36372e6f7665211",
+      "position_beacon_first_height": 5001,
+      "position_beacon_blocks": 8,
+      "block_beacons_hex": [
+        "a677f92a85917fa815b3a1369742691c66d708e141966bbc4fef2007d602dd29",
+        "a30a49f4a14bd1cc17105584f653fecc0a9bca1b4c78a52724e3812f92ac8c6e",
+        "644b0a1b2fecda2d60acf6456f12b2879225984b7fabbd992b91cbb689108e60",
+        "96a68084eac714c6d812346c6f4529855c20a58489ed60f9cf0b1797a6974b7d",
+        "205bc33925eb31b5459dbade3d962c2a7c836e4679706d937495f9d9b9fd9ac8",
+        "abb01efb8104393cbc24ab29f24b0a9dbaa7de8f2afbfcf078ec1f5967a544ad",
+        "d3cc8c83b23b0691c23c0d2cb23b5cf5a555b7282babba5868c3161a1bbe1e19",
+        "0c149cd6fcab24f0d372520737b2911f73b9a2d1ab3625e588623a4f8469ff96"
+      ],
+      "position_beacon_hex": "cfeb74ae806e3db31c2bd0ba7276695b5b2b34faf20317099602ea52957e3844",
+      "position_count": 2,
+      "positions": [
+        566,
+        877
+      ]
+    },
+    {
+      "name": "minimum_window",
+      "note": "smallest allowed number of contributing beacons",
+      "chain_id": "trueopen-localnet-1",
+      "task_id_hex": "2222222222222222222222222222222222222222222222222222222222222222",
+      "rows": 37,
+      "list_size_bytes": 1184,
+      "list_sha256_hex": "e3e06e430a7663d71b2472b57ae458b52f65cb55b5f2629653140b3297a25ae3",
+      "list_entry_rule": "entry i = sha256('vector-point' || task_id || u32_be(i)); opaque bytes for hashing only, not curve points",
+      "list_hash_hex": "a44096fdb27c7e2cd5f11052eca31cbb888149a77728d2c5f15aa12111bc3894",
+      "sample_beacon_hex": "de62f8a2e76cce7d45b4101172a19d9aebf5583aee11ba6655a89734d725f2e4",
+      "position_beacon_first_height": 2,
+      "position_beacon_blocks": 2,
+      "block_beacons_hex": [
+        "88e60c9c32e516b847994acecf162cba675bd9aa485816d40a5beed4805b609b",
+        "999040bf21864ae5c0c80089914b3a2b667d8cf6bc37cc7d8e2e8a3d678badb7"
+      ],
+      "position_beacon_hex": "651e007812ae69eaad1a41eed91198f226e6f85f8a2adde0478d9521e26e67df",
+      "position_count": 2,
+      "positions": [
+        19,
+        21
+      ]
+    },
+    {
+      "name": "rows_3_duplicates_skipped",
+      "note": "small row count: the draw index advances past duplicates",
+      "chain_id": "trueopen-localnet-1",
+      "task_id_hex": "3333333333333333333333333333333333333333333333333333333333333333",
+      "rows": 3,
+      "list_size_bytes": 96,
+      "list_sha256_hex": "0b97399a916ca14497548972ff0a847cb01f73760660713f7ddbba133fcd1e56",
+      "list_hex": "c11699e85c9c9a8c9b1c2588d76e25db7c400fee858b5b895685b58a7cd5dc13d8f9a1dbd65c6e4a2638fc92418d5bba870520c5b42d8af73f4e418011705e6a050251825e63122bbdb2825919d5cda91370a6f05837dd2b97f8f2e91fed25e8",
+      "list_entry_rule": "entry i = sha256('vector-point' || task_id || u32_be(i)); opaque bytes for hashing only, not curve points",
+      "list_hash_hex": "48e15aaeaa62c30bc3254e8211e4e6c54d50be7e792c701df20d3c1f54cc0585",
+      "sample_beacon_hex": "d3fba3797e896d597475bc2d8e95f8c2f49080830ed04ba688ac309fb94519a4",
+      "position_beacon_first_height": 77,
+      "position_beacon_blocks": 8,
+      "block_beacons_hex": [
+        "9fe6284e1e34635814f3797af3ee170fe78ca4325fe00c8161d6753519460aac",
+        "684f7c6b0b3ec7657102493f0c95ae1a0131791f3de9d295072c984c9419c2f2",
+        "01f2d5e818887b3e1206d338a80dfb1b6dfcf103d95522a747b6a0b63dc379c3",
+        "162add0df9ecb012280ca487005222bc3a26dc1ae1ea1b92d434fc879e1459d0",
+        "2c99557cc2861ec51cb1acd1d1ed56abc0efe39e293cbb6b23e3da10cdf1f105",
+        "73d1013ad75e8f9b33393893f8f4bf422b214296c3c55071cab5bc29e5cb78d8",
+        "c76959d0b5f59a55ca9bb1085507c6402e9150f2ec6f325853646467733513e9",
+        "f640d0213a2bd05ff0654228462b77eacef7029e4c51f9c068677b1599a4395b"
+      ],
+      "position_beacon_hex": "11457b3cc34f91eb5bdb204dd2a08e114584f4b80ec70924c0564ee63bd3ce0b",
+      "position_count": 2,
+      "positions": [
+        0,
+        2
+      ]
+    },
+    {
+      "name": "rows_1_single_position",
+      "note": "one row: only position 0 exists, the result has one entry",
+      "chain_id": "trueopen-localnet-1",
+      "task_id_hex": "4444444444444444444444444444444444444444444444444444444444444444",
+      "rows": 1,
+      "list_size_bytes": 32,
+      "list_sha256_hex": "e70b58df32d5137a64a74b23386f19f3f73327e4de797287ce471694118f467a",
+      "list_hex": "43ff96ade4c8a8035f0828ca931b5129cb4fa72d8b04dfbd6d647f7a1684a298",
+      "list_entry_rule": "entry i = sha256('vector-point' || task_id || u32_be(i)); opaque bytes for hashing only, not curve points",
+      "list_hash_hex": "bf851cc66e7b817127e5198f3130e3f62d0f3fe2925f35fd259f6e19be3dcd55",
+      "sample_beacon_hex": "58d7ac0278450a64cdd7d3c92decf3e2175a073f64dcaf37ae69156a4c81289b",
+      "position_beacon_first_height": 900,
+      "position_beacon_blocks": 8,
+      "block_beacons_hex": [
+        "15b97658b66e976fe2d7a4e6e2bfe31567d742b7aa493721c7ca35575454b600",
+        "34741b881d1dd39f887c6464a0c1dbfeb096a1d94d5b44cd3aafa8c5dd3deced",
+        "1fdc656457e54139f71a28058ca32b5f5b76b65ef485d236b2b9aa0558ffb630",
+        "ff93019b21fe8680540f183e165a9d40035225010df2a639896558a1ab4aa20c",
+        "299a4838a891a5415d536b4f55c6cc87948bad73f856150b60392292dec9e673",
+        "942de88fff5e56ea8d42132e58e2638398e2b345866cb585f88e3df5b9ea33d5",
+        "b03ce70abac7b83933f44a0891d650d37ff5bff4fe4f31d7bf21af9e8f86f797",
+        "3803b65f1a78f6371accd6d2289a2be5cb27c24729ad06caa811272303367f6c"
+      ],
+      "position_beacon_hex": "303449f131a666fb4dd00268fbd015f470509a9b28409b294c2b94dc6fb98e21",
+      "position_count": 2,
+      "positions": [
+        0
+      ]
+    },
+    {
+      "name": "other_chain",
+      "note": "same inputs as two_positions on another chain id",
+      "chain_id": "trueopen-localnet-2",
+      "task_id_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+      "rows": 1000,
+      "list_size_bytes": 32000,
+      "list_sha256_hex": "74c00efce9160e8a2f6dba9cc6e1bea33a3f62e96935c0b1ec5285807231115e",
+      "list_entry_rule": "entry i = sha256('vector-point' || task_id || u32_be(i)); opaque bytes for hashing only, not curve points",
+      "list_hash_hex": "6b99f952c0bb4ef012b72b6dd4970419df8c358702701cdc575c006ddd117aaf",
+      "sample_beacon_hex": "1139ede07af735b6d2b008c352a47fa9fa6f3d9e75fc5afbf36372e6f7665211",
+      "position_beacon_first_height": 5001,
+      "position_beacon_blocks": 8,
+      "block_beacons_hex": [
+        "a677f92a85917fa815b3a1369742691c66d708e141966bbc4fef2007d602dd29",
+        "a30a49f4a14bd1cc17105584f653fecc0a9bca1b4c78a52724e3812f92ac8c6e",
+        "644b0a1b2fecda2d60acf6456f12b2879225984b7fabbd992b91cbb689108e60",
+        "96a68084eac714c6d812346c6f4529855c20a58489ed60f9cf0b1797a6974b7d",
+        "205bc33925eb31b5459dbade3d962c2a7c836e4679706d937495f9d9b9fd9ac8",
+        "abb01efb8104393cbc24ab29f24b0a9dbaa7de8f2afbfcf078ec1f5967a544ad",
+        "d3cc8c83b23b0691c23c0d2cb23b5cf5a555b7282babba5868c3161a1bbe1e19",
+        "0c149cd6fcab24f0d372520737b2911f73b9a2d1ab3625e588623a4f8469ff96"
+      ],
+      "position_beacon_hex": "08054fa401f92ae34b1f13ba30be25e426fe9a7e3852e2b05f99253f7bc48d02",
+      "position_count": 2,
+      "positions": [
+        236,
+        819
+      ]
+    },
+    {
+      "name": "restarted_window",
+      "note": "same task as two_positions after the beacon window was restarted once (first height moved by 8)",
+      "chain_id": "trueopen-localnet-1",
+      "task_id_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+      "rows": 1000,
+      "list_size_bytes": 32000,
+      "list_sha256_hex": "74c00efce9160e8a2f6dba9cc6e1bea33a3f62e96935c0b1ec5285807231115e",
+      "list_entry_rule": "entry i = sha256('vector-point' || task_id || u32_be(i)); opaque bytes for hashing only, not curve points",
+      "list_hash_hex": "a719b4d4ff415d04c08031874b17f588e0210929e87d932ecc59d80370c3655e",
+      "sample_beacon_hex": "1139ede07af735b6d2b008c352a47fa9fa6f3d9e75fc5afbf36372e6f7665211",
+      "position_beacon_first_height": 5009,
+      "position_beacon_blocks": 8,
+      "block_beacons_hex": [
+        "d18ebf5a3b32f78248a3c2a8949395994f53ff2a464b577bb6f11b6e432b14d2",
+        "2de0de8d7be3cfbe0609e07d51aa209d265bb05c41cbc1569645ec4ca253f4af",
+        "cc872265d3f306798603102f361e4b23dd264c4ea2f92783beef0bc2bf90f801",
+        "a9c9a0bfb913e5f3cd65165ea1dba5c89276ae6d3f2175612c4ba0824cbae146",
+        "edba7589d9594485acc5336dabffaa9bcfe508e5acc2b8aedfaf0f713479e89c",
+        "41659caa476b3626f384e583caa09f9c52e18aa55707a24fb687b854825e5471",
+        "8048191977a7244b8c0ecae5aa46b7476471b7aaf7af87a0ac4f86559dc10e69",
+        "d063ec5fef618ef5a6052f18fbe4bfd4737fbb0ce9edb706f0f3909fa992e058"
+      ],
+      "position_beacon_hex": "f4bc483c3c0ad2c3723a50b58e18c674fac9f6a7a603d2953cfb7947ce3182cf",
+      "position_count": 2,
+      "positions": [
+        607,
+        881
+      ]
+    }
+  ]
+}

@@ -37,6 +37,10 @@ message InferEvidenceRequirementV1 {
   option (gogoproto.equal) = true;
 
   EvidenceKind evidence_kind = 1;
+  // For WORKER_ANCHOR_OPENING: 1 = one-step sampling; 2 = per-row commitment
+  // list recorded after selection and two-step sampling
+  // (docs/ANCHOR_TWO_STEP_SAMPLING_V1.md). The value is part of
+  // evidence_schema_hash, so a version-2 Profile is always a new Profile version.
   uint32 commitment_schema_version = 2;
   uint64 max_encoded_size_bytes = 3;
   // WORKER_ANCHOR_OPENING only, optional: sha256 of the canonical

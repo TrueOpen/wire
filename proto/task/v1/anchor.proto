@@ -155,6 +155,9 @@ enum AnchorTimeoutReasonV1 {
   ANCHOR_TIMEOUT_REASON_V1_PANEL_UNAVAILABLE = 3;
   // The automatic retry round also closed without two equal votes.
   ANCHOR_TIMEOUT_REASON_V1_PANEL_INCONCLUSIVE = 4;
+  // Two-step sampling (sampling_mode 1): list_deadline_height passed without
+  // a recorded commitment list.
+  ANCHOR_TIMEOUT_REASON_V1_LIST_DEADLINE = 5;
 }
 
 // AnchorPanelVoteState is one panel member's vote in one round.
@@ -304,6 +307,42 @@ message AnchorAuditState {
   // Height at which the verdict became final (after the publication period or
   // the re-audit); zero before.
   uint64 final_height = 75;
+
+  // Fields 80-89: two-step sampling. All zero on audits sampled in one step.
+  // Fields 76-79 are left free next to the Verifier-panel block.
+
+  // sampling_mode is written at the first beacon from the task's Profile:
+  // 0 = one step (the first beacon draws the coin and the positions);
+  // 1 = two steps (the first beacon draws the coin only; the Worker of a
+  // selected task then records the hash of its per-row commitment list, and
+  // the positions are drawn from beacons produced strictly after that record).
+  // An unselected task carries the mode and nothing else of the flow.
+  uint32 sampling_mode = 80;
+  // Last height at which MsgSubmitAnchorCommitmentList is accepted: the height
+  // of the block that recorded the selection plus anchor_list_window_blocks.
+  // Zero in sampling_mode 0 and on an unselected task.
+  uint64 list_deadline_height = 81;
+  // Hash of the Worker's commitment list (docs/ANCHOR_TWO_STEP_SAMPLING_V1.md).
+  // Empty until recorded; the first accepted value is final.
+  bytes commitment_list_hash = 82 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // Size of the list in bytes: 32 x rows, rows being the chain's own row
+  // count of the task (prompt + generated - 1).
+  uint64 commitment_list_size_bytes = 83;
+  // Where the list can be fetched: an http:// or https:// URL under da_uri_prefix.
+  string commitment_list_uri = 84;
+  // Height of the block that included the accepted list message.
+  uint64 commitment_list_height = 85;
+  // First and last height whose beacons are aggregated into position_beacon.
+  // Both lie strictly after commitment_list_height. They move forward
+  // together, by a whole window, only when a beacon of the current window is
+  // missing or is not a verified proposer-VRF value.
+  uint64 position_beacon_first_height = 86;
+  uint64 position_beacon_last_height = 87;
+  // The aggregated beacon the positions were drawn from; empty until the draw.
+  bytes position_beacon = 88 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // Height at which positions were written. opening_deadline_height and
+  // proof_deadline_height count from it.
+  uint64 positions_height = 89;
 }
 
 // AnchorVoteKeyState delegates anchor votes of one validator to a hot vote address,
@@ -363,6 +402,39 @@ message MsgSubmitAnchorProof {
 // MsgSubmitAnchorProofResponse defines the MsgSubmitAnchorProofResponse wire type.
 message MsgSubmitAnchorProofResponse {
   shared.v1.MutationStatusV1 status = 1;
+}
+
+// MsgSubmitAnchorCommitmentList records the hash of the Worker's per-row
+// commitment list for a task that two-step sampling selected
+// (AnchorAuditState.sampling_mode 1). The outer Cosmos signer is the winner
+// Worker's current service address.
+//
+// The first accepted message is final: the same hash and size again is a
+// NOOP, any other content is refused, at every later stage of the audit. The
+// message is refused after list_deadline_height. The positions are drawn from
+// the beacons of the anchor_position_beacon_blocks heights that follow the
+// block including this message, never from an earlier one.
+message MsgSubmitAnchorCommitmentList {
+  option (cosmos.msg.v1.signer) = "submitter_address";
+  option (amino.name) = "trueopen/x/task/MsgSubmitAnchorCommitmentList";
+
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // list_hash is defined in docs/ANCHOR_TWO_STEP_SAMPLING_V1.md. The chain
+  // stores it as an opaque 32-byte value and never reads the list.
+  bytes list_hash = 2 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  // list_size_bytes must equal 32 x the chain's row count of the task.
+  uint64 list_size_bytes = 3;
+  // list_uri locates the list; it must lie under the audit's da_uri_prefix.
+  string list_uri = 4;
+  string submitter_address = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgSubmitAnchorCommitmentListResponse reports the heights whose beacons
+// will be aggregated for the position draw.
+message MsgSubmitAnchorCommitmentListResponse {
+  uint64 position_beacon_first_height = 1;
+  uint64 position_beacon_last_height = 2;
+  shared.v1.MutationStatusV1 status = 3;
 }
 
 // MsgSubmitAnchorAuditResult records the auditor's per-position verdicts over

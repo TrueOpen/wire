@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+### Two-step sampling of the anchor audit
+
+Additive on top of the Verifier-panel entry below (which it stacks on). Both
+new parameters are zero by default and no existing Profile is affected: the
+flow is used only by tasks of a Profile whose `WORKER_ANCHOR_OPENING`
+requirement carries `commitment_schema_version = 2`. Specification:
+`docs/ANCHOR_TWO_STEP_SAMPLING_V1.md`.
+
+- Add `MsgSubmitAnchorCommitmentList` and its response: the winner Worker of a
+  selected task records the hash of its per-row commitment list. The first
+  accepted message is final; the positions are drawn from block beacons
+  produced after it.
+- Add `AnchorAuditState` fields 80-89 (`sampling_mode`, `list_deadline_height`,
+  `commitment_list_hash`, `commitment_list_size_bytes`, `commitment_list_uri`,
+  `commitment_list_height`, `position_beacon_first_height`,
+  `position_beacon_last_height`, `position_beacon`, `positions_height`).
+  Fields 76-79 stay free.
+- Add `VerificationParamsV1.anchor_list_window_blocks` (42) and
+  `anchor_position_beacon_blocks` (43).
+- Add `DeadlineKindV1` ANCHOR_LIST (23) and `AnchorTimeoutReasonV1`
+  LIST_DEADLINE (5). No new `AnchorResultSourceV1` value: a missing list ends
+  as TIMEOUT with its own reason.
+- Add events `EventAnchorAuditSelected`, `EventAnchorCommitmentListRecorded`,
+  `EventAnchorPositionsDrawn`.
+- Document `commitment_schema_version` 2 of the anchor evidence requirement.
+- Add the vector `task/anchor_two_step_sampling_v1.json` (list hash, aggregated
+  position beacon, position draw) and regenerate `task_params_v1`:
+  `TRUEOPEN_TASK_PARAMS_V1` commitments change because every field is framed.
+
 ### Verifier-panel anchor audit, late submission, batch settlement
 
 Additive on top of the "material the Worker does not keep retrievable" entry

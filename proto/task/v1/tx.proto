@@ -49,6 +49,8 @@ service Msg {
   rpc SubmitAnchorOpening(MsgSubmitAnchorOpening) returns (MsgSubmitAnchorOpeningResponse);
   // SubmitAnchorProof records the winner Worker's proof package over its opening (ADR-0040 v2).
   rpc SubmitAnchorProof(MsgSubmitAnchorProof) returns (MsgSubmitAnchorProofResponse);
+  // SubmitAnchorCommitmentList records the winner Worker's commitment-list hash for a task selected by two-step sampling.
+  rpc SubmitAnchorCommitmentList(MsgSubmitAnchorCommitmentList) returns (MsgSubmitAnchorCommitmentListResponse);
   // SubmitAnchorAuditResult records a selected Verifier's anchor audit verdicts (ADR-0040).
   rpc SubmitAnchorAuditResult(MsgSubmitAnchorAuditResult) returns (MsgSubmitAnchorAuditResultResponse);
   // SubmitAnchorValidatorVote records a bonded validator's verdict on the Worker's anchor proof (ADR-0040 v4).

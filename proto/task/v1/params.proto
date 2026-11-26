@@ -195,6 +195,19 @@ message VerificationParamsV1 {
   // count is below the attested count minus this value is refused. Zero means
   // the attestation is ignored.
   uint64 input_token_tolerance = 41;
+
+  // Two-step anchor sampling. Both zero by default; zero leaves every existing
+  // Profile on one-step sampling. They are used only by tasks of a Profile
+  // whose WORKER_ANCHOR_OPENING requirement has commitment_schema_version 2
+  // (docs/ANCHOR_TWO_STEP_SAMPLING_V1.md).
+
+  // Blocks after the block that records the selection within which a selected
+  // Worker must record its commitment list.
+  uint64 anchor_list_window_blocks = 42;
+  // Number of consecutive block beacons, all produced after the list was
+  // recorded, that are aggregated for the position draw. At least 2 whenever
+  // anchor_list_window_blocks is set; at most 256.
+  uint32 anchor_position_beacon_blocks = 43;
 }
 
 // EvidenceLimitParamsV1 bounds evidence payloads and supported version catalogs.

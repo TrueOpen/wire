@@ -433,3 +433,37 @@ message EventAnchorVerdictFinalized {
   // unavailable_power is the voting power of UNAVAILABLE votes at the verdict.
   uint64 unavailable_power = 8;
 }
+
+// EventAnchorAuditSelected is emitted when two-step sampling selects a task:
+// the Worker must record its commitment list by list_deadline_height. An
+// audit sampled in one step emits nothing here.
+message EventAnchorAuditSelected {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  string worker_operator_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint32 sampling_mode = 3;
+  uint64 list_deadline_height = 4;
+}
+
+// EventAnchorCommitmentListRecorded is emitted by the transaction that records
+// the commitment list of a selected task, and again with the new heights when
+// the beacon window of the position draw is restarted.
+message EventAnchorCommitmentListRecorded {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  string worker_operator_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  bytes list_hash = 3 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  uint64 list_size_bytes = 4;
+  // height is commitment_list_height.
+  uint64 height = 5;
+  uint64 position_beacon_first_height = 6;
+  uint64 position_beacon_last_height = 7;
+}
+
+// EventAnchorPositionsDrawn is emitted in EndBlock when the positions of a
+// two-step audit are drawn.
+message EventAnchorPositionsDrawn {
+  bytes task_id = 1 [(shared.v1.rest_bytes_encoding) = REST_BYTES_ENCODING_HASH32_LOWER_HEX];
+  repeated uint64 positions = 2;
+  uint64 position_beacon_last_height = 3;
+  uint64 opening_deadline_height = 4;
+  uint64 proof_deadline_height = 5;
+}
