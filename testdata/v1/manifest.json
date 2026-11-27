@@ -104,8 +104,8 @@
       "path": "shared/params_v1.json",
       "origin": "wire",
       "contract_section": "Phase 1 public contract: canonical bytes, authorization and fresh-genesis dispatch; see docs/PHASE1_CONTRACT.md",
-      "bytes": 68712,
-      "sha256": "91a2dfb212a33cb47e91bc3f0e5a70be2dcdb1ec7848ad6ee60f15456e4c55a6"
+      "bytes": 76611,
+      "sha256": "47ffa4e598b42a460c0494c9e9867a7405b82443d9889dedc2670c41c38b2460"
     },
     {
       "path": "shared/query_page_v1.json",
@@ -349,6 +349,20 @@
       "contract_section": "Worker anchor commitment",
       "bytes": 2816,
       "sha256": "de7ba9dd92785a926cbf3dace575019e7c8c885309deedf6cf9679771b12fc08"
+    },
+    {
+      "path": "task/order_input_tokens_v1.json",
+      "origin": "wire",
+      "contract_section": "Order input token count attestation",
+      "bytes": 2626,
+      "sha256": "cab193eac47cfe06d95a8fcd78a076691d1d0bdf0e32cb8d9c414a1e5730e831"
+    },
+    {
+      "path": "task/anchor_two_step_sampling_v1.json",
+      "origin": "wire",
+      "contract_section": "Two-step anchor sampling: list hash, aggregated position beacon and position draw",
+      "bytes": 10440,
+      "sha256": "f00a89e827ba10cf9b2ff6e42e9c2f9aefa5a2a9be74c11916c57b4e07bf8d3e"
     },
     {
       "path": "task/worker_token_commitment_v1.json",

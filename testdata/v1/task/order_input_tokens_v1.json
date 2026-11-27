@@ -1,0 +1,67 @@
+{
+  "notes": [
+    "The user's signed statement of an order's input token count. TaskOrderV3 is a closed signed field list, so the count is bound to the order by its digest and signed separately, with the same key and scheme as the order.",
+    "order_digest of the vector is the digest of task_order_v3.json's base vector; input_token_count 2 matches the input_2_generated_3 case of token_ids_v1.json.",
+    "A consumer that does not know this domain ignores the attestation; a chain whose input_token_tolerance is zero ignores it too."
+  ],
+  "schema": "trueopen.task.order_input_tokens.v1",
+  "source": "Order input token count attestation wire contract",
+  "vectors": [
+    {
+      "contract_section": "Order input token count attestation wire contract",
+      "digest_hex": "d05f13e5b7ec9888eeff687c6a6554180e6c45e3d66a5c0c523456fb234344b0",
+      "domain": "TRUEOPEN_ORDER_INPUT_TOKENS_V1",
+      "fields": [
+        {
+          "name": "schema_version",
+          "type": "uint32",
+          "value": 1
+        },
+        {
+          "name": "chain_id",
+          "type": "string",
+          "utf8": "trueopen-localnet-1"
+        },
+        {
+          "hex": "057fee505c662a2480239af6ff4925b4ccce4b2f0caac392c6d91a6132a0ba6e",
+          "name": "order_digest",
+          "type": "bytes"
+        },
+        {
+          "name": "input_token_count",
+          "type": "uint64",
+          "value": 2
+        }
+      ],
+      "framing": "H_FIELDS_V1",
+      "name": "order_input_tokens_v1",
+      "preimage_hex": "000000000000001e545255454f50454e5f4f524445525f494e5055545f544f4b454e535f56310000000000000004000000010000000000000013747275656f70656e2d6c6f63616c6e65742d310000000000000020057fee505c662a2480239af6ff4925b4ccce4b2f0caac392c6d91a6132a0ba6e00000000000000080000000000000002",
+      "preimage_size_bytes": 133,
+      "producer": "order_input_tokens_v1",
+      "replay": [
+        {
+          "chain_id": "trueopen-localnet-2",
+          "digest_hex": "52a0c0e3b0cd1eaae14b15b23fadbdffc87a0fe520e8606dc5d9ea4a570899f0",
+          "name": "cross_chain",
+          "reason": "the same statement is scoped to one chain"
+        }
+      ],
+      "tamper": [
+        {
+          "bit": 0,
+          "byte": -1,
+          "digest_hex": "4ee6cf3a211eb91e9634954db1faf9d793e9aa45d35cadded071c549e06515e4",
+          "field": 3,
+          "name": "input_token_count_last_byte"
+        },
+        {
+          "bit": 0,
+          "byte": 0,
+          "digest_hex": "42e8596ccefc37101c97757ff2944e463689567f399852520049497131a36dc1",
+          "field": 2,
+          "name": "order_digest_first_byte"
+        }
+      ]
+    }
+  ]
+}

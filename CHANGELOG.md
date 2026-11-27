@@ -1,5 +1,162 @@
 # Changelog
 
+## Unreleased
+
+### Two-step sampling of the anchor audit
+
+Additive on top of the Verifier-panel entry below (which it stacks on). Both
+new parameters are zero by default and no existing Profile is affected: the
+flow is used only by tasks of a Profile whose `WORKER_ANCHOR_OPENING`
+requirement carries `commitment_schema_version = 2`. Specification:
+`docs/ANCHOR_TWO_STEP_SAMPLING_V1.md`.
+
+- Add `MsgSubmitAnchorCommitmentList` and its response: the winner Worker of a
+  selected task records the hash of its per-row commitment list. The first
+  accepted message is final; the positions are drawn from block beacons
+  produced after it.
+- Add `AnchorAuditState` fields 80-89 (`sampling_mode`, `list_deadline_height`,
+  `commitment_list_hash`, `commitment_list_size_bytes`, `commitment_list_uri`,
+  `commitment_list_height`, `position_beacon_first_height`,
+  `position_beacon_last_height`, `position_beacon`, `positions_height`).
+  Fields 76-79 stay free.
+- Add `VerificationParamsV1.anchor_list_window_blocks` (42) and
+  `anchor_position_beacon_blocks` (43).
+- Add `DeadlineKindV1` ANCHOR_LIST (23) and `AnchorTimeoutReasonV1`
+  LIST_DEADLINE (5). No new `AnchorResultSourceV1` value: a missing list ends
+  as TIMEOUT with its own reason.
+- Add events `EventAnchorAuditSelected`, `EventAnchorCommitmentListRecorded`,
+  `EventAnchorPositionsDrawn`.
+- Document `commitment_schema_version` 2 of the anchor evidence requirement.
+- Add the vector `task/anchor_two_step_sampling_v1.json` (list hash, aggregated
+  position beacon, position draw) and regenerate `task_params_v1`:
+  `TRUEOPEN_TASK_PARAMS_V1` commitments change because every field is framed.
+
+### Verifier-panel anchor audit, late submission, batch settlement
+
+Additive on top of the "material the Worker does not keep retrievable" entry
+below (which it stacks on). Every new parameter is zero by default and zero
+keeps today's behaviour; no message or state of this entry is used until a
+network sets `anchor_audit_mode = 2` or a non-zero
+`batch_settlement_period_blocks`. The validator-vote path is unchanged.
+
+Panel audit (`task/v1/anchor.proto`, `task/v1/anchor_panel.proto`)
+
+- Add `VerificationParamsV1.anchor_audit_mode` (18): 0 and 1 keep the
+  consensus-validator vote, 2 hands a selected audit to a panel of the existing
+  Verifier role. Frozen into each task at acceptance.
+- Add `MsgSubmitAnchorPanelVote`: a drawn Verifier votes PASS, REJECT or
+  UNAVAILABLE (the existing `AnchorVerdictV1` values) once per round; two equal
+  votes decide the round.
+- Add `AnchorPanelRoundState`, `AnchorPanelVoteState`,
+  `AnchorPanelRoundKindV1` (INITIAL 1, RETRY 2, REAUDIT 3) and
+  `AnchorAuditState` fields 61-75 (`audit_mode`, `panel_round`, `panel_rounds`,
+  `provisional_verdict`, `provisional_height`, `publication_end_height`,
+  `reaudit_requested`, `reaudit_opener`, `reaudit_fee`, `late_state`,
+  `late_deadline_height`, `timeout_recorded_height`, `settlement_period`,
+  `timeout_reason`, `final_height`). `panel_round` increases with every round
+  opened for a task and is never reused; a panel hand-raise is the existing
+  `VerifierHandraiseV1` with `verify_round` set to it.
+- Add `MsgRequestAnchorReaudit`: anyone may pay for one more round during the
+  publication period of a provisional verdict.
+- Add `AnchorResultSourceV1` values VERIFIER_PANEL (7), REAUDIT (8),
+  LATE_EXPIRED (9). Value 5 stays with the content-track contract.
+- Add `DeadlineKindV1` values ANCHOR_PANEL_VOTE (19), ANCHOR_PUBLICATION (20),
+  ANCHOR_LATE_WINDOW (21), BATCH_SETTLEMENT (22).
+- Add queries `AnchorPanelAssignments`, `AnchorAuditsUnderReview`,
+  `WorkerLateSubmissions`, `VerifierAuditStanding`, `AnchorBrake`.
+- Add events `EventAnchorProofRecorded`, `EventAnchorPanelRoundOpened`,
+  `EventAnchorPanelAssigned`, `EventAnchorPanelVote`,
+  `EventAnchorPanelRoundClosed`, `EventAnchorProvisionalVerdict`,
+  `EventAnchorReauditRequested`.
+
+Timeout and late submission
+
+- Add `AnchorLateStateV1` and `AnchorTimeoutReasonV1`,
+  `WorkerTimeoutLedgerState`, `EventAnchorWorkerTimeout`,
+  `EventAnchorLateSubmitted`, `EventAnchorLateExpired`,
+  `EventWorkerDispatchPaused`, `EventWorkerDispatchResumed`.
+- Add `ServiceBondState.dispatch_paused` (14) and `pause_reasons` (15).
+
+Batch settlement and quota
+
+- Add `WorkerBatchState`, `WorkerBatchTaskState`, `WorkerBatchStatusV1`,
+  queries `WorkerBatch`, `WorkerBatches`, `WorkerBatchTasks`, events
+  `EventWorkerBatchQueued`, `EventWorkerBatchSettled`,
+  `EventWorkerBatchForfeited`.
+- Add `hub.v1.WorkerQuotaState` and the Hub query `WorkerQuota`.
+- Add `ServiceParamsV1` fields 23-28: `worker_bond_floor_revenue_periods`,
+  `worker_quota_period_value_bps_of_bond`, `stop_dispatch_on_unbond_request`,
+  `unbond_requires_no_open_tasks`, `min_validator_separation`,
+  `worker_bond_floor_by_tier` (`WorkerBondFloorV1`).
+
+Verifier accounting, brake
+
+- Add `MsgDeclareModelSupport.audit_capability` (6) and
+  `ModelCapabilityState.audit_capability` (7): a Verifier that audits anchor
+  proofs needs neither a GPU nor `verification_capability`.
+- Add `ServiceBondState.bond_funder_addresses` (13).
+- Add `VerifierAuditStandingState`, `AnchorBrakeState`,
+  `MsgReleaseAnchorBrake`, `EventAnchorBrakeTripped`,
+  `EventAnchorBrakeReleased`.
+- Add `FaultKind` values ANCHOR_VERIFIER_MISSED (10) and
+  ANCHOR_VERIFIER_WRONG_VOTE (11).
+- Add `ServiceEndpointKind.SERVICE_ENDPOINT_KIND_ANCHOR_RELAY` (5).
+
+Registration hash and input token count
+
+- Add `InferEvidenceRequirementV1.registration_hash` (4), optional and only for
+  WORKER_ANCHOR_OPENING. An entry that leaves it empty is encoded and hashed
+  exactly as before.
+- Add `OrderInputTokensAttestationV1` under the new domain
+  `TRUEOPEN_ORDER_INPUT_TOKENS_V1` (vector
+  `testdata/v1/task/order_input_tokens_v1.json`). `TaskOrderV3` is a closed
+  signed field list and is not changed: the count is bound to the order by its
+  digest and travels beside it, in `nexus.v1.OpenTaskHeader`
+  `input_tokens_attestation` (13) and `MsgRecordDispatch`
+  `input_tokens_attestations` (3).
+
+Parameters
+
+- Add `VerificationParamsV1` fields 18-41 (panel size and threshold, vote,
+  publication and late windows, timeout rolling count, re-audit reward,
+  Verifier wrong-vote and missed-vote rules, Verifier bond multiple and
+  allowance window, brake, batch settlement period and queue width, the
+  logprob-mode slashes, `input_token_tolerance`). Fields 14-17 stay with the
+  content-track contract.
+- Task genesis fields 99-103 and Hub genesis field 110 carry the new tables.
+  Task genesis 97-98 stay with the content-track contract.
+- This changes the `TRUEOPEN_TASK_PARAMS_V1` and `TRUEOPEN_HUB_PARAMS_V2`
+  commitments: both frame every field, a zero included. The `task_params_v1`
+  and `hub_params_v2` vectors of `shared/params_v1.json` are regenerated.
+
+### Anchor commitment audit: material the Worker does not keep retrievable
+
+Additive on top of v0.6.1.
+
+- Add AnchorVerdictV1.ANCHOR_VERDICT_V1_UNAVAILABLE = 4, a validator vote
+  value only: the validator could not obtain the opening, proof or manifest the
+  Worker recorded. It is accepted only in the second half of the verdict
+  window, is tallied in the new AnchorVoteTallyV1.unavailable_power (field 6),
+  never closes an audit early, and may be replaced by the same validator with
+  PASS or REJECT while the vote window is open.
+- Add AnchorResultSourceV1.ANCHOR_RESULT_SOURCE_V1_MATERIAL_UNAVAILABLE = 6: at
+  the verdict deadline neither PASS nor REJECT had decided, PASS held at most
+  1/3 and REJECT together with UNAVAILABLE held >= 2/3 of the bonded voting
+  power. The audit is final REJECT and is settled as the existing timeout
+  fault. Value 5 is left to the content-track contract.
+- Add ServiceEndpointKind.SERVICE_ENDPOINT_KIND_ANCHOR_DA = 4: the
+  data-availability store a Worker serves its audit material from, published
+  in its service descriptor.
+- Add AnchorAuditState.da_uri_prefix (field 60): the Worker's ANCHOR_DA
+  endpoint at sampling. When set, every location recorded for the audit starts
+  with it. Fields 35-59 are left to the content-track contract.
+- Add EventAnchorVerdictFinalized.unavailable_power (field 8).
+- AnchorAuditState.opening_uri and the other recorded locations are http:// or
+  https:// URLs; the comment no longer mentions file://.
+
+Silent validators still end an audit NO_VERDICT, which pays the task and slashes
+nobody.
+
 ## v0.6.1
 
 ### Anchor commitment audit (ADR-0040), compute track
